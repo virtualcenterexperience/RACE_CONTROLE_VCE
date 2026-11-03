@@ -141,35 +141,10 @@ function ranking(data,cfg,now){const records=allRecords(data),names=[...new Set(
 return {config,allRecords,pilotProgress,ranking};
 })();
 
-async function raceRatings(){
- const scores=new Map(),events=new Map();
- if(!window.VCESupabase?.configured())return {scores,events};
- try{
-  const data=await window.VCESupabase.read('resultats');
-  const presets=(data.presets||[]).filter(x=>x.published&&x.data);
-  const seen=new Set();
-  for(const preset of presets){
-   const race=preset.data;
-   for(const result of (race.results||[])){
-    const pos=Number(result.position);
-    if(!Number.isInteger(pos)||pos<1)continue;
-    const delta=pos===1?100:pos<=3?80:pos<=8?25:pos<=12?10:pos<=18?-10:-25;
-    const names=[result.firstName,result.lastName].filter(Boolean).join(' ');
-    const drivers=Array.isArray(result.drivers)?result.drivers:[];
-    const rawDate=race.date||preset.updated_at||'';
-    const day=/^\d{4}-\d{2}-\d{2}/.test(rawDate)?rawDate.slice(0,10):null;
-    for(const name of [names,...drivers]){
-     const n=VCE.norm(name);if(!n)continue;
-     const id=[preset.id,race.event||'',race.date||'',n].join('|');
-     if(seen.has(id))continue;seen.add(id);
-     scores.set(n,(scores.get(n)||0)+delta);
-     if(day){if(!events.has(n))events.set(n,[]);events.get(n).push({day,delta})}
-    }
-   }
-  }
- }catch(e){console.warn('Rating des courses indisponible',e)}
- return {scores,events};
-}
+async function publishedRaceEntries(){if(!window.VCESupabase?.configured())return [];try{const db=await VCESupabase.read('resultats');const rows=[];for(const preset of (db?.presets||[])){if(!preset.published||!preset.data)continue;const race=preset.data;for(const result of race.results||[]){const lead=[result.firstName,result.lastName].filter(Boolean).join(' ').trim();const drivers=[lead,...(Array.isArray(result.drivers)?result.drivers:[])].filter(Boolean);rows.push({preset:preset.id,race,result,drivers})}}return rows}catch(e){console.warn('Résultats publiés indisponibles',e);return []}}
+function raceRatingDelta(row){if(row.race.ratingEnabled===false||row.race.ratingMode==='none'||row.race.ratingMode==='manual'||row.race.competitionType==='event'||row.race.competitionType==='rally')return 0;const pos=Number(row.result.position);return !Number.isInteger(pos)||pos<1?0:pos===1?100:pos<=3?80:pos<=8?25:pos<=12?10:pos<=18?-10:-25}
+function showMyRaceResults(rows,name){let host=document.getElementById('vce-my-race-results');if(!host){host=document.createElement('section');host.id='vce-my-race-results';host.className='panel section';const dashboard=document.getElementById('pilotDashboard');const target=document.getElementById('myStanding');if(target)target.after(host);else dashboard.append(host)}host.replaceChildren();const h=document.createElement('h2');h.textContent='🏁 MES RÉSULTATS OFFICIELS';host.append(h);const mine=rows.filter(x=>x.drivers.some(n=>VCE.norm(n)===VCE.norm(name)));if(!mine.length){const p=document.createElement('p');p.className='muted';p.textContent='Aucun résultat publié pour ce pilote.';host.append(p);return}for(const x of mine.slice().reverse().slice(0,20)){const card=document.createElement('article');card.className='item';const title=document.createElement('strong');title.textContent='P'+x.result.position+' · '+(x.race.event||'Compétition');const info=document.createElement('small');info.style.display='block';info.textContent=[x.race.date,x.race.circuit,x.result.team,x.race.mode==='endurance'?'ENDURANCE':x.race.mode==='championnat'?'ÉQUIPE':'SOLO'].filter(Boolean).join(' · ');const crew=document.createElement('small');crew.style.display='block';crew.textContent=x.drivers.length>1?'Équipage : '+x.drivers.join(' · '):'Pilote individuel';const delta=document.createElement('small');delta.style.display='block';const rating=raceRatingDelta(x);delta.textContent=rating===0?'Rating : sans modification':'Race Rating : '+(rating>0?'+':'')+rating+' pts';card.append(title,info,crew,delta);host.append(card)}}
+async function raceRatings(rows){const scores=new Map(),events=new Map(),seen=new Set();for(const row of rows){const delta=raceRatingDelta(row),day=/^\d{4}-\d{2}-\d{2}/.test(row.race.date||'')?row.race.date.slice(0,10):null;for(const name of row.drivers){const n=VCE.norm(name);if(!n)continue;const id=[row.preset,row.race.event||'',row.race.date||'',n].join('|');if(seen.has(id))continue;seen.add(id);scores.set(n,(scores.get(n)||0)+delta);if(day&&delta){if(!events.has(n))events.set(n,[]);events.get(n).push({day,delta})}}}return {scores,events}}
 async function approvedTrainingData(){
  if(!window.VCESupabase?.configured())return null;
  try{
@@ -180,7 +155,7 @@ async function approvedTrainingData(){
   }))};
  }catch(e){console.warn('Validations STAFF non disponibles',e);return null}
 }
-async function render(){let d={},remote=false;try{let r=await VCE.read();d=r.data;remote=true;VCE.$('source').textContent='Données synchronisées depuis : '+r.source}catch(e){VCE.$('source').textContent='Attention : JSON partagé indisponible. Classement et rating non synchronisés. '+e.message}await VCE.loadCircuits();let cfg=await Rating.config(),now=new Date(),approvedData=await approvedTrainingData(),ranks=Rating.ranking(approvedData||{seances:[]},cfg,now),raceData=await raceRatings(),raceScores=raceData.scores;
+async function render(){let d={},remote=false;try{let r=await VCE.read();d=r.data;remote=true;VCE.$('source').textContent='Données synchronisées depuis : '+r.source}catch(e){VCE.$('source').textContent='Attention : JSON partagé indisponible. Classement et rating non synchronisés. '+e.message}await VCE.loadCircuits();let cfg=await Rating.config(),now=new Date(),approvedData=await approvedTrainingData(),ranks=Rating.ranking(approvedData||{seances:[]},cfg,now),publishedResults=await publishedRaceEntries(),raceData=await raceRatings(publishedResults),raceScores=raceData.scores;showMyRaceResults(publishedResults,VCE.pilot());
  ranks.forEach(x=>{
   x.racePoints=raceScores.get(VCE.norm(x.name))||0;
   x.rating=x.racePoints;
