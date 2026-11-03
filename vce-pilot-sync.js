@@ -27,7 +27,7 @@ async function sync(){
  const name=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'');
  const p=pilotes.find(p=>p.id===slug(name)||slug(p.name)===slug(name));
  if(!p)return;
- const my=attributions.filter(a=>a.pilot===p.id),myN=notifications.filter(n=>n.pilot===p.id),myS=seances.filter(s=>s.pilot===p.id);
+ let remote=[];try{if(window.VCESupabase?.configured()){const d=await VCESupabase.read('training_assignments');remote=Array.isArray(d.items)?d.items:[]}}catch(e){console.warn('Attributions Supabase indisponibles',e)}const remoteMine=remote.filter(a=>slug(a.driver||a.pilot)===p.id||slug(a.driver||a.pilot)===slug(p.name));const my=[...attributions.filter(a=>a.pilot===p.id),...remoteMine.map(a=>({...a,source:'supabase'}))],myN=[...notifications.filter(n=>n.pilot===p.id),...remoteMine.map(a=>({id:a.id,text:'Nouvel entraînement attribué par le coach : '+a.exercise,assignment:a.id,source:'supabase'}))],myS=seances.filter(s=>s.pilot===p.id);
  let assigned=document.getElementById('assignedList');if(assigned){assigned.innerHTML=my.map(a=>`<div class="item"><b>EXERCICE PERSONNEL — COACH IRL</b><p>${esc(a.circuit)} · ${esc(a.car)} · ${esc(a.laps)} tours</p><p>${esc(a.exercise)}</p><a href="coach-irl.html?assignment=${encodeURIComponent(a.id)}&pilot=${encodeURIComponent(p.name)}">CONSULTER LA SÉANCE →</a></div>`).join('')||'<p>Aucun entraînement attribué par le STAFF.</p>'}
  let dash=document.getElementById('pilotDashboard');if(!dash)return;
  let bell=document.getElementById('vceBell');if(!bell){bell=document.createElement('button');bell.id='vceBell';bell.className='btn';(dash.querySelector('.actions')||dash).prepend(bell)}
@@ -45,7 +45,7 @@ async function sync(){
 async function coach(){
  if(!location.pathname.endsWith('coach-irl.html'))return;
  const q=new URLSearchParams(location.search),a=q.get('assignment'),pilot=q.get('pilot');if(!a)return;
- const assignments=await get('attributions'),row=assignments.find(x=>x.id===a&&slug(x.driver)===slug(pilot));const main=document.querySelector('main')||document.body;
+ const assignments=await get('attributions');try{if(window.VCESupabase?.configured()){const d=await VCESupabase.read('training_assignments');assignments.push(...(Array.isArray(d.items)?d.items:[]))}}catch(e){console.warn('Attribution Supabase indisponible',e)}const row=assignments.find(x=>x.id===a&&slug(x.driver)===slug(pilot));const main=document.querySelector('main')||document.body;
  const div=document.createElement('section');div.style.cssText='padding:20px;background:#13243a;color:white;border:1px solid #365273;border-radius:10px;margin:20px 0';
  if(row){div.innerHTML=`<h2>EXERCICE COACH IRL ATTRIBUÉ PAR LE STAFF</h2><p>${esc(row.driver)}</p><p>${esc(row.circuit)} · ${esc(row.car)} · ${esc(row.laps)} tours</p><p>${esc(row.exercise)}</p><p>${esc(row.message)}</p><p>Chrono cible : ${esc(row.target||'Libre')}</p>`;const error=main.querySelector('.notice,.error');if(error&&error.textContent.includes('introuvable'))error.style.display='none'}
  else div.textContent='Exercice non publié dans data/vce/attributions.json ou pilote incorrect.';
