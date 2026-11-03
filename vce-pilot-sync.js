@@ -4,7 +4,7 @@ const root='data/vce/',get=async name=>{try{let r=await fetch(root+name+'.json?'
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function resultsFor(p){
- let all=[];for(const file of ['resultats-presets.json','resultats.json']){
+ let all=[];if(window.VCESupabase?.configured()){try{const d=await window.VCESupabase.read('resultats');const groups=(d.presets||[]).filter(x=>x.published&&x.data).map(x=>x.data);for(const g of groups)for(const x of (g.results||[])){const names=[(x.firstName||'')+' '+(x.lastName||''),x.pilot||'',...(Array.isArray(x.drivers)?x.drivers:[])];if(names.some(n=>slug(n)===p.id||slug(n)===slug(p.name)))all.push({...x,event:g.event||g.title||'Course',date:x.resultDate||g.date||''})}}catch(e){console.warn('Résultats Supabase',e)}return [...new Map(all.map(r=>[[r.event,r.date,r.position,r.firstName,r.lastName].join('|'),r])).values()]}for(const file of ['resultats-presets.json','resultats.json']){
   try{const r=await fetch('data/team/'+file+'?v='+Date.now(),{cache:'no-store'});if(!r.ok)continue;const d=await r.json();
   const groups=Array.isArray(d.presets)?d.presets.filter(x=>x.published&&x.data).map(x=>x.data):[d];
   for(const g of groups)for(const x of (g.results||[])){

@@ -1,28 +1,33 @@
-MODE STAFF SUR LES PROFILS — VCE ESPORT
+VCE ESPORT — SYNCHRONISATION SUPABASE
 
-INSTALLATION
-1. Copier les 7 fichiers HTML/JS de ce dossier à la racine du dépôt.
-   Remplacer pilote.html, calendrier-staff.html, resultats-staff.html,
-   lineup-staff.html, vce-github-sync.js, vce-github-config.js,
-   vce-pilot-sync.js ; ajouter vce-staff-mode.js.
-2. IMPORTANT : les autres fichiers et le dossier data/ restent inchangés.
-3. Dans vce-staff-mode.js, modifier la ligne :
-   const PASSWORD='VCE-STAFF-2026';
-   (code de démonstration).
-4. git add . ; git commit ; git push
-5. Ouvrir pilote.html, choisir un pilote et cliquer MODE STAFF en bas à droite.
-   Entrer le code, puis utiliser Calendrier / Résultats / Lineup.
-6. Les pages STAFF existantes permettent d'éditer les presets et
-   d'EXPORTER les JSON. Pour partager, publier les JSON dans data/team/
-   via GitHub. L'export n'envoie PAS les données automatiquement.
+1) Sur https://supabase.com : créer un projet.
+2) SQL Editor : exécuter supabase-setup.sql.
+3) Authentication > Users : créer un utilisateur STAFF avec son email et mot de passe.
+4) Copier son UUID, puis exécuter dans SQL Editor :
+   insert into public.vce_staff_users(user_id) values ('UUID_ICI');
+5) Project Settings > API : récupérer Project URL et clé PUBLIQUE publishable/anon.
+6) Les mettre dans vce-supabase-config.js. Ne JAMAIS utiliser service_role.
+7) Copier les fichiers HTML/JS de ce ZIP à la RACINE du dépôt GitHub Pages.
+   Garder les autres fichiers et les dossiers data/ existants.
+8) Commit + push sur main, attendre le déploiement GitHub Pages.
+9) Ouvrir resultats-staff.html, se connecter via email/mot de passe STAFF,
+   remplir un résultat puis cliquer « Enregistrer pour tous » dans la zone
+   5 PRESETS. Le bouton « Enregistrer » interne au formulaire ne publie
+   qu'une prévisualisation locale ; le bouton « Enregistrer pour tous » publie.
+10) Même principe pour calendrier-staff.html et lineup-staff.html.
+11) Sur resultats.html, calendrier.html, lineup.html et pilote.html :
+    lecture automatique toutes les 10 secondes (onglet actif).
 
-SÉCURITÉ ET LIMITES
-Ce mot de passe est présent dans un fichier JavaScript PUBLIC : il peut être
-lu par n'importe qui. Il masque seulement les commandes dans l'interface,
-il ne constitue PAS une véritable sécurité ni un contrôle d'accès.
-La protection des modifications réelles reste assurée par les droits GitHub.
-Ne jamais y mettre un mot de passe réutilisé sur un autre service.
-La session est mémorisée seulement dans l'onglet (sessionStorage).
-GitHub Pages ne peut pas enregistrer des modifications directement.
-Ce ZIP n'ajoute PAS de synchronisation automatique des résultats.
-Ne pas confondre cette interface avec une authentification sécurisée.
+IMPORTANT :
+- La clé publique Supabase est conçue pour être visible : la sécurité des
+  écritures est assurée par l'authentification et les règles RLS SQL.
+- Le code de démonstration VCE-STAFF-2026 n'est PAS utilisé pour la base.
+- Les points R de course (Safety Rating) sont recalculés à partir des résultats.
+- Les points d'entraînement, XP et classes restent issus des séances ; ils
+  ne sont PAS modifiés par les résultats de course (barèmes distincts).
+- Pour que l'attribution fonctionne, les noms et prénoms des pilotes dans les
+  résultats doivent correspondre aux identifiants/noms des profils.
+- Les anciens JSON restent en secours lorsque Supabase n'est pas configuré.
+- Nécessite un projet Supabase opérationnel ; impossible de créer le projet
+  ou d'installer la base sans vos paramètres et autorisations.
+- Cette intégration n'a pas été testée contre votre projet Supabase réel.
