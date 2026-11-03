@@ -35,11 +35,10 @@ async function update(hide){
   q.title=title.value.trim()||'Preset '+(i+1);
   if(hide)q.published=false;else{q.data=getData();q.published=true}
   db.updatedAt=new Date().toISOString();
-  const blob=new Blob([JSON.stringify(db,null,2)+'\\n'],{type:'application/json'});
-  const url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download=k+'-presets.json';document.body.append(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),2000);
-  status.textContent='JSON exporté. Publie data/team/'+k+'-presets.json sur GitHub pour rendre la modification visible aux pilotes.';
+  if(!window.VCESupabase?.configured())throw Error('Supabase non configuré.');
+  if(!window.VCESupabase.session())throw Error('Connecte-toi avec ton compte STAFF Supabase.');
+  await window.VCESupabase.save(k,db);
+  status.textContent=hide?'Preset masqué pour tous.':'Enregistré dans Supabase pour tous.';
   fill();sel.value=String(i);select();
  }catch(e){status.textContent='Erreur : '+e.message}finally{busy=false}
 }
@@ -51,6 +50,11 @@ catch(e){state.textContent='⚠️ '+e.message;host.innerHTML='<p>Impossible de 
 await reload();setInterval(()=>{if(!document.hidden)reload()},10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)reload()})}
 function staff(k,getData){
  editor(k,getData);
+ const saveBtn=document.getElementById('save');
+ if(saveBtn)saveBtn.addEventListener('click',()=>{
+   const publish=document.querySelector('.vce-presets .ps-publish');
+   if(publish)publish.click();
+ });
  if(!window.VCESupabase?.configured())return;
  const panel=document.createElement('div');panel.style.cssText='position:fixed;top:12px;right:12px;z-index:99999;background:#102039;color:#fff;border:1px solid #40658d;border-radius:12px;padding:12px;max-width:300px;font:14px Arial';
  const title=document.createElement('b');title.textContent='🔐 Connexion STAFF sécurisée';panel.append(title);
