@@ -12,6 +12,57 @@ button:hover,.btn:hover,.pill:hover{filter:brightness(1.12)}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--vce-cyan);outline-offset:3px}
 h1{background:linear-gradient(100deg,#fff 15%,#83c8ff 70%,#ff7086);-webkit-background-clip:text;background-clip:text;color:transparent}
 @media(max-width:700px){.wrap{padding:18px 14px}.panel,.card{padding:16px}.grid{grid-template-columns:1fr}}
+</style>
+<style id="vce-dashboard-redesign-20261103">
+/* VCE Race Control · Dashboard pilote — responsive redesign */
+:root{--dash-blue:#36b8ff;--dash-red:#ff3d62;--dash-gold:#ffc35c;--dash-line:#2c4260}
+body{background:radial-gradient(ellipse 65% 42% at 10% 4%,rgba(15,93,159,.21),transparent),radial-gradient(ellipse 55% 35% at 98% 10%,rgba(131,28,66,.14),transparent),#08111f!important}
+.top{background:rgba(9,17,31,.92)!important;border-bottom:1px solid #26354a!important;backdrop-filter:blur(16px)}
+.top .wrap,.wrap{max-width:1320px!important}
+#pilotDashboard{padding-bottom:50px}
+#pilotDashboard>.hero{position:relative;text-align:left;padding:37px 35px;margin:24px 0 22px;border:1px solid #2b4160;border-radius:20px;background:linear-gradient(115deg,rgba(25,66,105,.48),rgba(13,23,42,.97) 60%,rgba(105,27,59,.22));overflow:hidden}
+#pilotDashboard>.hero:after{content:"";position:absolute;width:300px;height:300px;border:1px solid rgba(68,170,246,.13);border-radius:50%;right:-90px;top:-175px;pointer-events:none}
+#pilotDashboard>.hero .row{justify-content:space-between;align-items:center;gap:20px}
+#pilotDashboard>.hero h1{font-style:normal;font-size:clamp(31px,3.5vw,49px);letter-spacing:-1.5px;margin:7px 0}
+#pilotDashboard>.hero .eyebrow{font-size:11px;letter-spacing:2.5px}
+#pilotDashboard>.hero #name{font-size:14px;font-weight:750;letter-spacing:1.3px;color:#a7d8ff;text-transform:uppercase}
+#pilotDashboard>.hero .actions{justify-content:flex-end}
+#pilotDashboard .btn{border-radius:11px;padding:12px 16px}
+#pilotDashboard .btn.primary{background:linear-gradient(115deg,#fa3657,#d92148);box-shadow:0 8px 24px rgba(238,46,84,.2)}
+#pilotDashboard>.stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin:0}
+#pilotDashboard>.section.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin:14px 0 24px}
+#pilotDashboard .stat{position:relative;min-height:136px;padding:20px 20px 18px;border:1px solid #29405f;background:linear-gradient(155deg,#142842,#0c192b 78%);border-radius:17px;overflow:hidden}
+#pilotDashboard .stat:before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:linear-gradient(90deg,#2da9f4,transparent)}
+#pilotDashboard>.stats .stat:nth-child(3):before,#pilotDashboard>.section.stats .stat:nth-child(1):before{background:linear-gradient(90deg,#ff3d62,transparent)}
+#pilotDashboard>.section.stats .stat:nth-child(2):before{background:linear-gradient(90deg,#ffc35c,transparent)}
+#pilotDashboard>.section.stats .stat:nth-child(3):before{background:linear-gradient(90deg,#44d5af,transparent)}
+#pilotDashboard .stat small{display:block;font-size:11px;letter-spacing:.35px;color:#a9c1da;font-weight:650}
+#pilotDashboard .stat strong{font-size:clamp(28px,2.5vw,39px);line-height:1.15;margin:14px 0 8px;letter-spacing:-.7px;font-variant-numeric:tabular-nums}
+#pilotDashboard #points{color:#64caff}
+#pilotDashboard #xp{color:#ffc35c}
+#pilotDashboard #rank{color:#64e2bf}
+#pilotDashboard #classLetter{color:#ff607c!important}
+#pilotDashboard>.panel.section,#pilotDashboard>.cols.section .panel{border:1px solid #2a405e;background:linear-gradient(145deg,rgba(21,39,63,.98),rgba(10,22,39,.98));border-radius:18px;padding:24px 27px;box-shadow:0 12px 34px rgba(0,0,0,.13)}
+#pilotDashboard>.panel.section{margin:18px 0}
+#pilotDashboard>.panel.section h2,#pilotDashboard>.cols.section h2{font-size:17px;letter-spacing:.3px;margin-bottom:15px}
+#pilotDashboard #myStanding{border-left:4px solid var(--dash-blue);padding:23px 27px}
+#pilotDashboard #myStanding h2{color:#b6e5ff}
+#pilotDashboard #standingText{font-size:14px;line-height:1.7;margin-bottom:0}
+#pilotDashboard .progress{height:12px;background:#263951;border:1px solid #344960}
+#pilotDashboard .progress i{background:linear-gradient(90deg,#35adff,#fb4266);border-radius:20px}
+#pilotDashboard #xpRemaining{color:#c3dcf5;font-weight:700}
+#pilotDashboard .pill{border:1px solid #3d5c7e;background:#1c3551;color:#d8efff;padding:6px 11px}
+#pilotDashboard .cols{gap:18px}
+#pilotDashboard .cols .panel.section{margin-top:18px}
+#pilotDashboard .card{border-radius:12px}
+#pilotDashboard .card:hover{transform:translateY(-2px);border-color:#4fb6ff}
+#pilotDashboard #ratingChart{max-height:280px}
+#pilotDashboard .item{background:#0d1d31;border-color:#2b4260;border-radius:12px}
+#pilotDashboard .section{scroll-margin-top:80px}
+@media(max-width:1150px){#pilotDashboard>.stats{grid-template-columns:repeat(3,minmax(0,1fr))}#pilotDashboard>.section.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:820px){#pilotDashboard>.hero{padding:26px 22px}#pilotDashboard>.hero .row{align-items:flex-start}#pilotDashboard>.stats,#pilotDashboard>.section.stats{grid-template-columns:repeat(2,minmax(0,1fr))}#pilotDashboard .cols{grid-template-columns:1fr}}
+@media(max-width:540px){#pilotDashboard>.hero{margin:12px 0 17px;padding:22px 18px}#pilotDashboard>.hero .row{flex-direction:column;align-items:stretch}#pilotDashboard>.hero .actions{justify-content:stretch}#pilotDashboard>.hero .actions .btn{flex:1;text-align:center}#pilotDashboard>.stats,#pilotDashboard>.section.stats{gap:10px}#pilotDashboard .stat{min-height:119px;padding:16px 13px}#pilotDashboard .stat strong{font-size:29px}#pilotDashboard>.panel.section,#pilotDashboard>.cols.section .panel{padding:19px 16px}#pilotDashboard>.panel.section h2{font-size:16px}}
+@media(prefers-reduced-motion:reduce){#pilotDashboard .card,#pilotDashboard .panel{transition:none!important;transform:none!important}}
 </style></head><body><header class="top"><div class="wrap"><a class="logo" href="pilote.html">VCE <span>ESPORT</span><div class="eyebrow">RACE CONTROL</div></a><nav class="nav"><a href="connexion.html">← ESPACES</a></nav></div></header><main class="wrap"><section id="pilotSelection"><section class="hero"><div class="eyebrow">ESPACE PILOTES</div><h1>SÉLECTION DU <span style="color:#279bff">PILOTE</span></h1><p class="muted">Choisissez un pilote pour accéder à son tableau de bord personnel.</p><div class="stripe"></div></section><div class="row" style="margin:20px 0"><input id="pilotSearch" class="search" placeholder="Rechercher un pilote..."><span class="muted" id="pilotCount"></span></div><div class="selection-grid" id="pilotGrid"></div></section><div id="pilotDashboard" class="hidden"><section class="hero"><div class="eyebrow">02 / ESPACE PILOTE</div><div class="row"><div><h1>MON DASHBOARD</h1><p class="muted" id="name">Sélectionne ton profil</p></div><div class="actions"><a class="btn" href="pilote.html">Changer de pilote</a><a class="btn primary" href="entrainement.html">+ Nouvel entraînement</a></div></div></section><section class="stats"><div class="panel stat"><small>Entraînements effectués</small><strong id="total">0</strong></div><div class="panel stat"><small>Séances validées</small><strong id="approved">0</strong></div><div class="panel stat"><small>RATING / POINTS</small><strong id="points">0</strong></div><div class="panel stat"><small>Tours réalisés</small><strong id="laps">0</strong></div><div class="panel stat"><small>Distance (km)</small><strong id="distance">0</strong></div></section><section class="section stats"><div class="panel stat"><small>CLASSE</small><strong id="classLetter" style="color:#ef3657">R</strong><small id="className">ROOKIE</small></div><div class="panel stat"><small>XP TOTAL</small><strong id="xp">0</strong><small>Progression acquise</small></div><div class="panel stat"><small>CLASSEMENT</small><strong id="rank">—</strong><small id="rankTotal">sur 14 pilotes</small></div><div class="panel stat"><small>JOURS RÉCOMPENSÉS</small><strong id="weeks">0</strong><small>+3 points max / jour</small></div></section><section class="panel section" id="myStanding" aria-live="polite"><h2>MA POSITION DANS L’ÉQUIPE</h2><p class="muted" id="standingText">Chargement du classement…</p></section><section class="panel section"><div class="row"><h2>PROGRESSION XP</h2><span class="pill" id="xpLabel">0 / 1000 XP</span></div><div class="progress"><i id="xpBar" style="width:0%"></i></div><p class="muted" id="xpRemaining"></p><p class="muted">+3 points par jour avec au moins une séance terminée · XP attribués par séance terminée et selon le rating cumulé.</p></section><section class="panel section"><div class="row"><h2>ÉVOLUTION DU RATING</h2><span class="pill">Derniers jours</span></div><svg id="ratingChart" viewBox="0 0 760 230" style="width:100%;height:auto;min-height:175px" role="img" aria-label="Évolution hebdomadaire du rating"></svg><div class="row"><span class="muted" id="chartCaption"></span><span class="muted">Points / jour</span></div></section><section class="panel section"><h2>CLASSEMENT GÉNÉRAL</h2><div id="leaderboard"></div><p class="muted">Égalité : priorité au pilote ayant atteint le rating en premier. Le classement utilise uniquement les données du JSON GitHub partagé.</p></section><section class="panel section"><h2>MES ENTRAÎNEMENTS ATTRIBUÉS</h2><div id="assignedList" class="muted">Chargement…</div></section><div class="cols section"><section class="panel"><div class="row"><h2>DERNIÈRES SÉANCES</h2><button class="btn" id="refresh">↻ Actualiser</button></div><div id="sessions"><p class="muted">Aucune séance pour le moment.</p></div></section><section><div class="panel"><h2>PROGRESSION</h2><p id="progressText" class="muted">Aucune séance validée</p><div class="progress"><i id="progress" style="width:0%"></i></div><p class="muted">Les points sont calculés par jour civil avec au moins une séance terminée.</p></div><div class="panel section"><h2>MES ENTRAÎNEMENTS</h2><div class="grid"><a class="card clickable" href="entrainement.html#sans"><h3>Sans Coach</h3><p>800 exercices</p></a><a class="card clickable" href="entrainement.html#avec"><h3>Avec Coach</h3><p>Diagnostic guidé</p></a><a class="card clickable" href="entrainement.html#irl"><h3>Coach IRL</h3><p>Consignes reçues</p></a></div></div></section></div><p class="muted" id="source"></p><button class="return" id="backToPilots">← CHANGER DE PILOTE</button></div></main><footer><div class="wrap">VCE ESPORT · DRIVER ACADEMY · GitHub Pages · 2026</div></footer><script>
 const VCE=(()=>{
 const names=['LUCAS GALY','ALEX LEHOUX','NICOLAS LEFRANCOIS','DYLAN DUBOIS','ANTHONY MANGIERACINA','ANTONIN COLIN','THEO FRANCOIS','MATHYS GOYAT','MATHIS OCQUIDENT','NOE FERNANDEZ','WILLIAM ORLINZOO','MALDONADO MARIUS','VICTOR AUGER','SAMUEL MENDEZ'];
