@@ -28,5 +28,12 @@ function logout(){sessionStorage.removeItem(key)}
 async function read(kind){const a=await request('/rest/v1/vce_publications?kind=eq.'+encodeURIComponent(kind)+'&select=payload');return a[0]?.payload||{version:1,presets:[]}}
 async function save(kind,payload){return request('/rest/v1/vce_publications?on_conflict=kind',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({kind,payload,updated_at:new Date().toISOString()})},true)}
 async function isStaff(){if(!session())return false;const r=await request('/rest/v1/rpc/vce_is_staff',{method:'POST',body:'{}'},true);return r===true}
-window.VCESupabase={configured,login,logout,session,read,save,isStaff};
+async function reviews(){return request('/rest/v1/vce_training_reviews?select=session_id,pilot,decision,reviewed_at&order=reviewed_at.asc')}
+async function review(session_id,pilot,decision){
+ if(!['approved','rejected'].includes(decision))throw Error('Décision invalide');
+ if(!session_id||!pilot)throw Error('Séance ou pilote manquant');
+ const rows=await request('/rest/v1/vce_training_reviews?on_conflict=session_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({session_id,pilot,decision})},true);
+ return rows?.[0]||null;
+}
+window.VCESupabase={configured,login,logout,session,read,save,isStaff,reviews,review};
 })();
