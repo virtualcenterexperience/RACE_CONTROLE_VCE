@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>VCE ESPORT | Race Control V19</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#e9eef8;background:#0b1120}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 85% 0,#17315a 0,transparent 35%),#0b1120}
+.app{max-width:1680px;margin:auto;padding:20px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.logo{font-size:24px;font-weight:900;letter-spacing:.06em}.logo b{color:#ef4d54}.sub{font-size:12px;color:#97accc;letter-spacing:.1em}
+.actions,.courseTabs,.tabbar{display:flex;gap:8px;flex-wrap:wrap}
+.btn,.tab,.courseBtn{cursor:pointer;border:1px solid #35527b;background:#15233b;color:#dce7f5;padding:10px 13px;border-radius:10px;font-weight:750;font-size:12px}
+.btn.red{background:#db444d;border-color:#db444d;color:#fff}.btn.blue,.tab.active,.courseBtn.active{background:#2664c5;border-color:#4f88e3;color:#fff}.btn.green{background:#194480;border-color:#194480;color:#fff}
+.layout{display:grid;grid-template-columns:minmax(390px,460px) minmax(0,1fr);gap:18px}
+.panel{background:#131d30;border:1px solid #2b3c59;border-radius:16px;overflow:hidden}
+.pad{padding:16px}
+.panel h2{margin:0 0 12px;font-size:15px}.sect{border-top:1px solid #2b3c59;margin-top:14px;padding-top:14px}.sect h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#a9bdd9}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.field.wide{grid-column:1/-1}label{display:block;margin:0 0 5px;font-size:11px;color:#a8bbd8}
+input,select,textarea{width:100%;background:#091427;border:1px solid #374c69;border-radius:9px;color:#f6f8fe;padding:10px;font:inherit;font-size:13px;outline:0}
+textarea{min-height:86px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:#5d9cff;box-shadow:0 0 0 2px #376ad733}
+input[type=checkbox]{width:auto;transform:scale(1.05);accent-color:#3077c2}
+.checkrow{display:flex;align-items:center;gap:8px;color:#d5e0ef;font-size:12px;padding:3px 0}
+.pilots{display:grid;gap:8px}.pilot{display:grid;grid-template-columns:28px minmax(0,1fr) 110px;gap:8px;align-items:center}.pilot .num{font-weight:800;color:#83a9de}
+.mainTop{display:grid;grid-template-columns:260px 1fr;gap:14px}
+.courseCard{background:#0d1729;border:1px solid #2a3b58;border-radius:12px;padding:12px}
+.courseNameRow{display:grid;grid-template-columns:82px 1fr;gap:8px;align-items:center;margin-top:8px}
+.muted{font-size:12px;color:#9ab0cd}.notice{padding:12px;border:1px solid #2d5e91;background:#142b42;border-radius:11px;color:#d7ecfe;font-size:12px;line-height:1.6}.warn{background:#3f2528;border-color:#97444c;color:#ffd6d8}
+.statgrid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}.stat{background:#0c182b;border:1px solid #2a3b56;border-radius:12px;padding:14px}.stat .name{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#93a8c6}.stat .val{font-size:26px;font-weight:900;margin-top:8px}.stat .hint{font-size:11px;color:#91a6c2;margin-top:5px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.tablewrap{overflow:auto}
+table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:11px 10px;border-bottom:1px solid #293b56}th{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#94a9c8;background:#0d182a;text-align:left}
+tr.done td{background:#111b2e;color:#a9c1da}tr.current td{background:#173657}
+.badge{display:inline-block;font-size:10px;padding:4px 8px;border:1px solid #41536e;border-radius:999px;color:#b5cae7}
+.progress{height:8px;background:#32465f;border-radius:99px;overflow:hidden;margin-top:8px}.progress>div{height:100%;background:linear-gradient(90deg,#3d8aff,#3683d5)}
+.hidden{display:none!important}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.score{font-size:34px;font-weight:900}
+.tip{background:#0d182b;border:1px solid #2a3b56;border-radius:12px;padding:12px;margin-top:10px}
+.small{font-size:11px;color:#93a9c5}.sprintOnlyNote{padding:10px;border-radius:10px;background:#151c2b;border:1px solid #2c4669;color:#dceaf8;font-size:12px}
+@media(max-width:1150px){.layout,.mainTop{grid-template-columns:1fr}.statgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.app{padding:10px}.fields,.grid2,.courseNameRow{grid-template-columns:1fr}.pilot{grid-template-columns:24px 1fr}}
+</style>
+<style>
+.cloudbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-items:end;margin:14px 0}.cloudbar .field{min-width:0}.cloudbar .field label{font-size:11px}.newTabs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.newTabs button{background:#172742;color:#d8eaff;border:1px solid #3a557c;border-radius:8px;padding:9px 12px;cursor:pointer}.newTabs button.on{background:#2764bf}.dataTable input,.dataTable select{min-width:95px}.infoBox{background:#0c192c;border:1px solid #345076;padding:12px;border-radius:9px;margin:10px 0}.tiny{font-size:11px;color:#abc0df}.panelButton{background:#285aa1;border:0;border-radius:8px;color:#fff;padding:10px;cursor:pointer}.cloudStatus{font-size:12px;color:#a2c1e1;margin:10px 0}.checkrow input{flex-shrink:0}@media(max-width:900px){.cloudbar{grid-template-columns:repeat(2,1fr)}}
+
+/* V7 control-room */
+:root{--vce-border:#304965;--vce-blue:#3d84ed;--vce-red:#e94f61}button{transition:background .17s,transform .17s}button:hover{filter:brightness(1.16)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #59a4ff;outline-offset:2px}
+.control-launch{position:sticky;top:7px;z-index:8;display:flex;gap:10px;align-items:center;justify-content:space-between;background:#0e1e34f2;border:1px solid #385479;border-radius:13px;padding:12px 16px;margin-bottom:15px;backdrop-filter:blur(10px)}
+.control-launch .btn{font-size:13px}.vce-dialog{position:fixed;inset:0;z-index:60;background:#030916db;display:none;align-items:center;justify-content:center;padding:12px}.vce-dialog.open{display:flex}.vce-dialog-main{background:#111c31;border:1px solid #49638b;box-shadow:0 28px 75px #000a;border-radius:20px;width:min(1020px,100%);max-height:94vh;overflow:auto;padding:20px}.vce-dialog-header{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #2d4260;padding-bottom:12px;margin-bottom:12px}.vce-dialog-header h2{font-size:22px;margin:0}.setup-pills{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 15px}.setup-pills button{background:#152740;border:1px solid #496080;color:#c7dcf9;border-radius:8px;padding:9px 16px;cursor:pointer}.setup-pills button.active{background:#2365b5;color:white}.setup-section{display:none}.setup-section.active{display:block}.setting-pair{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px;border-bottom:1px solid #263956}.setting-pair .desc{max-width:62%;font-size:13px}.setting-pair strong{display:block}.setting-pair small{display:block;color:#91add3;margin-top:3px}.setting-pair select,.setting-pair input{max-width:180px}.pit-item{display:grid;grid-template-columns:minmax(140px,1fr) minmax(70px,105px) 65px;align-items:center;gap:9px;padding:10px;background:#0c1729;border:1px solid #2a3d5a;border-radius:10px;margin-bottom:8px}.pit-item span{font-size:13px}.pit-item .pit-status{color:#8fb3da;font-size:11px}.setup-preview{padding:13px;background:#102b40;border:1px solid #2876ac;border-radius:10px;line-height:1.7;margin-top:12px}.minitabs{display:flex;gap:8px;flex-wrap:wrap}.minitabs .btn{background:#213e66}.vce-warning{color:#ffd17e}
+@media(max-width:650px){.control-launch{flex-direction:column;align-items:stretch}.vce-dialog-main{padding:12px}.setting-pair{flex-wrap:wrap}.setting-pair .desc{max-width:100%}.pit-item{grid-template-columns:1fr 85px}}
+
+/* V8 — cockpit rouge / blanc / vert */
+:root{--vce-red:#ed4456;--vce-green:#2071c7;--vce-white:#f5f7fd;--vce-border:#44536b}
+body{background:radial-gradient(circle at 7% 0%,#3e1726 0,transparent 27%),radial-gradient(circle at 95% 4%,#101e39 0,transparent 35%),#0a0e18}
+.panel,.vce-dialog-main{border-color:#36445c;box-shadow:0 12px 36px #0004}
+.logo b{color:#ff5162}.panel h2,.vce-dialog-header h2{color:#fff}
+.sect h3{color:#f4f6fa;border-left:3px solid var(--vce-red);padding-left:9px}
+.btn.blue,.tab.active,.courseBtn.active{background:#e74452!important;border-color:#fa6d78!important;color:white!important}
+.btn.green{background:#18427b!important;border-color:#307cce!important}
+.btn.red{background:#b82e3d!important}
+.stat{border-top:3px solid #d84252}.stat:nth-child(2n){border-top-color:#2773c5}.stat .val{color:#f8faff}
+.notice:not(.warn){border-color:#224577;background:#0e1627;color:#dfecf8}
+.control-launch{border-left:4px solid #e84c5c!important;border-right:4px solid #2e7acb!important;background:#171d2af5!important}
+.pit-item{background:#101b2a;border:1px solid #34465e;border-radius:10px;padding:10px!important;margin-bottom:8px}
+input[type=checkbox]{accent-color:#2675c9}
+input:focus,select:focus,textarea:focus{border-color:#2978cc;box-shadow:0 0 0 2px #2b79cc2a}
+.vce-slider-wrap{grid-column:1/-1;min-width:0;margin-top:2px;padding:7px 8px 10px;background:#0a1422;border:1px solid #2b3e56;border-radius:9px}
+.vce-slider-header{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#a9bbd1;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.vce-slider-readout{color:#fff;background:#1e2d41;padding:4px 9px;border-radius:6px;font-size:12px;font-weight:850;letter-spacing:0}
+.vce-slider{appearance:none;-webkit-appearance:none;width:100%;height:9px;padding:0;border:0!important;border-radius:99px;cursor:pointer;background:linear-gradient(to right,#ed4558 0%,#f6f8fd var(--pct,50%),#2a3b52 var(--pct,50%),#203045 100%)!important;box-shadow:none!important}
+.vce-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:#f9fcff;border:3px solid #2071c7;border-radius:100%;box-shadow:0 2px 8px #0008;cursor:grab}
+.vce-slider::-moz-range-thumb{width:16px;height:16px;background:#f9fcff;border:3px solid #2071c7;border-radius:100%;cursor:grab}
+.vce-slider-help{display:flex;justify-content:space-between;font-size:10px;color:#748eab;margin-top:6px}
+.vce-slider:focus-visible{outline:2px solid #f2f5fc;outline-offset:5px}
+.setting-pair.vce-has-slider{flex-wrap:wrap}.setting-pair.vce-has-slider>.vce-slider-wrap{width:100%;flex-basis:100%}
+.pit-item.vce-has-slider{display:flex!important;align-items:center;flex-wrap:wrap}.pit-item.vce-has-slider>label{flex:1}.pit-item.vce-has-slider>input[type=number]{width:90px}.pit-item.vce-has-slider>.vce-slider-wrap{flex:1 1 100%}
+
+
+/* V9 additions */
+aside .sect{background:#0f1828;border:1px solid #2b3f59;border-radius:14px;padding:10px 12px;margin-top:12px}
+aside .sect h3{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0}
+aside .sect h3::after{content:"▾";font-size:14px;color:#73a2d4;transition:transform .18s ease}
+aside .sect.closed h3::after{transform:rotate(-90deg)}
+aside .sect .sectBody{margin-top:10px}
+aside .sect.closed .sectBody{display:none}
+.sprintPill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;background:#101b2a;border:1px solid #314761;border-radius:10px;font-size:12px;margin-bottom:8px}
+.sprintPill b{color:#fff}
+.toggleTag{display:inline-block;padding:4px 9px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.06em}
+.toggleTag.on{background:#101c34;color:#a3c7ec;border:1px solid #2a78cb}.toggleTag.off{background:#3a1b24;color:#ff9eae;border:1px solid #ef5465}
+.setupCoachCard{background:#101827;border:1px solid #364b66;border-radius:14px;padding:14px}.setupCoachOut table td,.setupCoachOut table th{font-size:12px}
+.leftHint{font-size:11px;color:#8ea4c2;margin-top:6px}
+@media (min-width:1280px){.layout{grid-template-columns:minmax(390px,450px) minmax(0,1fr)}}
+</style><style id="vce-page-transition">body{animation:vceArrive .45s cubic-bezier(.2,.8,.2,1) both}@keyframes vceArrive{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){body{animation:none!important}}</style><style id="vce-shared-nav-style">
+#vce-shared-nav{position:relative;z-index:9998;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:13px max(22px,calc((100vw - 1220px)/2));background:#080e17;border-bottom:1px solid #2b4054;font-family:Inter,"Segoe UI",Arial,sans-serif;color:#f4f7fa;min-height:72px}#vce-shared-nav *{box-sizing:border-box}#vce-shared-nav .vce-identity{display:flex;align-items:center;gap:11px;color:#f6f8fb;text-decoration:none;flex-shrink:0}#vce-shared-nav .vce-identity-mark{width:40px;height:40px;border:1px solid #aa4a58;border-radius:10px;display:grid;place-items:center;background:#341d29;font-size:15px;font-weight:1000;letter-spacing:-.12em;padding-right:2px}#vce-shared-nav .vce-identity-mark b{color:#f34754}#vce-shared-nav .vce-identity strong{display:block;font-size:12px;letter-spacing:.11em}#vce-shared-nav .vce-identity small{display:block;font-size:9px;color:#9bafc0;letter-spacing:.09em;margin-top:4px}#vce-shared-nav .vce-links{display:flex;align-items:center;gap:5px}#vce-shared-nav .vce-links a{color:#b5c4d1;text-decoration:none;padding:11px 13px;border-radius:8px;font-size:10px;letter-spacing:.07em;font-weight:850;transition:background .2s,color .2s}#vce-shared-nav .vce-links a:hover{background:#1d3041;color:#fff}#vce-shared-nav .vce-links a[aria-current="page"]{background:#e64052;color:white}#vce-shared-nav .vce-home{font-size:10px;font-weight:850;color:#9cc2e8;text-decoration:none;border:1px solid #354a68;border-radius:8px;padding:10px 12px;white-space:nowrap}#vce-shared-nav .vce-home:hover{background:#16273f}
+@media(max-width:950px){#vce-shared-nav{flex-wrap:wrap;padding:12px 18px}#vce-shared-nav .vce-links{order:3;width:100%;justify-content:space-between;overflow-x:auto}#vce-shared-nav .vce-links a{white-space:nowrap;padding:10px 8px}}@media(max-width:440px){#vce-shared-nav .vce-identity small{font-size:8px}#vce-shared-nav .vce-links a{font-size:9px;padding:10px 5px}}
+</style><style>
+/* Autonomie : styles de remplacement des modules V19 non fournis */
+.v19-backup,.v19-command,.v19-engineering{border:1px solid #354b6a;background:#121f33;border-radius:14px;padding:18px;margin:14px 0}
+.v19-backup{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.v19-backup p,.v19-command p,.v19-tool p{font-size:12px;color:#a7bad4}
+.v19-backup-actions,.v19-command-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.v19-command-title h2{font-size:22px;margin:8px 0}.v19-command-title em{color:#f05c68;font-style:normal}
+.v19-eyebrow,.v19-local-label{color:#90b6e8;font-size:11px;font-weight:800;letter-spacing:.1em}
+.v19-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.v19-section-head h2{font-size:18px}.v19-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}
+.v19-metric,.v19-result,.v19-alerts{background:#0d192c;border:1px solid #32445f;border-radius:10px;padding:12px;font-size:12px}
+.v19-tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.v19-tool{background:#0c192b;border:1px solid #304360;border-radius:12px;padding:14px}
+.v19-fieldrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v19-compare{display:grid;gap:8px}.v19-compare>div{padding:9px;background:#172840;border-radius:8px;font-size:12px}
+.v19-alerts{margin-top:12px}.v19-alerts:empty{display:none}
+</style><style id="vce-strategy-integration">
+.vce-strategy-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px clamp(16px,3vw,40px);background:#0a1425;border-bottom:1px solid #34445e;color:#fff;font:800 12px Inter,system-ui,sans-serif;letter-spacing:.09em}
+.vce-strategy-nav a{color:#e4efff;text-decoration:none;border:1px solid #3a506f;padding:10px 14px;border-radius:8px}.vce-strategy-nav a:hover{background:#223b60}.vce-strategy-nav b{color:#f04b60}
+@media(max-width:600px){.vce-strategy-nav{font-size:10px;flex-wrap:wrap}}
+</style></head>
+<body><nav class="vce-strategy-nav" aria-label="Navigation VCE"><a href="connexion.html">← PROFILS</a><span>VCE ESPORT <b>/ STRATÉGIE</b></span><a href="index.html">ACCUEIL</a></nav>
+<div class="app">
+<div class="top">
+<div>
+<div class="logo"><b>VCE</b> ESPORT <span style="color:#86acdf">/ RACE CONTROL</span></div>
+<div class="sub">ORDINATEUR DE STRATÉGIE · ENDURANCE &amp; SPRINT</div>
+</div>
+<div class="actions">
+<button class="btn" onclick="window.print()">Imprimer</button>
+<button class="btn blue" onclick="exportCSV()">Exporter CSV</button>
+<button class="btn green" onclick="calculate()">Recalculer</button>
+<button class="btn red" onclick="resetCurrentCourse()">Réinitialiser la course</button>
+</div>
+</div>
+<section aria-label="Sauvegardes locales" class="v19-backup"><div><strong>◉ SAUVEGARDE LOCALE · 3 COURSES INDÉPENDANTES</strong><p>Les changements sont enregistrés sur cet appareil. Exporte un JSON pour sauvegarder ou transférer tes données.</p></div><div class="v19-backup-actions"><button class="btn blue" id="v19-export" type="button">↓ EXPORTER LES 3 COURSES</button><button class="btn" id="v19-import-btn" type="button">↑ IMPORTER JSON</button><input accept="application/json,.json" hidden="" id="v19-import" type="file"/></div></section>
+<div class="control-launch"><div><b>🏁 VCE RACE CONTROL — CENTRE DE COMMANDE</b><div class="small">Réglages rapides, arrêts, contraintes et calculs synchronisés sur la course active</div></div><div class="actions"><button class="btn blue" onclick="openSetup('course')">⚙ CONFIGURATION</button><button class="btn" onclick="openSetup('pit')">🛞 PITSTOP</button><button class="btn green" onclick="calculate()">↻ RECALCULER</button></div></div>
+<div aria-label="Configuration Race Control" aria-modal="true" class="vce-dialog" id="setupDialog" onclick="if(event.target===this)closeSetup()" role="dialog"><div class="vce-dialog-main">
+<div class="vce-dialog-header"><div><h2>⚙ RACE CONTROL / CONFIGURATION</h2><div class="small">Modifie seulement les règles et données utiles. La stratégie se met à jour.</div></div><button class="btn" onclick="closeSetup()">✕ Fermer</button></div>
+<div class="setup-pills"><button id="spCourse" onclick="setupTab('course')">🏁 COURSE</button><button id="spPit" onclick="setupTab('pit')">🛞 PITSTOP</button><button id="spTech" onclick="setupTab('tech')">⛽ DONNÉES TECHNIQUES</button></div>
+<div class="setup-section" id="ssCourse">
+<div class="setting-pair"><div class="desc"><strong>Type de compétition</strong><small>Sprint : affichage simplifié, 2h30 au maximum recommandé</small></div><select id="cfgType" onchange="cfgApply()"><option value="endurance">ENDURANCE</option><option value="sprint">SPRINT</option></select></div>
+<div class="setting-pair"><div class="desc"><strong>Durée de la course (heures)</strong><small>Les relais et la consommation changent automatiquement</small></div><input id="cfgHours" max="24" min="0.25" onchange="cfgApply()" step="0.25" type="number"/></div>
+<div class="setting-pair"><div class="desc"><strong>Swaps obligatoires ?</strong><small>Le nombre est configuré dans les réglages avancés si OUI</small></div><select id="cfgSwaps" onchange="cfgApply()"><option value="non">NON</option><option value="oui">OUI</option></select></div>
+<div class="setting-pair"><div class="desc"><strong>Durée max de relais ?</strong><small>Ajoute une marge de sécurité pour éviter les pénalités</small></div><select id="cfgLimit" onchange="cfgApply()"><option value="non">NON</option><option value="oui">OUI</option></select></div>
+<div class="setting-pair"><div class="desc"><strong>Pitlane réglementée ?</strong><small>Ouverture / fermeture à paramétrer sur la gauche</small></div><select id="cfgWindow" onchange="cfgApply()"><option value="non">NON</option><option value="oui">OUI</option></select></div>
+<div class="setting-pair"><div class="desc"><strong>Double relais pilote rapide ?</strong><small>Permet au pilote sélectionné de continuer au prochain stint</small></div><select id="cfgDouble" onchange="cfgApply()"><option value="non">NON</option><option value="oui">OUI</option></select></div>
+</div>
+<div class="setup-section" id="ssPit"><p class="small">Seules les actions cochées dans le simulateur PIT sont comptées. Le plan de course ajoute la traversée et les services réellement prévus à chaque arrêt.</p><div id="cfgPitList"></div><div class="setup-preview" id="cfgPitPreview">Temps total : 0 seconde</div><p class="small vce-warning">Le temps de passage doit correspondre à la perte réelle dans la pitlane, hors temps au box. Chronomètre la différence en LMU pour éviter un double comptage.</p></div>
+<div class="setup-section" id="ssTech">
+<div class="fields">
+<div class="field"><label>Chrono moyen (m:ss.mmm)</label><input id="cfgLap" onchange="cfgApply()" placeholder="1:37.589"/></div>
+<div class="field"><label>Consommation L / tour</label><input id="cfgFuel" onchange="cfgApply()" step="0.01" type="number"/></div>
+<div class="field"><label>Capacité réservoir (L)</label><input id="cfgTank" onchange="cfgApply()" step="0.1" type="number"/></div>
+<div class="field"><label>Pneus utilisables (tours)</label><input id="cfgTyre" onchange="cfgApply()" step="1" type="number"/></div>
+<div class="field"><label>Marge essence (tours)</label><input id="cfgReserve" onchange="cfgApply()" step="0.1" type="number"/></div>
+<div class="field"><label>Conso de sécurité (%)</label><input id="cfgSafety" onchange="cfgApply()" step="0.5" type="number"/></div>
+</div><div class="setup-preview" id="cfgTechPreview"></div></div>
+<div class="actions" style="margin-top:14px;justify-content:flex-end"><button class="btn green" onclick="closeSetup();calculate()">✓ APPLIQUER ET RECALCULER</button></div>
+</div></div>
+<section aria-label="Cockpit stratégie" class="v19-command"><div class="v19-command-title"><span class="v19-eyebrow">RACE ENGINEERING / V19</span><h2>STRATÉGIE DE COURSE <em>EN TEMPS RÉEL</em></h2><p>Un calcul clair, des alertes exploitables et une comparaison des options. Les hypothèses sont indicatives et doivent être vérifiées en piste.</p></div><div class="v19-command-buttons"><button class="btn red" id="v19-analyse" type="button">◉ ANALYSER LA COURSE</button><button class="btn blue" id="v19-scenarios" type="button">↔ COMPARER 3 OPTIONS</button><a class="btn" href="#v19-tools">↓ OUTILS RAPIDES</a></div></section>
+<section class="v19-engineering" id="v19-tools"><div class="v19-section-head"><div><span class="v19-eyebrow">01 / INGÉNIERIE</span><h2>CALCULATEURS &amp; DÉCISIONS</h2></div><span class="v19-local-label">● 100 % LOCAL</span></div><div aria-live="polite" class="v19-metrics" id="v19-metrics"></div><div class="v19-tools-grid"><article class="v19-tool"><h3>⛽ Calculateur d'essence</h3><p>Quantité de carburant nécessaire pour un nombre de tours donné, avec réserve et marge.</p><div class="v19-fieldrow"><label>Tours visés<input id="v19-fuel-laps" max="500" min="1" type="number" value="20"/></label><label>Essence au départ (L)<input id="v19-fuel-onboard" min="0" step="0.1" type="number" value="0"/></label></div><div class="v19-result" id="v19-fuel-output"></div></article><article class="v19-tool"><h3>⚖ Scénarios comparés</h3><p>Simulation indicative à rythme constant. Compare une approche conservatrice, normale ou agressive.</p><div class="v19-compare" id="v19-compare"></div></article></div><div class="v19-alerts" id="v19-alerts" role="status"></div></section>
+<div class="layout">
+<aside class="panel">
+<div class="pad">
+<h2>Équipe / courses séparées</h2>
+<div class="mainTop">
+<div class="courseCard">
+<div class="courseTabs" id="courseTabs"></div>
+<div class="small" style="margin-top:10px">Chaque course garde ses propres données, sa stratégie, ses validations et ses débriefs.</div>
+</div>
+<div class="courseCard">
+<div class="muted"><b>Noms des courses</b></div>
+<div class="courseNameRow"><span class="small">COURSE 1</span><input id="slotName1" value="Course 1"/></div>
+<div class="courseNameRow"><span class="small">COURSE 2</span><input id="slotName2" value="Course 2"/></div>
+<div class="courseNameRow"><span class="small">COURSE 3</span><input id="slotName3" value="Course 3"/></div>
+</div>
+</div>
+<div class="sect">
+<h3>⚙ Paramètres de course</h3>
+<div class="fields">
+<div class="field"><label>Type de course</label><select id="raceType"><option value="endurance">ENDURANCE</option><option value="sprint">SPRINT</option></select></div>
+<div class="field"><label>Nom de course</label><input id="race" value="Endurance VCE"/></div>
+<div class="field"><label>Voiture</label><input id="car" value="LMP2"/></div>
+<div class="field"><label>Circuit</label><input id="track" value="Le Mans"/></div>
+<div class="field"><label>Simulateur</label><select id="sim"><option>LMU</option><option>Assetto Corsa</option><option>ACC</option><option>iRacing</option><option>Autre</option></select></div>
+<div class="field"><label>Durée de course (heures)</label><input id="hours" max="24" min="0.25" step="0.25" type="number" value="4"/></div>
+<div class="field"><label>Heure de départ</label><input id="start" step="1" type="time" value="13:30:00"/></div>
+<div class="field"><label>Temps tour moyen (m:ss.mmm)</label><input id="lap" value="1:37.589"/></div>
+</div>
+</div>
+<div class="sect">
+<h3>🚗 Infos Cars</h3>
+<div class="fields">
+<div class="field"><label>Consommation (L/tour)</label><input id="fuel" step="0.01" type="number" value="3.1"/></div>
+<div class="field"><label>Capacité réservoir (L)</label><input id="tank" step="0.1" type="number" value="75"/></div>
+<div class="field"><label>Marge carburant (tours)</label><input id="reserve" step="0.1" type="number" value="1"/></div>
+<div class="field"><label>Durée de vie pneus (tours)</label><input id="tyreLife" step="1" type="number" value="23"/></div>
+<div class="field"><label>Conso sécurité (%)</label><input id="safetyFuel" step="0.5" type="number" value="3"/></div>
+<div class="field"><label>Usure supplémentaire trafic (tours)</label><input id="trafficTyres" step="1" type="number" value="0"/></div>
+</div>
+</div>
+<div class="sect">
+<h3>👤 Équipage</h3>
+<div class="fields">
+<div class="field"><label>Nombre de pilotes</label><select id="nPilots"><option>1</option><option>2</option><option>3</option><option selected="">4</option></select></div>
+<div class="field"><label>Gestion des relais</label><select id="driverMode"><option value="rotation">Rotation équitable</option><option value="fast">Priorité pilote rapide</option></select></div>
+</div>
+<div class="pilots" id="pilots" style="margin-top:10px"></div>
+<div class="checkrow"><input id="allowDoubleFast" type="checkbox"/><label for="allowDoubleFast">Autoriser les doubles relais automatiques du plus rapide</label></div>
+</div>
+<div class="sect sprintOnly">
+<h3>⚡ Mode Sprint</h3>
+<div class="sectBody">
+<div class="sprintPill"><span class="toggleTag on">SOLO</span> <b>Le sprint est géré en pilote unique.</b> Si la course dépasse l’autonomie, le tableau proposera le pit le plus rentable.</div>
+<div class="fields">
+<div class="field"><label>Gestion sprint</label><select id="sprintPlan"><option value="auto">AUTO (si besoin)</option><option value="nostop">NO STOP</option><option value="onestop">1 PIT</option></select></div>
+<div class="field"><label>Objectif pneus</label><select id="sprintTyreGoal"><option value="attack">ATTAQUE</option><option selected="" value="balanced">ÉQUILIBRE</option><option value="safe">SÉCURITÉ</option></select></div>
+<div class="field"><label>Économie carburant</label><select id="sprintFuelSave"><option selected="" value="0">OFF</option><option value="1">LIGHT</option><option value="2">MEDIUM</option><option value="3">STRONG</option></select></div>
+<div class="field"><label>Pit prévu manuellement</label><select id="sprintPitManual"><option selected="" value="off">OFF</option><option value="on">ON</option></select></div>
+</div>
+<div class="leftHint">En sprint, les swaps et doubles relais sont neutralisés. Le focus reste sur le rythme, les pneus, l’essence et le moment optimal du pit.</div>
+</div>
+</div>
+<div class="sect enduranceOnly">
+<h3>📋 Règles stratégie</h3>
+<div class="fields">
+<div class="field"><label>Swaps minimum obligatoires</label><input id="swaps" min="0" type="number" value="2"/></div>
+<div class="field"><label>Durée max de stint (min), 0 = libre</label><input id="maxStint" min="0" type="number" value="0"/></div>
+<div class="field"><label>Marge pénalité avant fin stint (min)</label><input id="stintMargin" step="0.1" type="number" value="2"/></div>
+<div class="field"><label>Mode PIT</label><select id="mode"><option value="normal">NORMAL</option><option value="advance">PIT AVANCÉ</option><option value="quick">PIT RAPIDE</option><option value="offset">PIT DÉCALÉ</option><option value="late">PIT EN RETARD</option></select></div>
+<div class="field"><label>Ouverture PIT après départ (min)</label><input id="open" min="0" type="number" value="0"/></div>
+<div class="field"><label>Fermeture PIT avant fin (min)</label><input id="close" min="0" type="number" value="0"/></div>
+</div>
+</div>
+<div class="sect">
+<h3>⏱ Temps aux stands (secondes)</h3>
+<div class="fields">
+<div class="field"><label>Passage voie des stands</label><input id="pitlane" step="0.1" type="number" value="41"/></div>
+<div class="field"><label>Essence</label><input id="fuelTime" step="0.1" type="number" value="14.5"/></div>
+<div class="field"><label>Pneus</label><input id="tyreTime" step="0.1" type="number" value="20"/></div>
+<div class="field"><label>Swap pilote</label><input id="swapTime" step="0.1" type="number" value="20"/></div>
+<div class="field"><label>Dégât léger</label><input id="lightTime" step="0.1" type="number" value="20"/></div>
+<div class="field"><label>Dégât lourd</label><input id="heavyTime" step="0.1" type="number" value="70"/></div>
+</div>
+</div>
+<div class="sect"><h3>🏎️ Stratégie compétitive — recalcul</h3>
+<div class="fields">
+<div class="field"><label>Tours effectivement parcourus</label><input id="liveLaps" min="0" type="number" value="0"/></div>
+<div class="field"><label>Temps restant réel (min), 0 = estimation</label><input id="liveMinutes" min="0" step="0.1" type="number" value="0"/></div>
+<div class="field"><label>Carburant réel restant (L), 0 = inconnu</label><input id="liveFuel" min="0" step="0.1" type="number" value="0"/></div>
+<div class="field"><label>Pneus réellement disponibles (tours), 0 = inconnu</label><input id="liveTyres" min="0" type="number" value="0"/></div>
+<div class="field"><label>Variation du rythme (s/tour)</label><input id="paceDelta" step="0.1" type="number" value="0"/></div>
+<div class="field"><label>Dernier tour probable supplémentaire ?</label><select id="extraLap"><option value="1">OUI, +1 tour</option><option value="0">NON</option></select></div>
+<div class="field"><label>Marge carburant additionnelle (L)</label><input id="fuelExtra" min="0" step="0.1" type="number" value="0"/></div>
+<div class="field"><label>Coût arrêt réel additionnel (s)</label><input id="pitExtra" min="0" step="0.1" type="number" value="0"/></div>
+</div><div class="notice" id="optimizer" style="margin-top:12px">Analyse en cours…</div></div>
+<div class="sect enduranceOnly">
+<h3>🚨 Centre de contrôle / urgence</h3>
+<div class="checkrow"><input id="emergency" type="checkbox"/><label for="emergency">Activer le recalcul d'urgence</label></div>
+<div class="fields">
+<div class="field"><label>Temps écoulé depuis départ (min)</label><input id="elapsed" min="0" type="number" value="60"/></div>
+<div class="field"><label>Réparations après crash (s)</label><input id="repair" min="0" type="number" value="120"/></div>
+<div class="field"><label>Pilote en cours</label><select id="currentPilot"></select></div>
+<div class="field"><label>Essence restante (L)</label><input id="remainFuel" min="0" step="0.1" type="number" value="30"/></div>
+<div class="field"><label>Tours pneus restants</label><input id="remainTyres" min="0" step="1" type="number" value="10"/></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="panel">
+<div class="pad">
+<div class="bar">
+<div>
+<h2 id="heading">Endurance VCE</h2>
+<div class="muted" id="context">Le Mans · LMP2 · LMU · 4 h · 13:30:00</div>
+</div>
+<div class="badge" id="strategyStatus">STRATÉGIE PRÉVISIONNELLE</div>
+</div>
+<div class="statgrid" id="stats"></div>
+<div class="notice" id="message" style="margin-top:12px">Plan calculé.</div>
+<div class="progress"><div id="progressFill" style="width:0%"></div></div>
+<div class="muted" id="raceProgress" style="margin-top:6px">0 relais validé.</div>
+<div class="sect" style="margin-top:18px">
+<div class="bar">
+<h2 style="margin:0">Plan de course</h2>
+<div class="tabbar">
+<button class="tab active" data-view="strategy" onclick="view('strategy')">Relais &amp; pits</button>
+<button class="tab" data-view="scenario" onclick="view('scenario')">Scénario</button>
+<button class="tab" data-view="pit" onclick="view('pit')">Simulateur pit</button>
+<button class="tab" data-view="debrief" onclick="view('debrief')">Débrief</button>
+</div>
+</div>
+<div id="strategyView">
+<div class="sprintOnlyNote hidden" id="sprintNote" style="margin-bottom:10px"></div>
+<div class="tablewrap"><table>
+<thead><tr><th>#</th><th>Pilote</th><th>Début</th><th>Fin / arrêt</th><th>Tours</th><th>Essence départ</th><th>Pneus restants</th><th>Arrêt</th><th>Swap</th><th>Pneus</th><th>Double</th><th>Durée pit</th><th>Fait</th></tr></thead>
+<tbody id="stints"></tbody>
+</table></div>
+</div>
+<div class="hidden" id="scenarioView">
+<div class="grid2">
+<div class="panel" style="border-radius:12px">
+<div class="pad">
+<h2 style="margin-top:0">Comparaison de rythme</h2>
+<div class="fields">
+<div class="field"><label>Position actuelle</label><input id="pos" type="number" value="2"/></div>
+<div class="field"><label>Objectif position</label><input id="goalPos" type="number" value="1"/></div>
+<div class="field"><label>Écart avec l’adversaire (s)</label><input id="gap" step="0.1" type="number" value="40"/></div>
+<div class="field"><label>Temps restant (min)</label><input id="remaining" step="1" type="number" value="20"/></div>
+<div class="field"><label>Mon chrono</label><input id="ownLap" value="1:30.000"/></div>
+<div class="field"><label>Chrono adversaire</label><input id="otherLap" value="1:32.000"/></div>
+<div class="field"><label>Différence pit prévue (s)</label><input id="gapPit" step="0.1" type="number" value="0"/></div>
+<div class="field"><label>Risque retard stand (s)</label><input id="pitRisk" step="0.1" type="number" value="5"/></div>
+</div>
+</div>
+</div>
+<div>
+<div class="panel" style="border-radius:12px">
+<div class="pad">
+<h2 style="margin-top:0">Évaluation de la course</h2>
+<div id="scenarioResult"></div>
+</div>
+</div>
+<div class="tip" id="scenarioTips"></div>
+</div>
+</div>
+</div>
+<div class="hidden" id="pitView">
+<div class="grid2">
+<div class="panel" style="border-radius:12px"><div class="pad">
+<h2 style="margin-top:0">Sélection des actions</h2>
+<div class="checkrow"><input id="pLane" type="checkbox"/><label for="pLane">Passage voie des stands</label></div>
+<div class="checkrow"><input id="pFuel" type="checkbox"/><label for="pFuel">Essence</label></div>
+<div class="checkrow"><input id="pTyre" type="checkbox"/><label for="pTyre">Changement de pneus</label></div>
+<div class="checkrow"><input id="pSwap" type="checkbox"/><label for="pSwap">Swap pilote</label></div>
+<div class="checkrow"><input id="pLight" type="checkbox"/><label for="pLight">Dégât léger</label></div>
+<div class="checkrow"><input id="pHeavy" type="checkbox"/><label for="pHeavy">Dégât lourd</label></div>
+</div></div>
+<div class="panel" style="border-radius:12px"><div class="pad">
+<h2 style="margin-top:0">Durée totale de l'arrêt</h2>
+<div id="pitResult"></div>
+</div></div>
+</div>
+</div>
+<div class="hidden" id="debriefView">
+<div class="grid2">
+<div class="panel" style="border-radius:12px"><div class="pad">
+<h2 style="margin-top:0">Bilan de fin de stint</h2>
+<div class="fields">
+<div class="field"><label>Pilote</label><select id="debriefDriver"></select></div>
+<div class="field"><label>Relais n°</label><input id="debriefStint" min="1" type="number" value="1"/></div>
+<div class="field"><label>Voiture endommagée ?</label><select id="damaged"><option value="no">NON</option><option value="yes">OUI</option></select></div>
+<div class="field"><label>Régularité</label><select id="consistency"><option value="4">Même centième</option><option selected="" value="3">Même dixième</option><option value="2">Même seconde</option><option value="1">Très variable</option></select></div>
+<div class="field"><label>Points de corde touchés ?</label><select id="apex"><option value="4">Toujours</option><option selected="" value="3">Souvent</option><option value="2">Parfois</option><option value="1">Rarement</option></select></div>
+<div class="field"><label>Track limits</label><select id="limits"><option value="0">Aucun</option><option value="1">1 à 2</option><option value="2">3 à 5</option><option value="3">Beaucoup</option></select></div>
+<div class="field"><label>Erreurs de freinage</label><select id="brakes"><option value="0">Aucune</option><option value="1">Quelques-unes</option><option value="2">Beaucoup</option></select></div>
+<div class="field"><label>Erreurs d’accélération</label><select id="throttle"><option value="0">Aucune</option><option value="1">Quelques-unes</option><option value="2">Beaucoup</option></select></div>
+<div class="field"><label>Gestion du trafic</label><select id="trafficDebrief"><option value="4">Excellente</option><option selected="" value="3">Bonne</option><option value="2">Moyenne</option><option value="1">Difficile</option></select></div>
+<div class="field"><label>État des pneus</label><select id="tyreState"><option value="fresh">Correct</option><option value="used">Usés</option><option value="degraded">Très usés</option><option value="critical">Critiques</option></select></div>
+<div class="field"><label>Comportement auto</label><select id="handling"><option value="ok">Neutre</option><option value="under">Sous-virage</option><option value="over">Survirage</option></select></div>
+<div class="field"><label>Concentration</label><select id="focus"><option value="4">Excellente</option><option selected="" value="3">Bonne</option><option value="2">Moyenne</option><option value="1">Faible</option></select></div>
+<div class="field"><label>Communication équipe</label><select id="comm"><option value="4">Excellente</option><option selected="" value="3">Bonne</option><option value="2">Moyenne</option><option value="1">Faible</option></select></div>
+<div class="sect"><h3>📊 Données réelles du relais</h3><div class="fields">
+<div class="field"><label>Tours parcourus</label><input id="dbTours" min="0" type="number" value="20"/></div>
+<div class="field"><label>Temps moyen réel (m:ss.mmm)</label><input id="dbAverage" value="1:38.000"/></div>
+<div class="field"><label>Meilleur tour</label><input id="dbBest" value="1:37.200"/></div>
+<div class="field"><label>Consommation mesurée (L/tour)</label><input id="dbFuel" step="0.01" type="number" value="3.1"/></div>
+<div class="field"><label>Tours restants pneus estimés</label><input id="dbTyres" min="0" type="number" value="4"/></div>
+<div class="field"><label>Incidents / contacts</label><input id="dbContacts" min="0" type="number" value="0"/></div>
+<div class="field"><label>Perte estimée dans trafic (s)</label><input id="dbTrafficLoss" min="0" step="1" type="number" value="0"/></div>
+<div class="field"><label>Évolution rythme fin de relais (s/tour)</label><input id="dbFade" step="0.1" type="number" value="0"/></div>
+<div class="field"><label>Confiance au freinage</label><select id="dbBrakeConfidence"><option value="4">Très bonne</option><option value="3">Bonne</option><option value="2">Moyenne</option><option value="1">Mauvaise</option></select></div>
+<div class="field"><label>Température/équilibre pneus</label><select id="dbTemp"><option value="ok">Normale</option><option value="hotFront">Surchauffe avant</option><option value="hotRear">Surchauffe arrière</option><option value="cold">Pneus froids</option></select></div>
+<div class="field"><label>Fatigue pilote</label><select id="dbFatigue"><option value="none">Aucune</option><option value="some">Modérée</option><option value="high">Forte</option></select></div>
+<div class="field"><label>Conseil pour prochain pilote</label><select id="dbRecommendation"><option value="normal">Rester sur stratégie</option><option value="early">Arrêt avancé</option><option value="fuel">Économie de carburant</option><option value="tyres">Gestion pneus</option></select></div>
+</div></div>
+<div class="field wide"><label>Notes pilote / remarques</label><textarea id="notes" placeholder="Exemple : gros sous-virage dans les virages rapides, mieux freiner un poil plus tôt, trafic compliqué..."></textarea></div>
+</div>
+<div class="actions" style="margin-top:10px">
+<button class="btn green" onclick="saveDebrief()">Enregistrer le débrief</button>
+<button class="btn" onclick="clearDebrief()">Effacer l'historique</button>
+</div>
+</div></div>
+<div>
+<div class="panel" style="border-radius:12px"><div class="pad">
+<h2 style="margin-top:0">Analyse du relais</h2>
+<div id="debriefScore"></div>
+</div></div>
+<div class="panel" style="border-radius:12px;margin-top:12px"><div class="pad">
+<h2 style="margin-top:0">Historique des débriefs</h2>
+<div id="debriefResult"></div>
+</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect"><h3>📊 Atelier V4 – analyses et circuit</h3><div class="newTabs"><button class="on" id="etRisques" onclick="extraView('risques')">Scénarios &amp; risques</button><button id="etCircuit" onclick="extraView('circuit')">Carte &amp; virages</button><button id="etCrash" onclick="extraView('crash')">Plan de secours</button><button id="etBilan" onclick="extraView('bilan')">Débrief approfondi</button><button id="etSetup" onclick="extraView('setup')">Aide setup</button></div>
+<section id="exRisques"><div class="fields"><div class="field"><label>Trafic perdu (s/tour)</label><input id="rxTraffic" step="0.1" type="number" value="0.3"/></div><div class="field"><label>Dégradation pneus (s/tour)</label><input id="rxWear" step="0.1" type="number" value="0.08"/></div><div class="field"><label>Évolution piste (s/tour)</label><input id="rxTrack" step="0.1" type="number" value="0"/></div><div class="field"><label>Météo (s/tour)</label><input id="rxWeather" step="0.1" type="number" value="0"/></div><div class="field"><label>Risque erreur (%)</label><input id="rxErrorChance" type="number" value="10"/></div><div class="field"><label>Coût erreur (s)</label><input id="rxErrorCost" type="number" value="8"/></div><div class="field"><label>Risque pénalité (%)</label><input id="rxPenaltyChance" type="number" value="8"/></div><div class="field"><label>Coût pénalité (s)</label><input id="rxPenaltyCost" type="number" value="25"/></div><div class="field"><label>Risque FCY/SC (%)</label><input id="rxSC" type="number" value="20"/></div><div class="field"><label>Gain potentiel sous SC (s)</label><input id="rxSCGain" type="number" value="12"/></div></div><div class="infoBox" id="riskCards"></div><button class="panelButton" onclick="updateRisk()">Calculer trois scénarios</button></section>
+<section class="hidden" id="exCircuit"><div class="fields"><div class="field wide"><label>URL de l'image du circuit (HTTPS)</label><input id="mapUrl" placeholder="https://.../circuit.png"/></div><div class="field"><label>Nombre de virages</label><input id="turnCount" max="30" min="1" type="number" value="16"/></div><div class="field"><label>Notes circuit</label><input id="mapNotes" placeholder="Zones à surveiller"/></div></div><img alt="Carte du circuit" id="mapPreview" style="display:none;max-width:100%;max-height:300px;margin:10px 0;border-radius:12px"/><div class="tablewrap"><table class="dataTable"><thead><tr><th>Virage</th><th>Nom / repère</th><th>Secteur</th><th>Danger</th><th>Track limits</th><th>Point freinage</th><th>Conseil</th></tr></thead><tbody id="turnRows"></tbody></table></div><button class="panelButton" onclick="renderTurns()">Mettre à jour les virages</button><p class="tiny">L'image sert de référence visuelle : aucune reconnaissance automatique des virages n'est revendiquée.</p></section>
+<section class="hidden" id="exCrash"><div class="infoBox" id="crashPlan"></div><button class="panelButton" onclick="updateCrash()">Comparer NORMAL / ANTICIPÉ / RAPIDE / DÉCALÉ</button></section>
+<section class="hidden" id="exBilan"><div class="fields" id="detailQuestions"></div><div class="infoBox" id="detailResult"></div><button class="panelButton" onclick="updateDetails()">Analyser les 30 critères</button><p class="tiny">L'enregistrement des débriefs reste dans l'onglet Débrief principal ; les critères complètent le diagnostic.</p></section><section class="hidden" id="exSetup"><div class="setupCoachCard"><div class="fields"><div class="field"><label>Symptôme principal</label><select id="setupIssue" onchange="updateSetupCoach()"><option value="underEntry">Sous-virage à l’entrée</option><option value="underExit">Sous-virage à la sortie</option><option value="overEntry">Survirage à l’entrée</option><option value="overExit">Survirage à la sortie</option><option value="slowCorner">Voiture trop lente en virage</option><option value="agility">Manque d’agilité / réponse</option><option value="hotTyres">Pneus en surchauffe</option><option value="coldTyres">Pneus froids</option><option value="topSpeed">Vmax trop faible</option><option value="braking">Blocage / freinage instable</option></select></div><div class="field"><label>Intensité du problème</label><select id="setupSeverity" onchange="updateSetupCoach()"><option value="1">LÉGER</option><option selected="" value="2">MOYEN</option><option value="3">FORT</option></select></div><div class="field"><label>Phase dominante</label><select id="setupPhase" onchange="updateSetupCoach()"><option value="entry">ENTRÉE</option><option value="mid">MILIEU</option><option value="exit">SORTIE</option><option selected="" value="overall">GLOBAL</option></select></div><div class="field"><label>But recherché</label><select id="setupTarget" onchange="updateSetupCoach()"><option value="stable">Plus stable</option><option selected="" value="fast">Plus rapide</option><option value="safe">Plus sûr</option></select></div></div><div class="infoBox setupCoachOut" id="setupCoachOut"></div><p class="tiny">Aide inspirée de fiches setup : ce n’est pas un réglage constructeur. Teste une seule modification à la fois pour savoir si tu gagnes ou perds du temps.</p></div></section></div></main>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const inputIds=['liveLaps','liveMinutes','liveFuel','liveTyres','paceDelta','extraLap','fuelExtra','pitExtra','dbTours','dbAverage','dbBest','dbFuel','dbTyres','dbContacts','dbTrafficLoss','dbFade','dbBrakeConfidence','dbTemp','dbFatigue','dbRecommendation','raceType','race','car','track','sim','hours','start','lap','fuel','tank','reserve','tyreLife','safetyFuel','trafficTyres','nPilots','driverMode','allowDoubleFast','swaps','maxStint','stintMargin','mode','open','close','pitlane','fuelTime','tyreTime','swapTime','lightTime','heavyTime','emergency','elapsed','repair','currentPilot','remainFuel','remainTyres','pos','goalPos','gap','remaining','ownLap','otherLap','gapPit','pitRisk','slotName1','slotName2','slotName3','pLane','pFuel','pTyre','pSwap','pLight','pHeavy','debriefDriver','debriefStint','damaged','sprintPlan','sprintTyreGoal','sprintFuelSave','sprintPitManual','consistency','apex','limits','brakes','throttle','trafficDebrief','tyreState','handling','focus','comm','notes'];
+const DEFAULTS={slotNames:['Course 1','Course 2','Course 3'],active:0,slots:[null,null,null]};
+let store=loadStore(); let plan=[]; let doneMap={}; let doubleMap={};
+function loadStore(){try{let s=JSON.parse(localStorage.getItem('vce_race_control_v2')||'null'); if(s&&s.slots&&s.slotNames)return s;}catch(e){} return structuredClone(DEFAULTS);}
+function saveStore(){localStorage.setItem('vce_race_control_v2',JSON.stringify(store));}
+function num(id){let v=parseFloat(String($(id).value).replace(',','.'));return Number.isFinite(v)?v:0}
+function yes(id){return !!$(id).checked}
+function lapSeconds(str){str=String(str||'').trim().replace(',', '.'); let m=str.match(/^(\d+):(\d{1,2})(?:\.(\d+))?$/); if(!m)return 0; let mins=+m[1], secs=+m[2], frac=('0.'+(m[3]||'0')); return mins*60+secs+parseFloat(frac);}
+function fmtClock(sec){let start=parseTime($('start').value); let total=(start+Math.round(sec))%(24*3600); if(total<0)total+=24*3600; let h=String(Math.floor(total/3600)).padStart(2,'0'); let m=String(Math.floor((total%3600)/60)).padStart(2,'0'); let s=String(total%60).padStart(2,'0'); return `${h}:${m}:${s}`;}
+function parseTime(t){let [h,m,s]=(t||'00:00:00').split(':').map(Number); return (h||0)*3600+(m||0)*60+(s||0);}
+function fmtDur(sec){sec=Number(sec)||0; if(sec<=0)return '0 s'; let h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=(sec%60); if(h>0)return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(Math.round(s)).padStart(2,'0')}`; if(m>0)return `${m}:${String(Math.round(s)).padStart(2,'0')}`; return `${s.toFixed(1)} s`;}
+function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function currentSlot(){return store.active;}
+function getSlotData(){return store.slots[currentSlot()]||{};}
+function setSlotData(data){store.slots[currentSlot()]=data; saveStore();}
+function saveCurrentState(){let slot=getSlotData(); slot.inputs={}; for(let id of inputIds){ if($(id)){ slot.inputs[id]=($(id).type==='checkbox')?$(id).checked:$(id).value; } } slot.pilotData=[]; let n=num('nPilots'); for(let i=0;i<Math.max(4,n);i++){ slot.pilotData[i]={name:$('pilotName'+i)?.value||`PILOTE ${i+1}`,lap:$('pilotLap'+i)?.value||$('lap').value}; } slot.doneMap=doneMap; slot.doubleMap=doubleMap; slot.debriefs=slot.debriefs||[]; setSlotData(slot); }
+function applyCurrentState(){ renderCourseTabs(); let slot=getSlotData(); // names
+ for(let i=1;i<=3;i++) $('slotName'+i).value=store.slotNames[i-1]||`Course ${i}`;
+ if(slot.inputs){ for(let [k,v] of Object.entries(slot.inputs)){ if($(k)) $(k).type==='checkbox'?$(k).checked=v:$(k).value=v; } }
+ pilotList(slot.pilotData); doneMap=slot.doneMap||{}; doubleMap=slot.doubleMap||{}; updateCourseVisibility(); fillDebriefPilots(); calculate(); showDebrief(); }
+function renderCourseTabs(){ $('courseTabs').innerHTML=[0,1,2].map(i=>`<button class="courseBtn ${store.active===i?'active':''}" onclick="switchCourse(${i})">COURSE ${i+1}<br><span class="small" style="color:${store.active===i?'#eaf2ff':'#9cb3cf'}">${esc(store.slotNames[i]||('Course '+(i+1)))}</span></button>`).join(''); }
+function blankSlot(i){ return { inputs:{raceType:'endurance',race:store.slotNames[i]||('Course '+(i+1)),car:'',track:'',sim:'LMU',hours:'4',start:'13:30:00',lap:'1:40.000',fuel:'3.1',tank:'75',reserve:'1',tyreLife:'23',safetyFuel:'3',trafficTyres:'0',nPilots:'2',driverMode:'rotation',allowDoubleFast:false,swaps:'1',maxStint:'0',stintMargin:'2',mode:'normal',open:'0',close:'0',pitlane:'41',fuelTime:'14.5',tyreTime:'20',swapTime:'20',lightTime:'20',heavyTime:'70',emergency:false,elapsed:'60',repair:'120',currentPilot:'0',remainFuel:'30',remainTyres:'10',pos:'2',goalPos:'1',gap:'20',remaining:'20',ownLap:'1:40.000',otherLap:'1:40.500',gapPit:'0',pitRisk:'5',pLane:false,pFuel:false,pTyre:false,pSwap:false,pLight:false,pHeavy:false,debriefStint:'1',damaged:'no',consistency:'3',apex:'3',limits:'0',brakes:'0',throttle:'0',trafficDebrief:'3',tyreState:'fresh',handling:'ok',focus:'3',comm:'3',notes:'',sprintPlan:'auto',sprintTyreGoal:'balanced',sprintFuelSave:'0',sprintPitManual:'off'}, pilotData:[{name:'PILOTE 1',lap:'1:40.000'},{name:'PILOTE 2',lap:'1:40.500'},{name:'PILOTE 3',lap:'1:41.000'},{name:'PILOTE 4',lap:'1:41.500'}], doneMap:{}, doubleMap:{}, debriefs:[]}; }
+function switchCourse(i){ saveCurrentState(); store.active=i; if(!store.slots[i]){ store.slots[i]=blankSlot(i); } saveStore(); applyCurrentState(); }
+function updateSlotNames(){ store.slotNames=[$('slotName1').value||'Course 1',$('slotName2').value||'Course 2',$('slotName3').value||'Course 3']; saveStore(); }
+function resetCurrentCourse(){ if(confirm('Réinitialiser uniquement cette course ?')){ store.slots[currentSlot()]={}; saveStore(); location.reload(); } }
+function pilotList(existing){ let n=Math.max(1,Math.min(4,parseInt($('nPilots').value||'1',10))); let baseLap=$('lap').value||'1:40.000'; $('pilots').innerHTML=''; let data=existing||[]; for(let i=0;i<n;i++){ let name=(data[i]&&data[i].name)||`PILOTE ${i+1}`; let lap=(data[i]&&data[i].lap)||baseLap; let row=document.createElement('div'); row.className='pilot'; row.innerHTML=`<div class="num">${String(i+1).padStart(2,'0')}</div><input id="pilotName${i}" value="${esc(name)}"><input id="pilotLap${i}" value="${esc(lap)}">`; $('pilots').appendChild(row); }
+ $('currentPilot').innerHTML=Array.from({length:n},(_,i)=>`<option value="${i}">${esc(($('pilotName'+i)?.value)||('PILOTE '+(i+1)))}</option>`).join(''); fillDebriefPilots(); }
+function fillDebriefPilots(){ let n=Math.max(1,Math.min(4,parseInt($('nPilots').value||'1',10))); let opts=Array.from({length:n},(_,i)=>`<option value="${i}">${esc(($('pilotName'+i)?.value)||('PILOTE '+(i+1)))}</option>`).join(''); $('debriefDriver').innerHTML=opts; if($('currentPilot').options.length!==n) $('currentPilot').innerHTML=opts; }
+function updateCourseVisibility(){ let sprint=$('raceType').value==='sprint'; document.querySelectorAll('.enduranceOnly').forEach(el=>el.classList.toggle('hidden',sprint)); document.querySelectorAll('.sprintOnly').forEach(el=>el.classList.toggle('hidden',!sprint)); if(sprint){ if($('nPilots').value!=='1'){ $('nPilots').value='1'; pilotList(getSlotData().pilotData); } $('driverMode').value='rotation'; $('allowDoubleFast').checked=false; } }
+function getPilots(){ let n=Math.max(1,Math.min(4,parseInt($('nPilots').value||'1',10))); return Array.from({length:n},(_,i)=>({idx:i,name:$('pilotName'+i)?.value||`PILOTE ${i+1}`,lap:lapSeconds($('pilotLap'+i)?.value||$('lap').value)||lapSeconds($('lap').value)})); }
+function pickNextDriver(pilots,currentIdx,stintIndex){ if(doubleMap[stintIndex]) return currentIdx; if($('driverMode').value==='fast'){ let fastest=pilots.reduce((a,p)=>p.lap<a.lap?p:a,pilots[0]); if(yes('allowDoubleFast') && (stintIndex%2===0)) return fastest.idx; return (currentIdx+1)%pilots.length; } return (currentIdx+1)%pilots.length; }
+function pitService({lane,fuel,tyre,swap,light,heavy}){ let t=0; if(lane)t+=num('pitlane'); if(fuel)t+=num('fuelTime'); if(tyre)t+=num('tyreTime'); if(swap)t+=num('swapTime'); if(light)t+=num('lightTime'); if(heavy)t+=num('heavyTime'); return t; }
+function calculate(){
+ updateSlotNames();updateCourseVisibility();fillDebriefPilots();plan=[];
+ const warnings=[];const avg=lapSeconds($('lap').value)+num('paceDelta');
+ if(avg<=0||num('fuel')<=0||num('tank')<=0||num('tyreLife')<=0){$('message').className='notice warn';$('message').textContent='Vérifie le chrono, la consommation, le réservoir et la durée de vie pneus : valeurs strictement positives requises.';return;}
+ const type=$('raceType').value, totalSeconds=num('hours')*3600;
+ let elapsed=type==='endurance'&&yes('emergency')?Math.max(0,num('elapsed')*60):Math.max(0,num('liveLaps')*avg);
+ let remainSeconds=num('liveMinutes')>0?num('liveMinutes')*60:Math.max(0,totalSeconds-elapsed);
+ let fuelSaveMap={0:0,1:.02,2:.04,3:.06}; let sprintSave=$('raceType').value==='sprint'?(fuelSaveMap[$('sprintFuelSave').value]||0):0; let fpt=num('fuel')*(1+num('safetyFuel')/100)*(1-sprintSave), tank=num('tank'), reserve=num('reserve'), extra=num('fuelExtra');
+ let fuelCap=Math.max(0,Math.floor((tank-extra)/fpt-reserve)), tyreCap=Math.max(0,Math.floor(num('tyreLife')-num('trafficTyres')));
+ let stintCap=num('maxStint')>0?Math.max(0,Math.floor((num('maxStint')-num('stintMargin'))*60/avg)):9999;
+ let cap=Math.min(fuelCap,tyreCap,stintCap); if(type==='sprint' && $('sprintPlan').value==='nostop'){ cap=999999; if(Math.ceil(remainSeconds/avg)>Math.min(fuelCap,tyreCap)) warnings.push('Mode NO STOP choisi : risque élevé de perte de temps / panne si l’autonomie réelle est insuffisante.'); }
+ // Estimation de tours incluant les arrêts : résolution itérative jusqu'à stabilisation.
+ let theoreticalLaps=Math.max(0,Math.ceil(remainSeconds/avg)+Number($('extraLap').value));
+ let estimatedLaps=theoreticalLaps;
+ for(let k=0;k<8;k++){
+   const stops=Math.max(0,Math.ceil(estimatedLaps/Math.max(1,cap))-1);
+   const meanService=pitService({lane:true,fuel:true,tyre:true,swap:type==='endurance'&&getPilots().length>1,light:false,heavy:false})+num('pitExtra');
+   const next=Math.max(0,Math.ceil(Math.max(0,remainSeconds-stops*meanService)/avg)+Number($('extraLap').value));
+   if(next===estimatedLaps)break;estimatedLaps=next;
+ }
+ let lapsRemaining=estimatedLaps;
+ if(cap<1){$('message').className='notice warn';$('message').textContent='Aucun tour sûr possible avec la configuration actuelle. Augmente l’autonomie ou corrige les marges.';return;}
+ if(type==='sprint'&&num('hours')>2.5)warnings.push('Sprint au-delà de 2 h 30 : vérifier la catégorie de course.');
+ let pilots=getPilots(), driver=type==='sprint'?0:Math.min(pilots.length-1,parseInt($('currentPilot').value||'0',10)||0);
+ let isEmergency=type==='endurance'&&yes('emergency');
+ let firstFuel= isEmergency?num('remainFuel'):num('liveFuel')>0?num('liveFuel'):null;
+ let firstTyres=isEmergency?num('remainTyres'):num('liveTyres')>0?num('liveTyres'):null;
+ let firstCap=Math.min(cap,firstFuel!==null?Math.max(0,Math.floor(firstFuel/fpt-reserve)):cap,firstTyres!==null?Math.floor(firstTyres):cap);
+ let totalPit=0,swaps=0, cursor=elapsed, tyresAvailable=firstTyres??tyreCap;
+ let variant=$('mode').value, i=0;
+ while(lapsRemaining>0&&i<100){
+   let maxNow=i===0?firstCap:cap;
+   if(maxNow===0){warnings.push('Arrêt immédiat nécessaire : essence ou pneus insuffisants pour un tour.');maxNow=1;}
+   let target=Math.min(maxNow,lapsRemaining);
+   if(variant==='advance'&&lapsRemaining>target)target=Math.max(1,target-1);
+   if(variant==='quick'&&lapsRemaining>target)target=Math.max(1,target-2);
+   if(variant==='offset'&&i%2===1&&lapsRemaining>target)target=Math.max(1,target-1);
+   let stop=lapsRemaining>target, nextTyres=tyresAvailable-target;
+   let tyreStop=stop&&nextTyres<Math.min(tyreCap,Math.max(1,lapsRemaining-target));
+   let nextDriver=driver;
+   if(stop&&type==='endurance'){nextDriver=pickNextDriver(pilots,driver,i);}
+   let swap=stop&&type==='endurance'&&nextDriver!==driver;
+   let pit=stop?pitService({lane:true,fuel:true,tyre:tyreStop,swap,light:false,heavy:false})+num('pitExtra'):0;
+   if(isEmergency&&i===0&&stop)pit+=num('repair');
+   const start=cursor,end=start+target*avg;
+   let neededFuel=Math.min(tank,Math.max(0,(target+reserve)*fpt+extra));
+   if(i===0&&firstFuel!==null)neededFuel=firstFuel;
+   plan.push({index:i+1,driver:pilots[driver].name,start,end,tours:target,fuel:neededFuel,tyresLeft:Math.max(0,nextTyres),stop,swap,tyreStop,service:pit,double:!!doubleMap[i],finish:!stop});
+   cursor=end+pit;totalPit+=pit;swaps+=Number(swap);lapsRemaining-=target;
+   if(!stop)break;
+   driver=nextDriver;tyresAvailable=tyreStop?tyreCap:Math.max(0,nextTyres);i++;
+ }
+ let totalPlanned=plan.reduce((s,p)=>s+p.tours,0), requiredSwaps=type==='endurance'?num('swaps'):0;
+ if(swaps<requiredSwaps)warnings.push(`Seulement ${swaps} swap(s) pour ${requiredSwaps} requis : plan non conforme.`);
+ let pitOpen=num('open')*60,pitClose=totalSeconds-num('close')*60;
+ if(type==='endurance')plan.filter(p=>p.stop).forEach(p=>{if(p.end<pitOpen||p.end>pitClose)warnings.push('Un arrêt tombe hors fenêtre réglementaire de pit.');});
+ if(cursor>elapsed+remainSeconds+avg)warnings.push('Temps de service non entièrement compatible avec le nombre de tours prévus : vérifier la fin de course.');
+ $('heading').textContent=$('race').value||store.slotNames[currentSlot()]||'Course VCE';
+ $('context').textContent=`${$('track').value} · ${$('car').value} · ${$('sim').value} · ${num('hours')} h · ${$('start').value}`;
+ $('strategyStatus').textContent=isEmergency?'PLAN D’URGENCE':type==='sprint'?'MODE SPRINT':'STRATÉGIE PRÉVISIONNELLE';
+ $('sprintNote').classList.toggle('hidden',type!=='sprint');
+ if(type==='sprint'){ let st = plan.length===1?'Aucun arrêt prévu':'Arrêt nécessaire'; let pitChoice=$('sprintPlan').value.toUpperCase(); $('sprintNote').textContent=st+' · Départ conseillé '+plan[0].fuel.toFixed(1)+' L · Gestion '+$('sprintTyreGoal').selectedOptions[0].text+' · Carburant '+$('sprintFuelSave').selectedOptions[0].text+' · Plan '+pitChoice+'.'; }
+ let stats=[['Autonomie carburant',fuelCap,'Tours sûrs'],['Longévité pneus',tyreCap,'Tours sûrs'],['Relais max',cap,'Limite combinée'],['Arrêts prévus',Math.max(0,plan.length-1),'Plan actuel'],['Tours ciblés',totalPlanned,'Durée restante'],['Swaps prévus',swaps,`Minimum ${requiredSwaps}`],['Temps total pits',fmtDur(totalPit),'Services configurés'],['Fin prévisionnelle',fmtClock(cursor),'Estimation']];
+ $('stats').innerHTML=stats.map(([a,b,c])=>`<div class="stat"><div class="name">${esc(a)}</div><div class="val">${esc(b)}</div><div class="hint">${esc(c)}</div></div>`).join('');
+ $('message').className='notice'+(warnings.length?' warn':'');$('message').textContent=warnings.length?'⚠ '+[...new Set(warnings)].join(' · '):'✅ Plan calculé. Contrôler le règlement, le carburant réel et les arrêts avant application.';
+ const alternatives=['normal','advance','quick','offset','late'].map(mode=>{
+ const delta=mode==='advance'?1:mode==='quick'?2:mode==='offset'?1:0;
+ const usable=Math.max(1,cap-delta),n=Math.max(0,Math.ceil(totalPlanned/usable)-1);
+ return {mode,n,estimate:n*(num('pitlane')+num('fuelTime')+num('pitExtra'))};
+ }).sort((a,b)=>a.estimate-b.estimate);
+ $('optimizer').innerHTML=`<b>Décision carburant / performance</b><br>Conso corrigée : <b>${fpt.toFixed(3)} L/tour</b> · Autonomie : <b>${fuelCap} tours</b> · Plein théorique requis pour ${totalPlanned} tours sans arrêt : <b>${((totalPlanned+reserve)*fpt+extra).toFixed(1)} L</b> (réservoir ${tank.toFixed(1)} L).<br>Plan actif : <b>${plan.length} relais / ${totalPit.toFixed(1)} s d’arrêts</b>. Mode potentiellement le moins coûteux en passages, selon les hypothèses simplifiées : <b>${alternatives[0].mode.toUpperCase()}</b>.<br><small>Un « pit rapide » n’est pas nécessairement gagnant : comparer le nombre d’arrêts et la durée de chaque service. Les contraintes sportives, sous-cuts, trafic et pneus peuvent inverser le résultat.</small>`;
+ renderPlan();updateProgress();updateScenario();updatePit();previewDebrief();saveCurrentState();
+}
+function renderPlan(){ $('stints').innerHTML=plan.map((p,i)=>`<tr class="${doneMap[i]?'done':''} ${!doneMap[i]&&i===0?'current':''}"><td>${p.index}</td><td><b>${esc(p.driver)}</b></td><td>${fmtClock(p.start)}</td><td>${fmtClock(p.end)}</td><td>${p.tours}</td><td>${p.fuel.toFixed(1)} L</td><td>${p.tyresLeft}</td><td>${p.stop?'OUI':'NON'}</td><td>${p.stop && p.swap?'OUI':'NON'}</td><td>${p.stop && p.tyreStop?'OUI':'NON'}</td><td>${p.stop?`<input type="checkbox" ${p.double?'checked':''} onchange="toggleDouble(${i},this.checked)">`:'—'}</td><td>${p.stop?fmtDur(p.service):'0 s'}</td><td><input type="checkbox" ${doneMap[i]?'checked':''} onchange="markDone(${i},this.checked)"></td></tr>`).join(''); }
+function toggleDouble(i,v){ doubleMap[i]=v; saveCurrentState(); calculate(); }
+function markDone(i,v){ doneMap[i]=v; saveCurrentState(); updateProgress(); }
+function updateProgress(){ let total=plan.length||0, done=Object.values(doneMap).filter(Boolean).length; $('progressFill').style.width=(total?done*100/total:0)+'%'; $('raceProgress').textContent=total?`${done} action(s) validée(s) sur ${total} — ${done===0?'Concentration et précision.':done<total?'Bon boulot, on garde le rythme !':'🏁 Excellent travail, mission validée !'}`:'Aucune action.'; }
+function view(v){ ['strategy','scenario','pit','debrief'].forEach(name=>{$(name+'View').classList.toggle('hidden',name!==v)}); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v)); if(v==='scenario')updateScenario(); if(v==='pit')updatePit(); if(v==='debrief')previewDebrief(); }
+function updateScenario(){ let own=lapSeconds($('ownLap').value), other=lapSeconds($('otherLap').value), gap=num('gap')+num('gapPit')+num('pitRisk'), remain=num('remaining')*60; if(!(own>0&&other>0&&remain>0)){ $('scenarioResult').innerHTML='<div class="muted">Renseigne des chronos valides.</div>'; return; } let lapsLeft=Math.floor(remain/Math.max(own,other)); let deltaPerLap=other-own; let gain=Math.max(0,deltaPerLap*lapsLeft); let finalGap=gap-gain; let state='NEUTRE', color='#ffd16f'; if(finalGap<=-3){state='GAGNANTE'; color='#45d499';} else if(finalGap>15){state='PERDANTE'; color='#ff7d86';} else if(finalGap<=5){state='EN FAVEUR'; color='#70c8ff';} else if(finalGap<=15){state='NEUTRE'; color='#ffd16f';}
+ $('scenarioResult').innerHTML=`<div class="score" style="color:${color}">${state}</div><div class="tip"><b>Écart final estimé :</b> ${finalGap.toFixed(1)} s<br><b>Gain théorique :</b> ${gain.toFixed(1)} s sur ${lapsLeft} tour(s)<br><b>Position actuelle / objectif :</b> P${num('pos')} → P${num('goalPos')}</div>`;
+ let tips=[]; if(finalGap<=0) tips.push('Si le rythme reste identique, le rattrapage est théoriquement possible avant l’arrivée.'); else tips.push('Il faudra soit augmenter le rythme, soit profiter d’un meilleur pit, du trafic ou d’une erreur adverse.'); if(deltaPerLap>0.5) tips.push('Avantage chrono important : stratégie agressive envisageable.'); if(deltaPerLap<0.2) tips.push('L’avantage est faible : éviter toute erreur et optimiser le pit.'); if(num('pitRisk')>=5) tips.push('Attention au risque de temps perdu aux stands.'); $('scenarioTips').innerHTML='<b>Lecture rapide</b><br>'+tips.join('<br>'); }
+function updatePit(){ let t=pitService({lane:yes('pLane'),fuel:yes('pFuel'),tyre:yes('pTyre'),swap:yes('pSwap'),light:yes('pLight'),heavy:yes('pHeavy')}); let details=[]; if(yes('pLane')) details.push(`Passage voie des stands : ${num('pitlane')} s`); if(yes('pFuel')) details.push(`Essence : ${num('fuelTime')} s`); if(yes('pTyre')) details.push(`Pneus : ${num('tyreTime')} s`); if(yes('pSwap')) details.push(`Swap : ${num('swapTime')} s`); if(yes('pLight')) details.push(`Dégât léger : ${num('lightTime')} s`); if(yes('pHeavy')) details.push(`Dégât lourd : ${num('heavyTime')} s`); $('pitResult').innerHTML=`<div class="score">${t.toFixed(1)} <span style="font-size:18px">sec</span></div><div class="small" style="margin-top:6px">${details.length?details.join(' · '):'Aucune case cochée : 0 seconde.'}</div>`; }
+function previewDebrief(){ let score=100; score -= (4-parseInt($('consistency').value))*8; score -= (4-parseInt($('apex').value))*6; score -= parseInt($('limits').value)*5; score -= parseInt($('brakes').value)*6; score -= parseInt($('throttle').value)*5; score -= (4-parseInt($('trafficDebrief').value))*4; score -= (4-parseInt($('focus').value))*6; score -= (4-parseInt($('comm').value))*3; if($('damaged').value==='yes') score -= 10; if($('tyreState').value==='used') score -= 3; if($('tyreState').value==='degraded') score -= 7; if($('tyreState').value==='critical') score -= 12; if($('handling').value!=='ok') score -= 5; score=Math.max(0,Math.round(score));
+ let advice=[]; if($('handling').value==='under' && ['used','degraded','critical'].includes($('tyreState').value)) advice.push('Sous-virage avec pneus usés : anticipe un peu plus les virages, freine un poil plus tôt et soigne l’entrée pour éviter de surcharger l’avant.');
+ if($('handling').value==='over') advice.push('Survirage : remets les gaz plus progressivement et sécurise l’appui à la remise des gaz.');
+ if(parseInt($('brakes').value)>0) advice.push('Travail des freinages : stabiliser les repères, alléger la pression en fin de freinage et éviter les blocages.');
+ if(parseInt($('throttle').value)>0) advice.push('Accélération : être plus progressif en sortie, surtout si l’arrière bouge.');
+ if(parseInt($('apex').value)<=2) advice.push('Points de corde : identifier 2 à 3 virages clés et les répéter proprement au prochain relais.');
+ if(parseInt($('limits').value)>=2) advice.push('Réduire les track limits : sortir 2 km/h moins vite si nécessaire vaut mieux qu’une pénalité.');
+ if(parseInt($('focus').value)<=2) advice.push('Concentration : fractionner le relais en mini-objectifs de 3 à 5 tours.');
+ if($('damaged').value==='yes') advice.push('Voiture endommagée : comparer le temps perdu en piste avec le coût d’une réparation future.');
+ if(!advice.length) advice.push('Très bon relais : garde cette base et continue sur le même niveau de rigueur.');
+ $('debriefScore').innerHTML=`<div class="score">${score}/100</div><div class="tip"><b>Avis automatique</b><br>${advice.join('<br>')}</div>`; }
+const originalDebriefPreview=previewDebrief;
+previewDebrief=function(){originalDebriefPreview();if(!$('debriefScore'))return;
+let v=[],avg=lapSeconds($('dbAverage').value),best=lapSeconds($('dbBest').value),target=lapSeconds($('lap').value);
+if(avg&&best&&avg-best>1)v.push(`Écart moyen/meilleur tour de ${(avg-best).toFixed(2)} s : travailler la constance plutôt que le tour rapide.`);
+if(avg&&target&&avg-target>0.6)v.push(`Rythme de relais ${(avg-target).toFixed(2)} s/tour plus lent que la cible : analyser trafic, pneus et dégâts.`);
+if(num('dbFuel')>num('fuel')*1.03)v.push(`Consommation réelle supérieure à la prévision : actualiser les L/tour de la stratégie avant le prochain relais.`);
+if(num('dbTyres')<=2)v.push('Pneus en fin de vie : privilégier une remise de gaz progressive et envisager un arrêt pneus plus tôt.');
+if(num('dbFade')>0.6)v.push('Perte de rythme en fin de relais : limiter l’attaque en début de stint et préserver le train de pneus.');
+if(num('dbContacts')>0)v.push('Contacts enregistrés : contrôler les dégâts avant de décider de la durée du prochain relais.');
+if($('dbTemp').value==='hotFront')v.push('Avant en surchauffe : éviter le sous-virage prolongé, freiner légèrement plus tôt et réduire le glissement.');
+if($('dbTemp').value==='hotRear')v.push('Arrière en surchauffe : lisser l’accélération et le transfert de charge.');
+if($('dbFatigue').value==='high')v.push('Fatigue élevée : envisager un changement de pilote plus tôt, même si un double stint était prévu.');
+if(num('dbTrafficLoss')>20)v.push('Fort coût du trafic : envisager un décalage de pit après vérification de la fenêtre et des écarts adverses.');
+if(num('dbBrakeConfidence')<3)v.push('Confiance au freinage à restaurer : commencer le prochain relais avec des points de freinage conservateurs.');
+let html=v.length?v.map(x=>'<div style="margin-top:7px">• '+esc(x)+'</div>').join(''):'Aucune anomalie majeure supplémentaire dans les mesures saisies.';
+$('debriefScore').insertAdjacentHTML('beforeend',`<div class="tip"><b>Analyse télémétrique déclarative</b>${html}<div class="small" style="margin-top:8px">Basée sur les valeurs saisies, sans connexion directe au simulateur.</div></div>`);
+};
+function saveDebrief(){ previewDebrief(); let slot=getSlotData(); slot.debriefs=slot.debriefs||[]; slot.debriefs.unshift({date:new Date().toLocaleString('fr-FR'),pilot:$('debriefDriver').selectedOptions[0]?.textContent||'',stint:$('debriefStint').value,score:document.querySelector('#debriefScore .score')?.textContent||'',notes:$('notes').value,summary:$('debriefScore')?.innerText||''}); setSlotData(slot); showDebrief(); }
+function showDebrief(){ let slot=getSlotData(); let list=slot.debriefs||[]; $('debriefResult').innerHTML=list.length?list.slice(0,20).map(d=>`<div class="tip"><b>${esc(d.pilot)} · relais ${esc(d.stint)} · ${esc(d.score)}</b><div class="small">${esc(d.date)}</div><div style="margin-top:6px">${esc(d.summary)}</div>${d.notes?`<div class="small" style="margin-top:6px">Notes : ${esc(d.notes)}</div>`:''}</div>`).join(''):'<div class="muted">Aucun débrief enregistré pour cette course.</div>'; }
+function clearDebrief(){ if(confirm('Effacer les débriefs de cette course ?')){ let slot=getSlotData(); slot.debriefs=[]; setSlotData(slot); showDebrief(); } }
+function exportCSV(){ if(!plan.length) calculate(); let rows=[['Relais','Pilote','Début','Fin','Tours','Essence départ L','Pneus restants','Arrêt','Swap','Pneus','Double','Durée pit','Validé'],...plan.map((p,i)=>[p.index,p.driver,fmtClock(p.start),fmtClock(p.end),p.tours,p.fuel.toFixed(1),p.tyresLeft,p.stop?'OUI':'NON',p.swap?'OUI':'NON',p.tyreStop?'OUI':'NON',p.double?'OUI':'NON',p.service.toFixed(1),doneMap[i]?'OUI':'NON'])]; let csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n'); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='VCE_Race_Control_'+(store.slotNames[currentSlot()]||('Course_'+(currentSlot()+1))).replace(/[^\w-]+/g,'_')+'.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+function initDefaultsIfEmpty(){ if(!store.slots[0]){ store.slots[0]={ inputs:{raceType:'endurance',race:'Endurance VCE',car:'LMP2',track:'Le Mans',sim:'LMU',hours:'4',start:'13:30:00',lap:'1:37.589',fuel:'3.1',tank:'75',reserve:'1',tyreLife:'23',safetyFuel:'3',trafficTyres:'0',nPilots:'4',driverMode:'rotation',allowDoubleFast:false,swaps:'2',maxStint:'0',stintMargin:'2',mode:'normal',open:'0',close:'0',pitlane:'41',fuelTime:'14.5',tyreTime:'20',swapTime:'20',lightTime:'20',heavyTime:'70',emergency:false,elapsed:'60',repair:'120',currentPilot:'0',remainFuel:'30',remainTyres:'10',pos:'2',goalPos:'1',gap:'40',remaining:'20',ownLap:'1:30.000',otherLap:'1:32.000',gapPit:'0',pitRisk:'5',pLane:false,pFuel:false,pTyre:false,pSwap:false,pLight:false,pHeavy:false,debriefStint:'1',damaged:'no',consistency:'3',apex:'3',limits:'0',brakes:'0',throttle:'0',trafficDebrief:'3',tyreState:'fresh',handling:'ok',focus:'3',comm:'3',notes:'',sprintPlan:'auto',sprintTyreGoal:'balanced',sprintFuelSave:'0',sprintPitManual:'off'}, pilotData:[{name:'PILOTE 1',lap:'1:37.589'},{name:'PILOTE 2',lap:'1:37.989'},{name:'PILOTE 3',lap:'1:38.389'},{name:'PILOTE 4',lap:'1:38.789'}], doneMap:{}, doubleMap:{}, debriefs:[]}; saveStore(); } }
+initDefaultsIfEmpty();
+function bind(){ document.addEventListener('input',e=>{ if(e.target.id==='nPilots'){ pilotList(); } if(e.target.id.startsWith('pilotName')||e.target.id.startsWith('pilotLap')){ fillDebriefPilots(); } if(['slotName1','slotName2','slotName3'].includes(e.target.id)){ updateSlotNames(); } if(['pLane','pFuel','pTyre','pSwap','pLight','pHeavy'].includes(e.target.id)) updatePit(); if(['pos','goalPos','gap','remaining','ownLap','otherLap','gapPit','pitRisk'].includes(e.target.id)) updateScenario(); if(['dbTours','dbAverage','dbBest','dbFuel','dbTyres','dbContacts','dbTrafficLoss','dbFade','dbBrakeConfidence','dbTemp','dbFatigue','dbRecommendation','damaged','consistency','apex','limits','brakes','throttle','trafficDebrief','tyreState','handling','focus','comm','notes','debriefDriver','debriefStint'].includes(e.target.id)) previewDebrief(); if(['raceType'].includes(e.target.id)) updateCourseVisibility(); if(e.target.matches('input,select,textarea') && !['notes'].includes(e.target.id)){ saveCurrentState(); calculate(); }
+ }); document.addEventListener('change',e=>{ if(e.target.matches('input,select,textarea')){ saveCurrentState(); if(['pLane','pFuel','pTyre','pSwap','pLight','pHeavy'].includes(e.target.id)) updatePit(); if(['dbTours','dbAverage','dbBest','dbFuel','dbTyres','dbContacts','dbTrafficLoss','dbFade','dbBrakeConfidence','dbTemp','dbFatigue','dbRecommendation','damaged','consistency','apex','limits','brakes','throttle','trafficDebrief','tyreState','handling','focus','comm'].includes(e.target.id)) previewDebrief(); }}); }
+bind(); applyCurrentState();
+
+const EXTRA_FIELDS=['rxTraffic','rxWear','rxTrack','rxWeather','rxErrorChance','rxErrorCost','rxPenaltyChance','rxPenaltyCost','rxSC','rxSCGain','mapUrl','mapNotes','turnCount'];
+const DETAIL_Q=['Précision freinage','Stabilité freinage','Précision point de corde','Traction en sortie','Dosage accélérateur','Régularité des chronos','Trajectoires répétables','Gestion usure pneus','Température pneus','Économie carburant','Anticipation du trafic','Dépassements propres','Défense propre','Respect des drapeaux','Communication radio','Respect de la stratégie','Repères de freinage','Entrées de virage','Milieu de virage','Sorties de virage','Gestion sous-virage','Gestion survirage','Gestion des pressions','Gestion des freins','Limites de piste','Adaptation météo','Concentration','Gestion fatigue','Entrée et sortie des stands','Prise de décision'];
+let turns=[],detailScores=[];
+function saveExtras(){let s=store.slots[currentSlot()]||{};s.extra=s.extra||{};for(let id of EXTRA_FIELDS)s.extra[id]=$(id).value;s.extra.turns=turns;s.extra.details=detailScores;store.slots[currentSlot()]=s;saveStore();}
+function loadExtras(){let x=(store.slots[currentSlot()]||{}).extra||{};for(let id of EXTRA_FIELDS)if(x[id]!==undefined)$(id).value=x[id];turns=x.turns||[];detailScores=x.details||Array(30).fill(4);renderTurns();renderQuestions();updateRisk();updateCrash();}
+function extraView(v){['risques','circuit','crash','bilan','setup'].forEach(n=>{ $('ex'+n[0].toUpperCase()+n.slice(1)).classList.toggle('hidden',n!==v);$('et'+n[0].toUpperCase()+n.slice(1)).classList.toggle('on',n===v); });}
+function renderTurns(){let n=Math.min(30,Math.max(1,Math.floor(num('turnCount'))));$('turnRows').innerHTML=Array.from({length:n},(_,i)=>{let x=turns[i]||{};return `<tr><td>T${i+1}</td><td><input data-t="${i}" data-k="name" value="${esc(x.name||'')}"></td><td><select data-t="${i}" data-k="sector">${[1,2,3].map(k=>`<option ${+x.sector===k?'selected':''}>${k}</option>`).join('')}</select></td><td><select data-t="${i}" data-k="danger"><option>NON</option><option ${x.danger==='OUI'?'selected':''}>OUI</option></select></td><td><select data-t="${i}" data-k="limits"><option>NON</option><option ${x.limits==='OUI'?'selected':''}>OUI</option></select></td><td><input data-t="${i}" data-k="brake" value="${esc(x.brake||'')}"></td><td><input data-t="${i}" data-k="advice" value="${esc(x.advice||'')}"></td></tr>`}).join('');let u=$('mapUrl').value;if(/^https:\/\//i.test(u)){$('mapPreview').src=u;$('mapPreview').style.display='block'}else $('mapPreview').style.display='none';}
+function renderQuestions(){$('detailQuestions').innerHTML=DETAIL_Q.map((q,i)=>`<div class="field"><label>${i+1}. ${esc(q)} (1–5)</label><select data-d="${i}">${[1,2,3,4,5].map(n=>`<option value="${n}" ${(+detailScores[i]||4)===n?'selected':''}>${n} — ${['','À travailler','Fragile','Moyen','Bon','Excellent'][n]}</option>`).join('')}</select></div>`).join('');updateDetails();}
+function updateDetails(){let avg=detailScores.reduce((a,b)=>a+(+b||4),0)/30,weak=DETAIL_Q.map((x,i)=>[x,+detailScores[i]||4]).filter(x=>x[1]<=2);$('detailResult').innerHTML=`<b>Note technique : ${(avg*20).toFixed(0)}/100</b><p>${weak.length?'Axes prioritaires : '+weak.map(x=>esc(x[0])).join(' · '):'Aucun critère en difficulté. Maintenir la régularité.'}</p><p class="tiny">Calcul basé sur 30 évaluations personnelles : ce n’est pas un diagnostic télémétrique.</p>`;}
+function updateRisk(){let own=lapSecondsSafe($('ownLap')?.value),other=lapSecondsSafe($('otherLap')?.value);let laps=Math.max(0,Math.floor(num('remaining')*60/Math.max(1,own))),gap=num('gap')+num('gapPit'),expected=num('rxErrorChance')/100*num('rxErrorCost')+num('rxPenaltyChance')/100*num('rxPenaltyCost')-num('rxSC')/100*num('rxSCGain');let baseline=gap+laps*(own-other+num('rxTraffic')+num('rxWear')+num('rxTrack')+num('rxWeather'))+expected;
+let cases=[['OPTIMISTE',baseline-Math.abs(laps*.35+10)],['CENTRAL',baseline],['PESSIMISTE',baseline+Math.abs(laps*.4+15)]];
+$('riskCards').innerHTML='<b>Écart final projeté (positif = derrière)</b><div class="tablewrap"><table><tr><th>Scénario</th><th>Écart estimé</th><th>Verdict</th></tr>'+cases.map(([n,v])=>`<tr><td>${n}</td><td>${v.toFixed(1)} s</td><td>${v<0?'EN FAVEUR':v<10?'NEUTRE':'EN PERTE'}</td></tr>`).join('')+'</table></div><p class="tiny">Modèle d’espérance simplifié, à rythmes supposés constants, non probabilités de victoire mesurées.</p>'}
+function lapSecondsSafe(s){return lapSeconds(s)||lapSeconds($('lap').value)||100;}
+function updateCrash(){let active=$('emergency').checked,remaining=Math.max(0,num('hours')*60-num('elapsed')),lap=lapSecondsSafe($('lap').value),f=Math.max(1,Math.floor(num('tank')/Math.max(.1,num('fuel'))-num('reserve'))),ty=Math.max(1,num('tyreLife')),cap=Math.max(1,Math.min(f,ty)),tours=Math.ceil(remaining*60/lap),base=Math.ceil(tours/cap);let rows=[['NORMAL',cap],['ANTICIPÉ',Math.max(1,cap-2)],['RAPIDE',Math.max(1,cap-4)],['DÉCALÉ',cap]];let pit=num('pitlane')+num('fuelTime')+num('swapTime');$('crashPlan').innerHTML=`<b>${active?'🚨 URGENCE ACTIVE':'Plan de secours en attente'}</b><p>Temps restant : ${remaining.toFixed(0)} min · Tours théoriques : ${tours} · Réparation : ${num('repair')} s</p><table><tr><th>Mode</th><th>Tours / relais</th><th>Arrêts</th><th>Coût pits + réparation</th></tr>${rows.map(([m,c])=>`<tr><td>${m}</td><td>${c}</td><td>${Math.max(0,Math.ceil(tours/c)-1)}</td><td>${(Math.max(0,Math.ceil(tours/c)-1)*pit+(active?num('repair'):0)).toFixed(0)} s</td></tr>`).join('')}</table><p class="tiny">La fenêtre pit, le pilote actuel et les swaps doivent être vérifiés avant toute décision.</p>`;}
+
+function makeSidebarAccordions(){document.querySelectorAll('aside .sect').forEach((sect,i)=>{if(sect.dataset.accReady)return;const h=sect.querySelector('h3');if(!h)return;const body=document.createElement('div');body.className='sectBody';while(h.nextSibling)body.appendChild(h.nextSibling);sect.appendChild(body);h.addEventListener('click',()=>sect.classList.toggle('closed'));if(i>1)sect.classList.add('closed');sect.dataset.accReady='1';});}
+function updateSetupCoach(){const issue=$('setupIssue')?.value||'underEntry', sev=+($('setupSeverity')?.value||2), phase=$('setupPhase')?.value||'overall', target=$('setupTarget')?.value||'fast';
+ const map={
+ underEntry:{title:'Sous-virage à l’entrée',front:['Baisser légèrement la pression avant','Assouplir la barre anti-roulis avant','Réduire un peu la hauteur avant'],rear:['Augmenter légèrement la hauteur arrière','Durcir légèrement la BAR arrière'],general:['Freiner un peu plus tôt et relâcher plus progressivement','Si tu bloques, réduis un peu la balance de frein']},
+ underExit:{title:'Sous-virage à la sortie',front:['Diminuer légèrement la pression avant','Assouplir l’avant en traction'],rear:['Réduire un peu le carrossage arrière négatif','Adoucir la réponse différentiel/traction'],general:['Réaccélérer plus progressivement','Évite de remettre 100% trop tôt']},
+ overEntry:{title:'Survirage à l’entrée',front:['Durcir légèrement l’avant si la caisse plonge trop','Augmenter un peu le support de freinage avant'],rear:['Assouplir la BAR arrière','Réduire légèrement la hauteur arrière','Augmenter un peu l’appui arrière'],general:['Réduis l’agressivité au lever de pied','Teste 0,5 à 1% plus à l’avant sur la balance de frein']},
+ overExit:{title:'Survirage à la sortie',front:['Augmenter légèrement le carrossage avant utile','Stabiliser l’avant si flottant'],rear:['Augmenter l’appui / garde arrière','Assouplir la motricité arrière','Réduire le différentiel en accélération'],general:['Réaccélère plus en ligne','Si besoin, passe sur un train plus sûr']},
+ slowCorner:{title:'Voiture lente en virage',front:['Réduire le drag / appui inutile à l’avant'],rear:['Réduire un peu le drag arrière si stable'],general:['Travailler surtout la vitesse de passage','Tu gagnes du temps si le chrono mini-vitesse augmente sans dégrader la sortie']},
+ agility:{title:'Manque d’agilité / de réponse',front:['Réduire légèrement le steering lock si trop grand','Baisser un peu la pression avant si manque d’attaque'],rear:['Monter très légèrement l’arrière / BAR arrière'],general:['Cherche plus de rotation sans rendre l’auto nerveuse']},
+ hotTyres:{title:'Pneus en surchauffe',front:['Augmenter un peu la pression concernée','Réduire le glissement'],rear:['Réduire les surchauffes de traction'],general:['Si la température baisse, tu gagnes surtout sur la durée du relais']},
+ coldTyres:{title:'Pneus froids',front:['Baisser légèrement la pression concernée'],rear:['Aider la montée en température par plus de charge'],general:['Phase d’attaque plus progressive sur 1 à 2 tours']},
+ topSpeed:{title:'Vmax trop faible',front:['Réduire l’appui avant si possible'],rear:['Réduire l’aileron / trainée si la stabilité le permet'],general:['Tu gagnes du temps surtout sur les longues lignes droites, vérifie le compromis dans le secteur rapide']},
+ braking:{title:'Blocage / freinage instable',front:['Relâcher un peu la pression de frein / support avant'],rear:['Stabiliser l’arrière au freinage'],general:['Déplace un peu la balance vers l’arrière seulement si l’avant bloque trop','Si les blocages disparaissent, tu gagnes du temps et de la constance']}
+ };
+ const d=map[issue]||map.underEntry; const sevTxt=['Léger','Moyen','Fort'][sev-1]||'Moyen'; let factor=sev===1?'micro-ajustement':sev===2?'ajustement mesuré':'ajustement marqué'; let timeMsg=target==='fast'?'Objectif : gagner du temps au tour sans dégrader le relais.':'stable'===target?'Objectif : sécuriser la voiture et perdre moins de temps sur la durée.':'Objectif : réduire le risque, même si le gain chrono immédiat est faible.';
+ $('setupCoachOut').innerHTML=`<b>${d.title}</b><p><span class="toggleTag ${target==='fast'?'on':'off'}">${sevTxt}</span> <span class="toggleTag on">${phase.toUpperCase()}</span> ${timeMsg}</p><div class="tablewrap"><table><tr><th>Avant</th><th>Arrière</th><th>Général / pilotage</th></tr><tr><td><ul>${d.front.map(x=>`<li>${x}</li>`).join('')}</ul></td><td><ul>${d.rear.map(x=>`<li>${x}</li>`).join('')}</ul></td><td><ul>${d.general.map(x=>`<li>${x}</li>`).join('')}</ul></td></tr></table></div><p class="tiny">Méthode : fais ${factor}, puis compare ton chrono, ta mini-vitesse et l’usure pneus pour savoir si tu gagnes ou perds du temps.</p>`;
+}
+
+function bootV5(){
+ $('turnRows').addEventListener('input',e=>{let el=e.target;if(el.dataset.t!==undefined){let i=+el.dataset.t;turns[i]=turns[i]||{};turns[i][el.dataset.k]=el.value;saveExtras();}});
+ $('detailQuestions').addEventListener('change',e=>{if(e.target.dataset.d!==undefined){detailScores[+e.target.dataset.d]=+e.target.value;saveExtras();updateDetails();}});
+ for(let id of EXTRA_FIELDS)$(id).addEventListener('input',()=>{saveExtras();if(id==='mapUrl'||id==='turnCount')renderTurns();});
+ let oldSwitch=switchCourse;switchCourse=function(i){saveExtras();oldSwitch(i);loadExtras();};
+ let oldSaveDebrief=saveDebrief;saveDebrief=function(){oldSaveDebrief();saveExtras();};
+ let oldApply=applyCurrentState;applyCurrentState=function(){oldApply();loadExtras();};
+ makeSidebarAccordions();updateSetupCoach();loadExtras();
+}
+bootV5();
+
+// V7 cockpit modal — values wired directly to main strategy inputs.
+const cfgRules={swaps:2,maxStint:60,open:0,close:0};
+const cfgTechMap={cfgLap:'lap',cfgFuel:'fuel',cfgTank:'tank',cfgTyre:'tyreLife',cfgReserve:'reserve',cfgSafety:'safetyFuel'};
+function openSetup(tab){$('setupDialog').classList.add('open');setupTab(tab);cfgSync();}
+function closeSetup(){$('setupDialog').classList.remove('open');}
+function setupTab(t){for(let n of ['Course','Pit','Tech']){$('ss'+n).classList.toggle('active',n.toLowerCase()===t);$('sp'+n).classList.toggle('active',n.toLowerCase()===t);}if(t==='pit')cfgPitRender();if(t==='tech')cfgTechInfo();}
+function cfgSync(){
+ $('cfgType').value=$('raceType').value;$('cfgHours').value=$('hours').value;
+ $('cfgSwaps').value=num('swaps')>0?'oui':'non';$('cfgLimit').value=num('maxStint')>0?'oui':'non';
+ $('cfgWindow').value=(num('open')>0||num('close')>0)?'oui':'non';$('cfgDouble').value=$('allowDoubleFast').checked?'oui':'non';
+ for(let [a,b] of Object.entries(cfgTechMap))$(a).value=$(b).value;
+ cfgPitRender();cfgTechInfo();
+}
+function cfgApply(){
+ $('raceType').value=$('cfgType').value;
+ $('hours').value=Math.max(.25,Math.min(24,+$('cfgHours').value||4));
+ for(let [a,b] of Object.entries(cfgTechMap))if($(a).value!=='')$(b).value=$(a).value;
+ if($('cfgSwaps').value==='non'){if(num('swaps')>0)cfgRules.swaps=num('swaps');$('swaps').value=0;}else if(num('swaps')===0)$('swaps').value=cfgRules.swaps;
+ if($('cfgLimit').value==='non'){if(num('maxStint')>0)cfgRules.maxStint=num('maxStint');$('maxStint').value=0;}else if(num('maxStint')===0)$('maxStint').value=cfgRules.maxStint;
+ if($('cfgWindow').value==='non'){if(num('open')>0)cfgRules.open=num('open');if(num('close')>0)cfgRules.close=num('close');$('open').value=0;$('close').value=0;}else if(num('open')===0&&num('close')===0){$('open').value=cfgRules.open;$('close').value=cfgRules.close;}
+ $('allowDoubleFast').checked=$('cfgDouble').value==='oui';
+ updateCourseVisibility();calculate();cfgTechInfo();
+}
+const cfgPitFields=[['pitlane','pLane','Traversée des stands'],['fuelTime','pFuel','Ravitaillement essence'],['tyreTime','pTyre','Changement des pneus'],['swapTime','pSwap','Changement pilote'],['lightTime','pLight','Réparation dégâts légers'],['heavyTime','pHeavy','Réparation dégâts lourds']];
+function cfgPitRender(){
+ $('cfgPitList').innerHTML=cfgPitFields.map(([id,check,name])=>`<div class="pit-item"><label style="margin:0"><input type="checkbox" ${$(check).checked?'checked':''} onchange="$('${check}').checked=this.checked;cfgPitInfo();updatePit();calculate()"> ${name}</label><input type="number" min="0" step="0.1" value="${esc($(id).value)}" onchange="$('${id}').value=this.value;cfgPitInfo();updatePit();calculate()"><span class="pit-status">secondes</span></div>`).join('');cfgPitInfo();
+}
+function cfgPitInfo(){let total=pitService({lane:yes('pLane'),fuel:yes('pFuel'),tyre:yes('pTyre'),swap:yes('pSwap'),light:yes('pLight'),heavy:yes('pHeavy')});$('cfgPitPreview').innerHTML=`<b>DURÉE TOTALE : ${total.toFixed(1)} s</b> — Sans action cochée : 0 s. <span class="small">Les paramètres restent liés au calcul de stratégie et au simulateur PIT.</span>`;}
+function cfgTechInfo(){let l=lapSeconds($('cfgLap').value)||0, fuel=+($('cfgFuel').value)||0,tank=+($('cfgTank').value)||0, m=+($('cfgReserve').value)||0,safety=+($('cfgSafety').value)||0,tyre=+($('cfgTyre').value)||0;
+ let cap=fuel>0?Math.max(0,Math.floor(tank/(fuel*(1+safety/100))-m)):0;
+ $('cfgTechPreview').innerHTML=`<b>Prévision :</b> ${cap} tours au carburant · ${tyre} tours pneus · ${(l?Math.max(0,Math.min(cap,tyre))*l/60:0).toFixed(1)} min maximum théorique. Données à mesurer en simulateur.`;}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('setupDialog').classList.contains('open'))closeSetup();});
+
+// V8 — accessible range sliders, linked to the exact numeric inputs of V7.
+const V8_SLIDERS={
+ cfgHours:[.25,24,.25,' h'],cfgFuel:[0,12,.05,' L/tour'],cfgTank:[1,160,1,' L'],
+ cfgTyre:[1,160,1,' tours'],cfgReserve:[0,8,.5,' tours'],cfgSafety:[0,30,.5,' %'],
+ pitlane:[0,180,.5,' s'],fuelTime:[0,120,.5,' s'],tyreTime:[0,120,.5,' s'],
+ swapTime:[0,120,.5,' s'],lightTime:[0,240,1,' s'],heavyTime:[0,600,5,' s']
+};
+function v8Range(target, min, max, step, unit){
+ if(!target||target.dataset.v8Ready)return;
+ target.dataset.v8Ready='1';
+ let block=document.createElement('div');block.className='vce-slider-wrap';
+ let name=target.id==='cfgHours'?'Durée de course':target.id.startsWith('cfg')?({cfgFuel:'Consommation',cfgTank:'Réservoir',cfgTyre:'Durée de vie pneus',cfgReserve:'Marge carburant',cfgSafety:'Marge de sécurité'})[target.id]||'Réglage':'Temps de service';
+ const head=document.createElement('div');head.className='vce-slider-header';
+ const title=document.createElement('span');title.textContent=name;
+ const read=document.createElement('span');read.className='vce-slider-readout';head.append(title,read);
+ const range=document.createElement('input');range.type='range';range.className='vce-slider';range.min=min;range.max=max;range.step=step;range.setAttribute('aria-label',name);
+ const hints=document.createElement('div');hints.className='vce-slider-help';const low=document.createElement('span'),high=document.createElement('span');low.textContent=min+unit;high.textContent=max+unit;hints.append(low,high);
+ block.append(head,range,hints);target.parentElement.appendChild(block);target.parentElement.classList.add('vce-has-slider');
+ function show(){let value=parseFloat(target.value);if(!Number.isFinite(value))value=min;range.value=Math.min(max,Math.max(min,value));let pct=(+range.value-min)/(max-min)*100;range.style.setProperty('--pct',Math.max(0,Math.min(100,pct))+'%');read.textContent=Number(value).toLocaleString('fr-FR')+unit;}
+ range.addEventListener('input',()=>{target.value=range.value;target.dispatchEvent(new Event('input',{bubbles:true}));if(target.id.startsWith('cfg'))cfgApply();else{let sourceId=target.id.replace(/^v8_/,'');if($(sourceId))$(sourceId).value=target.value;updatePit();calculate();cfgPitInfo();}show();});
+ range.addEventListener('change',()=>{target.dispatchEvent(new Event('change',{bubbles:true}));show();});
+ target.addEventListener('input',show);target.addEventListener('change',show);show();
+}
+function v8InitTechSliders(){for(let id of ['cfgHours','cfgFuel','cfgTank','cfgTyre','cfgReserve','cfgSafety']){let el=$(id);if(el)v8Range(el,...V8_SLIDERS[id]);}}
+function v8InitPitSliders(){let items=[...$('cfgPitList').querySelectorAll('.pit-item')];items.forEach((item,i)=>{let id=cfgPitFields[i]?.[0];let input=item.querySelector('input[type="number"]');if(id&&input){input.id='v8_'+id;v8Range(input,...V8_SLIDERS[id]);}});}
+// Ensure dynamically regenerated pitstop rows get sliders on each opening.
+const v8OriginalPitRender=cfgPitRender;
+cfgPitRender=function(){v8OriginalPitRender();v8InitPitSliders();};
+const v8OriginalCfgSync=cfgSync;
+cfgSync=function(){v8OriginalCfgSync();v8InitTechSliders();for(let id of Object.keys(V8_SLIDERS)){let el=$(id);if(el&&el.id.startsWith('cfg'))el.dispatchEvent(new Event('input'));}};
+// Pit row's original onchange remains the source of truth for main stop-time values.
+for(let id of ['cfgHours','cfgFuel','cfgTank','cfgTyre','cfgReserve','cfgSafety']){const el=$(id);if(el)el.addEventListener('input',()=>{if($('setupDialog').classList.contains('open'))cfgTechInfo();});}
+
+</script>
+<footer style="max-width:1680px;margin:25px auto 14px;text-align:center;font-size:11px;letter-spacing:.08em;color:#9aaac2;padding:14px">CE SITE APPARTIENT À LA PROPRIÉTÉ DE VIRTUAL CENTER EXPERIENCE ET EST PRIVÉ.</footer>
+<script>
+/* Fonctions V19 autonomes : les anciens modules externes n'étaient pas fournis. */
+(()=>{
+ const $v=id=>document.getElementById(id);
+ const val=id=>{const e=$v(id);return e?e.value:''};
+ const n=id=>Number(String(val(id)).replace(',','.'))||0;
+ const fmt=x=>Number.isFinite(x)?x.toFixed(1):'—';
+ function update(){
+  const lap=(typeof lapSeconds==='function'?lapSeconds(val('lap')):0),fuel=n('fuel'),tank=n('tank'),hours=n('hours');
+  const laps=lap>0?Math.ceil(hours*3600/lap):0;
+  const stints=fuel>0&&tank>0?Math.max(1,Math.ceil(laps*fuel/tank)):0;
+  const m=$v('v19-metrics');if(m)m.innerHTML=[['Tours estimés',laps||'—'],['Autonomie',fuel>0?Math.floor(tank/fuel)+' tours':'—'],['Arrêts essence',stints?Math.max(0,stints-1):'—'],['Carburant total',fuel>0?fmt(laps*fuel)+' L':'—']].map(([a,b])=>`<div class="v19-metric"><small>${a}</small><div style="font-size:22px;font-weight:900;margin-top:6px">${b}</div></div>`).join('');
+  const fuelOut=$v('v19-fuel-output');if(fuelOut){const l=Math.max(0,n('v19-fuel-laps')),required=l*fuel*(1+n('safetyFuel')/100)+n('reserve')*fuel;fuelOut.textContent='Carburant nécessaire : '+fmt(required)+' L · À ajouter : '+fmt(Math.max(0,required-n('v19-fuel-onboard')))+' L';}
+  const compare=$v('v19-compare');if(compare){compare.innerHTML=[['ÉCONOMIE',0.97],['NORMAL',1],['ATTAQUE',1.04]].map(([name,factor])=>`<div><b>${name}</b> · Conso estimée : ${fmt(fuel*factor)} L/tour · Total : ${fmt(laps*fuel*factor)} L</div>`).join('');}
+ }
+ function save(){
+  if(typeof saveCurrentCourse==='function')try{saveCurrentCourse()}catch(e){}
+  const data=localStorage.getItem('vce_race_control_v2');if(!data){alert('Aucune sauvegarde locale trouvée.');return;}
+  const blob=new Blob([data],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='VCE-Race-Control-3-courses.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+ }
+ const exp=$v('v19-export');if(exp)exp.addEventListener('click',save);
+ const imp=$v('v19-import'),btn=$v('v19-import-btn');if(btn&&imp)btn.addEventListener('click',()=>imp.click());
+ if(imp)imp.addEventListener('change',async()=>{try{const data=JSON.parse(await imp.files[0].text());if(!data||!Array.isArray(data.slots)||!Array.isArray(data.slotNames))throw Error('Format de sauvegarde invalide');if(!confirm('Remplacer les 3 courses par ce fichier ?'))return;localStorage.setItem('vce_race_control_v2',JSON.stringify(data));location.reload()}catch(e){alert('Import impossible : '+e.message)}});
+ const analyse=$v('v19-analyse');if(analyse)analyse.addEventListener('click',()=>{if(typeof calculate==='function')calculate();update();$v('v19-tools')?.scrollIntoView({behavior:'smooth'})});
+ const scenarios=$v('v19-scenarios');if(scenarios)scenarios.addEventListener('click',()=>{update();$v('v19-compare')?.scrollIntoView({behavior:'smooth'})});
+ ['v19-fuel-laps','v19-fuel-onboard','fuel','tank','hours','lap','reserve','safetyFuel'].forEach(id=>$v(id)?.addEventListener('input',update));
+ window.addEventListener('load',()=>{try{update()}catch(e){console.warn('Indicateurs V19:',e)}});
+})();
+</script></body>
+</html>

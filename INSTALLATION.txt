@@ -1,0 +1,34 @@
+VCE ESPORT — 5 PRESETS PAR MODULE (15 EMPLACEMENTS)
+Dépôt : https://github.com/virtualcenterexperience/vce-race-control
+
+REMPLACER :
+ calendrier-staff.html, lineup-staff.html, resultats-staff.html
+ calendrier.html, lineup.html, resultats.html
+ vce-github-sync.js, vce-github-config.js
+ overlay-calendrier.html (affichage du calendrier graphique depuis TEAM)
+
+AJOUTER :
+ data/team/calendrier-presets.json
+ data/team/lineup-presets.json
+ data/team/resultats-presets.json
+
+NE PAS MODIFIER :
+ overlay-lineup.html, overlay-resultats.html, team.html, pilote.html,
+ data/images/, data/drapeaux/, data/marques/ et les autres HTML.
+
+UTILISATION :
+ 1. Installer les fichiers sur la branche main de GitHub.
+ 2. Ouvrir une page *-staff.html et trouver « 5 PRESETS » en bas.
+ 3. Choisir un emplacement 1 à 5, écrire son nom.
+ 4. Remplir le formulaire STAFF au-dessus.
+ 5. Coller un token GitHub fine-grained avec Contents: Read and write.
+ 6. Cliquer « Enregistrer et publier ».
+ 7. Après déploiement GitHub Pages, les pilotes ouvrent TEAM > Calendrier/Lineup/Résultats et sélectionnent un preset.
+ 8. « Charger dans le formulaire » importe un preset existant pour le modifier.
+ 9. « Masquer ce preset » le retire de la liste des pilotes.
+
+SÉCURITÉ :
+ Ne jamais placer de token dans le dépôt ou dans un JSON public.
+ Le token n'est pas enregistré. Les JSON publiés sont publics.
+ Le site GitHub Pages reste statique ; la publication STAFF passe par l'API GitHub authentifiée.
+ Un mot de passe STAFF codé en HTML ne constitue pas une protection forte.
