@@ -18,9 +18,7 @@ create policy vce_public_read on public.vce_publications for select to anon, aut
 create or replace function public.vce_is_staff()
 returns boolean language sql stable security definer
 set search_path = ''
-as $
- select exists (select 1 from public.vce_staff_users where user_id = (select auth.uid()));
-$;
+as 'select exists (select 1 from public.vce_staff_users where user_id = (select auth.uid()));';
 revoke all on function public.vce_is_staff() from public;
 grant execute on function public.vce_is_staff() to authenticated;
 drop policy if exists vce_staff_insert on public.vce_publications;
