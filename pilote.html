@@ -229,9 +229,9 @@ async function refreshVceEvery10Seconds(){
  try{await render();}catch(e){console.warn('Actualisation VCE',e)}finally{__vceRefreshBusy=false}
 }
 window.setInterval(refreshVceEvery10Seconds,10000);
-fetch('data/vce/pilotes.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(rows=>{
- if(!Array.isArray(rows)||!rows.length)return;
- allPilots.splice(0,allPilots.length,...rows.map(p=>({id:p.id,name:p.name})));
+(async()=>{try{const remote=await VCESupabase.read('pilotes');if(Array.isArray(remote.items))return remote.items}catch(e){console.warn('Liste Supabase indisponible, repli JSON',e)}const r=await fetch('data/vce/pilotes.json?v='+Date.now(),{cache:'no-store'});return r.ok?r.json():null})().then(rows=>{
+ if(!Array.isArray(rows))return;
+ allPilots.splice(0,allPilots.length,...rows.map(p=>({id:p.id,name:p.name})));VCE.names.splice(0,VCE.names.length,...rows.map(p=>p.name));
  showPilotList();routePilot();
 }).catch(console.warn);
 </script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261103-audit3"></script><script src="vce-pilot-sync.js?v=20261103-assignments"></script></body></html>
