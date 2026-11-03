@@ -21,7 +21,7 @@ async function request(path,opts={},auth=false){
  if(auth&&!token)throw Error('Connectez-vous en STAFF.');
  const r=await fetch(cfg.url+path,{...opts,cache:'no-store',headers:{apikey:cfg.key,Authorization:'Bearer '+(token||cfg.key),...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}});
  if(!r.ok){let t=await r.text();throw Error('Supabase HTTP '+r.status+' : '+t.slice(0,180))}
- return r.status===204?null:r.json();
+ if(r.status===204||r.status===205)return null;const body=await r.text();if(!body.trim())return null;try{return JSON.parse(body)}catch{throw Error('Réponse Supabase invalide (HTTP '+r.status+')')}
 }
 async function login(email,password){const d=await request('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});d.expires_at=Math.floor(Date.now()/1000)+d.expires_in;sessionStorage.setItem(key,JSON.stringify(d));return d}
 function logout(){sessionStorage.removeItem(key)}
