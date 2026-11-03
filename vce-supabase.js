@@ -27,5 +27,6 @@ async function login(email,password){const d=await request('/auth/v1/token?grant
 function logout(){sessionStorage.removeItem(key)}
 async function read(kind){const a=await request('/rest/v1/vce_publications?kind=eq.'+encodeURIComponent(kind)+'&select=payload');return a[0]?.payload||{version:1,presets:[]}}
 async function save(kind,payload){return request('/rest/v1/vce_publications?on_conflict=kind',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({kind,payload,updated_at:new Date().toISOString()})},true)}
-window.VCESupabase={configured,login,logout,session,read,save};
+async function isStaff(){if(!session())return false;const r=await request('/rest/v1/rpc/vce_is_staff',{method:'POST',body:'{}'},true);return r===true}
+window.VCESupabase={configured,login,logout,session,read,save,isStaff};
 })();
