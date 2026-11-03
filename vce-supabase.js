@@ -35,5 +35,7 @@ async function review(session_id,pilot,decision){
  const rows=await request('/rest/v1/vce_training_reviews?on_conflict=session_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({session_id,pilot,decision})},true);
  return rows?.[0]||null;
 }
-window.VCESupabase={configured,login,logout,session,read,save,isStaff,reviews,review};
+async function submitTraining(item){if(!item?.id||!item?.driver)throw Error('Séance invalide');return request('/rest/v1/vce_training_submissions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({session_id:String(item.id),pilot:String(item.driver),payload:item})})}
+async function trainingSubmissions(){return request('/rest/v1/vce_training_submissions?select=session_id,pilot,payload,submitted_at&order=submitted_at.desc',{},true)}
+window.VCESupabase={configured,login,logout,session,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions};
 })();
