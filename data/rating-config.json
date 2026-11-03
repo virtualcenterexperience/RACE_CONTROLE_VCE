@@ -48,5 +48,5 @@
     }
   ],
   "dailyTrainingPoints": 3,
-  "xpPerCompletedSession": 50
+  "maxRewardedSessionsPerDay": 3
 }
