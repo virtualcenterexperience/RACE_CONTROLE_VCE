@@ -159,4 +159,4 @@ fetch('data/vce/pilotes.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.j
  allPilots.splice(0,allPilots.length,...rows.map(p=>({id:p.id,name:p.name})));
  showPilotList();routePilot();
 }).catch(console.warn);
-</script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js"></script><script src="vce-pilot-sync.js"></script></body></html>
+</script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261103-stats"></script><script src="vce-pilot-sync.js?v=20261103-stats"></script></body></html>
