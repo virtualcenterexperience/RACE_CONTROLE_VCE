@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "updatedAt": null,
+  "presets": [
+    {
+      "id": 1,
+      "title": "Preset 1",
+      "published": false,
+      "data": null
+    },
+    {
+      "id": 2,
+      "title": "Preset 2",
+      "published": false,
+      "data": null
+    },
+    {
+      "id": 3,
+      "title": "Preset 3",
+      "published": false,
+      "data": null
+    },
+    {
+      "id": 4,
+      "title": "Preset 4",
+      "published": false,
+      "data": null
+    },
+    {
+      "id": 5,
+      "title": "Preset 5",
+      "published": false,
+      "data": null
+    }
+  ]
+}
