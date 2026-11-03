@@ -1,0 +1,52 @@
+{
+  "startDate": "2026-11-02",
+  "weeklyTrainingPoints": 3,
+  "weeklyMissPenalty": 0,
+  "xpPointsStep": 15,
+  "classes": [
+    {
+      "code": "R",
+      "name": "ROOKIE",
+      "xpPer15Points": 150,
+      "xpToNext": 1000
+    },
+    {
+      "code": "F",
+      "name": "BRONZE",
+      "xpPer15Points": 125,
+      "xpToNext": 1000
+    },
+    {
+      "code": "E",
+      "name": "SILVER",
+      "xpPer15Points": 100,
+      "xpToNext": 1000
+    },
+    {
+      "code": "D",
+      "name": "DIAMANT",
+      "xpPer15Points": 75,
+      "xpToNext": 1000
+    },
+    {
+      "code": "C",
+      "name": "BLINDÉ",
+      "xpPer15Points": 50,
+      "xpToNext": 1000
+    },
+    {
+      "code": "B",
+      "name": "OR",
+      "xpPer15Points": 25,
+      "xpToNext": 1000
+    },
+    {
+      "code": "A",
+      "name": "ALIEN",
+      "xpPer15Points": 10,
+      "xpToNext": 50000
+    }
+  ],
+  "dailyTrainingPoints": 3,
+  "xpPerCompletedSession": 50
+}

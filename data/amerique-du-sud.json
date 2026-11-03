@@ -1,0 +1,514 @@
+{
+  "continent": "Amérique du Sud",
+  "circuits": [
+    {
+      "name": "Interlagos (José Carlos Pace)",
+      "country": "Brésil",
+      "continent": "Amérique du Sud",
+      "features": [
+        "relief",
+        "pluie",
+        "traction"
+      ],
+      "layout": "principal",
+      "aliases": [
+        "Interlagos",
+        "Sao Paulo"
+      ],
+      "notes": "",
+      "id": "interlagos-jose-carlos-pace",
+      "nombre_entrees": 15,
+      "virages": [
+        {
+          "numero": 1,
+          "ordre_section": 1,
+          "nom": "Senna S",
+          "etiquette": "Senna S",
+          "mots_cles": [
+            "T1",
+            "virage 1",
+            "corner 1",
+            "turn 1",
+            "Senna S",
+            "senna s"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 2,
+          "ordre_section": 2,
+          "nom": "Senna S",
+          "etiquette": "Senna S",
+          "mots_cles": [
+            "T2",
+            "virage 2",
+            "corner 2",
+            "turn 2",
+            "Senna S",
+            "senna s"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 3,
+          "ordre_section": 3,
+          "nom": "Curva do Sol",
+          "etiquette": "Curva do Sol",
+          "mots_cles": [
+            "T3",
+            "virage 3",
+            "corner 3",
+            "turn 3",
+            "Curva do Sol",
+            "curva do sol"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 4,
+          "ordre_section": 4,
+          "nom": "Descida do Lago",
+          "etiquette": "Descida do Lago",
+          "mots_cles": [
+            "T4",
+            "virage 4",
+            "corner 4",
+            "turn 4",
+            "Descida do Lago",
+            "descida do lago"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 5,
+          "ordre_section": 5,
+          "nom": "Descida do Lago",
+          "etiquette": "Descida do Lago",
+          "mots_cles": [
+            "T5",
+            "virage 5",
+            "corner 5",
+            "turn 5",
+            "Descida do Lago",
+            "descida do lago"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 6,
+          "ordre_section": 6,
+          "nom": "Ferradura",
+          "etiquette": "Ferradura",
+          "mots_cles": [
+            "T6",
+            "virage 6",
+            "corner 6",
+            "turn 6",
+            "Ferradura",
+            "ferradura"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 7,
+          "ordre_section": 7,
+          "nom": "Laranjinha",
+          "etiquette": "Laranjinha",
+          "mots_cles": [
+            "T7",
+            "virage 7",
+            "corner 7",
+            "turn 7",
+            "Laranjinha",
+            "laranjinha"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 8,
+          "ordre_section": 8,
+          "nom": "Pinheirinho",
+          "etiquette": "Pinheirinho",
+          "mots_cles": [
+            "T8",
+            "virage 8",
+            "corner 8",
+            "turn 8",
+            "Pinheirinho",
+            "pinheirinho"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 9,
+          "ordre_section": 9,
+          "nom": "Bico de Pato",
+          "etiquette": "Bico de Pato",
+          "mots_cles": [
+            "T9",
+            "virage 9",
+            "corner 9",
+            "turn 9",
+            "Bico de Pato",
+            "bico de pato"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 10,
+          "ordre_section": 10,
+          "nom": "Mergulho",
+          "etiquette": "Mergulho",
+          "mots_cles": [
+            "T10",
+            "virage 10",
+            "corner 10",
+            "turn 10",
+            "Mergulho",
+            "mergulho"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 11,
+          "ordre_section": 11,
+          "nom": "Junção",
+          "etiquette": "Junção",
+          "mots_cles": [
+            "T11",
+            "virage 11",
+            "corner 11",
+            "turn 11",
+            "Junção",
+            "juncao"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 12,
+          "ordre_section": 12,
+          "nom": "Subida dos Boxes",
+          "etiquette": "Subida dos Boxes",
+          "mots_cles": [
+            "T12",
+            "virage 12",
+            "corner 12",
+            "turn 12",
+            "Subida dos Boxes",
+            "subida dos boxes"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 13,
+          "ordre_section": 13,
+          "nom": "Arquibancadas",
+          "etiquette": "Arquibancadas",
+          "mots_cles": [
+            "T13",
+            "virage 13",
+            "corner 13",
+            "turn 13",
+            "Arquibancadas",
+            "arquibancadas"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 14,
+          "ordre_section": 14,
+          "nom": null,
+          "etiquette": "T14",
+          "mots_cles": [
+            "T14",
+            "virage 14",
+            "corner 14",
+            "turn 14"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 15,
+          "ordre_section": 15,
+          "nom": null,
+          "etiquette": "T15",
+          "mots_cles": [
+            "T15",
+            "virage 15",
+            "corner 15",
+            "turn 15"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        }
+      ],
+      "mots_cles": [
+        "Interlagos (José Carlos Pace)",
+        "Interlagos",
+        "Sao Paulo"
+      ],
+      "source_status": "indicatif"
+    }
+  ],
+  "profils_categories": {
+    "F1": {
+      "aero": "extrême",
+      "abs": false,
+      "tc": false,
+      "frein": "freinage dégressif très sensible à la vitesse",
+      "sortie": "dosage du couple sans TC",
+      "attention": "appui variable avec la vitesse"
+    },
+    "F2": {
+      "aero": "élevé",
+      "abs": false,
+      "tc": false,
+      "frein": "surveiller les blocages et le relâchement",
+      "sortie": "progressivité de l’accélérateur",
+      "attention": "transferts de charge dans les enchaînements"
+    },
+    "F3/F4": {
+      "aero": "modéré",
+      "abs": false,
+      "tc": false,
+      "frein": "préserver la vitesse minimale",
+      "sortie": "éviter le surpilotage",
+      "attention": "conservation de vitesse"
+    },
+    "GT3/LMGT3": {
+      "aero": "élevé",
+      "abs": true,
+      "tc": true,
+      "frein": "ABS natif à vérifier et optimiser",
+      "sortie": "TC réglable selon modèle",
+      "attention": "masse, température et pneus"
+    },
+    "GT4": {
+      "aero": "modéré",
+      "abs": "variable",
+      "tc": "variable",
+      "frein": "transferts de masse importants",
+      "sortie": "motricité mécanique",
+      "attention": "aides à confirmer selon modèle"
+    },
+    "Porsche Cup 992": {
+      "aero": "modéré",
+      "abs": false,
+      "tc": false,
+      "frein": "blocage possible sans ABS",
+      "sortie": "motricité moteur arrière",
+      "attention": "survirage au lever de pied"
+    },
+    "GTE": {
+      "aero": "élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "freinage sans ABS",
+      "sortie": "TC natif",
+      "attention": "blocage avant et arrière"
+    },
+    "LMP2": {
+      "aero": "très élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "pression à réduire avec la vitesse",
+      "sortie": "TC natif",
+      "attention": "forte dépendance aérodynamique"
+    },
+    "Hypercar LMH/LMDh": {
+      "aero": "très élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "hybride/freinage à vérifier par modèle",
+      "sortie": "gestion de traction et énergie",
+      "attention": "équilibre et hybridation propres au modèle"
+    },
+    "Tourisme TCR": {
+      "aero": "faible",
+      "abs": "variable",
+      "tc": "variable",
+      "frein": "gérer pneus avant",
+      "sortie": "motricité en traction",
+      "attention": "transmission avant et règles propres au modèle"
+    }
+  }
+}

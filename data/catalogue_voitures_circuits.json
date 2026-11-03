@@ -1,0 +1,114 @@
+{
+  "categories": {
+    "GT3": [
+      "Mercedes-AMG GT3",
+      "Porsche 911 GT3 R",
+      "Aston Martin Vantage GT3",
+      "Ferrari GT3",
+      "Bentley Continental GT3",
+      "BMW M4 GT3",
+      "Corvette Z06 GT3.R",
+      "McLaren 720S GT3",
+      "Ford Mustang GT3",
+      "Lamborghini Huracán GT3"
+    ],
+    "PORSCHE": [
+      "Porsche 911 GT3 Cup"
+    ],
+    "GT4": [
+      "Alpine A110 GT4",
+      "Porsche 718 Cayman GT4",
+      "Mercedes-AMG GT4",
+      "McLaren 570S GT4"
+    ],
+    "TCR": [
+      "WTCR",
+      "TCR",
+      "Twingo Cup",
+      "Clio Cup"
+    ],
+    "SUPERCARS": [
+      "V8 Supercars"
+    ],
+    "F4": [
+      "Formule 4 (F4)"
+    ],
+    "F3": [
+      "Formule 3 (F3)"
+    ],
+    "F2": [
+      "Formule 2 (F2)"
+    ],
+    "F1": [
+      "Formule 1 (F1)"
+    ],
+    "INDYCAR": [
+      "IndyCar"
+    ],
+    "LMP2": [
+      "LMP2"
+    ],
+    "LMP3": [
+      "LMP3"
+    ],
+    "HYPERCAR": [
+      "LMDh"
+    ]
+  },
+  "circuits": [
+    "Spa-Francorchamps",
+    "Monza",
+    "Silverstone",
+    "Donington Park",
+    "Brands Hatch",
+    "Nürburgring GP / GT",
+    "Nürburgring Nordschleife",
+    "Paul Ricard",
+    "Nogaro",
+    "Lédenon",
+    "Val de Vienne",
+    "Red Bull Ring",
+    "Pau-Arnos",
+    "Zolder",
+    "Sachsenring",
+    "Barcelona-Catalunya",
+    "MotorLand Aragón",
+    "Le Mans 24H (Circuit de la Sarthe)",
+    "Le Mans Bugatti",
+    "Imola",
+    "Portimão",
+    "Dijon-Prenois",
+    "Albi",
+    "Jerez",
+    "Misano",
+    "Zandvoort",
+    "Hungaroring",
+    "Madrid (MADRING)",
+    "Suzuka",
+    "Tsukuba",
+    "Okayama",
+    "Bahrain",
+    "Lusail (Losail)",
+    "Fuji Speedway",
+    "Sepang",
+    "Shanghai",
+    "Singapore (Marina Bay)",
+    "Chang International Circuit",
+    "Kyalami",
+    "Laguna Seca",
+    "Circuit of the Americas (COTA)",
+    "Sebring",
+    "Montréal (Gilles-Villeneuve)",
+    "Daytona",
+    "Long Beach",
+    "Autódromo Hermanos Rodríguez",
+    "Las Vegas Strip Circuit",
+    "Indianapolis Motor Speedway",
+    "Interlagos (José Carlos Pace)",
+    "Bathurst (Mount Panorama)",
+    "Albert Park (Melbourne)"
+  ],
+  "version": "2026-11-02",
+  "source_circuits": "data/circuits/*.json",
+  "nombre_circuits": 51
+}

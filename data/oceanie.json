@@ -1,0 +1,858 @@
+{
+  "continent": "Océanie",
+  "circuits": [
+    {
+      "name": "Bathurst (Mount Panorama)",
+      "country": "Australie",
+      "continent": "Océanie",
+      "features": [
+        "montagne",
+        "murs",
+        "descente",
+        "virages_aveugles"
+      ],
+      "layout": "principal",
+      "aliases": [],
+      "notes": "Le découpage des virages de montagne varie selon les cartes; numérotation indicative.",
+      "id": "bathurst-mount-panorama",
+      "nombre_entrees": 14,
+      "virages": [
+        {
+          "numero": 1,
+          "ordre_section": 1,
+          "nom": "Hell Corner",
+          "etiquette": "Hell Corner",
+          "mots_cles": [
+            "T1",
+            "virage 1",
+            "corner 1",
+            "turn 1",
+            "Hell Corner",
+            "hell corner"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 2,
+          "ordre_section": 2,
+          "nom": "Griffins Bend",
+          "etiquette": "Griffins Bend",
+          "mots_cles": [
+            "T2",
+            "virage 2",
+            "corner 2",
+            "turn 2",
+            "Griffins Bend",
+            "griffins bend"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 3,
+          "ordre_section": 3,
+          "nom": "The Cutting",
+          "etiquette": "The Cutting",
+          "mots_cles": [
+            "T3",
+            "virage 3",
+            "corner 3",
+            "turn 3",
+            "The Cutting",
+            "the cutting"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 4,
+          "ordre_section": 4,
+          "nom": "Quarry Bend",
+          "etiquette": "Quarry Bend",
+          "mots_cles": [
+            "T4",
+            "virage 4",
+            "corner 4",
+            "turn 4",
+            "Quarry Bend",
+            "quarry bend"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 5,
+          "ordre_section": 5,
+          "nom": "Reid Park",
+          "etiquette": "Reid Park",
+          "mots_cles": [
+            "T5",
+            "virage 5",
+            "corner 5",
+            "turn 5",
+            "Reid Park",
+            "reid park"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 6,
+          "ordre_section": 6,
+          "nom": "Sulman Park",
+          "etiquette": "Sulman Park",
+          "mots_cles": [
+            "T6",
+            "virage 6",
+            "corner 6",
+            "turn 6",
+            "Sulman Park",
+            "sulman park"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 7,
+          "ordre_section": 7,
+          "nom": "McPhillamy Park",
+          "etiquette": "McPhillamy Park",
+          "mots_cles": [
+            "T7",
+            "virage 7",
+            "corner 7",
+            "turn 7",
+            "McPhillamy Park",
+            "mcphillamy park"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 8,
+          "ordre_section": 8,
+          "nom": "Brock Skyline",
+          "etiquette": "Brock Skyline",
+          "mots_cles": [
+            "T8",
+            "virage 8",
+            "corner 8",
+            "turn 8",
+            "Brock Skyline",
+            "brock skyline"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 9,
+          "ordre_section": 9,
+          "nom": "The Esses",
+          "etiquette": "The Esses",
+          "mots_cles": [
+            "T9",
+            "virage 9",
+            "corner 9",
+            "turn 9",
+            "The Esses",
+            "the esses"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 10,
+          "ordre_section": 10,
+          "nom": "The Dipper",
+          "etiquette": "The Dipper",
+          "mots_cles": [
+            "T10",
+            "virage 10",
+            "corner 10",
+            "turn 10",
+            "The Dipper",
+            "the dipper"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 11,
+          "ordre_section": 11,
+          "nom": "Forrest Elbow",
+          "etiquette": "Forrest Elbow",
+          "mots_cles": [
+            "T11",
+            "virage 11",
+            "corner 11",
+            "turn 11",
+            "Forrest Elbow",
+            "forrest elbow"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 12,
+          "ordre_section": 12,
+          "nom": "The Chase entrée",
+          "etiquette": "The Chase entrée",
+          "mots_cles": [
+            "T12",
+            "virage 12",
+            "corner 12",
+            "turn 12",
+            "The Chase entrée",
+            "the chase entree"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 13,
+          "ordre_section": 13,
+          "nom": "The Chase",
+          "etiquette": "The Chase",
+          "mots_cles": [
+            "T13",
+            "virage 13",
+            "corner 13",
+            "turn 13",
+            "The Chase",
+            "the chase"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 14,
+          "ordre_section": 14,
+          "nom": "Murrays Corner",
+          "etiquette": "Murrays Corner",
+          "mots_cles": [
+            "T14",
+            "virage 14",
+            "corner 14",
+            "turn 14",
+            "Murrays Corner",
+            "murrays corner"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        }
+      ],
+      "mots_cles": [
+        "Bathurst (Mount Panorama)"
+      ],
+      "source_status": "indicatif"
+    },
+    {
+      "name": "Albert Park (Melbourne)",
+      "country": "Australie",
+      "continent": "Océanie",
+      "features": [
+        "urbain",
+        "freinages",
+        "rapide"
+      ],
+      "layout": "2022+",
+      "aliases": [],
+      "notes": "Ancien layout 16 virages, actuel 14.",
+      "id": "albert-park-melbourne",
+      "nombre_entrees": 14,
+      "virages": [
+        {
+          "numero": 1,
+          "ordre_section": 1,
+          "nom": null,
+          "etiquette": "T1",
+          "mots_cles": [
+            "T1",
+            "virage 1",
+            "corner 1",
+            "turn 1"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 2,
+          "ordre_section": 2,
+          "nom": null,
+          "etiquette": "T2",
+          "mots_cles": [
+            "T2",
+            "virage 2",
+            "corner 2",
+            "turn 2"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 3,
+          "ordre_section": 3,
+          "nom": null,
+          "etiquette": "T3",
+          "mots_cles": [
+            "T3",
+            "virage 3",
+            "corner 3",
+            "turn 3"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 4,
+          "ordre_section": 4,
+          "nom": null,
+          "etiquette": "T4",
+          "mots_cles": [
+            "T4",
+            "virage 4",
+            "corner 4",
+            "turn 4"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 5,
+          "ordre_section": 5,
+          "nom": null,
+          "etiquette": "T5",
+          "mots_cles": [
+            "T5",
+            "virage 5",
+            "corner 5",
+            "turn 5"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 6,
+          "ordre_section": 6,
+          "nom": null,
+          "etiquette": "T6",
+          "mots_cles": [
+            "T6",
+            "virage 6",
+            "corner 6",
+            "turn 6"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 7,
+          "ordre_section": 7,
+          "nom": null,
+          "etiquette": "T7",
+          "mots_cles": [
+            "T7",
+            "virage 7",
+            "corner 7",
+            "turn 7"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 8,
+          "ordre_section": 8,
+          "nom": null,
+          "etiquette": "T8",
+          "mots_cles": [
+            "T8",
+            "virage 8",
+            "corner 8",
+            "turn 8"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 9,
+          "ordre_section": 9,
+          "nom": null,
+          "etiquette": "T9",
+          "mots_cles": [
+            "T9",
+            "virage 9",
+            "corner 9",
+            "turn 9"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 10,
+          "ordre_section": 10,
+          "nom": null,
+          "etiquette": "T10",
+          "mots_cles": [
+            "T10",
+            "virage 10",
+            "corner 10",
+            "turn 10"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 11,
+          "ordre_section": 11,
+          "nom": null,
+          "etiquette": "T11",
+          "mots_cles": [
+            "T11",
+            "virage 11",
+            "corner 11",
+            "turn 11"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 12,
+          "ordre_section": 12,
+          "nom": null,
+          "etiquette": "T12",
+          "mots_cles": [
+            "T12",
+            "virage 12",
+            "corner 12",
+            "turn 12"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 13,
+          "ordre_section": 13,
+          "nom": null,
+          "etiquette": "T13",
+          "mots_cles": [
+            "T13",
+            "virage 13",
+            "corner 13",
+            "turn 13"
+          ],
+          "vitesse_classe": "lent",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "blocage au freinage",
+              "sous-virage de rotation",
+              "patinage en sortie"
+            ],
+            "priorite": "freinage progressif, rotation, traction",
+            "test": "essayer une entrée 3 km/h moins rapide, comparer la sortie sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 14,
+          "ordre_section": 14,
+          "nom": null,
+          "etiquette": "T14",
+          "mots_cles": [
+            "T14",
+            "virage 14",
+            "corner 14",
+            "turn 14"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        }
+      ],
+      "mots_cles": [
+        "Albert Park (Melbourne)"
+      ],
+      "source_status": "indicatif"
+    }
+  ],
+  "profils_categories": {
+    "F1": {
+      "aero": "extrême",
+      "abs": false,
+      "tc": false,
+      "frein": "freinage dégressif très sensible à la vitesse",
+      "sortie": "dosage du couple sans TC",
+      "attention": "appui variable avec la vitesse"
+    },
+    "F2": {
+      "aero": "élevé",
+      "abs": false,
+      "tc": false,
+      "frein": "surveiller les blocages et le relâchement",
+      "sortie": "progressivité de l’accélérateur",
+      "attention": "transferts de charge dans les enchaînements"
+    },
+    "F3/F4": {
+      "aero": "modéré",
+      "abs": false,
+      "tc": false,
+      "frein": "préserver la vitesse minimale",
+      "sortie": "éviter le surpilotage",
+      "attention": "conservation de vitesse"
+    },
+    "GT3/LMGT3": {
+      "aero": "élevé",
+      "abs": true,
+      "tc": true,
+      "frein": "ABS natif à vérifier et optimiser",
+      "sortie": "TC réglable selon modèle",
+      "attention": "masse, température et pneus"
+    },
+    "GT4": {
+      "aero": "modéré",
+      "abs": "variable",
+      "tc": "variable",
+      "frein": "transferts de masse importants",
+      "sortie": "motricité mécanique",
+      "attention": "aides à confirmer selon modèle"
+    },
+    "Porsche Cup 992": {
+      "aero": "modéré",
+      "abs": false,
+      "tc": false,
+      "frein": "blocage possible sans ABS",
+      "sortie": "motricité moteur arrière",
+      "attention": "survirage au lever de pied"
+    },
+    "GTE": {
+      "aero": "élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "freinage sans ABS",
+      "sortie": "TC natif",
+      "attention": "blocage avant et arrière"
+    },
+    "LMP2": {
+      "aero": "très élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "pression à réduire avec la vitesse",
+      "sortie": "TC natif",
+      "attention": "forte dépendance aérodynamique"
+    },
+    "Hypercar LMH/LMDh": {
+      "aero": "très élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "hybride/freinage à vérifier par modèle",
+      "sortie": "gestion de traction et énergie",
+      "attention": "équilibre et hybridation propres au modèle"
+    },
+    "Tourisme TCR": {
+      "aero": "faible",
+      "abs": "variable",
+      "tc": "variable",
+      "frein": "gérer pneus avant",
+      "sortie": "motricité en traction",
+      "attention": "transmission avant et règles propres au modèle"
+    }
+  }
+}

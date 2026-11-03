@@ -1,0 +1,86 @@
+{
+  "note": "Longueurs de tracés usuels, à vérifier selon le layout utilisé dans le simulateur. Les tracés non référencés ne sont pas estimés.",
+  "circuits": {
+    "Spa-Francorchamps": {
+      "km": 7.004
+    },
+    "Monza": {
+      "km": 5.793
+    },
+    "Suzuka": {
+      "km": 5.807
+    },
+    "Silverstone": {
+      "km": 5.891
+    },
+    "Le Mans 24H (Circuit de la Sarthe)": {
+      "km": 13.626
+    },
+    "Le Mans Bugatti": {
+      "km": 4.185
+    },
+    "Nürburgring GP": {
+      "km": 5.148
+    },
+    "Nürburgring Nordschleife": {
+      "km": 20.832
+    },
+    "Red Bull Ring": {
+      "km": 4.318
+    },
+    "Barcelona-Catalunya": {
+      "km": 4.657
+    },
+    "Laguna Seca": {
+      "km": 3.602
+    },
+    "Circuit of the Americas (COTA)": {
+      "km": 5.513
+    },
+    "Bathurst (Mount Panorama)": {
+      "km": 6.213
+    },
+    "Imola": {
+      "km": 4.909
+    },
+    "Zandvoort": {
+      "km": 4.259
+    },
+    "Interlagos": {
+      "km": 4.309
+    },
+    "Daytona Road Course": {
+      "km": 5.729
+    },
+    "Sebring": {
+      "km": 6.019
+    },
+    "Spa": {
+      "km": 7.004
+    },
+    "Paul Ricard": {
+      "km": 5.842
+    },
+    "Kyalami": {
+      "km": 4.522
+    },
+    "Brands Hatch GP": {
+      "km": 3.916
+    },
+    "Donington Park GP": {
+      "km": 4.023
+    },
+    "Fuji Speedway": {
+      "km": 4.563
+    },
+    "Portimão": {
+      "km": 4.653
+    },
+    "Nogaro": {
+      "km": 3.636
+    },
+    "Zolder": {
+      "km": 4.011
+    }
+  }
+}

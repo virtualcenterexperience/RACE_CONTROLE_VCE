@@ -1,0 +1,458 @@
+{
+  "continent": "Afrique",
+  "circuits": [
+    {
+      "name": "Kyalami",
+      "country": "Afrique du Sud",
+      "continent": "Afrique",
+      "features": [
+        "relief",
+        "virages_rapides"
+      ],
+      "layout": "principal",
+      "aliases": [],
+      "notes": "",
+      "id": "kyalami",
+      "nombre_entrees": 13,
+      "virages": [
+        {
+          "numero": 1,
+          "ordre_section": 1,
+          "nom": "Crowthorne",
+          "etiquette": "Crowthorne",
+          "mots_cles": [
+            "T1",
+            "virage 1",
+            "corner 1",
+            "turn 1",
+            "Crowthorne",
+            "crowthorne"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 2,
+          "ordre_section": 2,
+          "nom": "Jukskei Sweep",
+          "etiquette": "Jukskei Sweep",
+          "mots_cles": [
+            "T2",
+            "virage 2",
+            "corner 2",
+            "turn 2",
+            "Jukskei Sweep",
+            "jukskei sweep"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 3,
+          "ordre_section": 3,
+          "nom": "Barbeque Bend",
+          "etiquette": "Barbeque Bend",
+          "mots_cles": [
+            "T3",
+            "virage 3",
+            "corner 3",
+            "turn 3",
+            "Barbeque Bend",
+            "barbeque bend"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 4,
+          "ordre_section": 4,
+          "nom": "Sunset",
+          "etiquette": "Sunset",
+          "mots_cles": [
+            "T4",
+            "virage 4",
+            "corner 4",
+            "turn 4",
+            "Sunset",
+            "sunset"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 5,
+          "ordre_section": 5,
+          "nom": "Clubhouse",
+          "etiquette": "Clubhouse",
+          "mots_cles": [
+            "T5",
+            "virage 5",
+            "corner 5",
+            "turn 5",
+            "Clubhouse",
+            "clubhouse"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 6,
+          "ordre_section": 6,
+          "nom": "The Esses",
+          "etiquette": "The Esses",
+          "mots_cles": [
+            "T6",
+            "virage 6",
+            "corner 6",
+            "turn 6",
+            "The Esses",
+            "the esses"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 7,
+          "ordre_section": 7,
+          "nom": "The Esses",
+          "etiquette": "The Esses",
+          "mots_cles": [
+            "T7",
+            "virage 7",
+            "corner 7",
+            "turn 7",
+            "The Esses",
+            "the esses"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 8,
+          "ordre_section": 8,
+          "nom": "Leeukop",
+          "etiquette": "Leeukop",
+          "mots_cles": [
+            "T8",
+            "virage 8",
+            "corner 8",
+            "turn 8",
+            "Leeukop",
+            "leeukop"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 9,
+          "ordre_section": 9,
+          "nom": "Mineshaft",
+          "etiquette": "Mineshaft",
+          "mots_cles": [
+            "T9",
+            "virage 9",
+            "corner 9",
+            "turn 9",
+            "Mineshaft",
+            "mineshaft"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 10,
+          "ordre_section": 10,
+          "nom": "Crocodiles",
+          "etiquette": "Crocodiles",
+          "mots_cles": [
+            "T10",
+            "virage 10",
+            "corner 10",
+            "turn 10",
+            "Crocodiles",
+            "crocodiles"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 11,
+          "ordre_section": 11,
+          "nom": "Cheetah",
+          "etiquette": "Cheetah",
+          "mots_cles": [
+            "T11",
+            "virage 11",
+            "corner 11",
+            "turn 11",
+            "Cheetah",
+            "cheetah"
+          ],
+          "vitesse_classe": "rapide",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "perte d’appui",
+              "survirage rapide",
+              "sous-virage aérodynamique"
+            ],
+            "priorite": "précision de trajectoire et stabilité aéro",
+            "test": "essayer 2–3 km/h de moins à l’entrée sans modifier le setup"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 12,
+          "ordre_section": 12,
+          "nom": "Ingwe",
+          "etiquette": "Ingwe",
+          "mots_cles": [
+            "T12",
+            "virage 12",
+            "corner 12",
+            "turn 12",
+            "Ingwe",
+            "ingwe"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        },
+        {
+          "numero": 13,
+          "ordre_section": 13,
+          "nom": "Final Bend",
+          "etiquette": "Final Bend",
+          "mots_cles": [
+            "T13",
+            "virage 13",
+            "corner 13",
+            "turn 13",
+            "Final Bend",
+            "final bend"
+          ],
+          "vitesse_classe": "moyen",
+          "vitesse_kmh": null,
+          "direction": null,
+          "profil": {
+            "risques": [
+              "transfert de charge",
+              "sous-virage en appui",
+              "survirage de transition"
+            ],
+            "priorite": "stabiliser les commandes et l’équilibre",
+            "test": "réduire l’angle de volant et comparer la vitesse minimale sur 3 passages"
+          },
+          "precision": "indicatif: dépend de la voiture, des pneus, du grip et du layout"
+        }
+      ],
+      "mots_cles": [
+        "Kyalami"
+      ],
+      "source_status": "indicatif"
+    }
+  ],
+  "profils_categories": {
+    "F1": {
+      "aero": "extrême",
+      "abs": false,
+      "tc": false,
+      "frein": "freinage dégressif très sensible à la vitesse",
+      "sortie": "dosage du couple sans TC",
+      "attention": "appui variable avec la vitesse"
+    },
+    "F2": {
+      "aero": "élevé",
+      "abs": false,
+      "tc": false,
+      "frein": "surveiller les blocages et le relâchement",
+      "sortie": "progressivité de l’accélérateur",
+      "attention": "transferts de charge dans les enchaînements"
+    },
+    "F3/F4": {
+      "aero": "modéré",
+      "abs": false,
+      "tc": false,
+      "frein": "préserver la vitesse minimale",
+      "sortie": "éviter le surpilotage",
+      "attention": "conservation de vitesse"
+    },
+    "GT3/LMGT3": {
+      "aero": "élevé",
+      "abs": true,
+      "tc": true,
+      "frein": "ABS natif à vérifier et optimiser",
+      "sortie": "TC réglable selon modèle",
+      "attention": "masse, température et pneus"
+    },
+    "GT4": {
+      "aero": "modéré",
+      "abs": "variable",
+      "tc": "variable",
+      "frein": "transferts de masse importants",
+      "sortie": "motricité mécanique",
+      "attention": "aides à confirmer selon modèle"
+    },
+    "Porsche Cup 992": {
+      "aero": "modéré",
+      "abs": false,
+      "tc": false,
+      "frein": "blocage possible sans ABS",
+      "sortie": "motricité moteur arrière",
+      "attention": "survirage au lever de pied"
+    },
+    "GTE": {
+      "aero": "élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "freinage sans ABS",
+      "sortie": "TC natif",
+      "attention": "blocage avant et arrière"
+    },
+    "LMP2": {
+      "aero": "très élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "pression à réduire avec la vitesse",
+      "sortie": "TC natif",
+      "attention": "forte dépendance aérodynamique"
+    },
+    "Hypercar LMH/LMDh": {
+      "aero": "très élevé",
+      "abs": false,
+      "tc": true,
+      "frein": "hybride/freinage à vérifier par modèle",
+      "sortie": "gestion de traction et énergie",
+      "attention": "équilibre et hybridation propres au modèle"
+    },
+    "Tourisme TCR": {
+      "aero": "faible",
+      "abs": "variable",
+      "tc": "variable",
+      "frein": "gérer pneus avant",
+      "sortie": "motricité en traction",
+      "attention": "transmission avant et règles propres au modèle"
+    }
+  }
+}
