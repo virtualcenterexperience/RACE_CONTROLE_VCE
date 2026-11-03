@@ -75,9 +75,7 @@ function pilotProgress(records,name,cfg,now){
  const ordered=[...mine].sort((a,b)=>a.date.localeCompare(b.date));
  for(const r of ordered){
   const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(r.date));if(!firstReached[day])firstReached[day]=r.date;
-  xp+=Number(cfg.xpPerCompletedSession??50);
-  xpInClass+=Number(cfg.xpPerCompletedSession??50);
-  while(ci<6&&xpInClass>=cfg.classes[ci].xpToNext){xpInClass-=cfg.classes[ci].xpToNext;ci++}
+  // Une séance validée donne du rating quotidien, pas des XP supplémentaires directs.
  }
  let cursor=new Date(start+'T00:00:00Z'),last=new Date(today+'T00:00:00Z');
  for(let i=0;cursor<=last&&i<3650;i++,cursor.setUTCDate(cursor.getUTCDate()+1)){
@@ -132,16 +130,31 @@ async function render(){let d={},remote=false;try{let r=await VCE.read();d=r.dat
  ranks.forEach(x=>{
   x.racePoints=raceScores.get(VCE.norm(x.name))||0;
   x.rating+=x.racePoints;
-  // La classe utilise les XP d'entraînement et les points de rating,
-  // convertis selon les paramètres de progression existants.
+  // Chaque point de rating produit les XP de la classe active.
+  // Les points sont consommés à chaque passage de classe, sans double attribution.
+  let points=Math.max(0,x.rating),level=0,totalXp=0,earnedInClass=0;
   const step=Math.max(1,Number(cfg.xpPointsStep)||15);
-  const bonus=Math.floor(Math.max(0,x.rating)/step)*Number(cfg.classes[0].xpPer15Points||150);
-  x.xp+=bonus;
-  let remaining=x.xp,level=0;
-  while(level<cfg.classes.length-1&&remaining>=Number(cfg.classes[level].xpToNext)){
-   remaining-=Number(cfg.classes[level].xpToNext);level++;
+  while(level<cfg.classes.length){
+   const current=cfg.classes[level];
+   const perPoint=Number(current.xpPer15Points)/step;
+   const goal=Number(current.xpToNext)||1000;
+   if(!(perPoint>0))break;
+   const needed=Math.max(0,(goal-earnedInClass)/perPoint);
+   if(level===cfg.classes.length-1||points<needed){
+    earnedInClass+=points*perPoint;
+    totalXp+=points*perPoint;
+    break;
+   }
+   totalXp+=needed*perPoint;
+   points-=needed;
+   level++;
+   earnedInClass=0;
   }
-  x.ci=level;x.klass=cfg.classes[level];x.xpInClass=remaining;x.goal=Number(x.klass.xpToNext)||1000;
+  x.xp=Math.round(totalXp);
+  x.ci=level;
+  x.klass=cfg.classes[level];
+  x.xpInClass=Math.round(earnedInClass);
+  x.goal=Number(x.klass.xpToNext)||1000;
  });
  ranks.sort((a,b)=>b.rating-a.rating||b.xp-a.xp||a.name.localeCompare(b.name));
  ranks.forEach((x,i)=>x.rank=i+1);
