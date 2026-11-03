@@ -51,5 +51,5 @@ async function coach(){
  else div.textContent='Exercice non publié dans data/vce/attributions.json ou pilote incorrect.';
  main.append(div);
 }
-document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('hashchange',sync);setInterval(()=>{if(!document.hidden)sync()},60000)}coach()});
+document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('hashchange',sync);setInterval(()=>{if(!document.hidden)sync()},10000)}coach()});
 })();
