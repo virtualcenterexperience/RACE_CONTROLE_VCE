@@ -1,34 +1,28 @@
-VCE ESPORT — 5 PRESETS PAR MODULE (15 EMPLACEMENTS)
-Dépôt : https://github.com/virtualcenterexperience/vce-race-control
+MODE STAFF SUR LES PROFILS — VCE ESPORT
 
-REMPLACER :
- calendrier-staff.html, lineup-staff.html, resultats-staff.html
- calendrier.html, lineup.html, resultats.html
- vce-github-sync.js, vce-github-config.js
- overlay-calendrier.html (affichage du calendrier graphique depuis TEAM)
+INSTALLATION
+1. Copier les 7 fichiers HTML/JS de ce dossier à la racine du dépôt.
+   Remplacer pilote.html, calendrier-staff.html, resultats-staff.html,
+   lineup-staff.html, vce-github-sync.js, vce-github-config.js,
+   vce-pilot-sync.js ; ajouter vce-staff-mode.js.
+2. IMPORTANT : les autres fichiers et le dossier data/ restent inchangés.
+3. Dans vce-staff-mode.js, modifier la ligne :
+   const PASSWORD='VCE-STAFF-2026';
+   (code de démonstration).
+4. git add . ; git commit ; git push
+5. Ouvrir pilote.html, choisir un pilote et cliquer MODE STAFF en bas à droite.
+   Entrer le code, puis utiliser Calendrier / Résultats / Lineup.
+6. Les pages STAFF existantes permettent d'éditer les presets et
+   d'EXPORTER les JSON. Pour partager, publier les JSON dans data/team/
+   via GitHub. L'export n'envoie PAS les données automatiquement.
 
-AJOUTER :
- data/team/calendrier-presets.json
- data/team/lineup-presets.json
- data/team/resultats-presets.json
-
-NE PAS MODIFIER :
- overlay-lineup.html, overlay-resultats.html, team.html, pilote.html,
- data/images/, data/drapeaux/, data/marques/ et les autres HTML.
-
-UTILISATION :
- 1. Installer les fichiers sur la branche main de GitHub.
- 2. Ouvrir une page *-staff.html et trouver « 5 PRESETS » en bas.
- 3. Choisir un emplacement 1 à 5, écrire son nom.
- 4. Remplir le formulaire STAFF au-dessus.
- 5. Coller un token GitHub fine-grained avec Contents: Read and write.
- 6. Cliquer « Enregistrer et publier ».
- 7. Après déploiement GitHub Pages, les pilotes ouvrent TEAM > Calendrier/Lineup/Résultats et sélectionnent un preset.
- 8. « Charger dans le formulaire » importe un preset existant pour le modifier.
- 9. « Masquer ce preset » le retire de la liste des pilotes.
-
-SÉCURITÉ :
- Ne jamais placer de token dans le dépôt ou dans un JSON public.
- Le token n'est pas enregistré. Les JSON publiés sont publics.
- Le site GitHub Pages reste statique ; la publication STAFF passe par l'API GitHub authentifiée.
- Un mot de passe STAFF codé en HTML ne constitue pas une protection forte.
+SÉCURITÉ ET LIMITES
+Ce mot de passe est présent dans un fichier JavaScript PUBLIC : il peut être
+lu par n'importe qui. Il masque seulement les commandes dans l'interface,
+il ne constitue PAS une véritable sécurité ni un contrôle d'accès.
+La protection des modifications réelles reste assurée par les droits GitHub.
+Ne jamais y mettre un mot de passe réutilisé sur un autre service.
+La session est mémorisée seulement dans l'onglet (sessionStorage).
+GitHub Pages ne peut pas enregistrer des modifications directement.
+Ce ZIP n'ajoute PAS de synchronisation automatique des résultats.
+Ne pas confondre cette interface avec une authentification sécurisée.
