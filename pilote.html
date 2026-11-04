@@ -306,7 +306,7 @@ const slug=n=>VCE.norm(n).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-
 const allPilots=PILOTS.map(name=>({name,id:slug(name)}));
 function showPilotList(){const q=VCE.norm(document.getElementById('pilotSearch').value);const root=document.getElementById('pilotGrid');root.replaceChildren();let found=allPilots.filter(p=>VCE.norm(p.name).includes(q));document.getElementById('pilotCount').textContent=found.length+' PILOTES';for(const p of found){let b=document.createElement('button');b.className='pilot-select';let av=document.createElement('span');av.className='avatar';av.textContent=p.name.split(' ').slice(0,2).map(x=>x[0]).join('');let label=document.createElement('span');let name=document.createElement('b');name.textContent=p.name;let sub=document.createElement('small');sub.textContent='VOIR LE PROFIL · POINTS & CLASSEMENT';label.append(name,sub);b.append(av,label);b.onclick=()=>{location.hash=encodeURIComponent(p.id)};root.append(b)}}
 function showAssignments(name){const root=document.getElementById('assignedList');root.replaceChildren();let items=[];try{items=JSON.parse(localStorage.getItem('vce_training_assignments_v1')||'[]')}catch{}const selected=(Array.isArray(items)?items:[]).filter(x=>VCE.norm(x.driver||'')===VCE.norm(name));if(!selected.length){root.textContent='Aucun entraînement attribué pour le moment.';return}for(const x of selected.slice().reverse()){const article=document.createElement('article');article.className='item';const title=document.createElement('h3');title.textContent=x.mode==='rhythm'?'ENTRAÎNEMENT DE RYTHME':'EXERCICE SPÉCIFIQUE';const info=document.createElement('p');info.textContent=[x.circuit,x.car,x.laps+' tour(s)',x.target?'Chrono objectif : '+x.target:''].filter(Boolean).join(' · ');const task=document.createElement('p');task.textContent='EXERCICE : '+(x.exercise||'');const status=document.createElement('small');status.textContent='STATUT : '+({assigned:'À EFFECTUER',in_progress:'EN COURS',submitted:'EN ATTENTE STAFF',approved:'VALIDÉ',rejected:'REFUSÉ'}[x.status]||'À EFFECTUER');const link=document.createElement('a');link.href='coach-irl.html?assignment='+encodeURIComponent(x.id)+'&pilot='+encodeURIComponent(name);link.textContent='CONSULTER LA SÉANCE →';article.append(title,info,task,status,document.createElement('br'),link);root.append(article)}}
-function routePilot(){let id='';try{id=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')}catch{}let p=allPilots.find(x=>x.id===id);const selection=document.getElementById('pilotSelection'),dashboard=document.getElementById('pilotDashboard');selection.classList.toggle('hidden',!!p);dashboard.classList.toggle('hidden',!p);selection.style.setProperty('display',p?'none':'block','important');dashboard.style.setProperty('display',p?'block':'none','important');dashboard.setAttribute('aria-hidden',String(!p));if(p){VCE.selectPilot(p.name);showAssignments(p.name);VCE.$('name').textContent=p.name;render();document.title=p.name+' | VCE ESPORT'}else{document.title='Profils pilotes | VCE ESPORT'}window.scrollTo(0,0)}
+function routePilot(){let id='';try{id=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')}catch{}let p=allPilots.find(x=>x.id===id);const selection=document.getElementById('pilotSelection'),dashboard=document.getElementById('pilotDashboard');if(window.vceDashboardVisibility)window.vceDashboardVisibility(!!p);selection.classList.toggle('hidden',!!p);dashboard.classList.toggle('hidden',!p);selection.style.setProperty('display',p?'none':'block','important');dashboard.style.setProperty('display',p?'block':'none','important');dashboard.setAttribute('aria-hidden',String(!p));if(p){VCE.selectPilot(p.name);showAssignments(p.name);VCE.$('name').textContent=p.name;render();document.title=p.name+' | VCE ESPORT'}else{document.title='Profils pilotes | VCE ESPORT'}window.scrollTo(0,0)}
 document.getElementById('pilotSearch').oninput=showPilotList;document.getElementById('backToPilots').onclick=()=>location.hash='';window.addEventListener('hashchange',routePilot);showPilotList();routePilot();
 let __vceRefreshBusy=false;
 async function refreshVceEvery10Seconds(){
@@ -362,5 +362,23 @@ function render(){grid.replaceChildren();const visible=items.filter(x=>filter===
 root.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;root.querySelectorAll('[data-filter]').forEach(el=>el.classList.toggle('active',el===b));render()});
 async function load(){try{if(!window.VCESupabase?.configured())throw Error('Supabase indisponible');const d=await VCESupabase.read('overlays');items=Array.isArray(d.items)?d.items:[];render()}catch(e){status.textContent='Publications indisponibles : '+e.message}}
 load();document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+})();
+</script><script id="vce-dashboard-detach-selection-fix">
+/* Le tableau de bord est physiquement retiré du document pendant la sélection.
+   Aucun style CSS (y compris display!important) ne peut alors le faire apparaître. */
+(function(){
+ const dashboard=document.getElementById('pilotDashboard');
+ if(!dashboard)return;
+ const marker=document.createComment('Emplacement du dashboard après sélection');
+ dashboard.parentNode.insertBefore(marker,dashboard);
+ let detached=false;
+ window.vceDashboardVisibility=function(active){
+   if(active){
+     if(detached){marker.parentNode.insertBefore(dashboard,marker.nextSibling);detached=false}
+   }else if(dashboard.isConnected){
+     dashboard.remove();detached=true;
+   }
+ };
+ window.vceDashboardVisibility(!!allPilots.find(p=>p.id===decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')));
 })();
 </script></body></html>
