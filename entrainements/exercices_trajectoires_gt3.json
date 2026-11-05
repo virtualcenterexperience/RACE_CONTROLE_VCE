@@ -1,0 +1,959 @@
+{
+  "version": "1.0",
+  "programme": "VCE ESPORT - Trajectoires et placements GT3",
+  "nombre_exercices": 34,
+  "exercices": [
+    {
+      "id": "VCE-GT3-TRAJ-ROOKIE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires GT3",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Corde tardive",
+      "objectif": "Décaler le point de corde pour favoriser la sortie",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Entrée large, freinage dégressif, corde tardive, sortie sans dépasser les limites Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Corde trop précoce, remise des gaz trop tôt",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-TRAJ-ROOKIE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires GT3",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Enchaînement de virages",
+      "objectif": "Sacrifier le premier virage pour optimiser le suivant",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Préparer la position à la sortie du premier virage, placer la voiture pour le second Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Optimiser un seul virage au détriment du suivant",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-TRAJ-PERFORMANCE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires GT3",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Corde tardive",
+      "objectif": "Décaler le point de corde pour favoriser la sortie",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Entrée large, freinage dégressif, corde tardive, sortie sans dépasser les limites Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Corde trop précoce, remise des gaz trop tôt",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-TRAJ-PERFORMANCE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires GT3",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Enchaînement de virages",
+      "objectif": "Sacrifier le premier virage pour optimiser le suivant",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Préparer la position à la sortie du premier virage, placer la voiture pour le second Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Optimiser un seul virage au détriment du suivant",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-TRAJ-ESPORT_PRO-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires GT3",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Corde tardive",
+      "objectif": "Décaler le point de corde pour favoriser la sortie",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Entrée large, freinage dégressif, corde tardive, sortie sans dépasser les limites Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Corde trop précoce, remise des gaz trop tôt",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-TRAJ-ESPORT_PRO-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires GT3",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Enchaînement de virages",
+      "objectif": "Sacrifier le premier virage pour optimiser le suivant",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Préparer la position à la sortie du premier virage, placer la voiture pour le second Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Optimiser un seul virage au détriment du suivant",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-ATK-ROOKIE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en attaque",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Dépassement à l’intérieur",
+      "objectif": "Préparer un dépassement au freinage sans contact",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Se décaler avant la zone de freinage, freiner sur une ligne stable, conserver l’espace requis Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Plonger trop tard, sous-virer sur l’adversaire",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-ATK-ROOKIE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en attaque",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Croisement de trajectoire",
+      "objectif": "Profiter d’une sortie plus rapide après une entrée compromise",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Laisser l’adversaire entrer, privilégier une corde tardive et une remise des gaz maîtrisée Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Couper la trajectoire ou accélérer avant de pouvoir tourner",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-ATK-PERFORMANCE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en attaque",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Dépassement à l’intérieur",
+      "objectif": "Préparer un dépassement au freinage sans contact",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Se décaler avant la zone de freinage, freiner sur une ligne stable, conserver l’espace requis Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Plonger trop tard, sous-virer sur l’adversaire",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-ATK-PERFORMANCE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en attaque",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Croisement de trajectoire",
+      "objectif": "Profiter d’une sortie plus rapide après une entrée compromise",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Laisser l’adversaire entrer, privilégier une corde tardive et une remise des gaz maîtrisée Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Couper la trajectoire ou accélérer avant de pouvoir tourner",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-ATK-ESPORT_PRO-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en attaque",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Dépassement à l’intérieur",
+      "objectif": "Préparer un dépassement au freinage sans contact",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Se décaler avant la zone de freinage, freiner sur une ligne stable, conserver l’espace requis Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Plonger trop tard, sous-virer sur l’adversaire",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-ATK-ESPORT_PRO-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en attaque",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Croisement de trajectoire",
+      "objectif": "Profiter d’une sortie plus rapide après une entrée compromise",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Laisser l’adversaire entrer, privilégier une corde tardive et une remise des gaz maîtrisée Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Couper la trajectoire ou accélérer avant de pouvoir tourner",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-DEF-ROOKIE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en défense",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Protection de l’intérieur",
+      "objectif": "Défendre sans zigzag ni mouvement tardif",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Choisir la ligne défensive suffisamment tôt, freiner en ligne stable, respecter l’espace Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Changer de ligne au freinage, fermer une voiture engagée",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-DEF-ROOKIE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en défense",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Défense sur deux virages",
+      "objectif": "Préserver la position sans compromettre excessivement la sortie",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Anticiper le deuxième virage, éviter la défense qui ouvre une attaque immédiate Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Défendre le premier virage sans prévoir le suivant",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-DEF-PERFORMANCE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en défense",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Protection de l’intérieur",
+      "objectif": "Défendre sans zigzag ni mouvement tardif",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Choisir la ligne défensive suffisamment tôt, freiner en ligne stable, respecter l’espace Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Changer de ligne au freinage, fermer une voiture engagée",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-DEF-PERFORMANCE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en défense",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Défense sur deux virages",
+      "objectif": "Préserver la position sans compromettre excessivement la sortie",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Anticiper le deuxième virage, éviter la défense qui ouvre une attaque immédiate Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Défendre le premier virage sans prévoir le suivant",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-DEF-ESPORT_PRO-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en défense",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Protection de l’intérieur",
+      "objectif": "Défendre sans zigzag ni mouvement tardif",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Choisir la ligne défensive suffisamment tôt, freiner en ligne stable, respecter l’espace Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Changer de ligne au freinage, fermer une voiture engagée",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-DEF-ESPORT_PRO-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement en défense",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Défense sur deux virages",
+      "objectif": "Préserver la position sans compromettre excessivement la sortie",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Anticiper le deuxième virage, éviter la défense qui ouvre une attaque immédiate Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Défendre le premier virage sans prévoir le suivant",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-START-ROOKIE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement au départ",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Départ lancé en double file",
+      "objectif": "Maintenir sa ligne et anticiper les variations de vitesse",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Respecter la procédure de départ du championnat, conserver un intervalle stable et observer les côtés Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Accélération anticipée, changement brusque de file",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-START-ROOKIE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement au départ",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Premier freinage en peloton",
+      "objectif": "Adapter la distance de freinage au trafic",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Freiner plus tôt si nécessaire, garder une échappatoire, laisser l’espace aux voitures côte à côte Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Freiner au repère du tour clair malgré le trafic",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-START-PERFORMANCE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement au départ",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Départ lancé en double file",
+      "objectif": "Maintenir sa ligne et anticiper les variations de vitesse",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Respecter la procédure de départ du championnat, conserver un intervalle stable et observer les côtés Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Accélération anticipée, changement brusque de file",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-START-PERFORMANCE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement au départ",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Premier freinage en peloton",
+      "objectif": "Adapter la distance de freinage au trafic",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Freiner plus tôt si nécessaire, garder une échappatoire, laisser l’espace aux voitures côte à côte Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Freiner au repère du tour clair malgré le trafic",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-START-ESPORT_PRO-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement au départ",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Départ lancé en double file",
+      "objectif": "Maintenir sa ligne et anticiper les variations de vitesse",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Respecter la procédure de départ du championnat, conserver un intervalle stable et observer les côtés Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Accélération anticipée, changement brusque de file",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-START-ESPORT_PRO-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Placement au départ",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Premier freinage en peloton",
+      "objectif": "Adapter la distance de freinage au trafic",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Freiner plus tôt si nécessaire, garder une échappatoire, laisser l’espace aux voitures côte à côte Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Freiner au repère du tour clair malgré le trafic",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-QUAL-ROOKIE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires qualifications",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Tour lancé propre",
+      "objectif": "Assembler un tour rapide sans erreur",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Préparer les pneus et l’espace, utiliser les repères, sortir sans pénalité Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Surconduite, limites de piste",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-QUAL-ROOKIE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires qualifications",
+      "niveau": "ROOKIE",
+      "niveau_libelle": "Débutant",
+      "titre": "Analyse des secteurs",
+      "objectif": "Identifier les pertes de temps mesurables",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Comparer plusieurs tours à conditions identiques, étudier frein, volant, gaz et vitesse minimale Exécuter à rythme contrôlé ; verbaliser le point de placement et les marges.",
+      "tentatives_recommandees": 6,
+      "critere_validation": "Réaliser 4 passages propres sur 6, sans contact ni sortie de piste",
+      "erreurs_frequentes": "Comparer des tours non comparables, changer trop de variables",
+      "analyse": "Replay et repères visuels",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-QUAL-PERFORMANCE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires qualifications",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Tour lancé propre",
+      "objectif": "Assembler un tour rapide sans erreur",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Préparer les pneus et l’espace, utiliser les repères, sortir sans pénalité Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Surconduite, limites de piste",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-QUAL-PERFORMANCE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires qualifications",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Analyse des secteurs",
+      "objectif": "Identifier les pertes de temps mesurables",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Comparer plusieurs tours à conditions identiques, étudier frein, volant, gaz et vitesse minimale Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Comparer des tours non comparables, changer trop de variables",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-QUAL-ESPORT_PRO-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires qualifications",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Tour lancé propre",
+      "objectif": "Assembler un tour rapide sans erreur",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Préparer les pneus et l’espace, utiliser les repères, sortir sans pénalité Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Surconduite, limites de piste",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-QUAL-ESPORT_PRO-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires qualifications",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Analyse des secteurs",
+      "objectif": "Identifier les pertes de temps mesurables",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Comparer plusieurs tours à conditions identiques, étudier frein, volant, gaz et vitesse minimale Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Comparer des tours non comparables, changer trop de variables",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-BATTLE-PERFORMANCE-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires en bataille",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Côte à côte en courbe",
+      "objectif": "Tenir une ligne parallèle avec l’espace réglementaire",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Adapter la vitesse à la trajectoire réduite, surveiller les angles morts Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Rejoindre la trajectoire idéale alors que l’autre voiture est présente",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-BATTLE-PERFORMANCE-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires en bataille",
+      "niveau": "PERFORMANCE",
+      "niveau_libelle": "Niveau élevé",
+      "titre": "Chicane sous pression",
+      "objectif": "Gérer deux changements de direction avec un rival proche",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Préparer le premier placement en fonction de la sortie du second, ne pas couper la voie adverse Répéter à rythme de course, comparer les vitesses d’entrée et de sortie.",
+      "tentatives_recommandees": 10,
+      "critere_validation": "Réaliser 8 passages propres sur 10 ; chronos et placement réguliers",
+      "erreurs_frequentes": "Fermer la deuxième corde sur une voiture encore engagée",
+      "analyse": "Replay, delta et inputs frein/gaz/volant",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-BATTLE-ESPORT_PRO-01",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires en bataille",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Côte à côte en courbe",
+      "objectif": "Tenir une ligne parallèle avec l’espace réglementaire",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Adapter la vitesse à la trajectoire réduite, surveiller les angles morts Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Rejoindre la trajectoire idéale alors que l’autre voiture est présente",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    },
+    {
+      "id": "VCE-GT3-BATTLE-ESPORT_PRO-02",
+      "categorie": "GT",
+      "vehicules": [
+        "GT3"
+      ],
+      "module": "Trajectoires en bataille",
+      "niveau": "ESPORT_PRO",
+      "niveau_libelle": "Élite / compétition",
+      "titre": "Chicane sous pression",
+      "objectif": "Gérer deux changements de direction avec un rival proche",
+      "situation_depart": "Circuit et virage choisis par le staff ; piste sèche, paramètres de session fixés ; adversaire IA ou pilote encadrant si exercice de bataille.",
+      "consignes": "Préparer le premier placement en fonction de la sortie du second, ne pas couper la voie adverse Comparer plusieurs stratégies de placement à conditions équivalentes ; rechercher les centièmes, puis vérifier la reproductibilité.",
+      "tentatives_recommandees": 15,
+      "critere_validation": "Réaliser 12 passages propres sur 15 ; démontrer un gain répétable ou une perte de temps maîtrisée",
+      "erreurs_frequentes": "Fermer la deuxième corde sur une voiture encore engagée",
+      "analyse": "Télémétrie synchronisée, comparaison de secteurs et répétabilité",
+      "securite_reglement": "Respecter le règlement du championnat, les limites de piste et l’espace dû aux autres voitures. Ne jamais provoquer de contact.",
+      "parametres_staff": {
+        "circuit": null,
+        "virage": null,
+        "voiture": null,
+        "setup": null,
+        "conditions": null,
+        "objectif_chrono": null
+      },
+      "statut": "pret_a_attribuer"
+    }
+  ]
+}
