@@ -110,10 +110,10 @@ jobs:
       - name: Compiler l'application Windows sans console Python
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --windowed --onefile --name Race-Controle-VCE --icon agent/vce.ico --collect-all duckdb --collect-all pystray agent/app.py
-          if (!(Test-Path "dist/Race-Controle-VCE.exe")) { throw "Application EXE introuvable" }
+          python -m PyInstaller --noconfirm --clean --windowed --onedir --name Race-Controle-VCE --icon agent/vce.ico --collect-all duckdb --collect-all pystray agent/app.py
+          if (!(Test-Path "dist/Race-Controle-VCE/Race-Controle-VCE.exe")) { throw "Application EXE introuvable" }
           New-Item -ItemType Directory -Force -Path "agent/dist" | Out-Null
-          Copy-Item "dist/Race-Controle-VCE.exe" "agent/dist/Race-Controle-VCE.exe"
+          Copy-Item "dist/Race-Controle-VCE" "agent/dist/Race-Controle-VCE" -Recurse -Force
 
       - name: Installer Inno Setup sur le serveur de compilation
         shell: pwsh
@@ -146,12 +146,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v2.5.0"
+          $tag = "v2.6.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
           $notes = "VCE 2.3.0 : detection AC ACC LMU RaceRoom et AC EVO, capture AC/ACC lecture seule, import LMU, et correctif de lancement des mises à jour Windows. RaceRoom live non encore integre. Installation sans droits administrateur permanents; association STAFF et consentement necessaires aux transferts."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.5.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.6.0 - Installateur Windows" --notes $notes
           }
