@@ -1,0 +1,28 @@
+/* VCE ESPORT — rendu et adaptation des overlays résultats. */
+
+'use strict';const KEY='vce_resultats_v2', $=id=>document.getElementById(id);function fit(){let s=Math.min(innerWidth/1920,innerHeight/1080),el=$('stage');el.style.transform=`scale(${s})`;el.style.left=(innerWidth-1920*s)/2+'px';el.style.top=(innerHeight-1080*s)/2+'px'}function niceDate(v){if(!v)return '';let a=String(v).split('-');return a.length===3?a[2]+'/'+a[1]+'/'+a[0]:v}function node(cls,txt){let e=document.createElement('div');e.className=cls;e.textContent=txt||'';return e}function render(){let x={};try{x=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}$('event').textContent=x.event||'CHAMPIONNAT';$('date').textContent='📅 '+([niceDate(x.date),x.circuit].filter(Boolean).join('  ·  ')||'DATE DE COURSE');$('season').textContent='🏎️ SAISON '+(x.season||'2026');$('mode').textContent=({'individuel':'👤 INDIVIDUEL','endurance':'🤝 ENDURANCE','championnat':'🏆 CHAMPIONNAT'}[x.mode]||'🏆 RÉSULTATS');let rows=(x.results||[]).slice().sort((a,b)=>(Number(a.position)||999)-(Number(b.position)||999)).slice(0,10),n=rows.length,cols=n>5?2:1,r=Math.max(1,Math.ceil(n/cols)),host=$('board');host.replaceChildren();host.style.setProperty('--cols',cols);host.style.setProperty('--rows',r);host.style.setProperty('--board-height',(n<=3?610:690)+'px');host.classList.toggle('compact',n>5);$('stage').classList.remove('cinematic-solo');$('stage').classList.toggle('group-results',n>0);$('stage').classList.toggle('team-results',x.mode==='endurance'||x.mode==='equipe'||x.mode==='team');$('stage').classList.toggle('many-results',n>6);if(!n){host.append(node('empty','🏁 Aucun résultat enregistré'));return}const isTeamMode=x.mode==='endurance'||x.mode==='equipe'||x.mode==='team';
+$('stage').classList.toggle('cinematic-solo',n===1&&!isTeamMode);
+if(n===1&&!isTeamMode){
+ const a=rows[0],p=Number(a.position)||1,poster=node('solo-poster','');
+ const name=[a.firstName,a.lastName].filter(Boolean).join(' ')||(Array.isArray(a.drivers)?a.drivers[0]:'')||'PILOTE';
+ const photo=[a.photo,a.photoUrl,a.image,a.imageUrl,a.portrait].find(v=>typeof v==='string'&&(/^(https?:|data:image|blob:)/i.test(v)||/^(data|images|assets)\//i.test(v)));
+ if(photo){const im=document.createElement('img');im.className='solo-photo';im.src=photo;im.alt=name;im.onerror=()=>im.replaceWith(node('solo-placeholder',name.split(/\s+/).map(w=>w[0]).slice(0,2).join('')));poster.append(im)}
+ else poster.append(node('solo-placeholder',name.split(/\s+/).map(w=>w[0]).slice(0,2).join('')));
+ poster.append(node('solo-position','P'+p),node('solo-name',name),node('solo-label','INDIVIDUAL RESULT'));
+ host.append(poster);$('mode').textContent='INDIVIDUAL RESULT';return;
+}
+if(n>=1){
+ const portraits=node('group-portraits',''),list=node('group-results-list','');
+ const isTeam=x.mode==='endurance'||x.mode==='equipe'||x.mode==='team';const featured=rows.slice(0,Math.min(n,6));
+ featured.forEach((a,i)=>{
+  const p=Number(a.position)||i+1,driver=node('group-driver','');
+  const photo=[a.photo,a.photoUrl,a.image,a.imageUrl,a.portrait].find(v=>typeof v==='string'&&/^(https?:\\/\\/|data:image\\/|\\.?\\/?(?:data|images|assets)\\/)/i.test(v));
+  const name=isTeam?(a.team||[a.firstName,a.lastName].filter(Boolean).join(' ')||'ÉQUIPE') :([a.firstName,a.lastName].filter(Boolean).join(' ')||(Array.isArray(a.drivers)?a.drivers[0]:'')||'PILOTE');
+  if(photo){const img=document.createElement('img');img.src=photo;img.alt=name;img.onerror=()=>img.replaceWith(node('group-placeholder',name.split(/\\s+/).map(w=>w[0]).slice(0,2).join('')));driver.append(img)}
+  else driver.append(node('group-placeholder',name.split(/\\s+/).map(w=>w[0]).slice(0,2).join('')));
+  driver.append(node('group-rank','P'+p));driver.append(node('group-name',name));driver.append(node('group-team',isTeam&&Array.isArray(a.drivers)&&a.drivers.length?a.drivers.join(' · '):(a.team||'VCE ESPORT')));portraits.append(driver);
+ });
+ rows.forEach((a,i)=>{const row=node('group-row','');row.append(node('','P'+(Number(a.position)||i+1)));row.firstChild.tagName;const b=document.createElement('b');b.textContent='P'+(Number(a.position)||i+1);row.replaceChildren(b);row.append(node('',isTeam?(a.team||'ÉQUIPE')+ (Array.isArray(a.drivers)&&a.drivers.length?' — '+a.drivers.join(' / '):'') :([a.firstName,a.lastName].filter(Boolean).join(' ')||(Array.isArray(a.drivers)?a.drivers.join(' / '):'')||'PILOTE')));list.append(row)});
+ host.append(portraits,list);return;
+}
+rows.forEach((a,i)=>{let p=Number(a.position)||i+1,card=node('result',''),rank=node('rank','');rank.append(node('medal',p===1?'🥇':p===2?'🥈':p===3?'🥉':'🏁'));rank.append(node('','P'+p));rank.lastChild.className='ranknumber';rank.lastChild.style.cssText='font-size:55px;font-weight:1000;line-height:1';rank.append(node('','POSITION'));rank.lastChild.className='ranklabel';card.append(rank);let body=node('content',''),top=node('topline','');top.append(node('flag','🏎️'));top.append(node('team',a.team||'VCE ESPORT'));body.append(top);let name=[a.firstName,a.lastName].filter(Boolean).join(' ')||(Array.isArray(a.drivers)?a.drivers[0]:'')||'PILOTE';body.append(node('name',name));let extras=[];if(x.mode!=='individuel'&&Array.isArray(a.drivers)&&a.drivers.length>1)extras.push('👥 '+a.drivers.join(' · '));if(a.number)extras.push('🔢 N° '+a.number);if(extras.length)body.append(node('extra',extras.join('   ')));card.append(body);if(a.brand||a.score){let side=node('side','');if(a.brand)side.append(node('car','🏎️ '+a.brand));if(a.score)side.append(node('score','⭐ '+a.score));card.append(side)}host.append(card)})}addEventListener('resize',fit);addEventListener('storage',e=>{if(e.key===KEY)render()});render();fit();
