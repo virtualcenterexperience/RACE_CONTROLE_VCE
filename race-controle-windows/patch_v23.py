@@ -52,8 +52,8 @@ s=replace(s,'class ACAdapter:\n','''class ReadOnlyGameMapping:
 
 class ACAdapter:
 ''')
-s=replace(s,"self.pages.append(mmap.mmap(-1,size,tagname='Local\\acpmf_'+page,access=mmap.ACCESS_READ))",
-            "self.pages.append(ReadOnlyGameMapping('Local\\acpmf_'+page,size))")
+s=replace(s,"self.pages.append(mmap.mmap(-1,size,tagname='Local\\\\acpmf_'+page,access=mmap.ACCESS_READ))",
+            "self.pages.append(ReadOnlyGameMapping('Local\\\\acpmf_'+page,size))")
 start=s.index("        # AC publishes the player's world coordinates directly.")
 end=s.index('        return Frame(',start)
 s=s[:start]+'''        # World coordinate offsets differ by version: never guess or read
