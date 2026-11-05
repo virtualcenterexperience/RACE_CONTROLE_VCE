@@ -88,6 +88,10 @@ jobs:
         shell: pwsh
         run: python race-controle-windows/patch_v26.py
 
+      - name: Liaison Steam automatique et enregistrement serveur
+        shell: pwsh
+        run: python race-controle-windows/patch_v27.py
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -150,12 +154,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v2.6.0"
+          $tag = "v2.7.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
           $notes = "VCE 2.3.0 : detection AC ACC LMU RaceRoom et AC EVO, capture AC/ACC lecture seule, import LMU, et correctif de lancement des mises à jour Windows. RaceRoom live non encore integre. Installation sans droits administrateur permanents; association STAFF et consentement necessaires aux transferts."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.6.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.7.0 - Installateur Windows" --notes $notes
           }
