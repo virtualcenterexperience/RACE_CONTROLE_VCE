@@ -25,7 +25,7 @@ th{color:#8cc5ff}.actions{display:flex;gap:6px}td input{max-width:155px}
 <section class="panel"><div class="row"><strong>Flux Supabase</strong><button id="refresh">Actualiser les données</button></div>
 <p id="status" class="muted" role="status">Connexion…</p>
 <p class="small muted">Si aucun PC n'est visible : vérifier l'URL Supabase, la fonction Edge vce-telemetry et le clic « ASSOCIER AU STAFF » dans le launcher Windows.</p></section>
-<section class="panel scroll"><h2>Appareils</h2><table><thead><tr><th>Pilote demandé</th><th>SteamID64</th><th>ID de PC</th><th>Statut</th><th>Jeu</th><th>Dernier signal</th><th>Rattachement / décision</th></tr></thead>
+<section class="panel scroll"><h2>Appareils</h2><table><thead><tr><th>Pilote demandé</th><th>SteamID64</th><th>IP locale (info)</th><th>ID de PC</th><th>Statut</th><th>Jeu</th><th>Dernier signal</th><th>Rattachement / décision</th></tr></thead>
 <tbody id="devices"><tr><td colspan="7">Chargement…</td></tr></tbody></table></section>
 <section class="panel scroll"><h2>Dernières sessions</h2>
 <table><thead><tr><th>Pilote</th><th>Jeu</th><th>Circuit</th><th>Voiture</th><th>Début</th><th>État</th><th>Tours</th></tr></thead><tbody id="sessions"><tr><td colspan="7">Chargement…</td></tr></tbody></table></section>
@@ -55,7 +55,7 @@ async function refresh(){
  const tbody=$('devices');tbody.replaceChildren();
  for(const d of devices.devices||[]){
  const tr=document.createElement('tr');
- cell(tr,d.requested_pilot);cell(tr,d.steam_id64);cell(tr,d.device_id);
+ cell(tr,d.requested_pilot);cell(tr,d.steam_id64);cell(tr,d.local_ip);cell(tr,d.device_id);
  cell(tr,d.status);cell(tr,[d.current_game,d.current_state].filter(Boolean).join(' · '));
  cell(tr,date(d.last_seen_at));
  const td=cell(tr,'');const wrap=document.createElement('div');wrap.className='actions';
@@ -72,7 +72,7 @@ async function refresh(){
  try{await send('staff_approve',{target_device_id:d.device_id,decision:'rejected'});await refresh()}catch(e){alert(e.message)}};
  wrap.append(field,approve,reject);td.append(wrap);tbody.append(tr);
  }
- if(!tbody.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune demande reçue');td.colSpan=7;tbody.append(tr)}
+ if(!tbody.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune demande reçue');td.colSpan=8;tbody.append(tr)}
  const ts=$('sessions');ts.replaceChildren();
  for(const s of sessions.sessions||[]){const tr=document.createElement('tr');
  for(const value of [s.pilot_slug,s.game,s.track,s.car,date(s.started_at),s.status,s.laps_count])cell(tr,value);
