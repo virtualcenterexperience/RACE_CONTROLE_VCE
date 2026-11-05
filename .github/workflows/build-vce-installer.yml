@@ -54,6 +54,10 @@ jobs:
           print("Sources verifies et extraits :", len(list(target.iterdir())))
           '@ | python -
 
+      - name: Ajouter le demarrage Windows et les mises a jour automatiques
+        shell: pwsh
+        run: python race-controle-windows/patch_v21.py
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -115,12 +119,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v2.0.0"
+          $tag = "v2.1.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "Installeur Windows VCE, sans installation de Python. Launcher en zone de notification, capture AC/ACC et import LMU à valider sur les jeux réels. ACEVO/RaceRoom non encore pris en charge en live. Association Supabase requise pour envoyer les données."
+          $notes = "Installateur Windows VCE 2.1.0. Démarrage automatique réduit, mise à jour depuis GitHub Releases après vérification SHA-256, paramètres distants limités. Capture AC/ACC et import LMU à valider, ACEVO/RaceRoom en attente."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.0.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.1.0 - Installateur Windows" --notes $notes
           }
