@@ -425,7 +425,7 @@ async function sync(){
  if(connected)try{await channel.track({pilot:name,page:p,seen_at:new Date().toISOString(),kind:'pilot-selection'})}catch(e){console.warn('Présence pilote',e)}
 }
 function init(){
- try{client=(const cfg=window.VCE_SUPABASE;const sdk=window.supabase;if(!sdk?.createClient||!cfg?.url||!cfg?.key)return null;return sdk.createClient(cfg.url,cfg.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:2}}});)();if(!client)return;
+ try{client=(()=>{const cfg=window.VCE_SUPABASE;const sdk=window.supabase;if(!sdk?.createClient||!cfg?.url||!cfg?.key)return null;return sdk.createClient(cfg.url,cfg.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:2}}});})();if(!client)return;
  channel=client.channel('vce-pilot-presence-v1',{config:{presence:{key:crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random()}}});
  channel.subscribe(status=>{connected=status==='SUBSCRIBED';if(connected){lastName='';lastPage='';sync()}});
  window.addEventListener('hashchange',sync);document.addEventListener('visibilitychange',sync);
