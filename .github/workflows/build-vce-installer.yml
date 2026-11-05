@@ -2,6 +2,16 @@ name: Build RACE CONTROLE VCE Setup EXE
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Publish only after independent antivirus verification'
+        type: boolean
+        required: false
+        default: false
+  pull_request:
+    paths:
+      - 'race-controle-windows/**'
+      - '.github/workflows/build-vce-installer.yml'
   push:
     branches: [main]
     paths:
@@ -70,6 +80,18 @@ jobs:
         shell: pwsh
         run: python race-controle-windows/patch_v24.py
 
+      - name: Corriger le flux et la capture AC ACC
+        shell: pwsh
+        run: python race-controle-windows/patch_v25.py
+
+      - name: Initialiser version 2.6 et vérifications
+        shell: pwsh
+        run: python race-controle-windows/patch_v26.py
+
+      - name: Liaison Steam automatique et enregistrement serveur
+        shell: pwsh
+        run: python race-controle-windows/patch_v27.py
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -96,10 +118,10 @@ jobs:
       - name: Compiler l'application Windows sans console Python
         shell: pwsh
         run: |
-          python -m PyInstaller --noconfirm --clean --windowed --onefile --name Race-Controle-VCE --icon agent/vce.ico --collect-all duckdb --collect-all pystray agent/app.py
-          if (!(Test-Path "dist/Race-Controle-VCE.exe")) { throw "Application EXE introuvable" }
+          python -m PyInstaller --noconfirm --clean --windowed --onedir --name Race-Controle-VCE --icon agent/vce.ico --collect-all duckdb --collect-all pystray agent/app.py
+          if (!(Test-Path "dist/Race-Controle-VCE/Race-Controle-VCE.exe")) { throw "Application EXE introuvable" }
           New-Item -ItemType Directory -Force -Path "agent/dist" | Out-Null
-          Copy-Item "dist/Race-Controle-VCE.exe" "agent/dist/Race-Controle-VCE.exe"
+          Copy-Item "dist/Race-Controle-VCE" "agent/dist/Race-Controle-VCE" -Recurse -Force
 
       - name: Installer Inno Setup sur le serveur de compilation
         shell: pwsh
@@ -127,16 +149,17 @@ jobs:
           retention-days: 30
 
       - name: Publier un seul EXE dans GitHub Releases
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_release == 'true' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v2.4.0"
+          $tag = "v2.7.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
           $notes = "VCE 2.3.0 : detection AC ACC LMU RaceRoom et AC EVO, capture AC/ACC lecture seule, import LMU, et correctif de lancement des mises à jour Windows. RaceRoom live non encore integre. Installation sans droits administrateur permanents; association STAFF et consentement necessaires aux transferts."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.4.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.7.0 - Installateur Windows" --notes $notes
           }

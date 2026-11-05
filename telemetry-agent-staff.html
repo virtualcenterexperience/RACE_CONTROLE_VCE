@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VCE ESPORT · Appareils de télémétrie</title>
+<style>
+:root{font-family:system-ui,Arial,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;color:#e8f0fa;background:#081321;min-height:100vh}
+main{max-width:1200px;margin:auto;padding:28px 18px}header{display:flex;justify-content:space-between;align-items:center;gap:20px}
+a{color:#82bfff}.brand{font-size:23px;font-weight:900;letter-spacing:.5px}.brand em{color:#fb476b;font-style:normal}
+h1{margin:30px 0 8px;font-size:clamp(25px,4vw,37px)}.muted{color:#9eb6d1;line-height:1.5}
+.panel{background:#111f32;border:1px solid #284664;border-radius:13px;margin:18px 0;padding:18px}
+button,input{border-radius:7px;padding:10px 12px;background:#163859;color:white;border:1px solid #41698f;font:inherit}
+button{cursor:pointer;font-weight:700}button:hover{background:#235484}.danger{background:#632239;border-color:#a74159}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.small{font-size:12px}.notice{border-left:3px solid #fdca78;padding:8px 12px;background:#263040}
+#work[hidden]{display:none}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;min-width:860px}
+th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #2e4055;font-size:12px;vertical-align:middle}
+th{color:#8cc5ff}.actions{display:flex;gap:6px}td input{max-width:155px}
+.pill{padding:5px 9px;border-radius:20px;background:#24445f;display:inline-block}
+</style></head><body><main>
+<header><div class="brand">RACE CONTROLE <em>VCE</em></div><a href="staff.html">Retour STAFF</a></header>
+<h1>Appareils et flux de télémétrie</h1>
+<p class="muted">Association sécurisée entre le PC d'un pilote et son profil VCE. Les demandes n'envoient aucune télémétrie avant approbation.</p>
+<section class="panel" id="gate"><strong>Vérification de l'accès STAFF…</strong><p class="muted" id="gateMessage">Connexion requise.</p></section>
+<div id="work" hidden>
+<section class="panel"><div class="row"><strong>Flux Supabase</strong><button id="refresh">Actualiser les données</button></div>
+<p id="status" class="muted" role="status">Connexion…</p>
+<p class="small muted">Si aucun PC n'est visible : vérifier l'URL Supabase, la fonction Edge vce-telemetry et le clic « ASSOCIER AU STAFF » dans le launcher Windows.</p></section>
+<section class="panel scroll"><h2>Appareils</h2><table><thead><tr><th>Pilote demandé</th><th>SteamID64</th><th>IP locale (info)</th><th>ID de PC</th><th>Statut</th><th>Jeu</th><th>Dernier signal</th><th>Rattachement / décision</th></tr></thead>
+<tbody id="devices"><tr><td colspan="7">Chargement…</td></tr></tbody></table></section>
+<section class="panel scroll"><h2>Dernières sessions</h2>
+<table><thead><tr><th>Pilote</th><th>Jeu</th><th>Circuit</th><th>Voiture</th><th>Début</th><th>État</th><th>Tours</th></tr></thead><tbody id="sessions"><tr><td colspan="7">Chargement…</td></tr></tbody></table></section>
+</div></main>
+<script src="vce-supabase-config.js"></script><script src="vce-supabase.js"></script>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const cfg=window.VCE_SUPABASE||{};
+async function send(action,extra={}){
+ const session=await window.VCESupabase?.validSession();
+ if(!session?.access_token)throw Error('Session STAFF expirée. Reconnecte-toi sur staff.html.');
+ const result=await fetch(cfg.url+'/functions/v1/vce-telemetry',{method:'POST',
+ headers:{apikey:cfg.key,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+ body:JSON.stringify({action,...extra}),cache:'no-store'});
+ const data=await result.json().catch(()=>({error:'Réponse non JSON'}));
+ if(!result.ok||data.error)throw Error('HTTP '+result.status+' · '+(data.error||'Serveur inaccessible'));
+ return data;
+}
+function cell(tr,text){const td=document.createElement('td');td.textContent=text??'—';tr.append(td);return td}
+function date(v){return v?new Date(v).toLocaleString('fr-FR'):'Jamais'}
+function slug(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+async function refresh(){
+ $('status').textContent='Interrogation de Supabase…';
+ try{
+ const [devices,sessions]=await Promise.all([send('staff_list'),send('staff_sessions')]);
+ const tbody=$('devices');tbody.replaceChildren();
+ for(const d of devices.devices||[]){
+ const tr=document.createElement('tr');
+ cell(tr,d.requested_pilot);cell(tr,d.steam_id64);cell(tr,d.local_ip);cell(tr,d.device_id);
+ cell(tr,d.status);cell(tr,[d.current_game,d.current_state].filter(Boolean).join(' · '));
+ cell(tr,date(d.last_seen_at));
+ const td=cell(tr,'');const wrap=document.createElement('div');wrap.className='actions';
+ const field=document.createElement('input');field.placeholder='profil-pilote';field.value=d.pilot_slug||slug(d.requested_pilot);
+ const approve=document.createElement('button');approve.textContent='Approuver';
+ approve.onclick=async()=>{
+ if(!field.value.trim())return alert('Choisis un profil pilote');
+ if(!confirm('Associer ce PC au profil '+field.value+' ?'))return;
+ try{await send('staff_approve',{target_device_id:d.device_id,decision:'approved',pilot_slug:field.value.trim()});await refresh()}
+ catch(e){alert(e.message)}
+ };
+ const reject=document.createElement('button');reject.textContent='Refuser';reject.className='danger';
+ reject.onclick=async()=>{if(!confirm('Refuser cette association ?'))return;
+ try{await send('staff_approve',{target_device_id:d.device_id,decision:'rejected'});await refresh()}catch(e){alert(e.message)}};
+ wrap.append(field,approve,reject);td.append(wrap);tbody.append(tr);
+ }
+ if(!tbody.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune demande reçue');td.colSpan=8;tbody.append(tr)}
+ const ts=$('sessions');ts.replaceChildren();
+ for(const s of sessions.sessions||[]){const tr=document.createElement('tr');
+ for(const value of [s.pilot_slug,s.game,s.track,s.car,date(s.started_at),s.status,s.laps_count])cell(tr,value);
+ ts.append(tr)}
+ if(!ts.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune session reçue');td.colSpan=7;ts.append(tr)}
+ $('status').textContent='Connecté : '+(devices.devices||[]).length+' appareil(s), '+(sessions.sessions||[]).length+' session(s).';
+ }catch(e){$('status').textContent='FLUX INDISPONIBLE : '+e.message}
+}
+async function init(){try{
+ if(!window.VCESupabase?.configured()||!await window.VCESupabase.isStaff())throw Error('Accès réservé au STAFF. Connecte-toi depuis staff.html.');
+ $('gate').hidden=true;$('work').hidden=false;await refresh();
+ setInterval(()=>{if(!document.hidden)refresh()},10000);
+ }catch(e){$('gateMessage').textContent=e.message}}
+ $('refresh').addEventListener('click',refresh);
+ init();
+})();
+</script></body></html>
