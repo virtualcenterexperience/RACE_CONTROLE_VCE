@@ -48,7 +48,7 @@ function render(){
  });
 }
 function init(){
- try{client=(const cfg=window.VCE_SUPABASE;const sdk=window.supabase;if(!sdk?.createClient||!cfg?.url||!cfg?.key)return null;return sdk.createClient(cfg.url,cfg.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:2}}});)();if(!client){state.textContent='Suivi indisponible : bibliothèque non chargée';return}
+ try{client=(()=>{const cfg=window.VCE_SUPABASE;const sdk=window.supabase;if(!sdk?.createClient||!cfg?.url||!cfg?.key)return null;return sdk.createClient(cfg.url,cfg.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:2}}});})();if(!client){state.textContent='Suivi indisponible : bibliothèque non chargée';return}
  channel=client.channel('vce-pilot-presence-v1',{config:{presence:{key:'staff-'+(crypto.randomUUID?crypto.randomUUID():Math.random())}}});
  channel.on('presence',{event:'sync'},render).on('presence',{event:'join'},render).on('presence',{event:'leave'},render);
  channel.subscribe(status=>{state.textContent=status==='SUBSCRIBED'?'● Surveillance active':'● '+(status==='CHANNEL_ERROR'?'Connexion indisponible':status==='TIMED_OUT'?'Délai dépassé':'Connexion…');if(status==='SUBSCRIBED')render()});
