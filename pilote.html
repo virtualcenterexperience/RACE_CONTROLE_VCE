@@ -379,6 +379,7 @@ setTimeout(()=>{(async()=>{try{const remote=await VCESupabase.read('pilotes');if
  '<div class="vce-sidegroup">DRIVER ACADEMY</div>'+
  '<a class="vce-sideitem" href="#vce-assigned"><span class="sym">▤</span>Mes séances</a>'+
  '<a class="vce-sideitem" href="entrainement.html"><span class="sym">◷</span>Entraînements</a>'+
+ '<a class="vce-sideitem" id="vce-telemetry-link" href="telemetry.html"><span class="sym">⌁</span>Télémétrie</a>'+
  '<a class="vce-sideitem" href="pole-performance.html"><span class="sym">◎</span>Coaching & évaluations</a>'+
  '<div class="vce-sidegroup">COMPÉTITION</div>'+
  '<a class="vce-sideitem" href="resultats.html"><span class="sym">🏆</span>Résultats officiels</a>'+
@@ -435,4 +436,4 @@ function init(){
 }
 if(document.readyState==='complete')init();else window.addEventListener('load',init,{once:true});
 })();
-</script></body></html>
+</script><script id="vce-telemetry-profile-link">(function(){function sync(){const a=document.getElementById('vce-telemetry-link');if(a)a.href='telemetry.html'+(location.hash||'')}window.addEventListener('hashchange',sync);new MutationObserver(sync).observe(document.body,{childList:true,subtree:false});sync()})();</script></body></html>
