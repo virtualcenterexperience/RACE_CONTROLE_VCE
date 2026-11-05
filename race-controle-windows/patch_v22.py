@@ -36,12 +36,12 @@ s=rep(s,"    def _button(self,parent,title,fn):\n        return tk.Button", """ 
             self.log_msg('Transfert désactivé à la demande du pilote.')
             return
         accepted=messagebox.askyesno('Autorisation de transfert VCE',
-             'Autoriser RACE CONTROLE VCE à transmettre tes données de sessions ?\n\\n'
+             'Autoriser RACE CONTROLE VCE à transmettre tes données de sessions ?\\n\\n'
              'Données : jeu, circuit, voiture, chronos, trajectoire et télémétrie '
-             '(vitesse, frein, accélérateur, volant selon le jeu).\n\\n'
+             '(vitesse, frein, accélérateur, volant selon le jeu).\\n\\n'
              'Elles seront associées à ton profil VCE après approbation du STAFF. '
-             'Les pilotes autorisés pourront les comparer dans Race Control.\n\\n'
-             'Tu peux révoquer cette autorisation à tout moment.\n\\n'
+             'Les pilotes autorisés pourront les comparer dans Race Control.\\n\\n'
+             'Tu peux révoquer cette autorisation à tout moment.\\n\\n'
              'AUTORISER LE TRANSFERT ?',parent=self.root)
         if not accepted:
             self.log_msg('Transfert refusé : données conservées uniquement sur ce PC.')
