@@ -1,0 +1,126 @@
+name: Build RACE CONTROLE VCE Setup EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'race-controle-windows/**'
+      - '.github/workflows/build-vce-installer.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vce-windows-installer
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v4
+
+      - name: Installer Python (uniquement sur le serveur de compilation)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Reconstituer et verifier les sources VCE
+        shell: pwsh
+        run: |
+          @'
+          import base64, hashlib, io, lzma, pathlib, tarfile
+          base = pathlib.Path("race-controle-windows/payload")
+          sources = sorted(base.glob("part*.txt"))
+          assert len(sources) == 7, "7 parties sources attendues"
+          text = "".join(p.read_text(encoding="utf-8").strip() for p in sources)
+          blob = base64.b64decode(text, validate=True)
+          expected = "e1500b2611de12b0882e43368c2befafd621b4c7f5104efc235f5dbf527c018b"
+          assert hashlib.sha256(blob).hexdigest() == expected, "Integrite des sources invalide"
+          target = pathlib.Path("agent")
+          target.mkdir(exist_ok=True)
+          with tarfile.open(fileobj=io.BytesIO(lzma.decompress(blob)), mode="r:") as archive:
+              for member in archive.getmembers():
+                  if "/" in member.name or "\\" in member.name or ".." in member.name:
+                      raise ValueError("Nom de fichier interdit dans l'archive")
+              archive.extractall(target, filter="data")
+          f = target / "release_updates.py"
+          code = f.read_text(encoding="utf-8")
+          assert "EXE='Race-Controle-VCE.exe'" in code
+          f.write_text(code.replace("EXE='Race-Controle-VCE.exe'", "EXE='Race-Controle-VCE-Setup.exe'"), encoding="utf-8")
+          print("Sources verifies et extraits :", len(list(target.iterdir())))
+          '@ | python -
+
+      - name: Installer les dependances de compilation
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r agent/requirements.txt
+          python -m compileall -q agent
+
+      - name: Creer l'icone officielle VCE
+        shell: pwsh
+        run: |
+          @'
+          from PIL import Image, ImageDraw, ImageFont
+          image=Image.new("RGBA",(256,256),"#0b1525")
+          draw=ImageDraw.Draw(image)
+          draw.rounded_rectangle((7,7,248,248),radius=42,outline="#385f91",width=6)
+          try: font=ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf",87)
+          except OSError: font=ImageFont.load_default()
+          draw.text((25,62),"VCE",fill="#f4f8ff",font=font)
+          draw.rounded_rectangle((28,180,228,195),radius=5,fill="#e92952")
+          draw.rounded_rectangle((28,199,148,209),radius=4,fill="#298ae0")
+          image.save("agent/vce.ico",sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])
+          '@ | python -
+
+      - name: Compiler l'application Windows sans console Python
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --windowed --onefile --name Race-Controle-VCE --icon agent/vce.ico --collect-all duckdb --collect-all pystray agent/app.py
+          if (!(Test-Path "dist/Race-Controle-VCE.exe")) { throw "Application EXE introuvable" }
+          New-Item -ItemType Directory -Force -Path "agent/dist" | Out-Null
+          Copy-Item "dist/Race-Controle-VCE.exe" "agent/dist/Race-Controle-VCE.exe"
+
+      - name: Installer Inno Setup sur le serveur de compilation
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (!(Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+          }
+          if (!(Test-Path $iscc)) { throw "Compilateur Inno Setup absent" }
+
+      - name: Compiler l'installateur unique EXE
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc "race-controle-windows/setup.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Erreur compilation Inno Setup" }
+          if (!(Test-Path "release/Race-Controle-VCE-Setup.exe")) { throw "Installateur EXE introuvable" }
+          Get-FileHash "release/Race-Controle-VCE-Setup.exe" -Algorithm SHA256 | Format-List
+
+      - name: Conserver l'installateur pour verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: Race-Controle-VCE-Setup
+          path: release/Race-Controle-VCE-Setup.exe
+          retention-days: 30
+
+      - name: Publier un seul EXE dans GitHub Releases
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "v2.0.0"
+          $asset = "release/Race-Controle-VCE-Setup.exe"
+          $notes = "Installeur Windows VCE, sans installation de Python. Launcher en zone de notification, capture AC/ACC et import LMU à valider sur les jeux réels. ACEVO/RaceRoom non encore pris en charge en live. Association Supabase requise pour envoyer les données."
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag $asset --clobber
+          } else {
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v2.0.0 - Installateur Windows" --notes $notes
+          }
