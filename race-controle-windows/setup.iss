@@ -1,5 +1,5 @@
 #define MyAppName "RACE CONTROLE VCE"
-#define MyAppVersion "2.0.0"
+#define MyAppVersion "2.1.0"
 #define MyAppExeName "Race-Controle-VCE.exe"
 
 [Setup]
@@ -38,5 +38,8 @@ Source: "..\agent\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Name: "{autoprograms}\RACE CONTROLE VCE"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\RACE CONTROLE VCE"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
+[Registry]
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "RaceControleVCE"; ValueData: """{app}\{#MyAppExeName}"" --minimized"; Flags: uninsdeletevalue
+
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Lancer RACE CONTROLE VCE"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--minimized"; Flags: nowait
