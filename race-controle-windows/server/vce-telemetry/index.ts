@@ -12,6 +12,15 @@ const CORS={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"au
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SECRET=/^[0-9a-f]{64}$/i,STEAM=/^7656119\d{10}$/;
 const GAMES=["AC","ACC","LMU","ACEVO","R3E"];
+function lanIp(raw:unknown){
+ const v=clean(raw,45);
+ if(!v)return null;
+ const parts=v.split(".");
+ if(parts.length!==4||parts.some(x=>!/^(0|[1-9][0-9]{0,2})$/.test(x)||Number(x)>255))return null;
+ const [a,b]=parts.map(Number);
+ if(a===10||(a===172&&b>=16&&b<=31)||(a===192&&b===168))return v;
+ return null;
+}
 function reply(o:unknown,s=200){return new Response(JSON.stringify(o),{status:s,headers:{...CORS,"Content-Type":"application/json"}})}
 function requireOk(r:{error:any}){if(r.error)throw Error(r.error.message)}
 function clean(v:unknown,max=120){return typeof v==="string"?v.trim().slice(0,max):""}
@@ -60,19 +69,20 @@ Deno.serve(async(req)=>{
  if(action==="register"){
    const id=clean(b.device_id,50),secret=clean(b.device_secret,64),requested=clean(b.requested_pilot,100),steam=clean(b.steam_id64,17);
    if(!UUID.test(id)||!SECRET.test(secret)||requested.length<2||steam&&!STEAM.test(steam))return reply({error:"Demande incomplète"},400);
-   const hashed=await digest(secret);
+   const hashed=await digest(secret),local_ip=lanIp(b.local_ip);
    const old=await db.from("vce_agent_devices").select("secret_hash,status,steam_id64,requested_pilot").eq("device_id",id).maybeSingle();requireOk(old);
    if(old.data){
      if(old.data.secret_hash!==hashed)return reply({error:"Identifiant déjà utilisé"},403);
      if(old.data.requested_pilot!==requested||(old.data.steam_id64||"")!==steam){
        const up=await db.from("vce_agent_devices").update({requested_pilot:requested,steam_id64:steam||null,
-         status:"pending",pilot_slug:null,pilot_auth_user:null,approved_at:null}).eq("device_id",id);requireOk(up);
+         status:"pending",pilot_slug:null,pilot_auth_user:null,approved_at:null,local_ip}).eq("device_id",id);requireOk(up);
        return reply({status:"pending",device_id:id});
      }
+     if(local_ip){requireOk(await db.from("vce_agent_devices").update({local_ip}).eq("device_id",id));}
      return reply({status:old.data.status,device_id:id});
    }
    requireOk(await db.from("vce_agent_devices").insert({device_id:id,secret_hash:hashed,requested_pilot:requested,
-     steam_id64:steam||null,status:"pending"}));
+     steam_id64:steam||null,local_ip,status:"pending"}));
    return reply({status:"pending",device_id:id});
  }
  if(["status","presence","session_state","upload"].includes(action)){
@@ -112,7 +122,7 @@ Deno.serve(async(req)=>{
  if(action==="staff_list"){
    await authorizedStaff(req);
    const rows=await db.from("vce_agent_devices")
-     .select("device_id,requested_pilot,pilot_slug,steam_id64,status,created_at,last_seen_at,current_game,current_state")
+     .select("device_id,requested_pilot,pilot_slug,steam_id64,local_ip,status,created_at,last_seen_at,current_game,current_state")
      .order("created_at",{ascending:false}).limit(200);requireOk(rows);
    return reply({devices:rows.data});
  }
