@@ -84,6 +84,10 @@ jobs:
         shell: pwsh
         run: python race-controle-windows/patch_v25.py
 
+      - name: Initialiser version 2.6 et vérifications
+        shell: pwsh
+        run: python race-controle-windows/patch_v26.py
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
