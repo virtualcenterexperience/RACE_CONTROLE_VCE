@@ -64,21 +64,19 @@ edit("app.py",
      "check('Vérifier les mises à jour officielles (installation avec confirmation)',auto_update)")
 
 # Use the existing PUBLIC Supabase browser config as optional app defaults.
-# The service_role and private secrets are never read or bundled.
-import json,re
+# NEVER bundle the service_role; only the publishable or anon key.
+import re
 public_config=Path("vce-supabase-config.js").read_text(encoding="utf-8")
-url_match=re.search(r"\\burl\\s*:\\s*['\\\"](https://[a-z0-9.-]+\\.supabase\\.co)['\\\"]",public_config)
-key_match=re.search(r"\\bkey\\s*:\\s*['\\\"]([^'\\\"]+)['\\\"]",public_config)
-if not url_match or not key_match:raise RuntimeError("Configuration Supabase publique indisponible")
-public_key=key_match.group(1)
-if not (public_key.startswith("eyJ") or public_key.startswith("sb_publishable_")):
-    raise RuntimeError("La clé Supabase n'est pas une clé publique autorisée")
+values=re.findall(r"'([^']+)'",public_config)
+public_url=next((v for v in values if v.startswith("https://") and v.endswith(".supabase.co")),None)
+public_key=next((v for v in values if v.startswith("eyJ") or v.startswith("sb_publishable_")),None)
+if not public_url or not public_key:raise RuntimeError("Configuration Supabase publique non trouvée")
 (root/"vce_public_config.py").write_text(
-    "PUBLIC_SUPABASE_URL="+repr(url_match.group(1))+"\\n"+
-    "PUBLIC_SUPABASE_ANON="+repr(public_key)+"\\n",encoding="utf-8")
+    "PUBLIC_SUPABASE_URL="+repr(public_url)+"\n"+
+    "PUBLIC_SUPABASE_ANON="+repr(public_key)+"\n",encoding="utf-8")
 edit("app.py",
-     "from remote_preferences import get_preferences\\n",
-     "from remote_preferences import get_preferences\\nfrom vce_public_config import PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON\\n")
+     "from remote_preferences import get_preferences\n",
+     "from remote_preferences import get_preferences\nfrom vce_public_config import PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON\n")
 edit("app.py",
      "self.cfg=read_config();self.events=queue.Queue();self.alive=True",
      """self.cfg=read_config();self.events=queue.Queue();self.alive=True
