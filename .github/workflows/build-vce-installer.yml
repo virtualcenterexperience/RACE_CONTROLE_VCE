@@ -2,6 +2,12 @@ name: Build RACE CONTROLE VCE Setup EXE
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Publish only after independent antivirus verification'
+        type: boolean
+        required: false
+        default: false
   pull_request:
     paths:
       - 'race-controle-windows/**'
@@ -135,7 +141,7 @@ jobs:
           retention-days: 30
 
       - name: Publier un seul EXE dans GitHub Releases
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_release == 'true' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
