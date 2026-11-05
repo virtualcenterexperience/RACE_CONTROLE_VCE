@@ -63,6 +63,32 @@ edit("app.py",
      "check('Télécharger et installer les nouvelles versions officielles VCE automatiquement',auto_update)",
      "check('Vérifier les mises à jour officielles (installation avec confirmation)',auto_update)")
 
+# Use the existing PUBLIC Supabase browser config as optional app defaults.
+# The service_role and private secrets are never read or bundled.
+import json,re
+public_config=Path("vce-supabase-config.js").read_text(encoding="utf-8")
+url_match=re.search(r"\\burl\\s*:\\s*['\\\"](https://[a-z0-9.-]+\\.supabase\\.co)['\\\"]",public_config)
+key_match=re.search(r"\\bkey\\s*:\\s*['\\\"]([^'\\\"]+)['\\\"]",public_config)
+if not url_match or not key_match:raise RuntimeError("Configuration Supabase publique indisponible")
+public_key=key_match.group(1)
+if not (public_key.startswith("eyJ") or public_key.startswith("sb_publishable_")):
+    raise RuntimeError("La clé Supabase n'est pas une clé publique autorisée")
+(root/"vce_public_config.py").write_text(
+    "PUBLIC_SUPABASE_URL="+repr(url_match.group(1))+"\\n"+
+    "PUBLIC_SUPABASE_ANON="+repr(public_key)+"\\n",encoding="utf-8")
+edit("app.py",
+     "from remote_preferences import get_preferences\\n",
+     "from remote_preferences import get_preferences\\nfrom vce_public_config import PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON\\n")
+edit("app.py",
+     "self.cfg=read_config();self.events=queue.Queue();self.alive=True",
+     """self.cfg=read_config();self.events=queue.Queue();self.alive=True
+        changed=False
+        if not self.cfg.get('supabase_url'):
+            self.cfg['supabase_url']=PUBLIC_SUPABASE_URL;changed=True
+        if not self.cfg.get('anon_key'):
+            self.cfg['anon_key']=PUBLIC_SUPABASE_ANON;changed=True
+        if changed:save_config(self.cfg)""")
+
 # The published Windows binary is currently unsigned and triggered an antivirus alert.
 # We must not silently launch further installers until that detection is investigated.
 edit("app.py",
