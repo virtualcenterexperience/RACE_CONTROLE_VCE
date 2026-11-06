@@ -1,3 +1,14 @@
+## Correctif du 6 novembre — liste vide et refus d'ajout
+
+Si **vce_publications_kind_check** refuse la création du roster :
+
+1. Dans **Supabase > SQL Editor**, exécuter le SQL (et non un fichier TypeScript) : [supabase-correctif-roster-2026-11-06.sql](supabase-correctif-roster-2026-11-06.sql). Cette migration conserve les catégories existantes et initialise les **14 pilotes d'origine uniquement si la liste n'existe pas encore**.
+2. Dans **Supabase > Edge Functions > vce-telemetry**, redéployer [la dernière version de index.ts](race-controle-windows/server/vce-telemetry/index.ts). Une version déployée avant la gestion dynamique ne connaît pas `staff_roster_add` / `staff_roster_remove`.
+3. Sur GitHub Pages, faire **Ctrl + F5** dans `pilote.html`, `gestion-donnees-pilotes.html` et `telemetry-staff.html`.
+4. Si « Lucas Galy » ou un autre pilote existe déjà, **ne pas le rajouter** : le sélectionner dans la gestion STAFF et créer ou réinitialiser son code provisoire si nécessaire.
+
+Aucun historique de chrono, résultat ou entraînement n'est effacé par ce correctif.
+
 # VCE ESPORT — Pilotes dynamiques et comptes automatiques
 
 **Mise à jour GitHub : 6 novembre 2026.**
