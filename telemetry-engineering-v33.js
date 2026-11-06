@@ -126,7 +126,7 @@ function display(){
  const charts=$('vce-eng-curves');charts.replaceChildren();
  for(const d of defs.filter(d=>state.selected.has(d[0]))){
   const wrapper=document.createElement('div');wrapper.className='vce-eng-curve';
-  const c=canvas('vce-eng-'+d[0],1200,155);wrapper.append(c);charts.append(wrapper);curve(c,d,data,reference?.samples||[])
+  const c=canvas('vce-eng-'+d[0],1200,155);wrapper.append(c);charts.append(wrapper);curve(c,d,data,state.live?[]:(reference?.samples||[]))
  }
 }
 /* Cursor updates repaint existing canvases only.
@@ -147,7 +147,7 @@ function cursorOnly(){
  });
  for(const cv of $('vce-eng-curves')?.querySelectorAll('canvas')||[]){
   const d=defs.find(item=>'vce-eng-'+item[0]===cv.id);
-  if(d)curve(cv,d,data,ref)
+  if(d)curve(cv,d,data,state.live?[]:ref)
  }
 }
 function mount(){
@@ -174,6 +174,10 @@ function mount(){
  document.addEventListener('vce-live-frame',e=>{
   if(!state.live)return;
   const p=e.detail;if(!p?.samples?.length)return;
+  // Never merge a previous pilot's/session's frames into the selected session.
+  const selectedSession=window.vceSession?.id;
+  if(p.session_id&&selectedSession&&p.session_id!==selectedSession)return;
+  if(p.session_id!==state.liveSession){state.liveSession=p.session_id;state.liveData=[]}
   state.liveData.push(...p.samples.map(x=>({...x,speed:x.speed_kmh,steering:x.steer,x:x.world_x,y:x.world_z,distance:x.lap_pos})));
   if(state.liveData.length>2400)state.liveData.splice(0,state.liveData.length-2400);
   const now=performance.now();
