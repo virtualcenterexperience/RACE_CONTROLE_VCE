@@ -8,7 +8,7 @@ main{max-width:1200px;margin:auto;padding:28px 18px}header{display:flex;justify-
 a{color:#82bfff}.brand{font-size:23px;font-weight:900;letter-spacing:.5px}.brand em{color:#fb476b;font-style:normal}
 h1{margin:30px 0 8px;font-size:clamp(25px,4vw,37px)}.muted{color:#9eb6d1;line-height:1.5}
 .panel{background:#111f32;border:1px solid #284664;border-radius:13px;margin:18px 0;padding:18px}
-button,input{border-radius:7px;padding:10px 12px;background:#163859;color:white;border:1px solid #41698f;font:inherit}
+button,input,select{border-radius:7px;padding:10px 12px;background:#163859;color:white;border:1px solid #41698f;font:inherit}
 button{cursor:pointer;font-weight:700}button:hover{background:#235484}.danger{background:#632239;border-color:#a74159}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .small{font-size:12px}.notice{border-left:3px solid #fdca78;padding:8px 12px;background:#263040}
@@ -51,7 +51,8 @@ function slug(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/
 async function refresh(){
  $('status').textContent='Interrogation de Supabase…';
  try{
- const [devices,sessions]=await Promise.all([send('staff_list'),send('staff_sessions')]);
+ const [devices,sessions,rosterData]=await Promise.all([send('staff_list'),send('staff_sessions'),VCESupabase.read('pilotes')]);
+ const choices=Array.isArray(rosterData.items)?rosterData.items:[];
  const tbody=$('devices');tbody.replaceChildren();
  for(const d of devices.devices||[]){
  const tr=document.createElement('tr');
@@ -59,7 +60,11 @@ async function refresh(){
  cell(tr,d.status);cell(tr,[d.current_game,d.current_state].filter(Boolean).join(' · '));
  cell(tr,date(d.last_seen_at));
  const td=cell(tr,'');const wrap=document.createElement('div');wrap.className='actions';
- const field=document.createElement('input');field.placeholder='profil-pilote';field.value=d.pilot_slug||slug(d.requested_pilot);
+ const field=document.createElement('select');field.style.maxWidth='180px';
+ field.add(new Option('Choisir un pilote',''));
+ for(const p of choices)field.add(new Option(p.name,p.id));
+ const preferred=d.pilot_slug||slug(d.requested_pilot);
+ if([...field.options].some(x=>x.value===preferred))field.value=preferred;
  const approve=document.createElement('button');approve.textContent='Approuver';
  approve.onclick=async()=>{
  if(!field.value.trim())return alert('Choisis un profil pilote');
