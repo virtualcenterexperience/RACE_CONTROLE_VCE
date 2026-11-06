@@ -1,0 +1,260 @@
+{
+  "version": "vce-irl-2026-11",
+  "title": "Évaluation Coach IRL — protocole VCE",
+  "duration": "3 h 30 à 4 h par pilote, hors incident",
+  "notes": "Pauses recommandées ; tours de sortie et rentrée identifiés séparément ; ne jamais inventer des données absentes.",
+  "tests": [
+    {
+      "id": "raw_pace",
+      "title": "TEST 1 · Raw Pace / vitesse pure",
+      "car": "BMW Z4 GT3",
+      "track": "Nürburgring GP",
+      "segments": [
+        {
+          "id": "discovery",
+          "name": "Découverte",
+          "laps": 5
+        },
+        {
+          "id": "timed",
+          "name": "Tours chronométrés",
+          "laps": 10
+        }
+      ],
+      "rules": "Sans remise à zéro. Construire le rythme progressivement, sans prise de risque disproportionnée.",
+      "indicators": [
+        "Meilleur tour",
+        "Moyenne et médiane des tours propres",
+        "Écart-type",
+        "Invalidations",
+        "Incidents"
+      ]
+    },
+    {
+      "id": "adaptability",
+      "title": "TEST 2 · Adaptability / apprentissage",
+      "car": "BMW Z4 GT3",
+      "track": "Vallelunga",
+      "segments": [
+        {
+          "id": "discovery",
+          "name": "Découverte",
+          "laps": 5
+        },
+        {
+          "id": "learning",
+          "name": "Apprentissage",
+          "laps": 10
+        },
+        {
+          "id": "timed",
+          "name": "Tours chronométrés",
+          "laps": 10
+        }
+      ],
+      "rules": "Aucune aide du coach sur les trajectoires. Comparer la progression entre blocs, jamais les chronos absolus avec le Nürburgring GP.",
+      "indicators": [
+        "Évolution des chronos",
+        "Progression entre blocs",
+        "Tours propres",
+        "Erreurs",
+        "Temps pour atteindre le rythme ciblé"
+      ]
+    },
+    {
+      "id": "stint",
+      "title": "TEST 3 · Consistency & Stint Management",
+      "car": "BMW Z4 GT3",
+      "track": "Nürburgring GP",
+      "segments": [
+        {
+          "id": "warmup",
+          "name": "Mise en rythme",
+          "laps": 5
+        },
+        {
+          "id": "stint",
+          "name": "Relais consécutif",
+          "laps": 20
+        }
+      ],
+      "rules": "Sans retour aux stands ni remise à zéro. Carburant suffisant pour le relais.",
+      "indicators": [
+        "Moyenne, médiane, écart-type, amplitude",
+        "Proportion de tours propres",
+        "Incidents",
+        "Différence des 5 premiers et 5 derniers tours"
+      ]
+    },
+    {
+      "id": "qualifying",
+      "title": "TEST 4 · Qualifying",
+      "car": "BMW Z4 GT3",
+      "track": "Nürburgring GP",
+      "duration_minutes": 10,
+      "segments": [
+        {
+          "id": "timed",
+          "name": "Tours lancés",
+          "laps": null
+        }
+      ],
+      "rules": "Session de 10 minutes, pneus neufs et carburant standardisé.",
+      "indicators": [
+        "Meilleur et deuxième meilleur tour",
+        "Écart entre les deux",
+        "Tours lancés",
+        "Invalidations",
+        "Gestion du temps"
+      ]
+    },
+    {
+      "id": "racecraft",
+      "title": "TEST 5 · Racecraft / course",
+      "car": "Combo au choix du pilote",
+      "track": "Daily Race ou replay",
+      "segments": [],
+      "rules": "Observer une Daily Race sur le combo choisi par le pilote, ou utiliser un replay de course.",
+      "indicators": [
+        "Départ",
+        "Dépassements",
+        "Défenses",
+        "Incidents et pénalités",
+        "Trafic et décisions",
+        "Communication"
+      ]
+    }
+  ],
+  "schedule": [
+    [
+      "Accueil, matériel, briefing",
+      15
+    ],
+    [
+      "TEST 1 · Raw Pace",
+      35
+    ],
+    [
+      "Pause",
+      10
+    ],
+    [
+      "TEST 2 · Adaptabilité",
+      45
+    ],
+    [
+      "Pause",
+      10
+    ],
+    [
+      "TEST 3 · Relais de 20 tours",
+      40
+    ],
+    [
+      "Pause",
+      10
+    ],
+    [
+      "TEST 4 · Qualification",
+      15
+    ],
+    [
+      "TEST 5 · Racecraft",
+      40
+    ],
+    [
+      "Débriefing pilote",
+      15
+    ]
+  ],
+  "categories": [
+    {
+      "id": "pace",
+      "name": "Vitesse pure",
+      "instructions": "Meilleur tour, moyenne/médiane des tours propres et écart à une référence comparable."
+    },
+    {
+      "id": "consistency",
+      "name": "Régularité",
+      "instructions": "Écart-type, amplitude, proportion de tours propres, nombre et nature des erreurs."
+    },
+    {
+      "id": "adaptability",
+      "name": "Adaptabilité",
+      "instructions": "Évolution chronométrique entre blocs, progression, temps pour atteindre le rythme cible."
+    },
+    {
+      "id": "technique",
+      "name": "Technique",
+      "instructions": "Freinage, relâché, gaz, corrections volant, pertes par secteur."
+    },
+    {
+      "id": "qualifying",
+      "name": "Qualification",
+      "instructions": "Deux meilleurs tours, invalidations, gestion du temps."
+    },
+    {
+      "id": "race",
+      "name": "Course",
+      "instructions": "Départs, dépassements, défenses, incidents, pénalités, trafic et décisions."
+    },
+    {
+      "id": "communication",
+      "name": "Communication",
+      "instructions": "Clarté du débrief, description des problèmes, application des consignes."
+    }
+  ],
+  "development": [
+    {
+      "week": 1,
+      "goal": "Corriger les défauts techniques prioritaires",
+      "sessions": "3 × 45 min : freinage, trajectoire ou remise des gaz",
+      "result": "Un défaut prioritaire et un KPI de référence."
+    },
+    {
+      "week": 2,
+      "goal": "Stabiliser rythme et régularité",
+      "sessions": "3 × 45 min : séries de tours propres et mini-relais",
+      "result": "Régularité accrue sans perte excessive de rythme."
+    },
+    {
+      "week": 3,
+      "goal": "Développer racecraft et décision",
+      "sessions": "3 × 45 min : départs, dépassements, défense et courses courtes",
+      "result": "Moins d'erreurs évitables."
+    },
+    {
+      "week": 4,
+      "goal": "Consolider et préparer le retest",
+      "sessions": "2 × 45 min : combo de référence et simulation du test",
+      "result": "Pilote prêt à repasser le protocole."
+    }
+  ],
+  "retest": "Reproduire voiture, circuit, setup, conditions, formats, durées et consignes identiques. Distinguer progrès observé et variabilité normale.",
+  "decision_options": [
+    [
+      "",
+      "En cours — aucune décision"
+    ],
+    [
+      "integration",
+      "Intégration directe"
+    ],
+    [
+      "team_b",
+      "Team B"
+    ],
+    [
+      "development",
+      "Poursuite du développement"
+    ],
+    [
+      "additional",
+      "Test complémentaire"
+    ],
+    [
+      "end",
+      "Fin du parcours"
+    ]
+  ]
+}
