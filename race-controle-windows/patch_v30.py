@@ -39,7 +39,7 @@ replace("engine.py",
         Browser draws at 60 FPS from incoming measurements; no fake samples.
         All uploads require existing opt-in, device pairing and staff approval.
         """
-        last_index=0;last_session=None;previous_error='';announced=False
+        last_index=0;last_session=None;last_lap_no=None;previous_error='';announced=False
         while not self.stop_flag.wait(.20):
             if not self.cfg.get('consent_upload') or not self.approved or not self._identity_matches_registration():
                 last_session=None;last_index=0;announced=False
@@ -48,8 +48,9 @@ replace("engine.py",
                 rec=self.record
                 if rec is None or len(rec.samples)==0:continue
                 sid=rec.session_id
-                if sid!=last_session:
-                    last_session=sid;last_index=0;announced=False
+                if sid!=last_session or rec.lap_no!=last_lap_no:
+                    if sid!=last_session:announced=False
+                    last_session=sid;last_lap_no=rec.lap_no;last_index=0
                 length=len(rec.samples)
                 if length<=last_index:continue
                 end=min(length,last_index+8)
@@ -58,7 +59,13 @@ replace("engine.py",
                           'lap_number':rec.lap_no,'session_type':getattr(rec,'session_type',''),
                           'samples':batch}
             try:
-                CloudClient(self.cfg).live_batch(snapshot)
+                cloud=CloudClient(self.cfg)
+                if not announced:
+                    cloud.session_state({'session_id':sid,'game':rec.game,
+                         'track':rec.track,'car':rec.car,'started_at':rec.started,
+                         'ended_at':None,'laps_count':len(rec.laps),
+                         'best_lap_ms':None,'session_type':getattr(rec,'session_type','')},'in_progress')
+                cloud.live_batch(snapshot)
                 last_index=end
                 if not announced:
                     self.log('LIVE VCE : données transmises en continu (5 lots/s)')
