@@ -29,6 +29,13 @@ function makeUI(){
  const refresh=el('button');refresh.type='button';refresh.textContent='ACTUALISER';refresh.onclick=()=>refreshData(true);
  const logout=el('button');logout.type='button';logout.textContent='DÉCONNECTER';logout.onclick=()=>{window.VCESupabase?.logout();location.href='pilote.html'+(requested()?'#'+encodeURIComponent(requested()):'')};
  controls.append(refresh,logout);section.append(controls);controls.id='vce-cloud-actions';
+ const exportSession=el('button');exportSession.type='button';exportSession.id='vce-export-session';
+ exportSession.textContent='TÉLÉCHARGER LA SÉANCE (JSON)';
+ exportSession.title='Exporter les tours réellement enregistrés pour une analyse ultérieure';
+ exportSession.onclick=()=>exportSelectedSession();
+ controls.append(exportSession);
+ const archiveState=el('p','muted','Historique accessible après la séance · seuls les tours reçus et enregistrés sur Supabase peuvent être rejoués.');
+ archiveState.id='vce-archive-state';section.append(archiveState);
  const more=el('button');more.type='button';more.id='vce-load-more-laps';
  more.textContent='CHARGER LES TOURS PRÉCÉDENTS';
  more.onclick=()=>fetchOlderLaps();controls.append(more);
@@ -179,6 +186,12 @@ async function refreshData(forced=false){
    }));
    app.lastKey=key;
    window.VCEloadTelemetry?.({sessions:enriched},{source:'cloud'});
+   const archive=$('vce-archive-state');
+   if(archive){
+     const completed=enriched.filter(s=>s.status==='completed').length;
+     const ongoing=enriched.filter(s=>s.status==='in_progress').length;
+     archive.textContent='HISTORIQUE : '+completed+' séance(s) terminée(s) · '+ongoing+' en cours · '+enriched.reduce((n,s)=>n+s.laps.length,0)+' tours chargés. Les données des tours restent disponibles après fermeture de l’application.';
+   }
    const total=enriched.reduce((n,s)=>n+s.laps.length,0);
    banner((newest.status==='in_progress'?'● SESSION EN COURS':'● SYNCHRONISÉ')+
      ' · '+sessions.length+' session(s) · '+total+' tour(s) chargés'+(staff?' · vue STAFF':''),'ok');
@@ -237,6 +250,43 @@ async function loadSelectedSession(){
   document.dispatchEvent(new Event('vce-cloud-update'));
   banner('Tours chargés · '+target.laps.length,'ok');
  }catch(e){banner('Impossible de charger les tours : '+e.message,'error')}
+}
+async function exportSelectedSession(){
+ const i=Number($('session')?.value||0);
+ const session=window.vceTelemetryData?.sessions?.[i];
+ if(!session?.id){banner('Aucune séance sélectionnée à exporter','warn');return}
+ const button=$('vce-export-session');if(button)button.disabled=true;
+ try{
+  // Read through the same authenticated Edge Function as the dashboard.
+  // The server checks session ownership (or STAFF rights) on every page.
+  const all=new Map();
+  let before=null,truncated=false;
+  for(let page=0;page<125;page++){
+   const args={session_id:session.id,lap_limit:8};
+   if(before!==null)args.before_lap=before;
+   const result=await api('get_laps',args);
+   const chunk=Array.isArray(result.laps)?result.laps:[];
+   if(!chunk.length)break;
+   for(const lap of chunk){if(Number.isInteger(lap.lap_number))all.set(lap.lap_number,lap)}
+   const oldest=Math.min(...chunk.map(l=>l.lap_number).filter(Number.isInteger));
+   if(chunk.length<8||!Number.isFinite(oldest)||oldest<=1||oldest===before)break;
+   before=oldest;
+   if(page===124)truncated=true;
+  }
+  if(!all.size){banner('Cette séance ne contient pas encore de tours enregistrés','warn');return}
+  const laps=[...all.values()].sort((a,b)=>a.lap_number-b.lap_number);
+  const result={format:'vce-telemetry-session-v1',exported_at:new Date().toISOString(),
+   session:{id:session.id,game:session.game,car:session.car,track:session.track,
+    pilot_slug:session.pilot_slug,date:session.date,status:session.status,
+    total_laps:session.totalLaps},laps,truncated};
+  const file=new Blob([JSON.stringify(result,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(file);
+  const safe=String(session.track||'circuit').replace(/[^a-z0-9_-]/gi,'_').slice(0,48);
+  const a=document.createElement('a');a.href=url;a.download='VCE_'+safe+'_'+String(session.id).slice(0,8)+'.json';
+  document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+  banner('Archive exportée · '+laps.length+' tour(s)'+(truncated?' · limite de 1000 tours atteinte':'')+' · '+laps.reduce((n,l)=>n+(l.samples?.length||0),0)+' échantillons','ok');
+ }catch(e){banner('Export impossible : '+e.message,'error')}
+ finally{if(button)button.disabled=false}
 }
 async function fetchOlderLaps(){
  const sessions=window.vceTelemetryData?.sessions||[];
