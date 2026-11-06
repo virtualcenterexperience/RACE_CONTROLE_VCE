@@ -385,8 +385,16 @@ async function syncPilotRoster(){
  try{
   if(!window.VCESupabase?.configured())throw Error('Connexion Supabase non configurée');
   const remote=await VCESupabase.read('pilotes');
-  if(!Array.isArray(remote.items))throw Error('Liste non initialisée par le STAFF');
-  const rows=remote.items.filter(p=>p&&p.id&&p.name);
+  // An absent roster is a first-time setup, NOT an intentionally empty team.
+  // Recover the original profiles until the STAFF initializes the Supabase row.
+  let rows;
+  if(Array.isArray(remote.items)){
+   rows=remote.items.filter(p=>p&&p.id&&p.name);
+  }else{
+   const res=await fetch('data/vce/pilotes.json',{cache:'no-store'});
+   if(!res.ok)throw Error('Liste initiale des pilotes indisponible');
+   rows=(await res.json()).filter(p=>p&&p.id&&p.name);
+  }
   window.VCE_PILOT_ROSTER=rows;
   allPilots.splice(0,allPilots.length,...rows.map(p=>({id:p.id,name:p.name})));
   VCE.names.splice(0,VCE.names.length,...rows.map(p=>p.name));
