@@ -58,8 +58,13 @@ async function init(){
  try{
   if(!await VCESupabase.isStaff())return;
   const data=await VCESupabase.read('pilotes');
-  if(!Array.isArray(data.items))throw Error('Liste non initialisée : ouvre Gestion des données pilotes dans le STAFF');
-  pilots=data.items.filter(p=>p&&p.id&&p.name);
+  if(Array.isArray(data.items))pilots=data.items.filter(p=>p&&p.id&&p.name);
+  else{
+    const r=await fetch('data/vce/pilotes.json',{cache:'no-store'});
+    if(!r.ok)throw Error('Liste initiale indisponible');
+    pilots=(await r.json()).filter(p=>p&&p.id&&p.name);
+    $('vce-pilot-provision-message').textContent='Liste initiale restaurée. Pour générer les comptes, applique d’abord le correctif SQL du roster dans Supabase.';
+  }
   const select=$('vce-pilot-provision-select');
   select.replaceChildren(new Option('— Sélectionner un pilote —',''));
   pilots.forEach(p=>select.add(new Option(p.name,p.id)));
