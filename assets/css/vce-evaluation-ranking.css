@@ -1,0 +1,19 @@
+/* VCE RACE CONTROL — coach score + LMU reference classification, proposal only */
+.vce-rank-sub{font-size:13px;color:#aec7df;line-height:1.6}
+.vce-ranking-panel{border-color:#426583;border-top:3px solid #e74e6c}
+.vce-ranking-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}
+.vce-rank-metric{padding:15px;background:#101e31;border:1px solid #34526a;border-radius:9px;min-width:0}
+.vce-rank-metric small{display:block;color:#9abbd7;font-size:12px;margin-bottom:9px}
+.vce-rank-metric strong{display:block;font-size:clamp(18px,2.3vw,30px);font-weight:900;letter-spacing:-.02em}
+#rankingResult{background:#12233a;border-left:4px solid #6492c0;padding:18px;border-radius:8px;margin-top:15px}
+#rankingResult.vce-rank-esport{border-color:#47dca5;background:#15352f}
+#rankingResult.vce-rank-academie{border-color:#5fb8ff;background:#17314e}
+#rankingResult.vce-rank-rookie{border-color:#ffbf61;background:#35291d}
+#rankingResult.vce-rank-refuse{border-color:#fd7085;background:#40202b}
+#rankingResult h3{margin:0 0 5px;font-size:21px;letter-spacing:.015em}
+#rankingResult p{margin:0;line-height:1.5}
+.vce-rank-note{padding:12px 14px;border-left:3px solid #edba67;background:#342b1b;color:#ffe2ac;font-size:12px;margin-top:12px}
+.vce-rank-check{display:flex;align-items:flex-start;gap:10px;margin:14px 0;font-weight:650;line-height:1.5}
+.vce-rank-check input{width:auto;margin:3px 0 0;flex:none;accent-color:#43c496}
+.vce-rank-mono{font-variant-numeric:tabular-nums}
+@media(max-width:730px){.vce-ranking-grid{grid-template-columns:1fr}.vce-rank-metric{padding:12px}}
