@@ -9,6 +9,20 @@ let card=null;
 const current=()=>slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''));
 const cfg=()=>window.VCE_SUPABASE||{};
 function lock(value){document.documentElement.classList.toggle('vce-pilot-auth-locked',value);const el=$('pilotDashboard');if(el)el.style.setProperty('display',value?'none':'block','important')}
+async function isAccountReady(id){
+ const config=cfg();
+ if(!window.VCESupabase?.configured())return false;
+ try{
+  const response=await fetch(config.url+'/functions/v1/vce-telemetry',{
+   method:'POST',cache:'no-store',
+   headers:{apikey:config.key,'Content-Type':'application/json'},
+   body:JSON.stringify({action:'pilot_account_ready',pilot_slug:id})
+  });
+  if(!response.ok)return false;
+  const body=await response.json();
+  return body?.ready===true;
+ }catch{return false}
+}
 async function api(action,extra={}){
  const session=await window.VCESupabase?.validSession();
  if(!session?.access_token)throw Error('Session de connexion absente');
@@ -68,6 +82,10 @@ async function route(){
  if(!id){lock(true);if(card)card.hidden=true;return}
  lock(true);show('Vérification de ton compte VCE ESPORT…');
  try{
+  const isReady=await isAccountReady(id);
+  if(request!==state.seq)return;
+  // Until a staff-provisioned account exists, leave the pre-existing public dashboard usable.
+  if(!isReady){openDashboard();return}
   const session=await window.VCESupabase?.validSession();
   if(request!==state.seq)return;
   if(!session?.access_token){showForm();return}
