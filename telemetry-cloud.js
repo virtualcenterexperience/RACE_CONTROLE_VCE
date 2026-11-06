@@ -93,10 +93,10 @@ const api=async(action,extra={})=>{
 const numberOrNull=v=>v===null||v===undefined||v===''?null:Number.isFinite(Number(v))?Number(v):null;
 function normalizeSample(x,origin){
  const n=numberOrNull;const absolute=n(x.t),elapsed=absolute!==null&&origin!==null?absolute-origin:null;
- const percent=v=>{const q=n(v);return q===null?null:round(q<=1&&q>=0?q*100:q,1)};
+ // Keep native pedal fractions (0..1) in samples; chart layer formats percent.
  const px=n(x.world_x),py=n(x.world_z),progress=n(x.lap_pos);
  return {t:elapsed,distance:progress,lap_pos:progress,speed:n(x.speed_kmh),speed_kmh:n(x.speed_kmh),
-   throttle:percent(x.throttle),brake:percent(x.brake),steering:n(x.steer),gear:n(x.gear),
+   throttle:n(x.throttle),brake:n(x.brake),steering:n(x.steer),gear:n(x.gear),
    x:px,y:py,slip:n(x.slip),rpm:n(x.rpm),fuel_l:n(x.fuel_l),position:n(x.position),sector_index:n(x.sector_index),abs:n(x.abs),tc:n(x.tc)};
 }
 function normalizeLap(item){
@@ -131,6 +131,7 @@ async function refreshData(forced=false){
    sessions=sessions.slice(0,12);
    const newest=sessions[0];
    if(!newest){
+     app.lastKey='';window.VCEloadTelemetry?.({sessions:[]},{source:'cloud'});
      banner(staff?'AUCUNE SESSION POUR CE PROFIL':'AUCUNE SESSION LIÉE À TON COMPTE','warn');return;
    }
    const key=sessions.map(s=>[s.session_id,s.status,s.laps_count,s.last_heartbeat_at].join(':')).join('|');
