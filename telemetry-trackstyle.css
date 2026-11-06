@@ -64,3 +64,46 @@ canvas{background:#15191c;border:1px solid #333a3f;border-radius:4px;height:270p
 @media(max-width:1100px){body{padding-left:0}.tt-nav{position:static;width:100%;height:auto;flex-direction:row;flex-wrap:wrap;gap:4px;padding:10px}.tt-brand{padding:5px 10px;margin:0;border:0}.tt-brand span{font-size:21px}.tt-nav>a{font-size:11px;padding:9px}.tt-nav-bottom{display:none}}
 @media(max-width:750px){main{padding:15px 12px}.layout{grid-template-columns:1fr}.toolbar,.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.vce-hud-meters{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:480px){.toolbar,.kpis,.vce-hud-meters{grid-template-columns:1fr 1fr}.sector{grid-template-columns:1fr 65px 65px 65px;gap:5px;font-size:10px}.panel{padding:14px 11px}.tt-nav>a{flex:1 1 42%}}
+
+
+/* VCE ESPORT 2026 — identité bleu / rouge, sans toucher aux données */
+:root{--tt-bg:#080f1e;--tt-panel:#101d32;--tt-edge:#284364;--tt-orange:#f32d56;--tt-blue:#2e9cff;--tt-muted:#9bb5d5}
+body{background:radial-gradient(ellipse at 80% 0%,#132a4c 0%,#080f1e 65%)!important;color:#f4f8ff!important}
+.tt-nav{background:#0a1528;border-right-color:#284364}
+.tt-brand span::first-letter{color:#f32d56}
+.tt-brand small,.tt-nav-bottom small{color:#86a8ce}
+.tt-nav>a{color:#c2d5ef}
+.tt-nav>a:hover,.tt-nav>a:focus{background:#16375e;color:#fff}
+.tt-nav>a:first-of-type{background:#32182b;color:#ff7894;border-left-color:#f32d56}
+body>header{background:#0d1c32;border-bottom-color:#29486c}
+header em,h1 span,.vce-hud-banner h2 span{color:#f32d56}
+.eyebrow,.vce-hud-kicker{color:#56b5ff}
+.status{background:#182841;border-color:#385c8c;color:#a8d6ff}
+.panel,.kpis article,.vce-hud-meters article,.vce-compare-grid article{background:#101d32!important;border-color:#284364!important}
+.panel{border-top-color:#f32d56!important}
+.vce-hud-banner{background:#10223c!important;border-color:#31527c!important;border-left-color:#f32d56!important}
+.vce-hud-state{background:#0b1c31;border-color:#31527c}
+.vce-hud-meters article{border-top-color:#2e9cff!important}
+.vce-hud-meters article:nth-child(2){border-top-color:#f32d56!important}
+.vce-hud-meters article:nth-child(3){border-top-color:#7abaff!important}
+.vce-hud-track{background:#213b5c}
+.toolbar{background:#0e1c30;border-color:#284364}
+.toolbar input,.toolbar select,.import,.vce-compare-toolbar button,.vce-compare-toolbar select{background:#142a46!important;border-color:#355a83!important;color:#fff!important}
+.kpis article{border-top-color:#2e9cff!important}
+.kpis article:nth-child(2){border-top-color:#f32d56!important}
+.kpis article:nth-child(3){border-top-color:#2e9cff!important}
+#map,.live,canvas{background:#09182c;border-color:#29476c}
+.vce-compare-grid article{border-top-color:#2e9cff!important}
+.vce-compare-grid article:nth-child(2){border-top-color:#f32d56!important}
+.channels button{background:#142a46;border-color:#355a83;color:#d8e9ff}
+.channels button.active{background:#f32d56;color:#fff;border-color:#f32d56}
+.vce-cloud-connect,.vce-cloud-extra{background:#101d32;border-color:#284364}
+.vce-history-item{background:#152942;border-color:#31527c}
+.vce-history-item button{background:#236fbb}
+.vce-replay{background:#101d32!important;border-top-color:#f32d56!important}
+.vce-replay .head h2{color:#f32d56!important}
+.vce-replay-tools button,.vce-replay-tools select{background:#142a46;border-color:#355a83}
+#vce-replay-slider{accent-color:#f32d56}
+#vce-replay-canvas{background:#09182c;border-color:#29476c}
+#vce-cloud-status[data-kind=error]{color:#ff7894!important}
+#vce-cloud-status[data-kind=ok]{color:#66caff!important}
