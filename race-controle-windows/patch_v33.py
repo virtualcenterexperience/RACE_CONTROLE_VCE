@@ -67,7 +67,7 @@ rep("adapters.py",
                     def accept(key,value,low,high):
                         v=as_number(value,3)
                         if v is not None and low<=v<=high:extra[key]=v
-                    accept('g_long',advanced.accG[2],-20,20)
+                    accept('g_long',advanced.accG[1],-20,20)
                     accept('g_lat',advanced.accG[0],-20,20)
                     accept('ride_height_front',advanced.rideHeight[0]*1000,0,1000)
                     accept('ride_height_rear',advanced.rideHeight[1]*1000,0,1000)
