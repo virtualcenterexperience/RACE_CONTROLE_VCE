@@ -13,7 +13,16 @@ def replace(name,old,new):
     p.write_text(src.replace(old,new,1),encoding="utf-8")
 
 replace("release_updates.py","VERSION='3.3.0'","VERSION='3.4.0'")
-replace("core.py","return round(y,ndigits)","return round(y,ndigits)")
+# 120 Hz must be distinct native physics frames, not repeats of stale memory.
+replace("adapters.py","self.game=game\n        self.pages=[]",
+        "self.game=game\n        self.last_physics_packet=None\n        self.pages=[]")
+replace("adapters.py",
+        "if gr.status!=2 or ph.packetId<=0:return None  # LIVE only, never replay",
+        "if gr.status!=2 or ph.packetId<=0:return None  # LIVE only, never replay\n        if ph.packetId==self.last_physics_packet:return None\n        self.last_physics_packet=ph.packetId")
+replace("adapters.py","speed_kmh=as_number(ph.speedKmh,2),brake=as_number(max(0,min(1,ph.brake)),3)",
+        "speed_kmh=as_number(ph.speedKmh,3),brake=as_number(max(0,min(1,ph.brake)),5)")
+replace("adapters.py","throttle=as_number(max(0,min(1,ph.gas)),3),steer=as_number(ph.steerAngle,4)",
+        "throttle=as_number(max(0,min(1,ph.gas)),5),steer=as_number(ph.steerAngle,6)")
 replace("core.py","'t':round(self.timestamp,3)","'t':round(self.timestamp,6)")
 replace("core.py",
         "if frame.timestamp-self.last_sample_time<0.047:return",
