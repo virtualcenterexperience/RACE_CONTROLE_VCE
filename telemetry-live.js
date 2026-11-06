@@ -32,7 +32,7 @@ function addUI(){
 const updateSession=async()=>{
  const s=window.vceSession,device=s?.device_id;
  if(!s||!device){st('AUCUNE SESSION / AUCUN PC ASSOCIÉ');return;}
- if(state.device===device&&state.channel)return;
+ if(state.device===device&&state.channel&&state.status!=='CHANNEL_ERROR'&&state.status!=='TIMED_OUT')return;
  if(!window.supabase?.createClient){st('BIBLIOTHÈQUE REALTIME ABSENTE');return}
  const session=await window.VCESupabase?.validSession();
  if(!session?.access_token){st('CONNEXION PILOTE OU STAFF REQUISE');return}
@@ -43,10 +43,12 @@ const updateSession=async()=>{
  state.channel=state.client.channel('vce:device:'+device,{config:{private:true}})
  .on('broadcast',{event:'frame'},message=>{
     const p=message.payload||{};if(p.device_id!==state.device)return;
+    if(state.session&&p.session_id&&state.session!==p.session_id){state.buffer=[];state.points=[];state.hud=null;}
     state.lastFrame=Date.now();state.session=p.session_id;state.live=p;
     document.dispatchEvent(new CustomEvent('vce-live-frame',{detail:p}));
     const samples=(p.samples||[]).filter(x=>num(x.t)).slice(-30);
     for(const s of samples){
+      if(state.buffer.length&&s.t<state.buffer.at(-1).t-1)state.buffer=[];
       if(!state.buffer.length||s.t>state.buffer.at(-1).t){
        state.buffer.push(s);if(state.buffer.length>600)state.buffer.shift();
       }
@@ -128,7 +130,7 @@ function hud(ts){
  set('brake',num(s.brake)?(s.brake*100).toFixed(1)+' %':'—');
  set('throttle',num(s.throttle)?(s.throttle*100).toFixed(1)+' %':'—');
  set('gear',num(s.gear)?String(s.gear):'—');set('rpm',num(s.rpm)?String(Math.round(s.rpm)):'—');
- if(Date.now()-state.lastFrame>2500&&state.lastFrame)st('FLUX INTERROMPU · DERNIÈRE TRAME '+Math.round((Date.now()-state.lastFrame)/1000)+' s','warn');
+ if(Date.now()-state.lastFrame>2500&&state.lastFrame)st('FLUX INTERROMPU · DERNIÈRE TRAME '+Math.round((Date.now()-state.lastFrame)/1000)+' s');
 }
 function render(ts){
  // 60 FPS is the target browser rendering cadence, NOT an invented 60Hz sensor frequency.
