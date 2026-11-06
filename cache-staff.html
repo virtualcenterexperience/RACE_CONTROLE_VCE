@@ -1,0 +1,32 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VCE CACHE · Sauvegardes & Réinitialisation · STAFF</title>
+<link rel="stylesheet" href="assets/css/vce-staff-cache.css?v=1"></head><body>
+<main><header><strong>VCE <em>ESPORT</em> · RACE CONTROL</strong><nav><a href="staff.html">← Retour STAFF</a></nav></header>
+<p class="kicker">STAFF / ADMINISTRATION / CACHE</p><h1>SAUVEGARDES & RÉINITIALISATION</h1>
+<p class="muted">Conserver les informations et ouvrir un nouveau cycle d'entraînement sans effacer les performances et les résultats du team.</p>
+<div id="gate" class="panel" role="alert">Vérification de ton accès STAFF…</div>
+<div id="workspace" hidden>
+<div class="grid">
+ <div class="stat"><span>CYCLE ENTRAÎNEMENT</span><strong id="cycle">—</strong></div>
+ <div class="stat"><span>EXERCICES ATTRIBUÉS</span><strong id="assigned">—</strong></div>
+ <div class="stat"><span>SOUMISSIONS</span><strong id="pending">—</strong></div>
+</div>
+<section class="panel"><h2>Dossier CACHE · Sauvegardes Supabase</h2>
+<p class="muted">Chaque archive protège les données publiées (pilotes, résultats, LineUps, calendriers et entraînements), les soumissions, les validations et les évaluations Coach IRL. Les données de télémétrie volumineuses restent dans les tables persistantes Supabase ; l'archive conserve leurs compteurs, pas une copie de chaque mesure.</p>
+<div class="notice">La réinitialisation crée obligatoirement une archive avant la remise à zéro. Les archives sont privées et accessibles uniquement aux membres STAFF autorisés.</div>
+<div class="actions"><button type="button" id="btnArchive">Créer une sauvegarde maintenant</button><button type="button" class="secondary" id="btnRefresh">↻ Actualiser</button></div>
+<p>Validations actuellement enregistrées : <strong id="reviews">—</strong></p>
+<h2>Historique des sauvegardes</h2>
+<div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Type</th><th>Actions</th></tr></thead><tbody id="archives"></tbody></table></div>
+<p id="archivesEmpty">Aucune archive créée.</p>
+</section>
+<section class="panel danger"><h2>Réinitialiser les entraînements</h2>
+<p>Cette action ouvre un nouveau cycle. Elle remet à zéro <strong>les attributions d'entraînement actives, les soumissions de séances et leurs validations STAFF</strong>. Elle conserve une archive avant toute modification.</p>
+<p class="muted">Sont conservés : profils et photos pilotes, comptes, chronos, télémétrie, résultats de course, calendriers, LineUps, publications TEAM et évaluations Coach IRL. Les brouillons d'entraînement locaux de chaque navigateur seront invalidés lors de leur prochaine synchronisation.</p>
+<label for="resetPhrase">Pour confirmer, écris exactement : REINITIALISER ENTRAINEMENTS</label>
+<input id="resetPhrase" autocomplete="off" spellcheck="false" placeholder="REINITIALISER ENTRAINEMENTS">
+<div class="actions"><button id="btnReset" type="button" class="red">Réinitialiser le cycle d'entraînement</button></div>
+</section>
+<p id="status" role="status" aria-live="polite">Connexion aux données…</p>
+</div></main>
+<script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261106"></script>
+<script defer src="assets/js/vce-staff-cache.js?v=1"></script></body></html>
