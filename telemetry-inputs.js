@@ -37,7 +37,7 @@ function update(){
   const sample=normalize(raw);history.push(sample);lastTime=raw.t;lastSample=sample;received++;
  }
  if(history.length>1200)history.splice(0,history.length-1200);
- lastPacketAt=Date.now();
+ if(received>0)lastPacketAt=Date.now();
  $('vce-input-status').textContent='● '+history.length+' MESURES EN MÉMOIRE · '+received+' REÇUES';
  $('vce-input-diagnostic').textContent='Fenêtre de 15 secondes · '+history.length+' points disponibles. Les courbes ne peuvent se compléter que si de nouveaux échantillons arrivent depuis le jeu.';
  if(lastSample){
@@ -79,6 +79,7 @@ function draw(){
    c.fillStyle='#95abc8';c.font='12px Segoe UI';c.fillText('Données reçues : '+history.length+' · '+span.toFixed(2)+' s',w-275,top+22);
   });
  }
+ if(lastPacketAt&&Date.now()-lastPacketAt>3000){const status=$('vce-input-status');if(status)status.textContent='● FLUX EN PAUSE · DERNIÈRE MESURE IL Y A '+Math.round((Date.now()-lastPacketAt)/1000)+' S';}
  drawId=requestAnimationFrame(draw);
 }
 function onFrame(e){
