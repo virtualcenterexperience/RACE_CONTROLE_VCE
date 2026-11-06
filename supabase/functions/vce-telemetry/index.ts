@@ -205,6 +205,55 @@ Deno.serve(async(req)=>{
    }
    return extra;
  }
+ // VCE 3.4: incremental, resumable-sized transfer of native high-frequency laps.
+ // Each device is authenticated by its existing 256-bit secret; ownership never changes.
+ if(action==="upload_segment"){
+   const d=await device(b);
+   if(d.status!=="approved"||!d.pilot_slug)return reply({error:"Appareil non approuvé"},403);
+   const sess=b.session||{},lap=b.lap||{},number=Number(lap.lap_number);
+   const offset=Number(b.offset),total=Number(b.total_samples);
+   if(!UUID.test(sess.session_id||"")||!Number.isInteger(number)||number<1||number>100000||
+     !Number.isInteger(offset)||offset<0||!Number.isInteger(total)||total<10||total>100000||
+     !Array.isArray(lap.samples)||lap.samples.length<1||lap.samples.length>160||
+     offset+lap.samples.length>total)return reply({error:"Segment de tour invalide"},400);
+   const previous=await db.from("vce_agent_sessions").select("device_id,status")
+     .eq("session_id",sess.session_id).maybeSingle();requireOk(previous);
+   if(previous.data&&previous.data.device_id!==d.device_id)return reply({error:"Session d'un autre PC"},403);
+   const effective=previous.data?.status||"in_progress";
+   const row=normalizedSession(sess,d,effective);
+   if(effective!=="completed")row.ended_at=null;
+   requireOk(await db.from("vce_agent_sessions").upsert(row,{onConflict:"session_id"}));
+   const points=lap.samples.map((x:any)=>({
+     t:n(x.t,0,5000000000),lap_pos:n(x.lap_pos,0,1),speed_kmh:n(x.speed_kmh,0,800),
+     brake:n(x.brake,0,1),throttle:n(x.throttle,0,1),steer:n(x.steer,-100,100),
+     gear:n(x.gear,-2,20),lap_time_ms:n(x.lap_time_ms,0,3600000),
+     world_x:n(x.world_x,-1e9,1e9),world_z:n(x.world_z,-1e9,1e9),
+     rpm:n(x.rpm,0,30000),fuel_l:n(x.fuel_l,0,1000),position:n(x.position,0,1000),
+     sector_index:n(x.sector_index,0,50),...readPhysics(x)
+   }));
+   if(points.some((p:any)=>p.t===null))return reply({error:"Horodatage de segment invalide"},400);
+   const existing=await db.from("vce_agent_laps").select("samples,sample_count")
+     .eq("session_id",sess.session_id).eq("lap_number",number).maybeSingle();requireOk(existing);
+   const current=Array.isArray(existing.data?.samples)?existing.data.samples:[];
+   // A repeated first segment deliberately restarts the upload, making retries deterministic.
+   if(offset!==0&&current.length!==offset){
+     // Acknowledged duplicate after a lost HTTP response: skip only when the precise
+     // timestamp sequence already exists at the expected offset.
+     const duplicate=current.length>=offset+points.length &&
+       points.every((x:any,i:number)=>current[offset+i]?.t===x.t);
+     if(duplicate)return reply({ok:true,offset:offset+points.length,duplicate:true,complete:current.length===total});
+     return reply({error:"Segment hors séquence, reprise nécessaire",expected_offset:current.length},409);
+   }
+   const combined=offset===0?points:[...current,...points];
+   requireOk(await db.from("vce_agent_laps").upsert({
+     session_id:sess.session_id,lap_number:number,
+     lap_time_ms:n(lap.lap_time_ms,10000,3600000),
+     valid:typeof lap.valid==="boolean"?lap.valid:null,
+     sample_count:combined.length,samples:combined
+   },{onConflict:"session_id,lap_number"}));
+   requireOk(await db.from("vce_agent_devices").update({last_seen_at:new Date().toISOString()}).eq("device_id",d.device_id));
+   return reply({ok:true,offset:combined.length,complete:combined.length===total});
+ }
  if(action==="live_batch"){
    const d=await device(b);
    if(d.status!=="approved"||!d.pilot_slug)return reply({error:"PC non approuvé"},403);
