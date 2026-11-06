@@ -130,3 +130,24 @@ header em,h1 span,.vce-hud-banner h2 span{color:#f32d56}
 #tt-curves #plots canvas{height:330px;background:#081426}
 @media(max-width:1250px){.vce-tour-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:800px){.vce-tour-studio{grid-template-columns:1fr}.vce-tour-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.vce-track-panel #map{min-height:280px}}
+
+
+/* Setup engineering dashboard — VCE blue and red */
+.vce-setup-overview{display:none;margin:20px 0 28px}
+html[data-telemetry-view=setup] .vce-setup-overview{display:block}
+.vce-setup-title{display:flex;justify-content:space-between;gap:20px;align-items:center;background:#101d32;border:1px solid #284364;border-left:4px solid #f32d56;border-radius:10px;padding:22px;margin-bottom:16px}
+.vce-setup-title small{color:#68b7ff;font-weight:800;letter-spacing:1px}
+.vce-setup-title h2{font-size:25px;color:#f5f9ff;margin:6px 0}
+.vce-setup-title p{color:#a5bddb;margin:0}
+#vce-setup-health{color:#8db6e5;font-size:12px;font-weight:800;white-space:nowrap}
+.vce-setup-categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.vce-setup-category{background:#101d32;border:1px solid #284364;border-top:3px solid #2e9cff;border-radius:10px;padding:18px}
+.vce-setup-category:nth-child(even){border-top-color:#f32d56}
+.vce-setup-category h3{font-size:16px;color:#f5f9ff;margin:0 0 15px}
+.vce-setup-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.vce-setup-metric{background:#0b182b;border:1px solid #233e60;border-radius:7px;padding:12px;min-width:0}
+.vce-setup-metric small{display:block;color:#9cb5d4;font-size:11px;margin-bottom:6px}
+.vce-setup-metric strong{font-size:22px;color:#8fa1ba;font-variant-numeric:tabular-nums}
+.vce-setup-metric.available strong{color:#f6f9ff}
+.vce-setup-metric span{color:#8fa8c7;margin-left:5px;font-size:12px}
+@media(max-width:800px){.vce-setup-categories{grid-template-columns:1fr}.vce-setup-title{align-items:flex-start;flex-direction:column}}
