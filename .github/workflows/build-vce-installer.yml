@@ -120,6 +120,10 @@ jobs:
         shell: pwsh
         run: python race-controle-windows/patch_v34.py
 
+      - name: Stabiliser sauvegarde des tours et diagnostic fréquence V3.5
+        shell: pwsh
+        run: python race-controle-windows/patch_v35.py
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -182,12 +186,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v3.4.0"
+          $tag = "v3.5.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "VCE 3.4.0 : detection AC, ACC, LMU et AC EVO. Capture native AC/ACC; LMU import de donnees selon compatibilite; AC EVO detection uniquement tant que son adaptateur natif nest pas valide. Transfert soumis au consentement et a lapprobation STAFF."
+          $notes = "VCE 3.5.0 : detection AC, ACC, LMU et AC EVO. Capture native AC/ACC; LMU import de donnees selon compatibilite; AC EVO detection uniquement tant que son adaptateur natif nest pas valide. Transfert soumis au consentement et a lapprobation STAFF."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.4.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.5.0 - Installateur Windows" --notes $notes
           }
