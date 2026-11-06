@@ -65,6 +65,31 @@ function normalizedSession(s:any,d:any,status:string){
  best_lap_ms:n(s.best_lap_ms,10000,3600000),
  status,live_sample:live,session_type:clean(s.session_type,32),last_heartbeat_at:new Date().toISOString()};
 }
+// VCE pilot portal: privileged provisioning is STAFF-only, never trust client profile names.
+const VCE_PILOT_DOMAIN="virtual-center-experience.fr";
+function pilotMail(id:string){return "vce-pilote+"+id+"@"+VCE_PILOT_DOMAIN}
+async function pilotAccounts(){
+ const result=await db.auth.admin.listUsers({page:1,perPage:1000});requireOk(result);
+ return (result.data.users||[]).filter((u:any)=>typeof u.app_metadata?.vce_pilot_slug==="string");
+}
+async function pilotAccount(id:string){
+ const users=await pilotAccounts();
+ return users.find((u:any)=>u.app_metadata.vce_pilot_slug===id)||null;
+}
+function temporaryPassword(){
+ const alphabet="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+ const bytes=new Uint8Array(24);crypto.getRandomValues(bytes);
+ return [...bytes].map(i=>alphabet[i%alphabet.length]).join("");
+}
+async function associatePilotRecord(id:string,uid:string){
+ const dev=await db.from("vce_agent_devices").update({pilot_auth_user:uid})
+   .eq("pilot_slug",id).eq("status","approved").is("pilot_auth_user",null);
+ requireOk(dev);
+ const sessions=await db.from("vce_agent_sessions").update({pilot_auth_user:uid})
+   .eq("pilot_slug",id).is("pilot_auth_user",null);
+ requireOk(sessions);
+}
+
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:CORS});
  if(req.method!=="POST")return reply({error:"POST requis"},405);
@@ -214,7 +239,57 @@ Deno.serve(async(req)=>{
    requireOk(laps);
    return reply({pilot_slug:other.data.pilot_slug,session_id:targetId,laps:laps.data||[]});
  }
-  if(action==="staff_list"){
+  if(action==="staff_pilot_accounts"){
+   await authorizedStaff(req);
+   const users=await pilotAccounts();
+   return reply({accounts:users.map((u:any)=>({
+    pilot_slug:u.app_metadata.vce_pilot_slug,
+    created_at:u.created_at,
+    password_change_required:u.app_metadata.vce_password_change_required===true
+   }))});
+ }
+ if(action==="staff_provision_pilot"||action==="staff_reset_pilot"){
+   await authorizedStaff(req);
+   const id=slug(clean(b.pilot_slug,100));
+   if(!id||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))return reply({error:"Profil pilote invalide"},400);
+   const existing=await pilotAccount(id),password=temporaryPassword();
+   if(action==="staff_provision_pilot"&&existing)return reply({error:"Compte déjà créé. Utiliser réinitialisation si nécessaire."},409);
+   if(action==="staff_reset_pilot"&&!existing)return reply({error:"Compte absent. Créer le compte."},404);
+   let uid="";
+   if(existing){
+     const changed=await db.auth.admin.updateUserById(existing.id,{
+       password,app_metadata:{...existing.app_metadata,vce_pilot_slug:id,vce_password_change_required:true}
+     });requireOk(changed);uid=existing.id;
+   }else{
+     const created=await db.auth.admin.createUser({
+      email:pilotMail(id),password,email_confirm:true,
+      app_metadata:{vce_pilot_slug:id,vce_password_change_required:true}
+     });requireOk(created);if(!created.data.user)throw Error("Création du compte impossible");
+     uid=created.data.user.id;
+   }
+   await associatePilotRecord(id,uid);
+   return reply({ok:true,pilot_slug:id,identifier:"virtualcenterexperience",
+    temporary_password:password,note:"Code provisoire visible une seule fois. À transmettre au pilote par un canal privé."});
+ }
+ if(action==="pilot_whoami"){
+   const user=await authUser(req);
+   return reply({pilot_slug:user.app_metadata?.vce_pilot_slug||null,
+     password_change_required:user.app_metadata?.vce_password_change_required===true});
+ }
+ if(action==="pilot_change_password"){
+   const user=await authUser(req);
+   const id=user.app_metadata?.vce_pilot_slug;
+   if(typeof id!=="string"||!id)return reply({error:"Compte pilote requis"},403);
+   const password=typeof b.new_password==="string"?b.new_password:"";
+   if(password.length<12||password.length>128||password.toLowerCase().includes("virtualcenterexperience")||
+     password.toLowerCase().includes(id.split("-")[0])||!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password))
+     return reply({error:"Choisis 12 caractères minimum avec majuscule, minuscule et chiffre, sans ton prénom."},400);
+   const updated=await db.auth.admin.updateUserById(user.id,{
+    password,app_metadata:{...user.app_metadata,vce_pilot_slug:id,vce_password_change_required:false}
+   });requireOk(updated);
+   return reply({ok:true});
+ }
+ if(action==="staff_list"){
    await authorizedStaff(req);
    const rows=await db.from("vce_agent_devices")
      .select("device_id,requested_pilot,pilot_slug,steam_id64,local_ip,status,created_at,last_seen_at,current_game,current_state")
@@ -226,8 +301,8 @@ Deno.serve(async(req)=>{
    if(!UUID.test(b.target_device_id||"")||!["approved","rejected"].includes(b.decision))return reply({error:"Décision invalide"},400);
    const pilot=slug(clean(b.pilot_slug,100));
    if(b.decision==="approved"&&!pilot)return reply({error:"Profil pilote requis"},400);
-   const user=b.pilot_auth_user?String(b.pilot_auth_user):null;
-   if(user&&!UUID.test(user))return reply({error:"Compte pilote invalide"},400);
+   const account=b.decision==="approved"?await pilotAccount(pilot):null;
+   const user=account?.id||null;
    requireOk(await db.from("vce_agent_devices").update({status:b.decision,
      pilot_slug:b.decision==="approved"?pilot:null,pilot_auth_user:b.decision==="approved"?user:null,
      approved_at:b.decision==="approved"?new Date().toISOString():null}).eq("device_id",b.target_device_id));
