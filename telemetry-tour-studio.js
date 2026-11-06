@@ -36,7 +36,7 @@ overview.innerHTML='<div><small>CHRONO PILOTE</small><b id="vce-tour-summary-tim
 layout.before(overview);
 const stats=()=>{
  for(const [to,from] of [['vce-tour-summary-time','lapTime'],['vce-tour-summary-ref','refTime'],['vce-tour-summary-delta','delta']])$(to).textContent=$(from)?.textContent||'—';
- const s=window.vceSession;const laps=(s?.laps||[]).filter(l=>(Number.isFinite(l.time)||l.samples?.length>=2||Number.isInteger(l.number)));
+ const s=window.vceSession;const laps=(s?.laps||[]).filter(l=>l&&(Number.isFinite(l.time)||l.samples?.length>=2||Number.isInteger(l.number))).slice().sort((a,b)=>(a.number??0)-(b.number??0));
  const lap=laps[Number($('lap')?.value||0)];const samples=lap?.samples||[];
  const max=k=>{const vals=samples.map(p=>p[k]).filter(v=>typeof v==='number'&&Number.isFinite(v));return vals.length?Math.max(...vals):null};
  const speed=max('speed'),brake=max('brake'),throttle=max('throttle');
