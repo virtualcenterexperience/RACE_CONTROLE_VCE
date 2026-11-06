@@ -1,0 +1,14 @@
+/* VCE ESPORT — pilot photographs, readable on desktop and mobile. */
+#pilotGrid .avatar.vce-photo-avatar{overflow:hidden;padding:0;display:grid;place-items:center;border-radius:50%!important;background:#172e44;flex-shrink:0}
+#pilotGrid .avatar.vce-photo-avatar img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:1}
+#pilotDashboard .vce-profile-photo-panel{display:flex;align-items:center;gap:15px;padding:12px 15px;background:#111f31;border:1px solid #345371;border-radius:12px;max-width:420px;margin:12px 0}
+#pilotDashboard .vce-profile-photo-panel .vce-photo-big{height:77px;width:77px;min-width:77px;border-radius:50%;border:2px solid #5b9ed6;display:grid;place-items:center;overflow:hidden;background:#284967;color:#dbeeff;font-size:28px;font-weight:850}
+#pilotDashboard .vce-profile-photo-panel .vce-photo-big img{width:100%;height:100%;object-fit:cover;aspect-ratio:1;display:block}
+#pilotDashboard .vce-photo-actions{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+#pilotDashboard .vce-photo-actions strong{color:#eaf3fe;font-size:13px}
+#pilotDashboard .vce-photo-actions button{font-size:12px;padding:9px 12px;border-radius:7px;background:#246aa5;color:white;border:1px solid #65b8f0;cursor:pointer;font-weight:800}
+#pilotDashboard .vce-photo-actions button:disabled{opacity:.5;cursor:wait}
+#pilotDashboard .vce-photo-hint{font-size:11px;color:#9bb7ce;line-height:1.3}
+#pilotDashboard #vce-photo-status{font-size:11px;color:#b6d8f1;line-height:1.4;max-width:300px;overflow-wrap:anywhere}
+#pilotDashboard .vce-photo-actions [hidden]{display:none!important}
+@media(max-width:640px){#pilotDashboard .vce-profile-photo-panel{max-width:100%;padding:10px}#pilotDashboard .vce-photo-actions{min-width:0}#pilotDashboard .vce-profile-photo-panel .vce-photo-big{width:62px;height:62px;min-width:62px}}
