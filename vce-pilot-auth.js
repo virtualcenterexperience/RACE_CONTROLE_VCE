@@ -82,9 +82,9 @@ async function route(){
  if(!id){lock(true);if(card)card.hidden=true;return}
  lock(true);show('Vérification de ton compte VCE ESPORT…');
  try{
-  const state=await accountStatus(id);
+  const access=await accountStatus(id);
   if(request!==state.seq)return;
-  if(state.listed===false){
+  if(access.listed===false){
    show('Ce pilote a été retiré de la liste par le STAFF. Reviens à la sélection des pilotes.');
    $('vce-pilot-login-form').hidden=true;
    $('vce-pilot-change-form').hidden=true;
@@ -92,7 +92,7 @@ async function route(){
    return;
   }
   // Existing unprovisioned profiles remain accessible during the server rollout.
-  if(!state.ready){openDashboard();return}
+  if(!access.ready){openDashboard();return}
   const session=await window.VCESupabase?.validSession();
   if(request!==state.seq)return;
   if(!session?.access_token){showForm();return}
