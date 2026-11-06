@@ -9,19 +9,19 @@ let card=null;
 const current=()=>slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''));
 const cfg=()=>window.VCE_SUPABASE||{};
 function lock(value){document.documentElement.classList.toggle('vce-pilot-auth-locked',value);const el=$('pilotDashboard');if(el)el.style.setProperty('display',value?'none':'block','important')}
-async function isAccountReady(id){
+async function accountStatus(id){
  const config=cfg();
- if(!window.VCESupabase?.configured())return false;
+ if(!window.VCESupabase?.configured())return {ready:false,listed:null};
  try{
   const response=await fetch(config.url+'/functions/v1/vce-telemetry',{
    method:'POST',cache:'no-store',
    headers:{apikey:config.key,'Content-Type':'application/json'},
    body:JSON.stringify({action:'pilot_account_ready',pilot_slug:id})
   });
-  if(!response.ok)return false;
+  if(!response.ok)return {ready:false,listed:null};
   const body=await response.json();
-  return body?.ready===true;
- }catch{return false}
+  return {ready:body?.ready===true,listed:typeof body?.listed==='boolean'?body.listed:null};
+ }catch{return {ready:false,listed:null}}
 }
 async function api(action,extra={}){
  const session=await window.VCESupabase?.validSession();
@@ -82,10 +82,17 @@ async function route(){
  if(!id){lock(true);if(card)card.hidden=true;return}
  lock(true);show('Vérification de ton compte VCE ESPORT…');
  try{
-  const isReady=await isAccountReady(id);
+  const state=await accountStatus(id);
   if(request!==state.seq)return;
-  // Until a staff-provisioned account exists, leave the pre-existing public dashboard usable.
-  if(!isReady){openDashboard();return}
+  if(state.listed===false){
+   show('Ce pilote a été retiré de la liste par le STAFF. Reviens à la sélection des pilotes.');
+   $('vce-pilot-login-form').hidden=true;
+   $('vce-pilot-change-form').hidden=true;
+   $('vce-pilot-reconnect').hidden=true;
+   return;
+  }
+  // Existing unprovisioned profiles remain accessible during the server rollout.
+  if(!state.ready){openDashboard();return}
   const session=await window.VCESupabase?.validSession();
   if(request!==state.seq)return;
   if(!session?.access_token){showForm();return}
