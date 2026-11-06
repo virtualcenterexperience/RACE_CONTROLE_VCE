@@ -60,7 +60,7 @@ function renderChart(){
   return typeof xval!=='number'||xval>=viewStart&&xval<=viewEnd;
  });
  const primaryFiltered=windowed(primary),referenceFiltered=windowed(reference);
- const key=channel==='slip'?'steering':channel;
+ const key=channel;
  const hasChannel=window.VCEGraph35.channels[key];
  if(!hasChannel){
   const c=canvas.getContext('2d');c.fillStyle='#99b4cc';c.font='14px Segoe UI';c.fillText('Canal '+channel+' non disponible',40,90);return
