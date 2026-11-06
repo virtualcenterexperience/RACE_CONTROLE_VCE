@@ -291,7 +291,7 @@ Deno.serve(async(req)=>{
    if(typeof id!=="string"||!id)return reply({error:"Compte pilote requis"},403);
    const password=typeof b.new_password==="string"?b.new_password:"";
    if(password.length<12||password.length>128||password.toLowerCase().includes("virtualcenterexperience")||
-     password.toLowerCase().includes(id.split("-")[0])||!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password))
+     id.split("-").some((part:string)=>part.length>=3&&password.toLowerCase().includes(part))||!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password))
      return reply({error:"Choisis 12 caractères minimum avec majuscule, minuscule et chiffre, sans ton prénom."},400);
    const updated=await db.auth.admin.updateUserById(user.id,{
     password,app_metadata:{...user.app_metadata,vce_pilot_slug:id,vce_password_change_required:false}
