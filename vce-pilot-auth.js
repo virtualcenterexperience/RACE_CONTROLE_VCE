@@ -85,10 +85,18 @@ async function route(){
   const access=await accountStatus(id);
   if(request!==state.seq)return;
   if(access.listed===false){
-   show('Ce pilote a été retiré de la liste par le STAFF. Reviens à la sélection des pilotes.');
-   $('vce-pilot-login-form').hidden=true;
-   $('vce-pilot-change-form').hidden=true;
-   $('vce-pilot-reconnect').hidden=true;
+   // Distinguish an uninitialized database roster from an actual STAFF removal.
+   const remote=await window.VCESupabase.read('pilotes');
+   if(request!==state.seq)return;
+   if(Array.isArray(remote.items)){
+    show('Ce pilote a été retiré de la liste par le STAFF. Reviens à la sélection des pilotes.');
+    $('vce-pilot-login-form').hidden=true;
+    $('vce-pilot-change-form').hidden=true;
+    $('vce-pilot-reconnect').hidden=true;
+    return;
+   }
+   // The initial roster has not been installed yet: allow legacy public dashboard only.
+   openDashboard();
    return;
   }
   // Existing unprovisioned profiles remain accessible during the server rollout.
