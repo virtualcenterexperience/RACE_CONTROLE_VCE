@@ -95,7 +95,7 @@ function normalizeLap(item){
 function normalizeSession(s,laps){
  const live=String(s.status)==='in_progress' && Date.now()-Date.parse(s.last_heartbeat_at||s.started_at)<60000;
  const sample=s.live_sample?normalizeSample(s.live_sample,numberOrNull(s.live_sample.t)):null;
- return {id:s.session_id,game:s.game,track:s.track||'Circuit non renseigné',car:s.car||'Voiture non renseignée',
+ return {id:s.session_id,device_id:s.device_id,pilot_slug:s.pilot_slug,game:s.game,track:s.track||'Circuit non renseigné',car:s.car||'Voiture non renseignée',
    date:s.started_at?new Date(s.started_at).toLocaleString('fr-FR'):'',status:s.status,session_type:s.session_type||'',
    laps:laps.map(normalizeLap),totalLaps:s.laps_count||laps.length,live:{active:live,
      lap:s.laps_count,elapsed:null,sample}};
