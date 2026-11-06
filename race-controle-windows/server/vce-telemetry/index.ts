@@ -92,6 +92,36 @@ Deno.serve(async(req)=>{
      steam_id64:steam||null,local_ip,status:"pending"}));
    return reply({status:"pending",device_id:id});
  }
+ if(action==="live_batch"){
+   const d=await device(b);
+   if(d.status!=="approved"||!d.pilot_slug)return reply({error:"PC non approuvé"},403);
+   const source=b.session||{};
+   if(!UUID.test(source.session_id||"")||!["AC","ACC"].includes(source.game)||
+      !Array.isArray(source.samples)||source.samples.length<1||source.samples.length>12)
+      return reply({error:"Lot live invalide"},400);
+   const points=source.samples.map((x:any)=>({
+     t:n(x.t,946684800,5000000000),lap_pos:n(x.lap_pos,0,1),
+     speed_kmh:n(x.speed_kmh,0,800),brake:n(x.brake,0,1),
+     throttle:n(x.throttle,0,1),steer:n(x.steer,-100,100),
+     gear:n(x.gear,-2,20),rpm:n(x.rpm,0,30000),
+     fuel_l:n(x.fuel_l,0,1000),position:n(x.position,0,1000),
+     sector_index:n(x.sector_index,0,50),world_x:n(x.world_x,-1e7,1e7),
+     world_z:n(x.world_z,-1e7,1e7)
+   })).filter((x:any)=>x.t!==null);
+   if(!points.length)return reply({error:"Aucune donnée valide"},400);
+   const payload={device_id:d.device_id,session_id:source.session_id,
+     game:source.game,track:clean(source.track,100),car:clean(source.car,100),
+     session_type:clean(source.session_type,40),
+     lap_number:n(source.lap_number,0,100000),
+     timestamp:Date.now(),samples:points};
+   const topic="vce:device:"+d.device_id;
+   const result=await fetch(base+"/realtime/v1/api/broadcast/"+
+     encodeURIComponent(topic)+"/events/frame?private=true",{
+     method:"POST",headers:{"apikey":adminKey,"Authorization":"Bearer "+adminKey,
+       "Content-Type":"application/json"},body:JSON.stringify(payload)});
+   if(!result.ok)return reply({error:"Realtime "+result.status},503);
+   return reply({ok:true,frames:points.length});
+ }
  if(["status","presence","session_state","upload"].includes(action)){
    const d=await device(b);
    if(action==="status")return reply({status:d.status,pilot_slug:d.status==="approved"?d.pilot_slug:null});
@@ -128,7 +158,63 @@ Deno.serve(async(req)=>{
    requireOk(await db.from("vce_agent_devices").update({last_seen_at:new Date().toISOString()}).eq("device_id",d.device_id));
    return reply({ok:true,session_id:s.session_id,lap_number:number});
  }
- if(action==="staff_list"){
+ if(action==="pilot_share"){
+   const user=await authUser(req);
+   if(typeof b.enabled!=="boolean")return reply({error:"Option de partage invalide"},400);
+   const result=await db.from("vce_agent_devices").update({allow_team_comparison:b.enabled})
+      .eq("pilot_auth_user",user.id).eq("status","approved").select("device_id");
+   requireOk(result);
+   if(!result.data?.length)return reply({error:"Aucun appareil lié au compte pilote"},403);
+   return reply({ok:true,sharing:b.enabled});
+ }
+ if(action==="comparison_catalog"||action==="comparison_laps"){
+   const user=await authUser(req);
+   let staff=false;
+   try{const token=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"");
+     const asUser=createClient(base,publicKey,{auth:{persistSession:false,autoRefreshToken:false},
+       global:{headers:{Authorization:"Bearer "+token}}});
+     const flag=await asUser.rpc("vce_is_staff");
+     staff=flag.data===true&&!flag.error;
+   }catch{}
+   const baseId=clean(b.base_session_id,50);
+   if(!UUID.test(baseId))return reply({error:"Session principale invalide"},400);
+   const own=await db.from("vce_agent_sessions").select("session_id,game,track,car,pilot_auth_user")
+     .eq("session_id",baseId).maybeSingle();requireOk(own);
+   if(!own.data)return reply({error:"Session introuvable"},404);
+   if(!staff&&own.data.pilot_auth_user!==user.id)return reply({error:"Accès à la session refusé"},403);
+   if(action==="comparison_catalog"){
+     const list=await db.from("vce_agent_sessions")
+       .select("session_id,device_id,pilot_slug,game,track,car,best_lap_ms,started_at")
+       .eq("game",own.data.game).eq("track",own.data.track).eq("car",own.data.car)
+       .neq("session_id",baseId).order("started_at",{ascending:false}).limit(80);requireOk(list);
+     const candidates=list.data||[];
+     if(!candidates.length)return reply({sessions:[]});
+     const deviceIds=[...new Set(candidates.map((s:any)=>s.device_id))];
+     const dev=await db.from("vce_agent_devices").select("device_id,allow_team_comparison,pilot_auth_user,status")
+       .in("device_id",deviceIds);requireOk(dev);
+     const allowed=new Set((dev.data||[]).filter((d:any)=>d.status==="approved"&&
+       (staff||d.allow_team_comparison===true||d.pilot_auth_user===user.id)).map((d:any)=>d.device_id));
+     return reply({sessions:candidates.filter((s:any)=>allowed.has(s.device_id)).slice(0,40)});
+   }
+   const targetId=clean(b.target_session_id,50);
+   if(!UUID.test(targetId))return reply({error:"Session de référence invalide"},400);
+   const other=await db.from("vce_agent_sessions")
+     .select("session_id,device_id,pilot_slug,game,track,car,pilot_auth_user")
+     .eq("session_id",targetId).maybeSingle();requireOk(other);
+   if(!other.data)return reply({error:"Session de référence introuvable"},404);
+   if(other.data.track!==own.data.track||other.data.car!==own.data.car||
+      other.data.game!==own.data.game)return reply({error:"Jeu, circuit ou voiture différents"},409);
+   const dev=await db.from("vce_agent_devices").select("status,allow_team_comparison")
+      .eq("device_id",other.data.device_id).maybeSingle();requireOk(dev);
+   if(dev.data?.status!=="approved"||(!staff&&!dev.data?.allow_team_comparison&&other.data.pilot_auth_user!==user.id))
+     return reply({error:"Ce pilote n'a pas autorisé la comparaison"},403);
+   const laps=await db.from("vce_agent_laps")
+     .select("lap_number,lap_time_ms,valid,samples,sample_count")
+     .eq("session_id",targetId).order("lap_time_ms",{ascending:true,nullsFirst:false}).limit(5);
+   requireOk(laps);
+   return reply({pilot_slug:other.data.pilot_slug,session_id:targetId,laps:laps.data||[]});
+ }
+  if(action==="staff_list"){
    await authorizedStaff(req);
    const rows=await db.from("vce_agent_devices")
      .select("device_id,requested_pilot,pilot_slug,steam_id64,local_ip,status,created_at,last_seen_at,current_game,current_state")
