@@ -23,10 +23,16 @@ function ratingRace(r){
  return pos===1?100:pos<=3?80:pos<=8?25:pos<=12?10:pos<=18?-10:-25;
 }
 async function sync(){
- const [pilotes,attributions,notifications,seances]=await Promise.all(['pilotes','attributions','notifications','seances'].map(get));
+ const [attributions,notifications,seances]=await Promise.all(['attributions','notifications','seances'].map(get));
  const name=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'');
+ if(!name)return;
+ let pilotes=Array.isArray(window.VCE_PILOT_ROSTER)?window.VCE_PILOT_ROSTER:[];
+ if(!pilotes.length&&window.VCESupabase?.configured()){
+   try{const remote=await VCESupabase.read('pilotes');if(Array.isArray(remote.items))pilotes=remote.items}catch(err){console.warn('Roster STAFF indisponible',err)}
+ }
+ // Do not show archived/deleted pilots from GitHub's outdated static JSON file.
  const p=pilotes.find(p=>p.id===slug(name)||slug(p.name)===slug(name));
- if(!p)return;
+ if(!p||!window.VCEPilotAuthCanAccess?.(p.id))return;
  let remote=[];try{if(window.VCESupabase?.configured()){const d=await VCESupabase.read('training_assignments');remote=Array.isArray(d.items)?d.items:[]}}catch(e){console.warn('Attributions Supabase indisponibles',e)}const remoteMine=remote.filter(a=>slug(a.driver||a.pilot)===p.id||slug(a.driver||a.pilot)===slug(p.name));const my=[...attributions.filter(a=>a.pilot===p.id),...remoteMine.map(a=>({...a,source:'supabase'}))],myN=[...notifications.filter(n=>n.pilot===p.id),...remoteMine.map(a=>({id:a.id,text:'Nouvel entraînement attribué par le coach : '+a.exercise,assignment:a.id,source:'supabase'}))],myS=seances.filter(s=>s.pilot===p.id);
  let assigned=document.getElementById('assignedList');if(assigned){assigned.innerHTML=my.map(a=>`<div class="item"><b>EXERCICE PERSONNEL — COACH IRL</b><p>${esc(a.circuit)} · ${esc(a.car)} · ${esc(a.laps)} tours</p><p>${esc(a.exercise)}</p><a href="coach-irl.html?assignment=${encodeURIComponent(a.id)}&pilot=${encodeURIComponent(p.name)}">CONSULTER LA SÉANCE →</a></div>`).join('')||'<p>Aucun entraînement attribué par le STAFF.</p>'}
  let dash=document.getElementById('pilotDashboard');if(!dash)return;
