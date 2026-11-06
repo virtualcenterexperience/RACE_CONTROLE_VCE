@@ -52,16 +52,22 @@ async function rosterAction(action,data={}){
 async function loadRoster(){
  try{
   const remote=await VCESupabase.read('pilotes');
-  if(Array.isArray(remote.items))roster=remote.items;
-  else{
-   // One-time initialization from the existing roster; later updates are server-side.
-   const base=(await rosterDefault()).filter(p=>p&&p.name&&p.id);
-   await VCESupabase.save('pilotes',{version:2,items:base,updatedAt:new Date().toISOString()});
-   roster=base;
+  if(Array.isArray(remote.items)){
+   roster=remote.items;
+   status('✓ Liste STAFF synchronisée.');
+  }else{
+   // Restore the existing drivers while the initial SQL migration is pending.
+   roster=(await rosterDefault()).filter(p=>p&&p.name&&p.id);
+   try{
+    await VCESupabase.save('pilotes',{version:2,items:roster,updatedAt:new Date().toISOString()});
+    status('✓ Liste initiale restaurée et synchronisée dans Supabase.');
+   }catch(err){
+    status('Liste initiale restaurée ('+roster.length+' pilotes), mais Supabase refuse la sauvegarde. Applique le correctif SQL vce_publications_kind_check pour activer les ajouts.');
+    console.warn('Migration roster nécessaire',err);
+   }
   }
   roster=roster.filter(p=>p&&p.name&&p.id);
   drawRoster();
-  status('✓ Liste STAFF synchronisée · '+roster.length+' pilote(s).');
  }catch(e){status('Impossible de charger la liste STAFF : '+e.message)}
 }
 function drawRoster(){
