@@ -155,8 +155,10 @@ function rebuild(){
  primaryData=directEnabled?liveFrames.slice():samplesFor(chosen.a);
  referenceData=samplesFor(chosen.b);
  dispose();
- const quality=window.VCETrack35?.analyze(primaryData);
- const refQuality=window.VCETrack35?.analyze(referenceData);
+ // The track analyzer expects {x,y} whereas 3D world samples use {x,z}.
+ // Map world Z explicitly; otherwise every 3D trace is rejected as missing XY.
+ const quality=window.VCETrack35?.analyze(primaryData.map(p=>({x:p.x,y:p.z})));
+ const refQuality=window.VCETrack35?.analyze(referenceData.map(p=>({x:p.x,y:p.z})));
  // Disable fake, distorted 3D roads for sessions with missing/flat world coordinates.
  if(!quality?.ok){
   wrapper.style.display='none';canvas.style.display='block';
