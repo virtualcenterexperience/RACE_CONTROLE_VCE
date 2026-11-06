@@ -102,12 +102,12 @@ function paintMap(data){
  const canvas=$('vce-eng-map'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
  ctx.fillStyle='#070d16';ctx.fillRect(0,0,w,h);
  const coords=data.map(p=>[val(p,['x','world_x']),val(p,['y','world_z'])]).filter(v=>v.every(finite));
- const xs=coords.map(x=>x[0]),ys=coords.map(x=>x[1]);
- if(coords.length<5||Math.max(...xs)-Math.min(...xs)<.5||Math.max(...ys)-Math.min(...ys)<.5){
+ let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+ for(const p of coords){minX=Math.min(minX,p[0]);maxX=Math.max(maxX,p[0]);minY=Math.min(minY,p[1]);maxY=Math.max(maxY,p[1])}
+ if(coords.length<5||maxX-minX<.5||maxY-minY<.5){
   ctx.fillStyle='#94a9c1';ctx.font='16px Segoe UI';ctx.fillText('Tracé indisponible : X/Z insuffisants',20,110);
   $('vce-eng-maptext').textContent=coords.length+' coordonnées reçues (deux axes requis)';return
  }
- const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
  const scale=Math.max((maxX-minX)/(w-40),(maxY-minY)/(h-40)),mx=(maxX+minX)/2,my=(maxY+minY)/2;
  const xy=p=>[w/2+(p[0]-mx)/scale,h/2-(p[1]-my)/scale];
  ctx.strokeStyle='#4ad986';ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.beginPath();
@@ -118,7 +118,7 @@ function paintMap(data){
 }
 function channelBounds(data,def){
  const values=data.map(s=>val(s,def[4])).filter(finite);if(!values.length)return null;
- const low=Math.min(...values),high=Math.max(...values);
+ let low=Infinity,high=-Infinity;for(const value of values){if(value<low)low=value;if(value>high)high=value}
  if(def[0]==='throttle'||def[0]==='brake')return [0,1];
  if(def[0]==='steering'){const m=Math.max(1,Math.abs(low),Math.abs(high));return [-m,m]}
  if(def[0]==='speed'||def[0]==='rpm')return [0,Math.max(1,Math.ceil(high/25)*25)];
