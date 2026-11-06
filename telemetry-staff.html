@@ -76,11 +76,17 @@ async function refresh(){
  const ts=$('sessions');ts.replaceChildren();
  for(const s of sessions.sessions||[]){const tr=document.createElement('tr');
  const col=cell(tr,'');
- const link=document.createElement('a');
- link.href='telemetry.html#'+encodeURIComponent(s.pilot_slug||'');
- link.textContent=s.pilot_slug||'Pilote';
- link.title='Ouvrir la télémétrie de ce pilote (accès STAFF authentifié)';
- col.append(link);
+ const name=document.createElement('strong');name.textContent=s.pilot_slug||'Pilote';col.append(name);
+ const actions=document.createElement('div');actions.className='actions';
+ for(const [label,view] of [['TOUR','tour'],['SETUP','setup']]){
+  const link=document.createElement('a');
+  link.href='telemetry.html?view='+view+'#'+encodeURIComponent(s.pilot_slug||'');
+  link.textContent=label;
+  link.title='Ouvrir la télémétrie '+view+' du pilote avec les droits STAFF';
+  link.style.cssText='display:inline-flex;padding:6px 9px;margin:4px 5px 0 0;border:1px solid #386089;border-radius:5px;background:#142a46;color:#d5eaff;text-decoration:none;font-size:12px;font-weight:800';
+  actions.append(link);
+ }
+ col.append(actions);
  for(const value of [s.game,s.track,s.car,date(s.started_at),s.status,s.laps_count])cell(tr,value);
  ts.append(tr)}
  if(!ts.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune session reçue');td.colSpan=7;ts.append(tr)}
