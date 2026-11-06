@@ -48,6 +48,19 @@ let selectedKey='',primaryData=[],referenceData=[],center={x:0,z:0},size=150,roa
 let modeLive=false,liveFrames=[],liveSession='',liveLatest=null;
 const direct=document.createElement('button');direct.type='button';direct.textContent='● Direct 3D';direct.id='vce-replay-live-toggle';
 $('vce-replay-reload')?.after(direct);
+// The trajectory is measured; the edge-to-edge width is NOT provided by AC telemetry.
+// Manual geometry estimate is adjustable and explicitly labelled as such.
+const widthLabel=document.createElement('label');
+widthLabel.id='vce-replay-trackwidth-label';widthLabel.textContent='Largeur piste (estimée) : ';
+widthLabel.style.cssText='display:inline-flex;align-items:center;gap:6px;margin-left:9px;font-size:12px;color:#c6dcf2';
+const widthSelect=document.createElement('select');widthSelect.id='vce-replay-trackwidth';
+for(const n of [6,8,10,12,14,16,18,20,24,30]){
+ const opt=document.createElement('option');opt.value=String(n);opt.textContent=n+' m';widthSelect.append(opt)
+}
+widthSelect.value='12';widthSelect.title='Largeur totale indicative : non mesurée par les coordonnées du pilote';
+widthSelect.style.cssText='background:#14253b;border:1px solid #54738f;border-radius:5px;color:#f3f9ff;padding:6px';
+widthLabel.append(widthSelect);direct.after(widthLabel);
+widthSelect.addEventListener('change',()=>{selectedKey=''});
 direct.onclick=()=>{
  modeLive=!modeLive;direct.textContent=modeLive?'● Direct 3D ACTIF':'● Direct 3D';
  direct.style.background=modeLive?'#7e2947':'';
@@ -107,7 +120,7 @@ function road(data){
  const pts=data.filter((_,i)=>i%stride===0);
  if(pts.at(-1)!==data.at(-1))pts.push(data.at(-1));
  const verts=[],uv=[],indices=[];
- const width=8.0; // visualization only, NOT a measured circuit width
+ const width=Math.max(6,Math.min(30,Number(widthSelect.value)||12)); // total EDGE-TO-EDGE width, manually estimated
  for(let i=0;i<pts.length;i++){
   const p=pts[i],a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
   const dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz)||1;
@@ -166,7 +179,7 @@ function rebuild(){
  for(const section of cleaned){road(section);polyline(section,0xff951d)}
  for(const section of refCleaned)polyline(section,0x49a1ff);
  const message=$('vce-replay-world-note');
- if(message)message.textContent='SCÈNE 3D reconstruite depuis les coordonnées des tours. Route, largeur, décors et véhicules schématiques : ils ne représentent pas le modèle réel du circuit.'
+ if(message)message.textContent='ORANGE : trajectoire réelle du pilote · BLEU : référence. Largeur totale affichée : '+widthSelect.value+' m (estimation manuelle, pas mesure des bordures). La géométrie réelle exige un modèle de piste.'
 }
 function locate(data,time){
  if(!data.length)return null;
