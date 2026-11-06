@@ -163,8 +163,11 @@ Deno.serve(async(req)=>{
    if(!session.data)return reply({error:"Session inconnue"},404);
    if(session.data.pilot_auth_user!==u.id)await authorizedStaff(req);
    const wanted=Math.min(8,Math.max(1,Number.isInteger(b.lap_limit)?b.lap_limit:5));
-   const rows=await db.from("vce_agent_laps").select("lap_number,lap_time_ms,valid,samples,sample_count")
-    .eq("session_id",id).order("lap_number",{ascending:false}).limit(wanted);requireOk(rows);
+   let query=db.from("vce_agent_laps").select("lap_number,lap_time_ms,valid,samples,sample_count")
+    .eq("session_id",id);
+   const older=Number(b.before_lap);
+   if(Number.isInteger(older)&&older>1)query=query.lt("lap_number",older);
+   const rows=await query.order("lap_number",{ascending:false}).limit(wanted);requireOk(rows);
    rows.data?.reverse();
    return reply({laps:rows.data});
  }
