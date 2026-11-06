@@ -31,6 +31,29 @@ function makeUI(){
  const logout=el('button');logout.type='button';logout.textContent='DÉCONNECTER';logout.onclick=()=>{window.VCESupabase?.logout();banner('Déconnecté · données privées non chargées','warn');form.hidden=false;app.lastKey=''};
  controls.append(refresh,logout);section.append(controls);controls.id='vce-cloud-actions';
  target.after(section);
+ const meters=document.querySelector('.vce-hud-meters');
+ if(meters){
+   const extra=el('section','vce-cloud-extra');extra.id='vce-cloud-extra';
+   extra.append(el('strong','','DONNÉES COMPLÉMENTAIRES · SELON DISPONIBILITÉ DU JEU'));
+   const grid=el('div','vce-cloud-extra-grid');
+   for(const [key,label] of [['rpm','RÉGIME MOTEUR'],['fuel_l','CARBURANT (L)'],['position','POSITION'],['sector_index','INDEX SECTEUR'],['lap_pos','PROGRESSION TOUR'],['session_type','TYPE SESSION']]){
+      const item=el('article');
+      item.append(el('small','',label));
+      const number=el('b','','—');number.id='vce-cloud-value-'+key;item.append(number);grid.append(item);
+   }
+   extra.append(grid);meters.after(extra);
+   const num=v=>typeof v==='number'&&Number.isFinite(v);
+   setInterval(()=>{
+     const session=window.vceSession;const selected=Number(document.getElementById('lap')?.value||0);
+     const valid=(session?.laps||[]).filter(l=>Array.isArray(l.samples)&&l.samples.length);
+     const latest=session?.live?.sample||valid[selected]?.samples?.at(-1)||null;
+     const value=(key,unit='')=>{const node=$('vce-cloud-value-'+key);if(!node)return;
+       const v=latest?.[key];node.textContent=num(v)?v.toFixed(key==='fuel_l'?2:key==='lap_pos'?3:0)+unit:'—'};
+     value('rpm',' tr/min');value('fuel_l',' L');value('position');value('sector_index');
+     const lp=$('vce-cloud-value-lap_pos');if(lp)lp.textContent=num(latest?.lap_pos)?(latest.lap_pos*100).toFixed(1)+' %':'—';
+     const mode=$('vce-cloud-value-session_type');if(mode)mode.textContent=session?.session_type||'—';
+   },1300);
+ }
  form.addEventListener('submit',async e=>{
    e.preventDefault();submit.disabled=true;banner('Connexion à Supabase…');
    try{await window.VCESupabase.login(email.value,password.value);password.value='';form.hidden=true;await refreshData(true)}
@@ -56,7 +79,7 @@ function normalizeSample(x,origin){
  const px=n(x.world_x),py=n(x.world_z),progress=n(x.lap_pos);
  return {t:elapsed,distance:progress,lap_pos:progress,speed:n(x.speed_kmh),speed_kmh:n(x.speed_kmh),
    throttle:percent(x.throttle),brake:percent(x.brake),steering:n(x.steer),gear:n(x.gear),
-   x:px,y:py,slip:n(x.slip),rpm:n(x.rpm),abs:n(x.abs),tc:n(x.tc)};
+   x:px,y:py,slip:n(x.slip),rpm:n(x.rpm),fuel_l:n(x.fuel_l),position:n(x.position),sector_index:n(x.sector_index),abs:n(x.abs),tc:n(x.tc)};
 }
 function normalizeLap(item){
  const raw=Array.isArray(item.samples)?item.samples:[];
@@ -69,7 +92,7 @@ function normalizeSession(s,laps){
  const live=String(s.status)==='in_progress' && Date.now()-Date.parse(s.last_heartbeat_at||s.started_at)<60000;
  const sample=s.live_sample?normalizeSample(s.live_sample,numberOrNull(s.live_sample.t)):null;
  return {id:s.session_id,game:s.game,track:s.track||'Circuit non renseigné',car:s.car||'Voiture non renseignée',
-   date:s.started_at?new Date(s.started_at).toLocaleString('fr-FR'):'',status:s.status,
+   date:s.started_at?new Date(s.started_at).toLocaleString('fr-FR'):'',status:s.status,session_type:s.session_type||'',
    laps:laps.map(normalizeLap),totalLaps:s.laps_count||laps.length,live:{active:live,
      lap:s.laps_count,elapsed:null,sample}};
 }
