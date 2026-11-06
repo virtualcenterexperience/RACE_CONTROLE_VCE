@@ -1,0 +1,23 @@
+/* RACE CONTROL VCE — Global background photograph, same as the homepage.
+   Scope: page backdrop only. Do not restyle controls, cards, HUD, charts or overlays.
+   Asset extracted losslessly from index.html (2026-11-06 engineering photo). */
+html{background-color:#07101a}
+body{
+ background-color:#07101a!important;
+ background-image:
+  linear-gradient(100deg,rgba(4,9,19,.86),rgba(7,13,25,.79) 50%,rgba(5,9,20,.85)),
+  url('../images/vce-engineering-background.jpg')!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+ background-size:cover!important;
+ background-attachment:fixed!important;
+}
+/* Preserve existing interactive surfaces, while allowing image behind main dashboards. */
+#dashboard .rc-shell,
+#dashboard .rc-main,
+#dashboard .rc-content{
+ background-color:transparent!important;
+}
+@media(max-width:800px){
+ body{background-attachment:scroll!important}
+}
