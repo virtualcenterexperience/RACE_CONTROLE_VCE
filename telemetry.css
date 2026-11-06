@@ -122,3 +122,22 @@ h1 span,.eyebrow,.tt-brand span,.vce-stream .head h2,.vce-recap h2{color:var(--t
 .vce-contact[data-contact=yes]{border-color:#ef4444;color:#ff8181}
 #vce-mechanical-plot{display:block;width:100%;height:auto;background:#17191c;border:1px solid #41454b}
 @media(max-width:750px){.vce-mechanical-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* General telemetry salon: keep data modules loaded, separate visual workspaces */
+.vce-salon-back{margin-left:18px;color:#ff9a29!important;font-weight:700;text-decoration:none}
+html[data-telemetry-view=tour] #vce-mechanical{display:none!important}
+html[data-telemetry-view=setup] .tt-nav .vce-tour-nav,
+html[data-telemetry-view=setup] .vce-hud-banner,
+html[data-telemetry-view=setup] .vce-hud-meters,
+html[data-telemetry-view=setup] .toolbar,
+html[data-telemetry-view=setup] .kpis,
+html[data-telemetry-view=setup] #tt-circuit,
+html[data-telemetry-view=setup] #tt-compare,
+html[data-telemetry-view=setup] #tt-curves,
+html[data-telemetry-view=setup] #tt-history,
+html[data-telemetry-view=setup] #vce-inputs-lab,
+html[data-telemetry-view=setup] #vce-stream,
+html[data-telemetry-view=setup] #vce-analysis{display:none!important}
+html[data-telemetry-view=setup] #vce-mechanical{display:block!important}
+html[data-telemetry-view=setup] .vce-mechanical{margin-top:18px}
