@@ -1,0 +1,66 @@
+/* VCE Racing Lab / pilot-only visual redesign. Existing telemetry JS IDs remain unchanged. */
+:root{--tt-bg:#111416;--tt-panel:#1c2023;--tt-edge:#343a3f;--tt-orange:#ff9215;--tt-blue:#3897f5;--tt-muted:#9da6af;color-scheme:dark}
+html{scroll-behavior:smooth;scroll-padding-top:32px}
+body{background:var(--tt-bg)!important;color:#f3f5f6!important;font-family:Inter,"Segoe UI",Arial,sans-serif;padding-left:220px}
+.tt-nav{position:fixed;z-index:30;left:0;top:0;bottom:0;width:220px;background:#181c1f;border-right:1px solid #30363b;display:flex;flex-direction:column;padding:22px 12px;gap:5px}
+.tt-brand{padding:12px 14px 29px;border-bottom:1px solid #34383c;margin-bottom:17px}
+.tt-brand span{display:block;font-weight:950;font-size:35px;letter-spacing:-2px;color:#fff}
+.tt-brand span::first-letter{color:var(--tt-orange)}
+.tt-brand small{display:block;color:#9ba3aa;font-size:10px;letter-spacing:1.7px;margin-top:4px}
+.tt-nav>a{display:block;border-radius:6px;padding:12px 13px;color:#b8c0c8;font-size:12px;font-weight:650;transition:background .2s}
+.tt-nav>a:hover,.tt-nav>a:focus{background:#333a3e;color:#fff}
+.tt-nav>a:first-of-type{background:#332819;color:#ffad47;border-left:3px solid var(--tt-orange)}
+.tt-nav-bottom{margin-top:auto;border-top:1px solid #35393d;padding:17px 13px;color:#fff;font-size:12px;font-weight:800;line-height:1.9}
+.tt-nav-bottom small{color:#929da7;font-size:10px}
+body>header{background:#1b1f22;border-bottom:1px solid #333a40;padding:17px 28px}
+header strong{font-size:18px;letter-spacing:.5px}header em,h1 span{color:var(--tt-orange)}
+header small{color:#9da6ae}
+main{max-width:1900px;padding:24px 26px 90px}
+.intro{margin-bottom:10px}
+.intro h1{font-size:clamp(27px,3vw,40px);font-weight:800;letter-spacing:-1.3px}
+.intro p{font-size:13px}
+.eyebrow{color:var(--tt-orange);letter-spacing:1.3px}
+.status{border:1px solid #765d2b;background:#332a1d;border-radius:5px;padding:10px 14px}
+.panel,.kpis article,.vce-hud-meters article,.vce-compare-grid article{background:var(--tt-panel)!important;border:1px solid var(--tt-edge)!important;border-radius:5px!important;box-shadow:none!important}
+.panel{padding:19px 20px;border-top:3px solid var(--tt-orange)!important}
+.panel h2{font-size:15px;letter-spacing:.2px;color:#f5f6f7}
+.head span,.muted,p{color:var(--tt-muted)}
+.vce-hud-banner{background:#22272b!important;border:1px solid #3b4348!important;border-left:4px solid var(--tt-orange)!important;border-radius:5px!important;padding:18px 23px}
+.vce-hud-banner h2{font-size:23px}.vce-hud-banner h2 span{color:var(--tt-orange)}
+.vce-hud-kicker{color:#ffb65d}
+.vce-hud-state{background:#2c3033;border:1px solid #52575b;border-radius:5px}
+.vce-hud-meters{margin:12px 0;gap:10px}
+.vce-hud-meters article{border-top:2px solid var(--tt-orange)!important;padding:13px}
+.vce-hud-meters article:nth-child(2){border-top-color:#ff5959!important}
+.vce-hud-meters article:nth-child(3){border-top-color:#399afa!important}
+.vce-hud-meters article>b{font-variant-numeric:tabular-nums}
+.vce-hud-track{background:#353a3e;height:7px}
+.toolbar{background:#1d2225;border:1px solid #353c41;padding:17px;border-radius:5px;margin:16px 0;gap:12px}
+.toolbar label{color:#c4c9cd}
+.toolbar input,.toolbar select,.import,.vce-compare-toolbar button,.vce-compare-toolbar select{background:#2b3034!important;border:1px solid #454d53!important;border-radius:4px!important}
+.kpis{gap:10px;margin:13px 0 17px}
+.kpis article{border-top:3px solid var(--tt-orange)!important;padding:17px}
+.kpis article:nth-child(2){border-top-color:var(--tt-blue)!important}
+.kpis article:nth-child(3){border-top-color:#f1bc51!important}
+.kpis strong{font-variant-numeric:tabular-nums;letter-spacing:-.6px}
+.layout{grid-template-columns:1.35fr 1fr;gap:12px}
+#map{background:#15191c;border:1px solid #343b3f;border-radius:4px;min-height:350px}
+.legend{font-weight:600}
+.sector{grid-template-columns:1fr 100px 100px 90px}
+.sector:hover{background:#252b2f}
+.live{background:#15191c;border:1px solid #343a3f;border-radius:4px}
+.vce-compare-studio{background:var(--tt-panel)!important}
+.vce-compare-grid article{border-top:3px solid var(--tt-orange)!important}
+.vce-compare-grid article:nth-child(2){border-top-color:var(--tt-blue)!important}
+.vce-compare-grid article:nth-child(3){border-top-color:#e8bb55!important}
+.vce-compare-grid strong{font-variant-numeric:tabular-nums}
+.channels button{border-radius:4px;background:#292e32;border-color:#4a5156}
+.channels button.active{background:var(--tt-orange);color:#151515;border-color:var(--tt-orange);font-weight:800}
+canvas{background:#15191c;border:1px solid #333a3f;border-radius:4px;height:270px}
+.vce-history-item{background:#252a2e;border-color:#3c4449;border-radius:4px}
+.vce-history-item button{background:#2d78c6}
+.vce-cloud-connect,.vce-cloud-extra{background:#202529;border-color:#444c52;border-radius:5px}
+.gain{color:#4bd6a3}.loss{color:#ff785e}
+@media(max-width:1100px){body{padding-left:0}.tt-nav{position:static;width:100%;height:auto;flex-direction:row;flex-wrap:wrap;gap:4px;padding:10px}.tt-brand{padding:5px 10px;margin:0;border:0}.tt-brand span{font-size:21px}.tt-nav>a{font-size:11px;padding:9px}.tt-nav-bottom{display:none}}
+@media(max-width:750px){main{padding:15px 12px}.layout{grid-template-columns:1fr}.toolbar,.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.vce-hud-meters{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:480px){.toolbar,.kpis,.vce-hud-meters{grid-template-columns:1fr 1fr}.sector{grid-template-columns:1fr 65px 65px 65px;gap:5px;font-size:10px}.panel{padding:14px 11px}.tt-nav>a{flex:1 1 42%}}
