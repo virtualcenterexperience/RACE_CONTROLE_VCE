@@ -141,7 +141,9 @@ function route(){
   link.classList.toggle('selected',link.getAttribute('href')===(active?'#gestion-pilotes':'#overview'))
  }
  if(active){
-  if(!loaded)reload();else render();
+  if(dashboard.style.display==='block'&&window.VCESupabase?.session()){
+   if(!loaded)reload();else render()
+  }
  }else clearSecret()
 }
 form.addEventListener('submit',addPilot);
@@ -149,5 +151,11 @@ $('rcRosterReload').addEventListener('click',()=>reload());
 $('rcRosterHide').addEventListener('click',clearSecret);
 window.addEventListener('hashchange',route);
 window.addEventListener('pageshow',route);
+window.addEventListener('vce-staff-authenticated',()=>{
+ if(location.hash==='#gestion-pilotes')reload()
+});
+window.addEventListener('vce-staff-logged-out',()=>{
+ loaded=false;rows=[];accounts.clear();clearSecret();tab.hidden=true
+});
 route()
 })();
