@@ -443,6 +443,7 @@ Deno.serve(async(req)=>{
    return reply({accounts:users.map((u:any)=>({
     pilot_slug:u.app_metadata.vce_pilot_slug,
     created_at:u.created_at,
+    active:u.app_metadata.vce_pilot_active!==false,
     password_change_required:u.app_metadata.vce_password_change_required===true
    }))});
  }
