@@ -49,6 +49,13 @@ async function authUser(req:Request){
 }
 function normalizedSession(s:any,d:any,status:string){
  const start=n(s.started_at,946684800,5000000000),end=n(s.ended_at,946684800,5000000000);
+ const live=s.live_sample&&typeof s.live_sample==="object"?
+ {t:n(s.live_sample.t,0,5000000000),lap_pos:n(s.live_sample.lap_pos,0,1),
+  speed_kmh:n(s.live_sample.speed_kmh,0,800),brake:n(s.live_sample.brake,0,1),
+  throttle:n(s.live_sample.throttle,0,1),steer:n(s.live_sample.steer,-100,100),
+  gear:n(s.live_sample.gear,-2,20),rpm:n(s.live_sample.rpm,0,30000),
+  fuel_l:n(s.live_sample.fuel_l,0,1000),position:n(s.live_sample.position,0,1000),
+  sector_index:n(s.live_sample.sector_index,0,50)}:null;
  if(!UUID.test(s.session_id||"")||!GAMES.includes(s.game)||start===null)throw Error("Session invalide");
  if(status==="completed"&&end===null)throw Error("Date de fin manquante");
  return {session_id:s.session_id,device_id:d.device_id,pilot_slug:d.pilot_slug,
@@ -56,7 +63,7 @@ function normalizedSession(s:any,d:any,status:string){
  started_at:new Date(start*1000).toISOString(),ended_at:end?new Date(end*1000).toISOString():null,
  laps_count:Math.min(100000,Math.max(0,Number(s.laps_count)||0)),
  best_lap_ms:n(s.best_lap_ms,10000,3600000),
- status,last_heartbeat_at:new Date().toISOString()};
+ status,live_sample:live,session_type:clean(s.session_type,32),last_heartbeat_at:new Date().toISOString()};
 }
 Deno.serve(async(req)=>{
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:CORS});
@@ -112,7 +119,9 @@ Deno.serve(async(req)=>{
    const samples=lap.samples.map((x:any)=>({t:n(x.t,0,5000000000),lap_pos:n(x.lap_pos,0,1),
      speed_kmh:n(x.speed_kmh,0,800),brake:n(x.brake,0,1),throttle:n(x.throttle,0,1),
      steer:n(x.steer,-100,100),gear:n(x.gear,-2,20),lap_time_ms:n(x.lap_time_ms,0,3600000),
-     world_x:n(x.world_x,-1000000000,1000000000),world_z:n(x.world_z,-1000000000,1000000000)}));
+     world_x:n(x.world_x,-1000000000,1000000000),world_z:n(x.world_z,-1000000000,1000000000),
+ rpm:n(x.rpm,0,30000),fuel_l:n(x.fuel_l,0,1000),position:n(x.position,0,1000),
+ sector_index:n(x.sector_index,0,50)}));
    requireOk(await db.from("vce_agent_laps").upsert({session_id:s.session_id,lap_number:number,
      lap_time_ms:n(lap.lap_time_ms,10000,3600000),valid:typeof lap.valid==="boolean"?lap.valid:null,
      sample_count:samples.length,samples},{onConflict:"session_id,lap_number"}));
@@ -142,7 +151,7 @@ Deno.serve(async(req)=>{
    const actor=action==="staff_sessions"?await authorizedStaff(req):null;
    const uid=actor?null:(await authUser(req)).id;
    let query=db.from("vce_agent_sessions")
-    .select("session_id,device_id,pilot_slug,game,track,car,started_at,ended_at,status,laps_count,best_lap_ms,last_heartbeat_at")
+    .select("session_id,device_id,pilot_slug,game,track,car,session_type,started_at,ended_at,status,laps_count,best_lap_ms,last_heartbeat_at,live_sample")
     .order("started_at",{ascending:false}).limit(100);
    if(uid)query=query.eq("pilot_auth_user",uid);
    const rows=await query;requireOk(rows);return reply({sessions:rows.data});
@@ -153,8 +162,10 @@ Deno.serve(async(req)=>{
    const session=await db.from("vce_agent_sessions").select("pilot_auth_user").eq("session_id",id).maybeSingle();requireOk(session);
    if(!session.data)return reply({error:"Session inconnue"},404);
    if(session.data.pilot_auth_user!==u.id)await authorizedStaff(req);
-   const rows=await db.from("vce_agent_laps").select("lap_number,lap_time_ms,valid,samples")
-    .eq("session_id",id).order("lap_number").limit(100);requireOk(rows);
+   const wanted=Math.min(8,Math.max(1,Number.isInteger(b.lap_limit)?b.lap_limit:5));
+   const rows=await db.from("vce_agent_laps").select("lap_number,lap_time_ms,valid,samples,sample_count")
+    .eq("session_id",id).order("lap_number",{ascending:false}).limit(wanted);requireOk(rows);
+   rows.data?.reverse();
    return reply({laps:rows.data});
  }
  return reply({error:"Action inconnue"},404);
