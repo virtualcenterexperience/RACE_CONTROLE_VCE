@@ -60,16 +60,28 @@ change("engine.py",
                             with self.guard:self.record=rec""")
 # Limit network calls from completed sessions to one in-flight archive per worker,
 # persist success only after the whole session has been ACKed.
-change("engine.py",
-    """                    for lap in item['laps']:cloud.send_lap(item,lap)
-                    cloud.session_state(item,'completed')""",
-    """                    for lap in item['laps']:
-                        response=cloud.send_lap(item,lap)
-                        if response is None or response.get('ok') is not True:
-                            raise RuntimeError('Tour non confirmé par Supabase, réessai plus tard')
-                    done=cloud.session_state(item,'completed')
-                    if done is None or done.get('ok') is not True:
-                        raise RuntimeError('Session non confirmée par Supabase')""")
+# Explicitly fail before the engine marks a session as uploaded if the server
+# has not acknowledged the complete lap or completed session.
+p=root/"client.py"
+src=p.read_text(encoding="utf-8")
+src += """
+_vce_send_verified35=CloudClient.send_lap
+def _vce_send_lap_verified35(self,session,lap):
+    result=_vce_send_verified35(self,session,lap)
+    if not isinstance(result,dict) or result.get('ok') is not True:
+        raise CloudError('Tour non confirmé par Supabase, envoi conservé localement')
+    return result
+CloudClient.send_lap=_vce_send_lap_verified35
+
+_vce_state_verified35=CloudClient.session_state
+def _vce_session_state_verified35(self,session,status):
+    result=_vce_state_verified35(self,session,status)
+    if not isinstance(result,dict) or result.get('ok') is not True:
+        raise CloudError('État de session non confirmé par Supabase')
+    return result
+CloudClient.session_state=_vce_session_state_verified35
+"""
+p.write_text(src,encoding="utf-8")
 for p in root.glob("*.py"):
     ast.parse(p.read_text(encoding="utf-8"),filename=str(p))
 print("VCE 3.5 — syntax OK, actual capture rate / last partial / confirmed archive")
