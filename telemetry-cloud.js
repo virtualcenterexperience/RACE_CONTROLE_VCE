@@ -124,6 +124,23 @@ function normalizeSession(s,laps){
    laps:laps.map(normalizeLap),totalLaps:s.laps_count||laps.length,live:{active:live,
      lap:s.laps_count,elapsed:null,sample}};
 }
+/* get_laps is deliberately capped at 8 rows by the authenticated Edge Function.
+   Follow before_lap until a complete short stint (10+ laps) is available. */
+async function fetchSessionLaps(sessionId,maxLaps=40){
+ const byNumber=new Map();let before=null;
+ for(let page=0;page<Math.ceil(maxLaps/8)+1;page++){
+  const args={session_id:sessionId,lap_limit:8};
+  if(before!==null)args.before_lap=before;
+  const result=await api('get_laps',args),chunk=Array.isArray(result.laps)?result.laps:[];
+  if(!chunk.length)break;
+  for(const l of chunk){const n=Number(l.lap_number);if(Number.isInteger(n))byNumber.set(n,l)}
+  const numbers=chunk.map(l=>Number(l.lap_number)).filter(Number.isInteger);
+  const oldest=numbers.length?Math.min(...numbers):null;
+  if(chunk.length<8||oldest===null||oldest<=1||oldest===before||byNumber.size>=maxLaps)break;
+  before=oldest;
+ }
+ return [...byNumber.values()].sort((a,b)=>a.lap_number-b.lap_number).slice(-maxLaps);
+}
 async function refreshData(forced=false){
  if(app.busy)return;
  app.busy=true;
@@ -150,8 +167,8 @@ async function refreshData(forced=false){
      // Only fetch detailed samples for the most recent 4 sessions to avoid
      // transferring the full telemetry archive on every poll.
      if(i>3)return normalizeSession(s,[]);
-     try{const data=await api('get_laps',{session_id:s.session_id,lap_limit:100});
-       return normalizeSession(s,Array.isArray(data.laps)?data.laps:[])}
+     try{const rows=await fetchSessionLaps(s.session_id,40);
+       return normalizeSession(s,rows)}
      catch(err){if(i===0)banner('Sessions reçues, mais tours indisponibles : '+err.message,'warn');return normalizeSession(s,[])}
    }));
    app.lastKey=key;
@@ -200,8 +217,8 @@ async function loadSelectedSession(){
  if(!target||target.laps?.length||!target.totalLaps)return;
  try{
   banner('Chargement des tours de '+(target.track||'la session')+'…');
-  const rows=await api('get_laps',{session_id:target.id,lap_limit:100});
-  target.laps=(rows.laps||[]).map(normalizeLap);
+  const rows=await fetchSessionLaps(target.id,40);
+  target.laps=rows.map(normalizeLap);
   window.VCEloadTelemetry?.({sessions},{source:'cloud'});
   document.dispatchEvent(new Event('vce-cloud-update'));
   banner('Tours chargés · '+target.laps.length,'ok');
