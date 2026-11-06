@@ -1,6 +1,7 @@
 
 (function(){
 const root='data/vce/',get=async name=>{try{let r=await fetch(root+name+'.json?'+Date.now(),{cache:'no-store'});return r.ok?await r.json():[]}catch{return []}};
+const activeCycle=()=>Number(localStorage.getItem('vce_training_cache_generation_v1')||0);
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function resultsFor(p){
@@ -23,7 +24,7 @@ function ratingRace(r){
  return pos===1?100:pos<=3?80:pos<=8?25:pos<=12?10:pos<=18?-10:-25;
 }
 async function sync(){
- const [attributions,notifications,seances]=await Promise.all(['attributions','notifications','seances'].map(get));
+ const [attributions,notifications,seances]=activeCycle()>0?[[],[],[]]:await Promise.all(['attributions','notifications','seances'].map(get));
  const name=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'');
  if(!name)return;
  let pilotes=Array.isArray(window.VCE_PILOT_ROSTER)?window.VCE_PILOT_ROSTER:[];
@@ -51,7 +52,7 @@ async function sync(){
 async function coach(){
  if(!location.pathname.endsWith('coach-irl.html'))return;
  const q=new URLSearchParams(location.search),a=q.get('assignment'),pilot=q.get('pilot');if(!a)return;
- const assignments=await get('attributions');try{if(window.VCESupabase?.configured()){const d=await VCESupabase.read('training_assignments');assignments.push(...(Array.isArray(d.items)?d.items:[]))}}catch(e){console.warn('Attribution Supabase indisponible',e)}const row=assignments.find(x=>x.id===a&&slug(x.driver)===slug(pilot));const main=document.querySelector('main')||document.body;
+ const assignments=activeCycle()>0?[]:await get('attributions');try{if(window.VCESupabase?.configured()){const d=await VCESupabase.read('training_assignments');assignments.push(...(Array.isArray(d.items)?d.items:[]))}}catch(e){console.warn('Attribution Supabase indisponible',e)}const row=assignments.find(x=>x.id===a&&slug(x.driver)===slug(pilot));const main=document.querySelector('main')||document.body;
  const div=document.createElement('section');div.style.cssText='padding:20px;background:#13243a;color:white;border:1px solid #365273;border-radius:10px;margin:20px 0';
  if(row){div.innerHTML=`<h2>EXERCICE COACH IRL ATTRIBUÉ PAR LE STAFF</h2><p>${esc(row.driver)}</p><p>${esc(row.circuit)} · ${esc(row.car)} · ${esc(row.laps)} tours</p><p>${esc(row.exercise)}</p><p>${esc(row.message)}</p><p>Chrono cible : ${esc(row.target||'Libre')}</p>`;const error=main.querySelector('.notice,.error');if(error&&error.textContent.includes('introuvable'))error.style.display='none'}
  else div.textContent='Exercice non publié dans data/vce/attributions.json ou pilote incorrect.';
