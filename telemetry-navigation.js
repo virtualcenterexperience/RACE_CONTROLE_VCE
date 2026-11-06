@@ -12,7 +12,7 @@ async function loadModules(){
   try{
    await new Promise((resolve,reject)=>{
     const script=document.createElement('script');
-    script.src=path;script.onload=resolve;
+    script.src=path+'?v=3.5.1';script.onload=resolve;
     script.onerror=()=>reject(new Error('Script introuvable : '+path));
     document.body.append(script);
    });
