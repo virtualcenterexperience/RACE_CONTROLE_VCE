@@ -399,6 +399,45 @@ Deno.serve(async(req)=>{
    const account=listed?await pilotAccount(id):null;
    return reply({listed,ready:listed&&!!account&&account.app_metadata?.vce_pilot_active!==false});
  }
+ // VCE CACHE (STAFF only). Only aggregates and metadata leave the server,
+ // except for an explicitly requested STAFF export of one existing archive.
+ if(action==="staff_cache_status"||action==="staff_cache_snapshot"||
+    action==="staff_cache_reset"||action==="staff_cache_export"){
+   const staff=await authorizedStaff(req);
+   if(action==="staff_cache_status"){
+     const cycle=await db.from("vce_training_control").select("cycle,updated_at,last_archive_id")
+       .eq("id",1).single();requireOk(cycle);
+     const archives=await db.from("vce_cache_archives")
+       .select("id,operation,created_at,created_by")
+       .order("created_at",{ascending:false}).limit(15);requireOk(archives);
+     const submissions=await db.from("vce_training_submissions").select("session_id",{count:"exact",head:true});requireOk(submissions);
+     const reviews=await db.from("vce_training_reviews").select("session_id",{count:"exact",head:true});requireOk(reviews);
+     const assignment=await db.from("vce_publications").select("payload").eq("kind","training_assignments").maybeSingle();requireOk(assignment);
+     return reply({cycle:cycle.data?.cycle||0,last_reset_at:cycle.data?.updated_at,
+       archives:archives.data||[],training_assignments:Array.isArray(assignment.data?.payload?.items)?
+       assignment.data.payload.items.length:0,submissions:submissions.count||0,reviews:reviews.count||0});
+   }
+   if(action==="staff_cache_export"){
+     if(!UUID.test(b.archive_id||""))return reply({error:"Archive CACHE invalide"},400);
+     const archive=await db.from("vce_cache_archives").select("id,created_at,operation,payload")
+      .eq("id",b.archive_id).maybeSingle();requireOk(archive);
+     if(!archive.data)return reply({error:"Archive CACHE introuvable"},404);
+     return reply({archive:archive.data});
+   }
+   if(action==="staff_cache_reset"){
+     if(b.confirmation!=="REINITIALISER ENTRAINEMENTS")
+       return reply({error:"Confirmation écrite obligatoire : REINITIALISER ENTRAINEMENTS"},400);
+     if(Number(b.expected_cycle)!==Number((await (async()=>{
+       const row=await db.from("vce_training_control").select("cycle").eq("id",1).single();
+       requireOk(row);return row.data?.cycle
+     })())))return reply({error:"Cycle modifié entre-temps. Actualise avant de réessayer."},409);
+   }
+   const result=await db.rpc("vce_staff_cache_action",{
+     p_staff_id:staff.id,
+     p_operation:action==="staff_cache_snapshot"?"manual":"before_training_reset"
+   });requireOk(result);
+   return reply(result.data);
+ }
  if(action==="staff_roster_list"){
    await authorizedStaff(req);
    return reply({items:await readPilotRoster()});
