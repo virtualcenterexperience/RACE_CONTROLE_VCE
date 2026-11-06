@@ -10,9 +10,7 @@ Exécuter **dans cet ordre**, uniquement si pas encore installés :
 - `race-controle-windows/server/supabase-vce-agent-v27-ip.sql`
 - `race-controle-windows/server/supabase-vce-live-migration.sql`
 
-Puis exécuter les **nouveaux scripts** :
-1. `race-controle-windows/server/supabase-vce-private-live.sql` pour les politiques des flux privés ;
-2. `race-controle-windows/server/supabase-vce-comparison.sql` pour l'autorisation indépendante de partage des tours.
+Puis exécuter **un seul nouveau script** : `race-controle-windows/server/supabase-vce-live-v3.sql`. Il comprend les règles Realtime privées et le partage optionnel des tours. Les deux scripts séparés restent disponibles pour diagnostic.
 
 ## 2. Edge Functions
 Déployer le fichier `race-controle-windows/server/vce-telemetry/index.ts` dans la fonction **vce-telemetry** dans Supabase Edge Functions.
