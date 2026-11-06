@@ -7,7 +7,7 @@ let playing=false,progress=0,lastTick=0,rate=1,camera='chase',samples=[],referen
 const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
 const getLaps=()=>{const s=window.vceSession;return(s?.laps||[]).filter(l=>l.valid!==false&&((finite(l.time)&&l.time>0)||(l.samples||[]).length>=10))};
 function points(lap){
- return (lap?.samples||[]).filter(p=>finite(+p.x)&&finite(+p.y)&&p.x!==null&&p.y!==null).map((p,i)=>({
+ return (lap?.samples||[]).filter(p=>finite(+p.x)&&finite(+p.y)&&p.x!==null&&p.y!==null&&p.x!==undefined&&p.y!==undefined).map((p,i)=>({
  x:+p.x,y:+p.y,z:finite(+p.z)&&p.z!==null?+p.z:0,
  t:finite(+p.t)&&p.t!==null?+p.t:i/Math.max(1,lap.samples.length-1)*(lap.time||90),
  speed:finite(+p.speed)?+p.speed:null,brake:finite(+p.brake)?+p.brake:null,throttle:finite(+p.throttle)?+p.throttle:null
