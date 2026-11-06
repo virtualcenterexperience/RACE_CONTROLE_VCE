@@ -477,6 +477,42 @@ Deno.serve(async(req)=>{
    return reply({pilot_slug:user.app_metadata?.vce_pilot_slug||null,
      password_change_required:user.app_metadata?.vce_password_change_required===true});
  }
+ // VCE avatar: an authenticated, active pilot can publish only their OWN profile picture.
+ // The bucket is public read-only; the service role remains exclusively in this Edge Function.
+ if(action==="pilot_avatar_save"){
+   const user=await authUser(req);
+   const id=user.app_metadata?.vce_pilot_slug;
+   if(typeof id!=="string"||!id||slug(id)!==id)
+     return reply({error:"Connexion avec un compte pilote requise."},403);
+   const encoded=typeof b.image_base64==="string"?b.image_base64:"";
+   if(!/^[A-Za-z0-9+/]+={0,2}$/.test(encoded)||encoded.length>245000||encoded.length<150)
+     return reply({error:"Image JPEG invalide ou trop volumineuse (180 Ko maximum)."},400);
+   let bytes:Uint8Array;
+   try{bytes=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0))}
+   catch{return reply({error:"Format image incorrect."},400)}
+   if(bytes.length>180000||bytes.length<128||
+     bytes[0]!==255||bytes[1]!==216||bytes[2]!==255||
+     bytes.at(-2)!==255||bytes.at(-1)!==217)
+     return reply({error:"Fichier JPEG non valide."},400);
+   const previous=await db.from("vce_pilot_avatars").select("storage_path")
+      .eq("pilot_slug",id).maybeSingle();requireOk(previous);
+   const path=id+"/"+crypto.randomUUID()+".jpg";
+   const saved=await db.storage.from("vce-pilot-avatars")
+     .upload(path,bytes,{contentType:"image/jpeg",cacheControl:"3600",upsert:false});
+   requireOk(saved);
+   const stamp=new Date().toISOString();
+   const updated=await db.from("vce_pilot_avatars")
+     .upsert({pilot_slug:id,storage_path:path,updated_at:stamp},{onConflict:"pilot_slug"});
+   if(updated.error){
+     await db.storage.from("vce-pilot-avatars").remove([path]);
+     requireOk(updated);
+   }
+   if(previous.data?.storage_path&&previous.data.storage_path!==path){
+     // Removal is best-effort; the new profile must never disappear after upload.
+     try{await db.storage.from("vce-pilot-avatars").remove([previous.data.storage_path])}catch{}
+   }
+   return reply({ok:true,pilot_slug:id,storage_path:path,updated_at:stamp});
+ }
  if(action==="pilot_change_password"){
    const user=await authUser(req,true);
    const id=user.app_metadata?.vce_pilot_slug;
