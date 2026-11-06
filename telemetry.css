@@ -155,3 +155,8 @@ html[data-telemetry-view=setup] .vce-mechanical{margin-top:18px}
 .vce-replay-stats{display:flex;gap:20px;flex-wrap:wrap;color:#c8ccd2;font-variant-numeric:tabular-nums}
 .vce-replay-stats b{color:#fff}
 html[data-telemetry-view=setup] #vce-replay{display:none!important}
+
+/* The setup workspace contains no pilot-tour graphs or recap panels. */
+html[data-telemetry-view=setup] #tt-delta,
+html[data-telemetry-view=setup] #tt-interop,
+html[data-telemetry-view=setup] #vce-recap{display:none!important}
