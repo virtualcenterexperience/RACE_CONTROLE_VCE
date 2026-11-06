@@ -30,6 +30,10 @@ function makeUI(){
  const refresh=el('button');refresh.type='button';refresh.textContent='ACTUALISER';refresh.onclick=()=>refreshData(true);
  const logout=el('button');logout.type='button';logout.textContent='DÉCONNECTER';logout.onclick=()=>{window.VCESupabase?.logout();banner('Déconnecté · données privées non chargées','warn');form.hidden=false;app.lastKey=''};
  controls.append(refresh,logout);section.append(controls);controls.id='vce-cloud-actions';
+ const more=el('button');more.type='button';more.id='vce-load-more-laps';
+ more.textContent='CHARGER LES TOURS PRÉCÉDENTS';
+ more.onclick=()=>fetchOlderLaps();controls.append(more);
+ document.getElementById('session')?.addEventListener('change',()=>setTimeout(loadSelectedSession,20));
  target.after(section);
  const meters=document.querySelector('.vce-hud-meters');
  if(meters){
@@ -133,6 +137,39 @@ async function refreshData(forced=false){
    document.dispatchEvent(new Event('vce-cloud-update'));
  }catch(e){banner('FLUX SUPABASE : '+e.message,'error')}
  finally{app.busy=false}
+}
+async function loadSelectedSession(){
+ const index=Number($('session')?.value||0);
+ const sessions=window.vceTelemetryData?.sessions||[];
+ const target=sessions[index];
+ if(!target||target.laps?.length||!target.totalLaps)return;
+ try{
+  banner('Chargement des tours de '+(target.track||'la session')+'…');
+  const rows=await api('get_laps',{session_id:target.id,lap_limit:8});
+  target.laps=(rows.laps||[]).map(normalizeLap);
+  window.VCEloadTelemetry?.({sessions},{source:'cloud'});
+  document.dispatchEvent(new Event('vce-cloud-update'));
+  banner('Tours chargés · '+target.laps.length,'ok');
+ }catch(e){banner('Impossible de charger les tours : '+e.message,'error')}
+}
+async function fetchOlderLaps(){
+ const sessions=window.vceTelemetryData?.sessions||[];
+ const index=Number($('session')?.value||0),target=sessions[index];
+ if(!target||!target.id)return;
+ const oldest=Math.min(...(target.laps||[]).map(l=>Number(l.number)).filter(Number.isFinite));
+ if(!Number.isFinite(oldest)||oldest<=1){banner('Tous les tours disponibles sont déjà chargés','warn');return}
+ const button=$('vce-load-more-laps');if(button)button.disabled=true;
+ try{
+  const rows=await api('get_laps',{session_id:target.id,lap_limit:8,before_lap:oldest});
+  if(!(rows.laps||[]).length){banner('Aucun tour plus ancien à charger','warn');return}
+  const existing=new Map((target.laps||[]).map(l=>[l.number,l]));
+  for(const lap of rows.laps)existing.set(lap.lap_number,normalizeLap(lap));
+  target.laps=[...existing.values()].sort((a,b)=>a.number-b.number);
+  window.VCEloadTelemetry?.({sessions},{source:'cloud'});
+  document.dispatchEvent(new Event('vce-cloud-update'));
+  banner(target.laps.length+' tours disponibles pour comparaison','ok');
+ }catch(e){banner('Chargement impossible : '+e.message,'error')}
+ finally{if(button)button.disabled=false}
 }
 function start(){
  makeUI();if(!window.VCESupabase){banner('Scripts Supabase introuvables','error');return}
