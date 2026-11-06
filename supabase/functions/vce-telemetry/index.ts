@@ -183,6 +183,28 @@ Deno.serve(async(req)=>{
      steam_id64:steam||null,local_ip,status:"pending"}));
    return reply({status:"pending",device_id:id});
  }
+ // Optional AC physics channels, accepted only as finite numbers in safe bounds.
+ // The Windows collector must explicitly transmit a channel; missing is never zero.
+ const PHYSICS_FIELDS=["g_long","g_lat","clutch","ride_height_front","ride_height_rear",
+   "air_temp","track_temp","suspension_fl","suspension_fr","suspension_rl","suspension_rr",
+   "tyre_temp_fl","tyre_temp_fr","tyre_temp_rl","tyre_temp_rr",
+   "tyre_temp_inner_fl","tyre_temp_inner_fr","tyre_temp_inner_rl","tyre_temp_inner_rr",
+   "tyre_temp_center_fl","tyre_temp_center_fr","tyre_temp_center_rl","tyre_temp_center_rr",
+   "tyre_temp_outer_fl","tyre_temp_outer_fr","tyre_temp_outer_rl","tyre_temp_outer_rr",
+   "brake_temp_fl","brake_temp_fr","brake_temp_rl","brake_temp_rr",
+   "tyre_wear_fl","tyre_wear_fr","tyre_wear_rl","tyre_wear_rr",
+   "camber_fl","camber_fr","camber_rl","camber_rr"];
+ function readPhysics(v:any){
+   const extra:Record<string,number>={};
+   for(const key of PHYSICS_FIELDS){
+     if(v?.[key]===null||v?.[key]===undefined)continue;
+     const cap=key.startsWith("brake_temp")?1600:
+       key.startsWith("camber")||key.startsWith("g_")?30:2000;
+     const value=n(v[key],-cap,cap);
+     if(value!==null)extra[key]=value;
+   }
+   return extra;
+ }
  if(action==="live_batch"){
    const d=await device(b);
    if(d.status!=="approved"||!d.pilot_slug)return reply({error:"PC non approuvé"},403);
@@ -197,7 +219,7 @@ Deno.serve(async(req)=>{
      gear:n(x.gear,-2,20),rpm:n(x.rpm,0,30000),
      fuel_l:n(x.fuel_l,0,1000),position:n(x.position,0,1000),
      sector_index:n(x.sector_index,0,50),world_x:n(x.world_x,-1e7,1e7),
-     world_z:n(x.world_z,-1e7,1e7)
+     world_z:n(x.world_z,-1e7,1e7),...readPhysics(x)
    })).filter((x:any)=>x.t!==null);
    if(!points.length)return reply({error:"Aucune donnée valide"},400);
    const payload={device_id:d.device_id,session_id:source.session_id,
@@ -242,7 +264,7 @@ Deno.serve(async(req)=>{
      steer:n(x.steer,-100,100),gear:n(x.gear,-2,20),lap_time_ms:n(x.lap_time_ms,0,3600000),
      world_x:n(x.world_x,-1000000000,1000000000),world_z:n(x.world_z,-1000000000,1000000000),
  rpm:n(x.rpm,0,30000),fuel_l:n(x.fuel_l,0,1000),position:n(x.position,0,1000),
- sector_index:n(x.sector_index,0,50)}));
+ sector_index:n(x.sector_index,0,50),...readPhysics(x)}));
    requireOk(await db.from("vce_agent_laps").upsert({session_id:s.session_id,lap_number:number,
      lap_time_ms:n(lap.lap_time_ms,10000,3600000),valid:typeof lap.valid==="boolean"?lap.valid:null,
      sample_count:samples.length,samples},{onConflict:"session_id,lap_number"}));
