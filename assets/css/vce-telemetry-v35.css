@@ -1,0 +1,27 @@
+/* VCE Telemetry v3.5 — visual repair for Tour maps and native input graphs.
+   Scoped selectors deliberately override old global canvas{height:250px} rules. */
+#tt-circuit #map,
+#map{display:block;width:100%;min-height:0!important;height:auto!important;aspect-ratio:900/500;background:#08131f;border:1px solid #31475c;border-radius:8px;overflow:visible}
+#mapCaption{color:#a5c5de;font-size:12px;line-height:1.5;min-height:21px}
+#vce-engineering-v33{background:#0b1421!important;border:1px solid #364960!important;border-top:3px solid #fc506d!important;border-radius:9px!important;margin:18px 0!important}
+#vce-engineering-v33 .vce-eng-work,#vce-engineering-v33 .vce-eng-upper>*{min-width:0}
+#vce-engineering-v33 .vce-eng-curve{margin-bottom:9px!important;background:#111c29!important;border:1px solid #30465c!important;border-radius:7px;overflow:hidden}
+#vce-engineering-v33 .vce-eng-curve canvas{display:block!important;width:100%!important;height:auto!important;min-height:120px;max-height:185px!important;aspect-ratio:1200/155!important;background:#101924!important;border-radius:0!important}
+#vce-engineering-v33 #vce-eng-map{display:block!important;width:100%!important;height:auto!important;max-height:none!important;min-height:0!important;aspect-ratio:720/260!important;background:#091321!important}
+#vce-engineering-v33 .vce-eng-track{background:#0a1420!important}
+#vce-engineering-v33 #vce-eng-maptext{display:block;min-height:24px;color:#b3cfe4!important}
+#vce-engineering-v33 .vce-eng-lap{font-variant-numeric:tabular-nums;border-radius:5px}
+#vce-engineering-v33 .vce-eng-lap.active{outline:2px solid #ff557b;outline-offset:-2px}
+#vce-engineering-v33 .vce-eng-title h2{font-size:18px;letter-spacing:.03em}
+#vce-engineering-v33 .vce-eng-values article{font-variant-numeric:tabular-nums}
+#vce-stream #vce-stream-plot{display:block!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:1200/260!important}
+#vce-stream #vce-stream-track{display:block!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:720/260!important;background:#091321!important}
+#plots canvas{height:auto!important;min-height:190px;aspect-ratio:1300/250!important;background:#101924!important}
+#vce-eng-count,#vce-eng-status,#vce-stream-caption{font-variant-numeric:tabular-nums}
+@media(max-width:780px){
+ #vce-engineering-v33 .vce-eng-upper{grid-template-columns:1fr!important}
+ #vce-engineering-v33 .vce-eng-layout{grid-template-columns:1fr!important}
+ #vce-engineering-v33 .vce-eng-side{max-height:280px;overflow:auto}
+ #vce-engineering-v33 .vce-eng-curve canvas{min-height:90px!important}
+ #plots canvas{min-height:120px}
+}
