@@ -1,4 +1,4 @@
-/* VCE LIVE 3.0. Native capture ~20Hz, network 5 batches/s, 60fps canvas animation.
+/* VCE LIVE 3.5. Native capture rate determined by game, network batches, browser rendering at 60fps.
    Real measurements are never invented. Private Supabase Realtime only. */
 (()=>{
 'use strict';
@@ -123,63 +123,29 @@ function mainPlot(){
  channels.forEach((item,i)=>{c.fillStyle=item.color;c.fillText(item.label+(item.key==='speed_kmh'?' (0–'+item.max+')':''),left+i*260,h-9)});
  c.fillStyle='#a4b9d4';c.fillText('Fenêtre : dernières 15 secondes · 0 % en bas, 100 % en haut',left,top+12);
 }
-function trackPlot(){
- const canvas=$('vce-stream-track');if(!canvas)return;
- const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
- c.fillStyle='#0b1828';c.fillRect(0,0,w,h);
- const last=state.hud;
- // A completed recording is a legitimate map reference only if it belongs to
- // the currently selected session. Do not invent a circuit from lap progress.
+function trackPlot(ts){
+ if(ts-state.lastDraw<180)return;
+ state.lastDraw=ts;
+ const canvas=$('vce-stream-track');
+ if(!canvas||!window.VCETrack35)return;
  const session=window.vceSession;
- const recorded=Array.isArray(session?.laps)?session.laps:[];
- let best=[];
- for(const lap of recorded){
-  const points=(lap.samples||[]).map(p=>[p.x,p.y]).filter(v=>v.every(num));
-  if(points.length>best.length)best=points;
+ const laps=Array.isArray(session?.laps)?session.laps:[];
+ let reference=null,refCount=0;
+ for(const lap of laps){
+  const arr=Array.isArray(lap.samples)?lap.samples:[];
+  if(arr.length<=refCount)continue;
+  const candidate=window.VCETrack35.analyze(arr);
+  if(candidate.ok){reference=arr;refCount=arr.length}
  }
- const live=state.points;
- const validSpan=arr=>{
-  if(arr.length<5)return false;
-  const x=arr.map(p=>p[0]),z=arr.map(p=>p[1]);
-  return Math.max(...x)-Math.min(...x)>.5&&Math.max(...z)-Math.min(...z)>.5;
- };
- const useRecorded=best.length>=20&&validSpan(best);
- const path=useRecorded?best:live;
- if(!validSpan(path)){
-  c.fillStyle='#93aecb';c.font='16px Segoe UI';
-  c.fillText('Trajectoire 2D indisponible',24,50);
-  c.font='13px Segoe UI';
-  c.fillText('X/Z insuffisants : '+live.length+' points live / '+best.length+' points enregistrés',24,77);
-  if(num(last?.lap_pos)){
-   c.fillStyle='#29425f';c.fillRect(25,125,w-50,17);
-   c.fillStyle='#48cafa';c.fillRect(25,125,(w-50)*Math.max(0,Math.min(1,last.lap_pos)),17);
-  }
-  $('vce-stream-caption').textContent='Coordonnées X et Z nécessaires ; la progression du tour ne suffit pas à reconstruire le circuit.';
-  return;
- }
- const xs=path.map(p=>p[0]),zs=path.map(p=>p[1]);
- const minx=Math.min(...xs),maxx=Math.max(...xs),minz=Math.min(...zs),maxz=Math.max(...zs);
- const padding=24,size=Math.max((maxx-minx)/(w-padding*2),(maxz-minz)/(h-padding*2),.01);
- const cx=(minx+maxx)/2,cz=(minz+maxz)/2;
- const point=p=>[w/2+(p[0]-cx)/size,h/2-(p[1]-cz)/size];
- const draw=(arr,color,width)=>{
-  c.strokeStyle=color;c.lineWidth=width;c.lineJoin='round';c.lineCap='round';c.beginPath();
-  let previous=null;
-  for(const p of arr){
-   if(!p.every(num))continue;
-   const [x,y]=point(p);
-   if(previous&&Math.hypot(p[0]-previous[0],p[1]-previous[1])<500)c.lineTo(x,y);
-   else c.moveTo(x,y);
-   previous=p;
-  }c.stroke()
- };
- draw(path,'#4f86bb',3.2);
- if(useRecorded&&live.length>1)draw(live,'#ffae62',2.5);
- if(live.length){
-  const [x,y]=point(live.at(-1));c.fillStyle='#ffbe69';c.beginPath();c.arc(x,y,6,0,Math.PI*2);c.fill()
- }
- $('vce-stream-caption').textContent=useRecorded?
-  'Tracé basé sur un tour enregistré · orange : position live':'Tracé progressif basé sur les coordonnées X/Z live ('+live.length+' points)';
+ const current=state.points||[];
+ const result=window.VCETrack35.canvas(canvas,current,reference||[],{
+  primaryColor:'#ffad59',progress:1
+ });
+ const caption=$('vce-stream-caption');
+ if(!caption)return;
+ if(result.primary.ok)caption.textContent='Orange : trajectoire DIRECT ('+result.primary.n+' positions X/Z) · bleu : tour enregistré · cadrage réel.';
+ else if(result.ref.ok)caption.textContent='DIRECT : '+result.primary.reason+'. Circuit de la séance enregistré affiché en bleu.';
+ else caption.textContent='Circuit non généré : '+result.primary.reason+'. Le jeu doit transmettre X ET Z, pas seulement la progression du tour.';
 }
 function hud(ts){
  if(ts-state.lastUi<70)return;state.lastUi=ts;
@@ -196,7 +162,7 @@ function hud(ts){
 }
 function render(ts){
  // 60 FPS is the target browser rendering cadence, NOT an invented 60Hz sensor frequency.
- if(state.displayEnabled){mainPlot(ts);trackPlot();hud(ts)}
+ if(state.displayEnabled){mainPlot(ts);trackPlot(ts);hud(ts)}
  state.raf=requestAnimationFrame(render);
 }
 function start(){
