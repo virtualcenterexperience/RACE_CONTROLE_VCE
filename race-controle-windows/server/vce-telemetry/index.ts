@@ -42,9 +42,11 @@ async function authorizedStaff(req:Request){
  if(flag.data!==true)throw Error("Accès réservé au STAFF");
  return user.data.user;
 }
-async function authUser(req:Request){
+async function authUser(req:Request,allowPasswordChange=false){
  const token=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"");
  const x=await db.auth.getUser(token);if(x.error||!x.data.user)throw Error("Connexion pilote requise");
+ if(!allowPasswordChange&&x.data.user.app_metadata?.vce_password_change_required===true)
+   throw Error("Modifie le mot de passe provisoire dans ton espace pilote.");
  return x.data.user;
 }
 function normalizedSession(s:any,d:any,status:string){
@@ -272,12 +274,12 @@ Deno.serve(async(req)=>{
     temporary_password:password,note:"Code provisoire visible une seule fois. À transmettre au pilote par un canal privé."});
  }
  if(action==="pilot_whoami"){
-   const user=await authUser(req);
+   const user=await authUser(req,true);
    return reply({pilot_slug:user.app_metadata?.vce_pilot_slug||null,
      password_change_required:user.app_metadata?.vce_password_change_required===true});
  }
  if(action==="pilot_change_password"){
-   const user=await authUser(req);
+   const user=await authUser(req,true);
    const id=user.app_metadata?.vce_pilot_slug;
    if(typeof id!=="string"||!id)return reply({error:"Compte pilote requis"},403);
    const password=typeof b.new_password==="string"?b.new_password:"";
