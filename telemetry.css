@@ -110,3 +110,15 @@ h1 span,.eyebrow,.tt-brand span,.vce-stream .head h2,.vce-recap h2{color:var(--t
 #vce-input-status{color:#ff9a29;font-size:12px;font-weight:800}
 @media(max-width:900px){.vce-input-values{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:550px){.vce-input-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+.vce-mechanical{border-top:3px solid #ff911d!important;background:#202225!important}
+.vce-mechanical .head h2{color:#ff9a29!important}
+.vce-mechanical-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:15px 0}
+.vce-mechanical-grid article{background:#17191c;border:1px solid #41454b;border-radius:7px;padding:14px}
+.vce-mechanical-grid small{display:block;font-size:10px;font-weight:800;color:#adb2bb;margin-bottom:8px}
+.vce-mechanical-grid strong{font-size:20px;font-variant-numeric:tabular-nums}
+.vce-contact{border:1px solid #474b51;border-radius:7px;padding:13px;margin:12px 0;background:#191b1f}
+.vce-contact[data-contact=yes]{border-color:#ef4444;color:#ff8181}
+#vce-mechanical-plot{display:block;width:100%;height:auto;background:#17191c;border:1px solid #41454b}
+@media(max-width:750px){.vce-mechanical-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
