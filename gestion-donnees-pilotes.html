@@ -15,7 +15,7 @@ const rosterDefault=async()=>{
 };
 const pilotNorm=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ');
 const pilotId=s=>pilotNorm(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-let roster=[],checked=null,rosterBusy=false;
+let roster=[],checked=null,rosterBusy=false;let rosterAccountStatus=new Map();
 const rosterStatus=()=>document.getElementById('rosterStatus');
 const status=v=>rosterStatus().textContent=v;
 function showCredential(p,credential){
@@ -54,8 +54,13 @@ async function loadRoster(){
   const response=await rosterAction('staff_roster_list');
   if(!Array.isArray(response.items))throw Error('Réponse du serveur invalide : liste absente');
   roster=response.items.filter(p=>p&&p.id&&p.name);
+  try{
+   const accounts=await rosterAction('staff_pilot_accounts');
+   rosterAccountStatus=new Map((accounts.accounts||[]).map(p=>[p.pilot_slug,p]));
+  }catch(err){rosterAccountStatus=new Map();console.warn('Statut des comptes indisponible',err)}
   drawRoster();
-  status('✓ Liste STAFF synchronisée avec Supabase : '+roster.length+' pilote(s).');
+  const blocked=roster.filter(p=>rosterAccountStatus.get(p.id)?.active===false).length;
+  status('✓ Liste STAFF synchronisée : '+roster.length+' pilote(s).'+(blocked?' '+blocked+' compte(s) désactivé(s), réactivation possible ci-dessous.':''));
  }catch(e){
   status('Chargement du roster impossible : '+e.message+' · Aucune modification appliquée.');
   throw e;
@@ -68,6 +73,17 @@ function drawRoster(){
   const line=document.createElement('div');
   line.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #34506b';
   const label=document.createElement('span');label.textContent=p.name;
+  const account=rosterAccountStatus.get(p.id);
+  if(account?.active===false){
+   const inactive=document.createElement('small');inactive.textContent=' · COMPTE DÉSACTIVÉ';
+   inactive.style.cssText='color:#ffcd7d;font-weight:800';
+   label.append(inactive);
+   const activate=document.createElement('button');
+   activate.textContent='Réactiver le compte';activate.type='button';activate.disabled=rosterBusy;
+   activate.style.cssText='margin:0;background:#287e6c';
+   activate.onclick=()=>reactivateRosterPilot(p);
+   line.append(activate);
+  }
   const btn=document.createElement('button');btn.textContent='Retirer le pilote';
   btn.style.cssText='margin:0;background:#85314a';
   btn.disabled=rosterBusy;
@@ -76,6 +92,19 @@ function drawRoster(){
   sel.add(new Option(p.name,p.name));
  }
  if([...sel.options].some(o=>o.value===previous))sel.value=previous;
+}
+async function reactivateRosterPilot(p){
+ if(rosterBusy||!rosterAccountStatus.has(p.id)||rosterAccountStatus.get(p.id)?.active!==false)return;
+ if(!confirm('Réactiver le compte de '+p.name+' ? Son ancien mot de passe sera remplacé par un code provisoire et devra être changé.'))return;
+ rosterBusy=true;hideCredential();drawRoster();status('Réactivation du compte…');
+ try{
+  const res=await rosterAction('staff_reset_pilot',{pilot_slug:p.id});
+  if(!res.ok||!res.temporary_password)throw Error('La réactivation n’a pas été confirmée.');
+  showCredential(p,res);
+  await loadRoster();
+  status('✓ Compte de '+p.name+' réactivé. Remets le nouveau code provisoire en privé.');
+ }catch(e){status('Réactivation impossible : '+e.message)}
+ finally{rosterBusy=false;drawRoster()}
 }
 async function removeRosterPilot(p){
  if(rosterBusy)return;
