@@ -62,3 +62,11 @@ html[data-telemetry-view="tour"] .vce-tour-summary{gap:10px}
  html[data-telemetry-view="tour"] #vce-engineering-v33 .vce-eng-side{max-height:280px}
  html[data-telemetry-view="tour"] #vce-engineering-v33 .vce-eng-curve canvas{min-height:90px;max-height:165px}
 }
+
+/* VCE v3.7: honest manual full-width 3D track adjustment */
+#vce-replay-trackwidth-label{display:inline-flex!important;align-items:center;gap:7px;font-weight:750;white-space:normal;line-height:1.4;color:#b9d7f3}
+#vce-replay-trackwidth{min-width:82px;cursor:pointer}
+#vce-replay-world-note{padding:10px 13px;margin:8px 0;background:#12263a;border-left:3px solid #ff951d;border-radius:4px;font-size:12px;line-height:1.5;color:#c5dcef}
+#vce-replay-world3d{border:1px solid #33516b;border-radius:8px;overflow:hidden}
+#vce-replay-world3d canvas{display:block!important;width:100%!important;height:auto!important;aspect-ratio:1100/520!important}
+@media(max-width:720px){#vce-replay-trackwidth-label{margin-left:0!important;font-size:11px}#vce-replay-world-note{font-size:11px}}
