@@ -8,14 +8,102 @@ $('confirmText').oninput=()=>{$('reset').disabled=$('confirmText').value!=='REME
 $('reset').onclick=async()=>{try{await auth();if($('confirmText').value!=='REMETTRE À ZÉRO'||!found.length)throw Error('Confirmation manquante');const name=$('pilot').value.trim();if(!found.every(x=>x.pilot===name))throw Error('Données modifiées : recommence la vérification');if(!confirm('Confirmer la suppression de '+found.length+' validation(s) pour '+name+' ? Cette opération est irréversible.'))return;const blob=new Blob([JSON.stringify({pilot:name,exportedAt:new Date().toISOString(),reviews:found},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='sauvegarde-validations-'+Date.now()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('reset').disabled=true;let done=0;for(const row of found){await call('vce_training_reviews?session_id=eq.'+encodeURIComponent(row.session_id)+'&pilot=eq.'+encodeURIComponent(name),'DELETE');done++}$('message').textContent=done+' validation(s) supprimée(s). Actualise le profil pilote pour recalculer les XP.';found=[];$('confirmArea').hidden=true;$('summary').textContent=''}catch(e){$('message').textContent='Suppression interrompue : '+e.message}};
 </script><script>
 'use strict';
-const rosterDefault=async()=>{const r=await fetch('data/vce/pilotes.json?v='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('Liste initiale indisponible');return r.json()};
+const rosterDefault=async()=>{
+ const r=await fetch('data/vce/pilotes.json',{cache:'no-store'});
+ if(!r.ok)throw Error('Liste initiale indisponible');
+ return r.json()
+};
 const pilotNorm=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ');
 const pilotId=s=>pilotNorm(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-let roster=[],checked=null;
-async function loadRoster(){let base=await rosterDefault();try{const remote=await VCESupabase.read('pilotes');roster=Array.isArray(remote.items)?remote.items:base}catch{roster=base}roster=roster.filter(p=>p&&p.name&&p.id);drawRoster()}
-function drawRoster(){const list=document.getElementById('rosterList');list.replaceChildren();const sel=document.getElementById('historyPilot'),old=sel.value;sel.replaceChildren();for(const p of roster){const line=document.createElement('div');line.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #34506b';const label=document.createElement('span');label.textContent=p.name;const btn=document.createElement('button');btn.textContent='Retirer de la liste';btn.style.cssText='margin:0;background:#85314a';btn.onclick=async()=>{if(!confirm('Retirer '+p.name+' de la liste des pilotes ? Les résultats et historiques seront conservés.'))return;await changeRoster(roster.filter(x=>x.id!==p.id))};line.append(label,btn);list.append(line);const opt=document.createElement('option');opt.value=p.name;opt.textContent=p.name;sel.append(opt)}if([...sel.options].some(o=>o.value===old))sel.value=old}
-async function changeRoster(next){const status=document.getElementById('rosterStatus');status.textContent='Synchronisation…';try{await auth();await VCESupabase.save('pilotes',{version:1,items:next,updatedAt:new Date().toISOString()});roster=next;drawRoster();status.textContent='✓ Liste synchronisée pour tous les profils.'}catch(e){status.textContent='Échec : '+e.message+' — vérifie que le SQL de gestion pilotes a été exécuté.'}}
-document.getElementById('addPilot').onclick=async()=>{const input=document.getElementById('newPilot'),name=pilotNorm(input.value);if(name.length<3){document.getElementById('rosterStatus').textContent='Saisis un prénom et un nom.';return}if(roster.some(p=>pilotNorm(p.name)===name)){document.getElementById('rosterStatus').textContent='Ce pilote existe déjà.';return}await changeRoster([...roster,{id:pilotId(name),name}]);input.value=''};
+let roster=[],checked=null,rosterBusy=false;
+const rosterStatus=()=>document.getElementById('rosterStatus');
+const status=v=>rosterStatus().textContent=v;
+function showCredential(p,credential){
+ let box=document.getElementById('vce-roster-credential');
+ if(!box){
+  box=document.createElement('section');box.id='vce-roster-credential';
+  box.style.cssText='margin:16px 0;padding:16px;border-radius:10px;background:#103f3b;border:1px solid #3e998d';
+  box.innerHTML='<h3>IDENTIFIANTS PROVISOIRES — TRANSMETTRE EN PRIVÉ</h3><pre style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>'+
+   '<button type="button" id="vce-roster-hide-secret">Masquer le code</button>';
+  document.getElementById('rosterList').before(box);
+  box.querySelector('button').onclick=()=>{box.querySelector('pre').textContent='';box.hidden=true};
+ }
+ box.hidden=false;box.querySelector('pre').textContent='Pilote : '+p.name+
+  '\nIdentifiant : '+credential.identifier+'\nCode provisoire : '+credential.temporary_password+
+  '\nPremière connexion : le pilote doit choisir son mot de passe personnel.';
+}
+function hideCredential(){
+ const el=document.getElementById('vce-roster-credential');
+ if(el){el.hidden=true;el.querySelector('pre').textContent=''}
+}
+async function rosterAction(action,data={}){
+ await auth();
+ const session=await VCESupabase.validSession();
+ if(!session?.access_token)throw Error('Connexion STAFF expirée');
+ const response=await fetch(cfg.url+'/functions/v1/vce-telemetry',{
+  method:'POST',cache:'no-store',
+  headers:{apikey:cfg.key,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+  body:JSON.stringify({action,...data})
+ });
+ const result=await response.json().catch(()=>({error:'Réponse serveur invalide'}));
+ if(!response.ok||result.error)throw Error(result.error||'HTTP '+response.status);
+ return result;
+}
+async function loadRoster(){
+ try{
+  const remote=await VCESupabase.read('pilotes');
+  if(Array.isArray(remote.items))roster=remote.items;
+  else{
+   // One-time initialization from the existing roster; later updates are server-side.
+   const base=(await rosterDefault()).filter(p=>p&&p.name&&p.id);
+   await VCESupabase.save('pilotes',{version:2,items:base,updatedAt:new Date().toISOString()});
+   roster=base;
+  }
+  roster=roster.filter(p=>p&&p.name&&p.id);
+  drawRoster();
+  status('✓ Liste STAFF synchronisée · '+roster.length+' pilote(s).');
+ }catch(e){status('Impossible de charger la liste STAFF : '+e.message)}
+}
+function drawRoster(){
+ const list=$('rosterList');list.replaceChildren();
+ const sel=$('historyPilot'),previous=sel.value;sel.replaceChildren();
+ for(const p of roster){
+  const line=document.createElement('div');
+  line.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #34506b';
+  const label=document.createElement('span');label.textContent=p.name;
+  const btn=document.createElement('button');btn.textContent='Retirer le pilote';
+  btn.style.cssText='margin:0;background:#85314a';
+  btn.disabled=rosterBusy;
+  btn.onclick=()=>removeRosterPilot(p);
+  line.append(label,btn);list.append(line);
+  sel.add(new Option(p.name,p.name));
+ }
+ if([...sel.options].some(o=>o.value===previous))sel.value=previous;
+}
+async function removeRosterPilot(p){
+ if(rosterBusy)return;
+ if(!confirm('Retirer '+p.name+' de la liste et DÉSACTIVER sa connexion ? Les sessions, chronos et résultats seront conservés.'))return;
+ rosterBusy=true;hideCredential();drawRoster();status('Désactivation du pilote…');
+ try{
+  const result=await rosterAction('staff_roster_remove',{pilot_slug:p.id});
+  roster=result.items;status('✓ '+p.name+' retiré. Son compte ne peut plus consulter la télémétrie ; historiques conservés.');
+ }catch(e){status('Retrait non effectué : '+e.message)}
+ finally{rosterBusy=false;drawRoster()}
+}
+$('addPilot').onclick=async()=>{
+ if(rosterBusy)return;
+ const input=$('newPilot'),name=pilotNorm(input.value);
+ if(name.length<3||!name.includes(' ')){status('Saisis le prénom et le nom du pilote.');return}
+ if(roster.some(p=>p.id===pilotId(name))){status('Ce pilote existe déjà. Sélectionne-le dans la gestion des comptes STAFF.');return}
+ rosterBusy=true;hideCredential();drawRoster();$('addPilot').disabled=true;status('Création du profil et de ses identifiants…');
+ try{
+  const result=await rosterAction('staff_roster_add',{pilot_name:name});
+  roster=result.items;input.value='';drawRoster();
+  showCredential({name},result.credentials);
+  status('✓ Pilote ajouté et compte généré automatiquement. Transmets le code provisoire en privé.');
+ }catch(e){status('Ajout non effectué : '+e.message)}
+ finally{rosterBusy=false;$('addPilot').disabled=false;drawRoster()}
+};
 async function historyCall(table,filter,method='GET'){const sess=VCESupabase.session();if(!sess?.access_token)throw Error('Session STAFF expirée');const cfg=window.VCE_SUPABASE;const response=await fetch(cfg.url+'/rest/v1/'+table+'?'+filter,{method,headers:{apikey:cfg.key,Authorization:'Bearer '+sess.access_token,Prefer:'return=representation'},cache:'no-store'});const body=await response.text();if(!response.ok)throw Error('Supabase '+response.status+' '+body.slice(0,220));return body.trim()?JSON.parse(body):[]}
 const histSel=document.getElementById('historyPilot');histSel.onchange=()=>{checked=null;document.getElementById('historyConfirm').hidden=true;document.getElementById('historySummary').textContent=''};
 document.getElementById('inspectHistory').onclick=async()=>{try{await auth();const pilot=histSel.value;if(!pilot)throw Error('Sélectionne un pilote');const [submissions,reviews]=await Promise.all([historyCall('vce_training_submissions','pilot=eq.'+encodeURIComponent(pilot)+'&select=session_id,pilot,payload,submitted_at'),historyCall('vce_training_reviews','pilot=eq.'+encodeURIComponent(pilot)+'&select=session_id,pilot,decision,reviewed_at')]);checked={pilot,submissions,reviews};document.getElementById('historySummary').textContent=pilot+' : '+submissions.length+' séance(s) envoyée(s), '+reviews.length+' validation(s)/refus.';document.getElementById('historyConfirm').hidden=!(submissions.length||reviews.length);document.getElementById('historyPhrase').value='';document.getElementById('deleteHistory').disabled=true}catch(e){document.getElementById('historySummary').textContent='Erreur : '+e.message;checked=null;document.getElementById('historyConfirm').hidden=true}};
