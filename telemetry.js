@@ -34,34 +34,38 @@ function render(){const s=window.vceSession;if(!s)return;const laps=(s.laps||[])
      p.textContent='Pas de secteurs enregistrés. Une analyse des zones sera disponible lorsque les deux tours auront des positions et des temps cohérents.';$('sectors').append(p)}
  }
  drawMap(lap,ref);renderChart()}function drawMap(a,b){
- const svg=$('map');svg.replaceChildren();
- const ns='http://www.w3.org/2000/svg';
- const pts=l=>Array.isArray(l.samples)?l.samples.filter(p=>p.x!==null&&p.x!==undefined&&p.y!==null&&p.y!==undefined&&Number.isFinite(+p.x)&&Number.isFinite(+p.y)):[];
- const aa=pts(a),bb=pts(b),all=[...aa,...bb];
- if(all.length<2){const t=document.createElementNS(ns,'text');t.setAttribute('x',450);t.setAttribute('y',255);t.setAttribute('text-anchor','middle');t.setAttribute('fill','#91a7c0');t.textContent='Coordonnées XY du tracé non disponibles';svg.append(t);return}
- const minx=Math.min(...all.map(p=>+p.x)),maxx=Math.max(...all.map(p=>+p.x)),miny=Math.min(...all.map(p=>+p.y)),maxy=Math.max(...all.map(p=>+p.y));
- const xy=p=>[45+(+p.x-minx)/Math.max(1,maxx-minx)*810,45+(+p.y-miny)/Math.max(1,maxy-miny)*440];
- const poly=(arr,color,width=5)=>{if(arr.length<2)return;const el=document.createElementNS(ns,'polyline');el.setAttribute('points',arr.map(p=>xy(p).join(',')).join(' '));el.setAttribute('fill','none');el.setAttribute('stroke',color);el.setAttribute('stroke-width',width);el.setAttribute('stroke-linejoin','round');el.setAttribute('stroke-linecap','round');svg.append(el)};
- poly(bb,'#4d9dff',5);poly(aa,'#ff911d',6);
- // Colour each 10%-of-lap segment using its LOCAL time difference, not total cumulative delta.
- // Only display a gain/loss when both laps contain comparable position/time samples.
- const epsilon=0.005,comparable=a!==b&&aa.length>=10&&bb.length>=10;
- let gain=0,loss=0,neutral=0;
- if(comparable){
-  for(let i=0;i<10;i++){
-   const lo=i/10,hi=(i+1)/10;
-   const a0=timeAtProgress(a,lo),a1=timeAtProgress(a,hi),b0=timeAtProgress(b,lo),b1=timeAtProgress(b,hi);
-   if(![a0,a1,b0,b1].every(Number.isFinite))continue;
-   const diff=(a1-a0)-(b1-b0);
-   const color=diff < -epsilon?'#22c55e':diff > epsilon?'#ef4444':'#ff911d';
-   const segment=aa.filter(p=>Number.isFinite(+p.distance)&&+p.distance>=lo&&+p.distance<=hi);
-   if(segment.length<2)continue;
-   poly(segment,color,8);
-   if(diff < -epsilon)gain++;else if(diff > epsilon)loss++;else neutral++;
-  }
+ const svg=$('map'),caption=$('mapCaption');
+ if(!window.VCETrack35){
+  caption.textContent='Module carte indisponible — actualise la page.';
+  return
  }
- const caption=$('mapCaption');
- caption.textContent=comparable?(gain+' zones en gain · '+loss+' zones en perte · '+neutral+' zones neutres (10 % du tour)'):'Orange : tour pilote · Bleu : référence · Sélectionne deux tours distincts pour voir les gains et pertes';
+ const result=window.VCETrack35.svg(svg,a?.samples||[],b?.samples||[]);
+ const chosen=result.primary,reference=result.ref;
+ if(!chosen.ok&&!reference.ok){
+  caption.textContent='Carte non générée : '+chosen.reason+'. Impossible de reconstruire le tracé sans X/Z réels.';
+ }else if(!chosen.ok){
+  caption.textContent='Tour sélectionné : '+chosen.reason+'. Bleu : trajectoire de référence uniquement.';
+ }else {
+  caption.textContent='Orange : tour '+(a?.number??'sélectionné')+' ('+chosen.n+' positions) · Bleu : référence'+(reference.ok?' ('+reference.n+' positions)':' absente')+' · échelle X/Z identique.';
+ }
 }
-function renderChart(){[...$('channels').children].forEach((b,i)=>b.classList.toggle('active',Object.keys(fields)[i]===channel));$('plots').replaceChildren();const c=document.createElement('canvas');c.width=1300;c.height=280;$('plots').append(c);const ctx=c.getContext('2d');ctx.strokeStyle='#33465a';for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(45,20+i*55);ctx.lineTo(1270,20+i*55);ctx.stroke()}let values=[...(lap?.samples||[]),...(ref?.samples||[])].map(p=>p[channel]).filter(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(+v)).map(Number);const low=channel==='steering'?Math.min(-1,...values):Math.min(0,...values),high=Math.max(1,...values);for(const [l,color] of [[ref,'#3687dc'],[lap,'#f28b28']]){const pts=(l?.samples||[]).filter(p=>p[channel]!==null&&p[channel]!==undefined&&p[channel]!==''&&Number.isFinite(+p[channel]));if(pts.length<2)continue;ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath();let started=false;pts.forEach((p,i)=>{const progress=p.distance!==null&&p.distance!==undefined&&Number.isFinite(+p.distance)?+p.distance:i/(pts.length-1);if(progress<viewStart||progress>viewEnd)return;const x=45+(progress-viewStart)/(viewEnd-viewStart)*1225,y=240-(+p[channel]-low)/Math.max(.001,high-low)*215;if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y)});ctx.stroke()}ctx.fillStyle='#a3b8d0';ctx.font='13px Segoe UI';ctx.fillText(fields[channel]+' · '+(lap?.samples?.length||0)+' mesures · fenêtre '+Math.round(viewStart*100)+'–'+Math.round(viewEnd*100)+' % du tour',45,270)}const controls=document.createElement('div');controls.style.cssText='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0';controls.innerHTML='<label>Début <input id="vce-chart-start" type="range" min="0" max="95" value="0"></label><label>Fin <input id="vce-chart-end" type="range" min="5" max="100" value="100"></label><button type="button" id="vce-chart-reset">Vue complète</button><span id="vce-chart-window">0–100 %</span>';$('plots').before(controls);const syncWindow=()=>{const a=+$('vce-chart-start').value,b=+$('vce-chart-end').value;viewStart=Math.min(a,b-5)/100;viewEnd=Math.max(b,a+5)/100;$('vce-chart-window').textContent=Math.round(viewStart*100)+'–'+Math.round(viewEnd*100)+' %';renderChart()};$('vce-chart-start').oninput=syncWindow;$('vce-chart-end').oninput=syncWindow;$('vce-chart-reset').onclick=()=>{$('vce-chart-start').value=0;$('vce-chart-end').value=100;syncWindow()};
+function renderChart(){
+ [...$('channels').children].forEach((button,i)=>button.classList.toggle('active',Object.keys(fields)[i]===channel));
+ $('plots').replaceChildren();
+ const canvas=document.createElement('canvas');canvas.width=1300;canvas.height=250;$('plots').append(canvas);
+ if(!window.VCEGraph35)return;
+ const primary=lap?.samples||[],reference=ref?.samples||[];
+ const windowed=p=>p.filter(x=>{
+  const xval=x.distance??x.lap_pos;
+  return typeof xval!=='number'||xval>=viewStart&&xval<=viewEnd;
+ });
+ const primaryFiltered=windowed(primary),referenceFiltered=windowed(reference);
+ const key=channel==='slip'?'steering':channel;
+ const hasChannel=window.VCEGraph35.channels[key];
+ if(!hasChannel){
+  const c=canvas.getContext('2d');c.fillStyle='#99b4cc';c.font='14px Segoe UI';c.fillText('Canal '+channel+' non disponible',40,90);return
+ }
+ window.VCEGraph35.draw(canvas,{key,primary:primaryFiltered,reference:referenceFiltered,axis:'distance'});
+}
+const controls=document.createElement('div');controls.style.cssText='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0';controls.innerHTML='<label>Début <input id="vce-chart-start" type="range" min="0" max="95" value="0"></label><label>Fin <input id="vce-chart-end" type="range" min="5" max="100" value="100"></label><button type="button" id="vce-chart-reset">Vue complète</button><span id="vce-chart-window">0–100 %</span>';$('plots').before(controls);const syncWindow=()=>{const a=+$('vce-chart-start').value,b=+$('vce-chart-end').value;viewStart=Math.min(a,b-5)/100;viewEnd=Math.max(b,a+5)/100;$('vce-chart-window').textContent=Math.round(viewStart*100)+'–'+Math.round(viewEnd*100)+' %';renderChart()};$('vce-chart-start').oninput=syncWindow;$('vce-chart-end').oninput=syncWindow;$('vce-chart-reset').onclick=()=>{$('vce-chart-start').value=0;$('vce-chart-end').value=100;syncWindow()};
 window.VCEsetOtherPilotReference=(pilot,lapObj,baseId)=>{window.VCEexternalReferenceLap={pilot,lap:lapObj,baseId};selectSession();$('reference').value='external';render();document.dispatchEvent(new Event('vce-cloud-update'))};window.VCEloadTelemetry=(payload,opts={})=>{if(!payload||(!Array.isArray(payload.laps)&&!Array.isArray(payload.sessions)))return;data=payload;load(opts.source||'cloud')};$('file').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{data=JSON.parse(await f.text());if(!data||(!Array.isArray(data.laps)&&!Array.isArray(data.sessions)))throw Error('Format attendu : laps[] ou sessions[]');load('import');document.dispatchEvent(new Event('vce-cloud-update'))}catch(err){alert('Import impossible : '+err.message)}};renderChart()})();
