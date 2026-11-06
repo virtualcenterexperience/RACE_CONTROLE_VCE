@@ -232,27 +232,41 @@ Deno.serve(async(req)=>{
      sector_index:n(x.sector_index,0,50),...readPhysics(x)
    }));
    if(points.some((p:any)=>p.t===null))return reply({error:"Horodatage de segment invalide"},400);
-   const existing=await db.from("vce_agent_laps").select("samples,sample_count")
-     .eq("session_id",sess.session_id).eq("lap_number",number).maybeSingle();requireOk(existing);
-   const current=Array.isArray(existing.data?.samples)?existing.data.samples:[];
-   // A repeated first segment deliberately restarts the upload, making retries deterministic.
-   if(offset!==0&&current.length!==offset){
-     // Acknowledged duplicate after a lost HTTP response: skip only when the precise
-     // timestamp sequence already exists at the expected offset.
-     const duplicate=current.length>=offset+points.length &&
-       points.every((x:any,i:number)=>current[offset+i]?.t===x.t);
-     if(duplicate)return reply({ok:true,offset:offset+points.length,duplicate:true,complete:current.length===total});
-     return reply({error:"Segment hors séquence, reprise nécessaire",expected_offset:current.length},409);
+   // The first segment starts a fresh idempotent upload; never alter a completed
+   // archived lap until every chunk has arrived and passed the ordering check.
+   if(offset===0){
+     requireOk(await db.from("vce_agent_lap_segments").delete()
+       .eq("session_id",sess.session_id).eq("lap_number",number));
    }
-   const combined=offset===0?points:[...current,...points];
+   requireOk(await db.from("vce_agent_lap_segments").upsert({
+     session_id:sess.session_id,lap_number:number,sample_offset:offset,
+     total_samples:total,samples:points
+   },{onConflict:"session_id,lap_number,sample_offset"}));
+   const next=offset+points.length;
+   if(next!==total)return reply({ok:true,offset:next,complete:false});
+   const collected=await db.from("vce_agent_lap_segments")
+     .select("sample_offset,total_samples,samples")
+     .eq("session_id",sess.session_id).eq("lap_number",number)
+     .order("sample_offset",{ascending:true}).limit(1000);
+   requireOk(collected);
+   const combined:any[]=[];let expected=0;
+   for(const part of collected.data||[]){
+     if(part.sample_offset!==expected||part.total_samples!==total||
+        !Array.isArray(part.samples))return reply({error:"Segment manquant ou incohérent",expected_offset:expected},409);
+     combined.push(...part.samples);expected=combined.length;
+   }
+   if(expected!==total)return reply({error:"Enregistrement incomplet",expected_offset:expected},409);
    requireOk(await db.from("vce_agent_laps").upsert({
      session_id:sess.session_id,lap_number:number,
      lap_time_ms:n(lap.lap_time_ms,10000,3600000),
      valid:typeof lap.valid==="boolean"?lap.valid:null,
      sample_count:combined.length,samples:combined
    },{onConflict:"session_id,lap_number"}));
+   // All samples are now safely archived as a full lap; discard transfer staging.
+   requireOk(await db.from("vce_agent_lap_segments").delete()
+     .eq("session_id",sess.session_id).eq("lap_number",number));
    requireOk(await db.from("vce_agent_devices").update({last_seen_at:new Date().toISOString()}).eq("device_id",d.device_id));
-   return reply({ok:true,offset:combined.length,complete:combined.length===total});
+   return reply({ok:true,offset:total,complete:true});
  }
  if(action==="live_batch"){
    const d=await device(b);
