@@ -104,7 +104,7 @@ jobs:
         shell: pwsh
         run: python race-controle-windows/patch_v30.py
 
-      - name: Installer les dependances de compilation
+      - name: Préparer le flux INPUTS V3.1\n        shell: pwsh\n        run: python race-controle-windows/patch_v31.py\n\n      - name: Installer les dependances de compilation
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
