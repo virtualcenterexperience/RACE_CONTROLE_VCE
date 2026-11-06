@@ -158,22 +158,25 @@ Deno.serve(async(req)=>{
    const old=await db.from("vce_agent_devices").select("secret_hash,status,steam_id64,requested_pilot").eq("device_id",id).maybeSingle();requireOk(old);
    if(old.data){
      if(old.data.secret_hash!==hashed)return reply({error:"Identifiant déjà utilisé"},403);
-     // Keep existing approved pilot linkage when first learning SteamID64 or refreshing LAN IP.
-     // Never interpret a SteamID64/IP as authentication. The device secret above authenticates.
+     // A STAFF approval binds the verified device to its pilot until STAFF revokes it.
+     // Device ID + 256-bit secret authenticate the computer; Steam ID and IP are diagnostics.
+     // Updating those diagnostics must NEVER revoke an existing approved association.
+     if(old.data.status==="approved"){
+       const metadata:any={};
+       if(steam&&steam!==old.data.steam_id64)metadata.steam_id64=steam;
+       if(local_ip)metadata.local_ip=local_ip;
+       if(Object.keys(metadata).length)
+         requireOk(await db.from("vce_agent_devices").update(metadata).eq("device_id",id));
+       return reply({status:"approved",device_id:id,linked:true});
+     }
+     // Pending/rejected devices still need STAFF approval before telemetry transmission.
      const storedSteam=old.data.steam_id64||"";
-     const changedPilot=old.data.requested_pilot!==requested;
-     const changedSteam=Boolean(storedSteam&&steam&&storedSteam!==steam);
-     if(changedPilot||changedSteam){
-       const up=await db.from("vce_agent_devices").update({requested_pilot:requested,steam_id64:steam||null,
-         status:"pending",pilot_slug:null,pilot_auth_user:null,approved_at:null,local_ip}).eq("device_id",id);requireOk(up);
-       return reply({status:"pending",device_id:id});
-     }
      const metadata:any={};
-     if(steam&&!storedSteam)metadata.steam_id64=steam;
+     if(old.data.requested_pilot!==requested)metadata.requested_pilot=requested;
+     if(steam&&steam!==storedSteam)metadata.steam_id64=steam;
      if(local_ip)metadata.local_ip=local_ip;
-     if(Object.keys(metadata).length){
+     if(Object.keys(metadata).length)
        requireOk(await db.from("vce_agent_devices").update(metadata).eq("device_id",id));
-     }
      return reply({status:old.data.status,device_id:id});
    }
    requireOk(await db.from("vce_agent_devices").insert({device_id:id,secret_hash:hashed,requested_pilot:requested,
