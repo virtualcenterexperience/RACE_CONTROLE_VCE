@@ -1,0 +1,172 @@
+/* VCE Replay World 3D - visual reconstruction from recorded XYZ/XY samples.
+   Track width/terrain/car meshes are illustrative; NEVER a real circuit asset.
+   Reverts to the existing 2D replay if WebGL or THREE cannot load. */
+(async()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const canvas=$('vce-replay-canvas');if(!canvas)return;
+const section=$('vce-replay');if(!section)return;
+let THREE;
+try{THREE=await import('https://cdn.jsdelivr.net/npm/three@0.181.0/build/three.module.js')}
+catch(e){console.warn('VCE 3D: fallback canvas',e);return}
+let renderer;
+try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:false})}
+catch(e){console.warn('VCE 3D: WebGL unavailable',e);return}
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+renderer.setSize(canvas.width,canvas.height,false);
+renderer.domElement.style.cssText='width:100%;height:auto;aspect-ratio:1100/520;display:block;border-radius:7px;';
+const wrapper=document.createElement('div');
+wrapper.id='vce-replay-world3d';wrapper.setAttribute('role','img');
+wrapper.setAttribute('aria-label','Reconstitution tridimensionnelle indicative du circuit et des trajectoires enregistrées');
+canvas.before(wrapper);wrapper.append(renderer.domElement);
+canvas.style.display='none';
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x071019);scene.fog=new THREE.Fog(0x071019,450,1600);
+const camera=new THREE.PerspectiveCamera(65,canvas.width/canvas.height,.2,12000);
+scene.add(new THREE.HemisphereLight(0xd5e9ff,0x33553c,2));
+const sun=new THREE.DirectionalLight(0xffffff,2.3);sun.position.set(120,300,80);scene.add(sun);
+const group=new THREE.Group();scene.add(group);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(15000,15000),new THREE.MeshLambertMaterial({color:0x294d2c}));
+ground.rotation.x=-Math.PI/2;ground.position.y=-2.6;scene.add(ground);
+function vehicle(color){
+ const v=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.BoxGeometry(2.1,.65,4.3),new THREE.MeshStandardMaterial({color,metalness:.42,roughness:.32}));
+ body.position.y=.7;v.add(body);
+ const roof=new THREE.Mesh(new THREE.BoxGeometry(1.6,.42,2),new THREE.MeshStandardMaterial({color:0x14233a,metalness:.15,roughness:.35}));
+ roof.position.set(0,1.2,-.2);v.add(roof);
+ const tires=new THREE.MeshStandardMaterial({color:0x0a0d14});
+ for(const x of [-1.1,1.1])for(const z of [-1.3,1.3]){
+   const t=new THREE.Mesh(new THREE.BoxGeometry(.42,.6,.75),tires);t.position.set(x,.44,z);v.add(t);
+ }
+ group.add(v);return v
+}
+const primary=vehicle(0xf03d63),other=vehicle(0x3f97ff);
+const glow=()=>{
+ const material=new THREE.MeshBasicMaterial({color:0xffd99c});
+ const dot=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),material);return dot
+};
+let selectedKey='',primaryData=[],referenceData=[],center={x:0,z:0},size=150,roadMeshes=[];
+function numeric(v){return v!==null&&v!==undefined&&v!==''&&Number.isFinite(+v)?+v:null}
+function samplesFor(lap){
+ const raw=Array.isArray(lap?.samples)?lap.samples:[];
+ const start=raw.length?numeric(raw[0].t):null;
+ return raw.map((p,i)=>({x:numeric(p.x),z:numeric(p.y),height:numeric(p.z)||0,
+   t:numeric(p.t)??i/Math.max(1,raw.length-1)*(numeric(lap?.time)||90)}))
+ .filter(p=>p.x!==null&&p.z!==null).sort((a,b)=>a.t-b.t)
+}
+function getSelected(){
+ const s=window.vceSession,laps=(s?.laps||[]).filter(l=>l&&((+l.time>0)||l.samples?.length>=2||Number.isInteger(l.number)))
+   .slice().sort((a,b)=>(a.number??0)-(b.number??0));
+ const a=laps[+($('lap')?.value||0)];
+ const b=$('reference')?.value==='external'?window.VCEexternalReferenceLap?.lap:laps[+($('reference')?.value||0)];
+ return {a,b,key:[s?.id,$('lap')?.value,$('reference')?.value,
+   window.VCEexternalReferenceLap?.pilot,laps.length,a?.samples?.length,b?.samples?.length].join(':')}
+}
+function dispose(){
+ while(group.children.length>2){
+  const obj=group.children[2];group.remove(obj);
+  obj.geometry?.dispose();obj.material?.dispose()
+ }
+}
+function polyline(data,color,radius=.13){
+ if(data.length<2)return;
+ const thin=data.length>2500?data.filter((_,i)=>i%Math.ceil(data.length/2500)===0):data;
+ const curve=new THREE.CatmullRomCurve3(thin.map(p=>new THREE.Vector3(p.x-center.x,.22+p.height,p.z-center.z)));
+ const m=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.min(2200,Math.max(2,thin.length)),radius,5,false),
+  new THREE.MeshBasicMaterial({color}));
+ group.add(m)
+}
+function road(data){
+ if(data.length<3)return;
+ const stride=Math.max(1,Math.ceil(data.length/950));
+ const pts=data.filter((_,i)=>i%stride===0);
+ if(pts.at(-1)!==data.at(-1))pts.push(data.at(-1));
+ const verts=[],uv=[],indices=[];
+ const width=8.0; // visualization only, NOT a measured circuit width
+ for(let i=0;i<pts.length;i++){
+  const p=pts[i],a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+  const dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz)||1;
+  const nx=-dz/len,nz=dx/len;
+  for(const side of [-1,1]){verts.push(p.x-center.x+nx*width*.5*side,p.height,p.z-center.z+nz*width*.5*side);
+    uv.push((side+1)/2,i/16)}
+  if(i){const k=2*i;indices.push(k-2,k-1,k,k-1,k+1,k)}
+ }
+ const geo=new THREE.BufferGeometry();
+ geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+ geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(indices);geo.computeVertexNormals();
+ const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x161a20,roughness:.94,side:THREE.DoubleSide}));
+ group.add(m);
+ const edge=side=>{
+  const line=pts.map((p,i)=>{
+   const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+   const dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz)||1;
+   return new THREE.Vector3(p.x-center.x+(-dz/len)*width*.5*side,p.height+.06,p.z-center.z+(dx/len)*width*.5*side)
+  });
+  const curve=new THREE.CatmullRomCurve3(line);
+  const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.min(1000,pts.length),.11,4,false),
+    new THREE.MeshBasicMaterial({color:0xe3e8ed}));group.add(mesh)
+ };
+ edge(-1);edge(1);
+}
+function rebuild(){
+ const chosen=getSelected();
+ if(chosen.key===selectedKey)return;
+ selectedKey=chosen.key;primaryData=samplesFor(chosen.a);referenceData=samplesFor(chosen.b);
+ dispose();
+ const all=[...primaryData,...referenceData];
+ if(primaryData.length<3){wrapper.style.display='none';canvas.style.display='block';return}
+ wrapper.style.display='block';canvas.style.display='none';
+ center={x:(Math.min(...all.map(p=>p.x))+Math.max(...all.map(p=>p.x)))/2,
+ z:(Math.min(...all.map(p=>p.z))+Math.max(...all.map(p=>p.z)))/2};
+ size=Math.max(75,Math.max(...all.map(p=>p.x))-Math.min(...all.map(p=>p.x)),
+ Math.max(...all.map(p=>p.z))-Math.min(...all.map(p=>p.z)));
+ road(primaryData);polyline(primaryData,0xff951d);polyline(referenceData,0x49a1ff);
+ const message=$('vce-replay-world-note');
+ if(message)message.textContent='SCÈNE 3D reconstruite depuis les coordonnées des tours. Route, largeur, décors et véhicules schématiques : ils ne représentent pas le modèle réel du circuit.'
+}
+function locate(data,time){
+ if(!data.length)return null;
+ if(time<=data[0].t)return data[0];
+ if(time>=data.at(-1).t)return data.at(-1);
+ let lo=0,hi=data.length-1;
+ while(hi-lo>1){const m=(lo+hi)>>1;if(data[m].t<time)lo=m;else hi=m}
+ const a=data[lo],b=data[hi],f=(time-a.t)/Math.max(.001,b.t-a.t);
+ return {x:a.x+(b.x-a.x)*f,z:a.z+(b.z-a.z)*f,height:a.height+(b.height-a.height)*f}
+}
+function animate(){
+ requestAnimationFrame(animate);
+ rebuild();
+ if(!primaryData.length||wrapper.style.display==='none')return;
+ const duration=Math.max(primaryData.at(-1)?.t||0,referenceData.at(-1)?.t||0,1);
+ const time=duration*(+($('vce-replay-slider')?.value||0)/1000);
+ const p=locate(primaryData,time),next=locate(primaryData,Math.min(duration,time+.35));
+ const q=locate(referenceData,time);
+ if(!p||!next)return;
+ const yaw=Math.atan2(next.x-p.x,next.z-p.z),angle=Number.isFinite(yaw)?yaw:0;
+ primary.position.set(p.x-center.x,p.height,p.z-center.z);
+ primary.rotation.y=angle;
+ primary.visible=true;
+ other.visible=!!q;
+ if(q){other.position.set(q.x-center.x,q.height,q.z-center.z);
+   const n=locate(referenceData,Math.min(duration,time+.35));
+   other.rotation.y=n?Math.atan2(n.x-q.x,n.z-q.z):0}
+ const mode=$('vce-replay-camera')?.value||'chase';
+ const zoom=Math.max(1,+($('vce-replay-zoom')?.value||3));
+ const distance=(mode==='overview'?Math.max(110,size*.8):mode==='top'?Math.max(55,size*.48):Math.max(9,35/Math.sqrt(zoom)));
+ const dir=new THREE.Vector3(Math.sin(angle),0,Math.cos(angle));
+ const pos=new THREE.Vector3(p.x-center.x,p.height,p.z-center.z);
+ if(mode==='top'){camera.position.set(0,Math.max(90,size*1.5/Math.sqrt(zoom)),.1);camera.lookAt(0,0,0)}
+ else if(mode==='overview'){camera.position.set(size*.65,size*.65,size*.65);camera.lookAt(0,0,0)}
+ else if(mode==='cockpit'){camera.position.copy(pos).add(new THREE.Vector3(0,1.55,0)).addScaledVector(dir,.65);
+   camera.lookAt(pos.clone().addScaledVector(dir,38).add(new THREE.Vector3(0,1.3,0)));primary.visible=false}
+ else{camera.position.copy(pos).add(new THREE.Vector3(0,Math.max(4,13/Math.sqrt(zoom)),0))
+   .addScaledVector(dir,-distance);
+   camera.lookAt(pos.clone().addScaledVector(dir,20).add(new THREE.Vector3(0,1,0)))}
+ renderer.render(scene,camera);
+}
+const note=document.createElement('p');note.id='vce-replay-world-note';note.className='muted';
+note.textContent='Modèle 3D indicatif basé sur les données enregistrées, pas sur les fichiers du circuit.';
+wrapper.after(note);
+['lap','reference','session'].forEach(id=>$(id)?.addEventListener('change',()=>{selectedKey=''}));
+document.addEventListener('vce-cloud-update',()=>{selectedKey=''});
+animate();
+})();
