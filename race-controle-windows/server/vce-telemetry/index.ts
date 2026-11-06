@@ -158,7 +158,63 @@ Deno.serve(async(req)=>{
    requireOk(await db.from("vce_agent_devices").update({last_seen_at:new Date().toISOString()}).eq("device_id",d.device_id));
    return reply({ok:true,session_id:s.session_id,lap_number:number});
  }
- if(action==="staff_list"){
+ if(action==="pilot_share"){
+   const user=await authUser(req);
+   if(typeof b.enabled!=="boolean")return reply({error:"Option de partage invalide"},400);
+   const result=await db.from("vce_agent_devices").update({allow_team_comparison:b.enabled})
+      .eq("pilot_auth_user",user.id).eq("status","approved").select("device_id");
+   requireOk(result);
+   if(!result.data?.length)return reply({error:"Aucun appareil lié au compte pilote"},403);
+   return reply({ok:true,sharing:b.enabled});
+ }
+ if(action==="comparison_catalog"||action==="comparison_laps"){
+   const user=await authUser(req);
+   let staff=false;
+   try{const token=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"");
+     const asUser=createClient(base,publicKey,{auth:{persistSession:false,autoRefreshToken:false},
+       global:{headers:{Authorization:"Bearer "+token}}});
+     const flag=await asUser.rpc("vce_is_staff");
+     staff=flag.data===true&&!flag.error;
+   }catch{}
+   const baseId=clean(b.base_session_id,50);
+   if(!UUID.test(baseId))return reply({error:"Session principale invalide"},400);
+   const own=await db.from("vce_agent_sessions").select("session_id,game,track,car,pilot_auth_user")
+     .eq("session_id",baseId).maybeSingle();requireOk(own);
+   if(!own.data)return reply({error:"Session introuvable"},404);
+   if(!staff&&own.data.pilot_auth_user!==user.id)return reply({error:"Accès à la session refusé"},403);
+   if(action==="comparison_catalog"){
+     const list=await db.from("vce_agent_sessions")
+       .select("session_id,device_id,pilot_slug,game,track,car,best_lap_ms,started_at")
+       .eq("game",own.data.game).eq("track",own.data.track).eq("car",own.data.car)
+       .neq("session_id",baseId).order("started_at",{ascending:false}).limit(80);requireOk(list);
+     const candidates=list.data||[];
+     if(!candidates.length)return reply({sessions:[]});
+     const deviceIds=[...new Set(candidates.map((s:any)=>s.device_id))];
+     const dev=await db.from("vce_agent_devices").select("device_id,allow_team_comparison,pilot_auth_user,status")
+       .in("device_id",deviceIds);requireOk(dev);
+     const allowed=new Set((dev.data||[]).filter((d:any)=>d.status==="approved"&&
+       (staff||d.allow_team_comparison===true||d.pilot_auth_user===user.id)).map((d:any)=>d.device_id));
+     return reply({sessions:candidates.filter((s:any)=>allowed.has(s.device_id)).slice(0,40)});
+   }
+   const targetId=clean(b.target_session_id,50);
+   if(!UUID.test(targetId))return reply({error:"Session de référence invalide"},400);
+   const other=await db.from("vce_agent_sessions")
+     .select("session_id,device_id,pilot_slug,game,track,car,pilot_auth_user")
+     .eq("session_id",targetId).maybeSingle();requireOk(other);
+   if(!other.data)return reply({error:"Session de référence introuvable"},404);
+   if(other.data.track!==own.data.track||other.data.car!==own.data.car||
+      other.data.game!==own.data.game)return reply({error:"Jeu, circuit ou voiture différents"},409);
+   const dev=await db.from("vce_agent_devices").select("status,allow_team_comparison")
+      .eq("device_id",other.data.device_id).maybeSingle();requireOk(dev);
+   if(dev.data?.status!=="approved"||(!staff&&!dev.data?.allow_team_comparison&&other.data.pilot_auth_user!==user.id))
+     return reply({error:"Ce pilote n'a pas autorisé la comparaison"},403);
+   const laps=await db.from("vce_agent_laps")
+     .select("lap_number,lap_time_ms,valid,samples,sample_count")
+     .eq("session_id",targetId).order("lap_time_ms",{ascending:true,nullsFirst:false}).limit(5);
+   requireOk(laps);
+   return reply({pilot_slug:other.data.pilot_slug,session_id:targetId,laps:laps.data||[]});
+ }
+  if(action==="staff_list"){
    await authorizedStaff(req);
    const rows=await db.from("vce_agent_devices")
      .select("device_id,requested_pilot,pilot_slug,steam_id64,local_ip,status,created_at,last_seen_at,current_game,current_state")
