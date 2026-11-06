@@ -75,7 +75,13 @@ async function refresh(){
  if(!tbody.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune demande reçue');td.colSpan=8;tbody.append(tr)}
  const ts=$('sessions');ts.replaceChildren();
  for(const s of sessions.sessions||[]){const tr=document.createElement('tr');
- for(const value of [s.pilot_slug,s.game,s.track,s.car,date(s.started_at),s.status,s.laps_count])cell(tr,value);
+ const col=cell(tr,'');
+ const link=document.createElement('a');
+ link.href='telemetry.html#'+encodeURIComponent(s.pilot_slug||'');
+ link.textContent=s.pilot_slug||'Pilote';
+ link.title='Ouvrir la télémétrie de ce pilote (accès STAFF authentifié)';
+ col.append(link);
+ for(const value of [s.game,s.track,s.car,date(s.started_at),s.status,s.laps_count])cell(tr,value);
  ts.append(tr)}
  if(!ts.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune session reçue');td.colSpan=7;ts.append(tr)}
  $('status').textContent='Connecté : '+(devices.devices||[]).length+' appareil(s), '+(sessions.sessions||[]).length+' session(s).';
