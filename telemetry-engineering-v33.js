@@ -98,23 +98,17 @@ function source(){
  const ref=referenceLap(s,laps);
  return {s,laps,selected:state.lap,reference:ref,data:state.live?raw:withDelta(raw,ref)}
 }
-function paintMap(data){
- const canvas=$('vce-eng-map'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
- ctx.fillStyle='#070d16';ctx.fillRect(0,0,w,h);
- const coords=data.map(p=>[val(p,['x','world_x']),val(p,['y','world_z'])]).filter(v=>v.every(finite));
- let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
- for(const p of coords){minX=Math.min(minX,p[0]);maxX=Math.max(maxX,p[0]);minY=Math.min(minY,p[1]);maxY=Math.max(maxY,p[1])}
- if(coords.length<5||maxX-minX<.5||maxY-minY<.5){
-  ctx.fillStyle='#94a9c1';ctx.font='16px Segoe UI';ctx.fillText('Tracé indisponible : X/Z insuffisants',20,110);
-  $('vce-eng-maptext').textContent=coords.length+' coordonnées reçues (deux axes requis)';return
+function paintMap(data,reference){
+ const canvas=$('vce-eng-map'),caption=$('vce-eng-maptext');
+ if(!canvas||!window.VCETrack35)return;
+ const result=window.VCETrack35.canvas(canvas,data,reference||[],{progress:state.cursor});
+ if(!result.primary.ok&&result.ref.ok){
+  caption.textContent='Tour sélectionné : '+result.primary.reason+' · affichage de la référence uniquement.';
+ }else if(!result.primary.ok){
+  caption.textContent='Carte indisponible : '+result.primary.reason+' · aucun circuit inventé.';
+ }else{
+  caption.textContent=result.primary.n+' coordonnées X/Z fiables · orange : tour pilote · bleu : référence · échelle identique.';
  }
- const scale=Math.max((maxX-minX)/(w-40),(maxY-minY)/(h-40)),mx=(maxX+minX)/2,my=(maxY+minY)/2;
- const xy=p=>[w/2+(p[0]-mx)/scale,h/2-(p[1]-my)/scale];
- ctx.strokeStyle='#4ad986';ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.beginPath();
- coords.forEach((p,i)=>{const [x,y]=xy(p);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)});ctx.stroke();
- const idx=Math.min(coords.length-1,Math.max(0,Math.floor(state.cursor*(coords.length-1))));
- const marker=xy(coords[idx]);ctx.fillStyle='#f8486b';ctx.beginPath();ctx.arc(marker[0],marker[1],6,0,2*Math.PI);ctx.fill();
- $('vce-eng-maptext').textContent=coords.length+' positions enregistrées · largeur réelle inconnue'
 }
 function channelBounds(data,def){
  const values=data.map(s=>val(s,def[4])).filter(finite);if(!values.length)return null;
@@ -124,23 +118,15 @@ function channelBounds(data,def){
  if(def[0]==='speed'||def[0]==='rpm')return [0,Math.max(1,Math.ceil(high/25)*25)];
  return [Math.min(0,low-(high-low)*.1),high+(high-low)*.1+.00001]
 }
-function curve(canvas,def,data){
- const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
- ctx.fillStyle='#111923';ctx.fillRect(0,0,w,h);
- const bounds=channelBounds(data,def);
- ctx.fillStyle=def[3];ctx.font='bold 15px Segoe UI';ctx.fillText(def[1],12,19);
- if(!bounds){ctx.fillStyle='#849db6';ctx.font='12px Segoe UI';ctx.fillText('CANAL NON DISPONIBLE',w-220,19);return}
- const xAxis=$('vce-eng-x').value,axis=data.map((s,i)=>xAxis==='distance'?val(s,['distance','lap_pos']):val(s,['t']));
- const validAxis=axis.filter(finite),lo=validAxis.length?Math.min(...validAxis):0,hi=validAxis.length?Math.max(...validAxis):data.length-1;
- const x=i=>65+((finite(axis[i])?axis[i]:i)-lo)/Math.max(.0001,hi-lo)*(w-85);
- const y=v=>h-13-(v-bounds[0])/Math.max(.00001,bounds[1]-bounds[0])*(h-45);
- ctx.strokeStyle='#344358';for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(60,28+k*30);ctx.lineTo(w-20,28+k*30);ctx.stroke()}
- ctx.strokeStyle=def[3];ctx.lineWidth=2;ctx.beginPath();let pen=false;
- data.forEach((s,i)=>{const v=val(s,def[4]);if(v===null){pen=false;return}if(!pen){ctx.moveTo(x(i),y(v));pen=true}else if(def[0]==='gear'){const previous=val(data[i-1],def[4]);if(previous!==null)ctx.lineTo(x(i),y(previous));ctx.lineTo(x(i),y(v))}else ctx.lineTo(x(i),y(v))});ctx.stroke();
- ctx.fillStyle='#a2b4ca';ctx.font='12px Segoe UI';ctx.fillText(bounds[1].toFixed(1)+(def[2]||''),w-90,19);
+function curve(canvas,def,data,reference){
+ if(!window.VCEGraph35)return;
+ if(!window.VCEGraph35.channels[def[0]]){
+  window.VCEGraph35.channels[def[0]]={label:def[1],unit:def[2],color:def[3],names:def[4]};
+ }
+ window.VCEGraph35.draw(canvas,{key:def[0],primary:data,reference:reference||[],axis:$('vce-eng-x')?.value||'distance',cursor:state.cursor});
 }
 function display(){
- const {s,laps,data}=source(),list=$('vce-eng-laps');list.replaceChildren();
+ const {s,laps,data,reference}=source(),list=$('vce-eng-laps');list.replaceChildren();
  for(const lap of laps){
   const b=document.createElement('button');b.type='button';b.className='vce-eng-lap'+(lap===state.lap?' active':'');
   b.textContent='TOUR '+lap.number+'  '+(finite(lap.time)?lap.time.toFixed(3)+' s':'—')+' · '+lap.samples.length+' pts';
@@ -155,7 +141,7 @@ function display(){
  if(!laps.length)list.textContent='Aucun tour enregistré';
  $('vce-eng-status').textContent=state.live?'● DIRECT':s?.track||'EN ATTENTE';
  $('vce-eng-count').textContent=data.length+' échantillons';
- paintMap(data);
+ paintMap(data,reference?.samples||[]);
  const area=$('vce-eng-values');area.replaceChildren();
  const point=data[Math.min(data.length-1,Math.floor(state.cursor*Math.max(0,data.length-1)))];
  for(const d of defs.filter(d=>state.selected.has(d[0])).slice(0,12)){
@@ -167,7 +153,7 @@ function display(){
  const charts=$('vce-eng-curves');charts.replaceChildren();
  for(const d of defs.filter(d=>state.selected.has(d[0]))){
   const wrapper=document.createElement('div');wrapper.className='vce-eng-curve';
-  const c=canvas('vce-eng-'+d[0],1200,105);wrapper.append(c);charts.append(wrapper);curve(c,d,data)
+  const c=canvas('vce-eng-'+d[0],1200,155);wrapper.append(c);charts.append(wrapper);curve(c,d,data,reference?.samples||[])
  }
 }
 function mount(){
