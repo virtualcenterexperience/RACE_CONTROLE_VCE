@@ -3,7 +3,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
-let playing=false,progress=0,lastTick=0,rate=1,camera='chase',samples=[],reference=[],duration=0,ready=false;
+let playing=false,progress=0,lastTick=0,rate=1,camera='chase',samples=[],reference=[],duration=0,ready=false,zoom=3;
 const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
 const getLaps=()=>{const s=window.vceSession;return(s?.laps||[]).filter(l=>l.valid!==false&&((finite(+l.time)&&+l.time>0)||(l.samples||[]).length>=10))};
 function points(lap){
@@ -48,9 +48,11 @@ function paint(){
  const radius=Math.max(10,Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys));
  const time=progress*duration,a=sampleAt(samples,time),b=sampleAt(reference,time);
  const focus=(camera==='chase'||camera==='cockpit')&&a?a:mid;
- const scale=((camera==='chase'||camera==='cockpit')?radius*0.13:radius*0.65);
+ const scale=((camera==='chase'||camera==='cockpit')?radius*0.13:radius*0.65)/zoom;
  const angle=camera==='top'?0.0:camera==='cockpit'?1.10:0.52;
- const heading=(camera==='chase'||camera==='cockpit')&&a?Math.atan2((sampleAt(samples,time+0.2)?.y??a.y)-a.y,(sampleAt(samples,time+0.2)?.x??a.x)-a.x):0.5;
+ const next=sampleAt(samples,time+0.25),prev=sampleAt(samples,Math.max(0,time-0.25));
+ const motionHeading=a&&next&&prev?Math.atan2(next.y-prev.y,next.x-prev.x):0;
+ const heading=(camera==='chase'||camera==='cockpit')&&a?motionHeading:0;
  const ca=Math.cos(-heading),sa=Math.sin(-heading);
  function project(p){
   let x=p.x-focus.x,y=p.y-focus.y,z=p.z-focus.z;
@@ -65,10 +67,11 @@ function paint(){
   arr.forEach((p,i)=>{const [x,y]=project(p);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke()
  }
  // Draw a neutral surface ribbon; elevation follows z when native data exists.
- line(samples,'#41464c',26);line(samples,'#777c81',1.5);
+ // Recorded line is not a surveyed track boundary: no invented kerbs or track width.
+ line(samples,'#343d4d',20);
  line(reference,'#4d9dff',4);line(samples,'#ff951d',4);
- function car(p,color,label){if(!p)return;const [x,y]=project(p);ctx.save();ctx.translate(x,y);ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=16;ctx.fillRect(-8,-14,16,28);ctx.shadowBlur=0;ctx.strokeStyle='#101215';ctx.strokeRect(-8,-14,16,28);ctx.fillStyle='#fff';ctx.font='bold 13px Segoe UI';ctx.fillText(label,15,-10);ctx.restore()}
- car(b,'#4d9dff','RÉF');if(camera!=='cockpit')car(a,'#f32d56','PILOTE');
+ function car(p,color,label,arr){if(!p)return;const [x,y]=project(p);const t=arr===reference?time:time;const before=sampleAt(arr,Math.max(0,t-.2)),after=sampleAt(arr,t+.2);const dir=before&&after?Math.atan2(after.y-before.y,after.x-before.x):0;ctx.save();ctx.translate(x,y);ctx.rotate(dir-(camera==='chase'||camera==='cockpit'?heading:0)+Math.PI/2);ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=10;ctx.beginPath();ctx.moveTo(0,-15);ctx.lineTo(9,10);ctx.lineTo(0,6);ctx.lineTo(-9,10);ctx.closePath();ctx.fill();ctx.restore();ctx.fillStyle='#fff';ctx.font='bold 12px Segoe UI';ctx.fillText(label,x+12,y-10)}
+ car(b,'#4d9dff','RÉF',reference);if(camera!=='cockpit')car(a,'#f32d56','PILOTE',samples);
  if(camera==='cockpit'&&a){ctx.fillStyle='#080d16';ctx.beginPath();ctx.moveTo(w*.28,h);ctx.lineTo(w*.39,h*.83);ctx.lineTo(w*.61,h*.83);ctx.lineTo(w*.72,h);ctx.closePath();ctx.fill();ctx.strokeStyle='#f32d56';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(w*.4,h*.85);ctx.lineTo(w*.6,h*.85);ctx.stroke();ctx.fillStyle='#dbeafe';ctx.font='bold 15px Segoe UI';ctx.fillText('CAMÉRA EMBARQUÉE · RECONSTITUTION XY',18,h-22)}
  const fmt=v=>finite(v)?v.toFixed(1):'—';
  $('vce-replay-time').textContent=time.toFixed(2)+' s / '+duration.toFixed(2)+' s';
@@ -83,11 +86,12 @@ function loop(ts){
 function mount(){
  const anchor=$('tt-circuit');if(!anchor||$('vce-replay'))return;
  const section=el('section',undefined,'panel vce-replay');section.id='vce-replay';
- section.innerHTML='<div class="head"><h2>REPLAY 3D · COMPARAISON DES TRAJECTOIRES</h2><span id="vce-replay-state">En attente de session</span></div><p class="muted">Replay calculé depuis les positions enregistrées. Orange : pilote · bleu : référence. Le relief n’est fidèle que si les coordonnées Z sont disponibles.</p><div class="vce-replay-tools"><button id="vce-replay-play" disabled>▶ Lecture</button><label>Vitesse <select id="vce-replay-rate"><option value=".25">0,25×</option><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><label>Caméra <select id="vce-replay-camera"><option value="chase">Suivi voiture</option><option value="cockpit">Vue embarquée (reconstitution)</option><option value="overview">Perspective générale</option><option value="top">Vue de dessus</option></select></label><button id="vce-replay-reload">Recharger les tours</button></div><canvas id="vce-replay-canvas" width="1100" height="520"></canvas><input type="range" id="vce-replay-slider" min="0" max="1000" value="0" step="1" aria-label="Position du replay"><div class="vce-replay-stats"><span id="vce-replay-time">—</span><span>Vitesse : <b id="vce-replay-speed">—</b></span><span>Frein : <b id="vce-replay-brake">—</b></span><span>Accélérateur : <b id="vce-replay-throttle">—</b></span></div>';
+ section.innerHTML='<div class="head"><h2>REPLAY 3D · COMPARAISON DES TRAJECTOIRES</h2><span id="vce-replay-state">En attente de session</span></div><p class="muted">Replay des positions enregistrées. Rouge : pilote · bleu : référence. Les bordures et la largeur réelle de piste ne sont pas connues : la bande grise est indicative, pas une limite de piste.</p><div class="vce-replay-tools"><button id="vce-replay-play" disabled>▶ Lecture</button><label>Vitesse <select id="vce-replay-rate"><option value=".25">0,25×</option><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><label>Caméra <select id="vce-replay-camera"><option value="chase">Suivi voiture</option><option value="cockpit">Vue embarquée (reconstitution)</option><option value="overview">Perspective générale</option><option value="top">Vue de dessus</option></select></label><label>Zoom <input id="vce-replay-zoom" type="range" min="1" max="12" step="0.5" value="3" style="width:130px;vertical-align:middle"></label><button id="vce-replay-reload">Recharger les tours</button></div><canvas id="vce-replay-canvas" width="1100" height="520"></canvas><input type="range" id="vce-replay-slider" min="0" max="1000" value="0" step="1" aria-label="Position du replay"><div class="vce-replay-stats"><span id="vce-replay-time">—</span><span>Vitesse : <b id="vce-replay-speed">—</b></span><span>Frein : <b id="vce-replay-brake">—</b></span><span>Accélérateur : <b id="vce-replay-throttle">—</b></span></div>';
  anchor.after(section);
  $('vce-replay-play').onclick=()=>{if(progress>=1)progress=0;playing=!playing;lastTick=0;$('vce-replay-play').textContent=playing?'❚❚ Pause':'▶ Lecture'};
  $('vce-replay-slider').oninput=e=>{progress=+e.target.value/1000;lastTick=0};
  $('vce-replay-rate').onchange=e=>rate=+e.target.value;
+ $('vce-replay-zoom').oninput=e=>zoom=+e.target.value;
  $('vce-replay-camera').onchange=e=>camera=e.target.value;
  $('vce-replay-reload').onclick=load;
  ['lap','reference','session'].forEach(id=>$(id)?.addEventListener('change',()=>setTimeout(load,100)));
