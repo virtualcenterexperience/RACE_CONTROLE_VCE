@@ -102,7 +102,7 @@ function normalizeSample(x,origin){
  'ride_height_front','ride_height_rear','front_downforce','rear_downforce','drag',
  'camber_fl','camber_fr','camber_rl','camber_rr','tyre_wear_fl','tyre_wear_fr',
  'tyre_wear_rl','tyre_wear_rr','tyre_temp_fl','tyre_temp_fr','tyre_temp_rl','tyre_temp_rr',
- 'fuel','fuel_liters','fuel_used','fuel_per_lap','fuel_laps_remaining','ground_contact'];
+ 'fuel','fuel_liters','fuel_used','fuel_per_lap','fuel_laps_remaining','ground_contact','g_long','g_lat','clutch','air_temp','track_temp','brake_temp_fl','brake_temp_fr','brake_temp_rl','brake_temp_rr','tyre_temp_inner_fl','tyre_temp_inner_fr','tyre_temp_inner_rl','tyre_temp_inner_rr','tyre_temp_center_fl','tyre_temp_center_fr','tyre_temp_center_rl','tyre_temp_center_rr','tyre_temp_outer_fl','tyre_temp_outer_fr','tyre_temp_outer_rl','tyre_temp_outer_rr'];
  for(const k of physicalKeys){if(k==='ground_contact'){if(typeof x[k]==='boolean')extra[k]=x[k];continue}
   const v=n(x[k]);if(v!==null)extra[k]=v;
  }
