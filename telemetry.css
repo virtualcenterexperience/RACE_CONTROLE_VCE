@@ -141,3 +141,17 @@ html[data-telemetry-view=setup] #vce-stream,
 html[data-telemetry-view=setup] #vce-analysis{display:none!important}
 html[data-telemetry-view=setup] #vce-mechanical{display:block!important}
 html[data-telemetry-view=setup] .vce-mechanical{margin-top:18px}
+
+
+/* VCE native trajectory replay */
+.vce-replay{border-top:3px solid #ff951d!important;background:#202225!important}
+.vce-replay .head h2{color:#ff951d!important}
+.vce-replay-tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.vce-replay-tools button,.vce-replay-tools select{background:#2c3036;color:white;border:1px solid #555b64;border-radius:6px;padding:10px;cursor:pointer}
+.vce-replay-tools button:disabled{opacity:.5;cursor:not-allowed}
+.vce-replay-tools label{display:flex;gap:8px;align-items:center}
+#vce-replay-canvas{width:100%;height:auto;display:block;background:#17191c;border:1px solid #464a51;border-radius:8px}
+#vce-replay-slider{width:100%;accent-color:#ff951d;margin:15px 0}
+.vce-replay-stats{display:flex;gap:20px;flex-wrap:wrap;color:#c8ccd2;font-variant-numeric:tabular-nums}
+.vce-replay-stats b{color:#fff}
+html[data-telemetry-view=setup] #vce-replay{display:none!important}
