@@ -6,7 +6,7 @@ const view=new URLSearchParams(location.search).get('view')==='setup'?'setup':'t
 document.documentElement.dataset.telemetryView=view;
 const modules=view==='setup'
  ? ['telemetry-mechanical.js','telemetry-setup-overview.js','telemetry-setup-studio.js']
- : ['telemetry-inputs.js','telemetry-recap.js','telemetry-advanced.js','telemetry-compare-ui.js','telemetry-replay3d.js','telemetry-tour-studio.js'];
+ : ['telemetry-inputs.js','telemetry-recap.js','telemetry-advanced.js','telemetry-compare-ui.js','telemetry-replay3d.js','telemetry-replay-world3d.js','telemetry-tour-studio.js'];
 async function loadModules(){
  for(const path of modules){
   try{
