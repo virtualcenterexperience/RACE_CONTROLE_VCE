@@ -73,7 +73,7 @@ function mainPlot(ts){
  const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
  c.clearRect(0,0,w,h);c.fillStyle='#0a1523';c.fillRect(0,0,w,h);
  const data=state.buffer,last=data.at(-1),first=data[0];
- const xmax=last?.t||0, xmin=xmax-15;
+ const xmax=(last?.t||0)+Math.min(1,Math.max(0,(Date.now()-state.lastFrame)/1000)), xmin=xmax-15;
  for(let i=0;i<=5;i++){c.strokeStyle='#243b54';c.lineWidth=1;c.beginPath();c.moveTo(35,15+i*42);c.lineTo(w-20,15+i*42);c.stroke()}
  if(!last||!first)return;
  const channels=[
