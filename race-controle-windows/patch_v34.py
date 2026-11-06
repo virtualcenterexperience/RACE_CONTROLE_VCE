@@ -40,34 +40,44 @@ replace("engine.py","self.log('LIVE INPUTS : flux actif · accélérateur / frei
         "self.log('LIVE INPUTS : échantillonnage cible 120 Hz · télémétrie diffusée par lots ~10 Hz')")
 # Use small numbered batches on the server: avoids the old 500 kB HTTP cap and
 # preserves all available 120 Hz samples instead of silently truncating them.
-replace("client.py",
-"""    def send_lap(self,session,lap):
-        return self.post('upload',{'session':{
-           'session_id':session['session_id'],'game':session['game'],
-           'track':session.get('track',''),'car':session.get('car',''),
-           'started_at':session['started_at'],'ended_at':session.get('ended_at'),
-           'laps_count':session.get('laps_count'), 'best_lap_ms':session.get('best_lap_ms')},
-           'lap':lap})""",
-"""    def send_lap(self,session,lap):
-        summary={'session_id':session['session_id'],'game':session['game'],
-           'track':session.get('track',''),'car':session.get('car',''),
-           'started_at':session['started_at'],'ended_at':session.get('ended_at'),
-           'laps_count':session.get('laps_count'),'best_lap_ms':session.get('best_lap_ms')}
-        samples=lap.get('samples') or []
-        if len(samples)<=160:
-            return self.post('upload',{'session':summary,'lap':lap})
-        total=len(samples)
-        last=None
-        for offset in range(0,total,120):
-            segment=dict(lap)
-            segment['samples']=samples[offset:offset+120]
-            last=self.post('upload_segment',{'session':summary,'lap':segment,
-                'offset':offset,'total_samples':total})
-            if last.get('offset')!=offset+len(segment['samples']):
-                raise CloudError('Ack segment incohérent : tour à reprendre')
-        if not last or last.get('complete') is not True:
-            raise CloudError('Transmission du tour incomplète')
-        return last""")
+# The extracted client code has evolved across versions. Preserve its implementation
+# for short laps and wrap its existing method only for the high-frequency upload.
+p=root/"client.py"
+client_source=p.read_text(encoding="utf-8")
+if "CloudClient" not in client_source or "send_lap" not in client_source:
+    raise RuntimeError("Client VCE sans la méthode d'archive attendue")
+client_source += '''
+# VCE 3.4 — wraps the existing client without rewriting its original implementation.
+_vce_original_send_lap_34 = CloudClient.send_lap
+def _vce_high_frequency_send_lap(self, session, lap):
+    samples=lap.get('samples') or []
+    if len(samples)<=160:
+        return _vce_original_send_lap_34(self,session,lap)
+    total=len(samples)
+    summary={
+        'session_id':session['session_id'],'game':session['game'],
+        'track':session.get('track',''),'car':session.get('car',''),
+        'session_type':session.get('session_type',''),
+        'started_at':session['started_at'],'ended_at':session.get('ended_at'),
+        'laps_count':session.get('laps_count'),
+        'best_lap_ms':session.get('best_lap_ms')
+    }
+    last=None
+    for offset in range(0,total,120):
+        segment=dict(lap)
+        segment['samples']=samples[offset:offset+120]
+        last=self.post('upload_segment',{
+            'session':summary,'lap':segment,
+            'offset':offset,'total_samples':total})
+        if not isinstance(last,dict) or last.get('offset')!=offset+len(segment['samples']):
+            raise RuntimeError('VCE: accusé de réception de segment incohérent')
+    if not last or last.get('complete') is not True:
+        raise RuntimeError('VCE: tour transmis partiellement')
+    return last
+CloudClient.send_lap=_vce_high_frequency_send_lap
+'''
+p.write_text(client_source,encoding="utf-8")
+
 for file in root.glob("*.py"):
     ast.parse(file.read_text(encoding="utf-8"),filename=str(file))
 print("VCE 3.4 Python source parsed: 120 Hz target and segmented HTTP uploads")
