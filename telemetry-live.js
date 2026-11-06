@@ -6,7 +6,7 @@ const $=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
 const W=()=>window.VCE_SUPABASE||{};
 const state={client:null,channel:null,device:'',session:'',authorized:false,
   lastFrame:0,buffer:[],live:null,hud:null,lastUi:0,lastDraw:0,raf:0,status:'DÉCONNECTÉ',
-  lastCloudPoll:0,points:[],started:0,fail:''};
+  lastCloudPoll:0,points:[],started:0,fail:'',displayEnabled:true,frames:0,lastSampleTime:null};
 const num=x=>typeof x==='number'&&Number.isFinite(x);
 const st=(msg,ok=false)=>{const el=$('vce-stream-state');if(el){el.textContent=msg;el.dataset.ok=ok?'yes':'no'}};
 const v=(name,label)=>{const span=document.createElement('span');span.textContent=label;span.id=name;return span};
@@ -27,6 +27,12 @@ function addUI(){
  box.append(mapHeader);
  const m=document.createElement('canvas');m.width=720;m.height=260;m.id='vce-stream-track';box.append(m);
  const cap=document.createElement('p');cap.id='vce-stream-caption';cap.className='muted';cap.textContent='Circuit détecté automatiquement · coordonnées en attente';box.append(cap);
+ const control=document.createElement('button');control.type='button';control.id='vce-live-toggle';control.textContent='● DIRECT ON';
+ control.setAttribute('aria-pressed','true');control.style.margin='10px 0';
+ control.onclick=()=>{state.displayEnabled=!state.displayEnabled;control.textContent=state.displayEnabled?'● DIRECT ON':'○ DIRECT OFF';control.setAttribute('aria-pressed',String(state.displayEnabled));};
+ box.insertBefore(control,hud);
+ const quality=document.createElement('p');quality.id='vce-live-quality';quality.className='muted';quality.textContent='Qualité du flux : en attente des échantillons';
+ box.append(quality);
  root.after(box);
 }
 const updateSession=async()=>{
@@ -43,24 +49,33 @@ const updateSession=async()=>{
  state.channel=state.client.channel('vce:device:'+device,{config:{private:true}})
  .on('broadcast',{event:'frame'},message=>{
     const p=message.payload||{};if(p.device_id!==state.device)return;
-    if(state.session&&p.session_id&&state.session!==p.session_id){state.buffer=[];state.points=[];state.hud=null;}
+    if(state.session&&p.session_id&&state.session!==p.session_id){state.buffer=[];state.points=[];state.hud=null;state.lastSampleTime=null;state.frames=0;}
     state.lastFrame=Date.now();state.session=p.session_id;state.live=p;
     document.dispatchEvent(new CustomEvent('vce-live-frame',{detail:p}));
-    const samples=(p.samples||[]).filter(x=>num(x.t)).slice(-30);
-    for(const s of samples){
-      if(state.buffer.length&&s.t<state.buffer.at(-1).t-1)state.buffer=[];
-      if(!state.buffer.length||s.t>state.buffer.at(-1).t){
-       state.buffer.push(s);if(state.buffer.length>600)state.buffer.shift();
+    const samples=(Array.isArray(p.samples)?p.samples:[]).filter(x=>num(x.t)).sort((a,b)=>a.t-b.t);
+    state.frames++;
+    for(const sample of samples){
+      if(state.lastSampleTime!==null&&sample.t<state.lastSampleTime-1){
+        state.buffer=[];state.lastSampleTime=null;
       }
-      if(num(s.world_x)&&num(s.world_z)){
-        state.points.push([s.world_x,s.world_z]);
-        if(state.points.length>2000)state.points.shift();
+      if(state.lastSampleTime!==null&&sample.t<=state.lastSampleTime)continue;
+      state.lastSampleTime=sample.t;
+      state.buffer.push(sample);
+      if(state.buffer.length>3000)state.buffer.splice(0,state.buffer.length-3000);
+      // Zero is a valid world coordinate. Reject duplicates, not coordinate zero.
+      if(num(sample.world_x)&&num(sample.world_z)){
+        const x=sample.world_x,z=sample.world_z,last=state.points.at(-1);
+        if(!last||Math.hypot(x-last[0],z-last[1])>.02){
+          // An isolated huge discontinuity is not a real drivable trajectory.
+          if(!last||Math.hypot(x-last[0],z-last[1])<500){
+            state.points.push([x,z]);if(state.points.length>5500)state.points.shift();
+          }
+        }
       }
     }
-    if(samples.length){
-      const latest=samples.at(-1);
-      state.hud=latest;
-    }
+    const quality=$('vce-live-quality');
+    if(quality)quality.textContent='Flux reçu : '+state.buffer.length+' échantillons · '+state.frames+' trames · '+state.points.length+' positions XY distinctes';
+    if(samples.length){state.hud=samples.at(-1)}
     if(p.track){const t=$('vce-live-track');if(t)t.textContent=p.track}
     if(p.car){const c=$('vce-live-car');if(c)c.textContent=p.car}
     st('● FLUX CONNECTÉ · '+samples.length+' ÉCHANTILLONS',true)
@@ -71,53 +86,99 @@ const updateSession=async()=>{
     else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')st('ERREUR CANAL PRIVÉ · VÉRIFIER LES POLICIES SUPABASE');
  });
 };
-function mainPlot(ts){
+function mainPlot(){
  const canvas=$('vce-stream-plot');if(!canvas)return;
  const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
- c.clearRect(0,0,w,h);c.fillStyle='#0a1523';c.fillRect(0,0,w,h);
- const data=state.buffer,last=data.at(-1),first=data[0];
- const xmax=(last?.t||0)+Math.min(1,Math.max(0,(Date.now()-state.lastFrame)/1000)), xmin=xmax-15;
- for(let i=0;i<=5;i++){c.strokeStyle='#243b54';c.lineWidth=1;c.beginPath();c.moveTo(35,15+i*42);c.lineTo(w-20,15+i*42);c.stroke()}
- if(!last||!first)return;
+ c.fillStyle='#0a1523';c.fillRect(0,0,w,h);
+ const data=state.buffer,last=data.at(-1);
+ const xmin=last?last.t-15:0;
+ const left=58,right=w-25,top=14,bottom=h-32,inner=bottom-top;
  const channels=[
-  {key:'speed_kmh',label:'VITESSE',color:'#6366f1',scale:300},
-  {key:'brake',label:'FREIN',color:'#ef4444',scale:1},
-  {key:'throttle',label:'ACCÉLÉRATEUR',color:'#22c55e',scale:1}
+  {key:'throttle',label:'ACCÉLÉRATEUR',color:'#22c55e',max:1},
+  {key:'brake',label:'FREIN',color:'#ef4444',max:1},
+  {key:'speed_kmh',label:'VITESSE km/h',color:'#7c8aff',max:Math.max(100,Math.ceil(Math.max(...data.slice(-600).map(x=>num(x.speed_kmh)?x.speed_kmh:0))/50)*50)}
  ];
- const xp=t=>35+Math.max(0,Math.min(1,(t-xmin)/15))*(w-55);
- for(const [j,item] of channels.entries()){
-  c.strokeStyle=item.color;c.lineWidth=2.5;c.beginPath();let started=false;
-  for(const sample of data){
-   const val=sample[item.key];if(!num(sample.t)||sample.t<xmin||!num(val))continue;
-   const x=xp(sample.t),y=225-Math.max(0,Math.min(1,val/item.scale))*200;
-   if(started)c.lineTo(x,y);else{c.moveTo(x,y);started=true}
-  }if(started)c.stroke();
-  c.fillStyle=item.color;c.font='bold 15px Segoe UI';c.fillText(item.label,45+j*175,245);
+ c.font='12px Segoe UI';c.fillStyle='#a4b9d4';
+ for(let i=0;i<=4;i++){
+  const y=top+inner*i/4;
+  c.strokeStyle='#28394e';c.lineWidth=1;c.beginPath();c.moveTo(left,y);c.lineTo(right,y);c.stroke();
+  if(i<4)c.fillText(String(100-i*25)+'%',4,y+4);
  }
+ if(!last){c.fillText('En attente des mesures en direct',left,40);return}
+ const xOf=t=>left+(t-xmin)/15*(right-left);
+ for(const item of channels){
+  c.lineWidth=2.6;c.strokeStyle=item.color;c.beginPath();
+  let active=false,previous=null;
+  for(const point of data){
+   if(!num(point.t)||point.t<xmin||point.t>last.t)continue;
+   const value=point[item.key];
+   if(!num(value)){active=false;continue}
+   const x=xOf(point.t),y=bottom-Math.max(0,Math.min(1,value/item.max))*inner;
+   if(!active||previous!==null&&point.t-previous>.35)c.moveTo(x,y);
+   else c.lineTo(x,y);
+   active=true;previous=point.t;
+  }
+  c.stroke();
+ }
+ channels.forEach((item,i)=>{c.fillStyle=item.color;c.fillText(item.label+(item.key==='speed_kmh'?' (0–'+item.max+')':''),left+i*260,h-9)});
+ c.fillStyle='#a4b9d4';c.fillText('Fenêtre : dernières 15 secondes · 0 % en bas, 100 % en haut',left,top+12);
 }
 function trackPlot(){
  const canvas=$('vce-stream-track');if(!canvas)return;
- const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;c.clearRect(0,0,w,h);
+ const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
  c.fillStyle='#0b1828';c.fillRect(0,0,w,h);
- const pts=state.points;
  const last=state.hud;
- if(pts.length<5){
+ // A completed recording is a legitimate map reference only if it belongs to
+ // the currently selected session. Do not invent a circuit from lap progress.
+ const session=window.vceSession;
+ const recorded=Array.isArray(session?.laps)?session.laps:[];
+ let best=[];
+ for(const lap of recorded){
+  const points=(lap.samples||[]).map(p=>[p.x,p.y]).filter(v=>v.every(num));
+  if(points.length>best.length)best=points;
+ }
+ const live=state.points;
+ const path=best.length>=20?best:live;
+ const validSpan=arr=>{
+  if(arr.length<5)return false;
+  const x=arr.map(p=>p[0]),z=arr.map(p=>p[1]);
+  return Math.max(...x)-Math.min(...x)>.5&&Math.max(...z)-Math.min(...z)>.5;
+ };
+ if(!validSpan(path)){
   c.fillStyle='#93aecb';c.font='16px Segoe UI';
-  const prog=num(last?.lap_pos)?(last.lap_pos*100).toFixed(1)+' %':'non disponible';
-  c.fillText('Progression sur le circuit : '+prog,25,70);
-  c.fillStyle='#29425f';c.fillRect(25,110,w-50,18);
-  if(num(last?.lap_pos)){c.fillStyle='#48cafa';c.fillRect(25,110,(w-50)*Math.max(0,Math.min(1,last.lap_pos)),18)}
-  $('vce-stream-caption').textContent='Coordonnées XY du jeu non disponibles · position en % de tour';
+  c.fillText('Trajectoire 2D indisponible',24,50);
+  c.font='13px Segoe UI';
+  c.fillText('X/Z insuffisants : '+live.length+' points live / '+best.length+' points enregistrés',24,77);
+  if(num(last?.lap_pos)){
+   c.fillStyle='#29425f';c.fillRect(25,125,w-50,17);
+   c.fillStyle='#48cafa';c.fillRect(25,125,(w-50)*Math.max(0,Math.min(1,last.lap_pos)),17);
+  }
+  $('vce-stream-caption').textContent='Coordonnées X et Z nécessaires ; la progression du tour ne suffit pas à reconstruire le circuit.';
   return;
  }
- // Compute bounds from native world coordinates, not an invented circuit map.
- const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
- const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
- const size=Math.max(1,maxx-minx,maxy-miny);
- const point=p=>[w/2+(p[0]-(minx+maxx)/2)/size*(w-65),h/2+(p[1]-(miny+maxy)/2)/size*(h-45)];
- c.strokeStyle='#5588c1';c.lineWidth=3;c.beginPath();pts.forEach((p,i)=>{const [x,y]=point(p);i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();
- const [x,y]=point(pts.at(-1));c.fillStyle='#ffb95f';c.beginPath();c.arc(x,y,8,0,Math.PI*2);c.fill();
- $('vce-stream-caption').textContent='Tracé construit uniquement avec les coordonnées réelles reçues du jeu';
+ const xs=path.map(p=>p[0]),zs=path.map(p=>p[1]);
+ const minx=Math.min(...xs),maxx=Math.max(...xs),minz=Math.min(...zs),maxz=Math.max(...zs);
+ const padding=24,size=Math.max((maxx-minx)/(w-padding*2),(maxz-minz)/(h-padding*2),.01);
+ const cx=(minx+maxx)/2,cz=(minz+maxz)/2;
+ const point=p=>[w/2+(p[0]-cx)/size,h/2-(p[1]-cz)/size];
+ const draw=(arr,color,width)=>{
+  c.strokeStyle=color;c.lineWidth=width;c.lineJoin='round';c.lineCap='round';c.beginPath();
+  let previous=null;
+  for(const p of arr){
+   if(!p.every(num))continue;
+   const [x,y]=point(p);
+   if(previous&&Math.hypot(p[0]-previous[0],p[1]-previous[1])<500)c.lineTo(x,y);
+   else c.moveTo(x,y);
+   previous=p;
+  }c.stroke()
+ };
+ draw(path,'#4f86bb',3.2);
+ if(best.length>=20&&live.length>1)draw(live,'#ffae62',2.5);
+ if(live.length){
+  const [x,y]=point(live.at(-1));c.fillStyle='#ffbe69';c.beginPath();c.arc(x,y,6,0,Math.PI*2);c.fill()
+ }
+ $('vce-stream-caption').textContent=best.length>=20?
+  'Tracé basé sur un tour enregistré · orange : position live':'Tracé progressif basé sur les coordonnées X/Z live ('+live.length+' points)';
 }
 function hud(ts){
  if(ts-state.lastUi<70)return;state.lastUi=ts;
@@ -134,7 +195,7 @@ function hud(ts){
 }
 function render(ts){
  // 60 FPS is the target browser rendering cadence, NOT an invented 60Hz sensor frequency.
- mainPlot(ts);trackPlot();hud(ts);
+ if(state.displayEnabled){mainPlot(ts);trackPlot();hud(ts)}
  state.raf=requestAnimationFrame(render);
 }
 function start(){
