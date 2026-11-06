@@ -4,7 +4,7 @@ const $=id=>document.getElementById(id);
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const validId=s=>/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s||'');
 const cfg=()=>window.VCE_SUPABASE||{};
-let photos=new Map(),panel=null,current='',checking=0,refreshing=false,lastRefresh=0;
+let photos=new Map(),panel=null,current='',checking=0,refreshing=false,lastRefresh=0;const brokenPhotos=new Set();
 const active=()=>{try{return slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''))}catch{return ''}};
 const urlFor=entry=>{
  const path=entry?.storage_path;
@@ -15,14 +15,14 @@ const urlFor=entry=>{
 function showPhoto(node,id,initials){
  if(!node||!id)return;
  const value=photos.get(id),url=urlFor(value);
- if(url){
+ if(url&&!brokenPhotos.has(url)){
   if(node.querySelector('img')?.dataset.avatarPath===url)return;
   node.replaceChildren();
   const img=document.createElement('img');
   img.alt='Photo de '+id.replace(/-/g,' ');
   img.loading=node.id==='vce-photo-big'?'eager':'lazy';
   img.decoding='async';img.dataset.avatarPath=url;img.src=url;
-  img.addEventListener('error',()=>{if(img.isConnected){node.replaceChildren(document.createTextNode(initials));node.classList.remove('vce-photo-avatar')}},{once:true});
+  img.addEventListener('error',()=>{brokenPhotos.add(url);if(img.isConnected){node.replaceChildren(document.createTextNode(initials));node.classList.remove('vce-photo-avatar')}},{once:true});
   node.classList.add('vce-photo-avatar');
   node.append(img)
  }else if(node.querySelector('img')){
