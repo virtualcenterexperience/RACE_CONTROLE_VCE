@@ -1,0 +1,25 @@
+/* VCE SETUP dashboard — native measurements only; unknown values remain unavailable. */
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const categories=[
+ {name:'AÉRODYNAMIQUE',icon:'↗',fields:[['front_downforce','Appui avant','N'],['rear_downforce','Appui arrière','N'],['drag','Traînée','N'],['ride_height_front','Hauteur avant','mm'],['ride_height_rear','Hauteur arrière','mm']]},
+ {name:'SUSPENSIONS & HAUTEUR DE CAISSE',icon:'↕',fields:[['suspension_fl','Suspension AVG','mm'],['suspension_fr','Suspension AVD','mm'],['suspension_rl','Suspension ARG','mm'],['suspension_rr','Suspension ARD','mm'],['ride_height_front','Garde au sol avant','mm'],['ride_height_rear','Garde au sol arrière','mm']]},
+ {name:'CARROSSAGE',icon:'◫',fields:[['camber_fl','Carrossage AVG','°'],['camber_fr','Carrossage AVD','°'],['camber_rl','Carrossage ARG','°'],['camber_rr','Carrossage ARD','°']]},
+ {name:'USURE DES PNEUS',icon:'◉',fields:[['tyre_wear_fl','Usure AVG','%'],['tyre_wear_fr','Usure AVD','%'],['tyre_wear_rl','Usure ARG','%'],['tyre_wear_rr','Usure ARD','%'],['tyre_temp_fl','Température AVG','°C'],['tyre_temp_fr','Température AVD','°C'],['tyre_temp_rl','Température ARG','°C'],['tyre_temp_rr','Température ARD','°C']]},
+ {name:"CONSOMMATION D'ESSENCE",icon:'▰',fields:[['fuel','Carburant restant','L'],['fuel_used','Carburant consommé','L'],['fuel_per_lap','Consommation par tour','L/tour'],['fuel_laps_remaining','Autonomie','tours']]}
+];
+const aliases={front_downforce:['aero_front_downforce'],rear_downforce:['aero_rear_downforce'],drag:['aero_drag'],camber_fl:['camber_lf'],camber_fr:['camber_rf'],camber_rl:['camber_lr'],camber_rr:['camber_rr'],tyre_wear_fl:['tire_wear_fl','tyre_wear_lf'],tyre_wear_fr:['tire_wear_fr','tyre_wear_rf'],tyre_wear_rl:['tire_wear_rl','tyre_wear_lr'],tyre_wear_rr:['tire_wear_rr'],fuel:['fuel_liters','fuel_remaining'],fuel_used:['fuel_consumed'],fuel_per_lap:['fuel_consumption_per_lap'],fuel_laps_remaining:['estimated_laps_remaining']};
+const val=(sample,key)=>{for(const k of [key,...(aliases[key]||[])]){const v=sample?.[k];if(v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))return Number(v)}return null};
+let latest=null;
+function mount(){if($('vce-setup-overview'))return;const main=document.querySelector('main');if(!main)return;
+const root=document.createElement('section');root.id='vce-setup-overview';root.className='vce-setup-overview';
+root.innerHTML='<div class="vce-setup-title"><div><small>VCE ESPORT · RACE ENGINEERING</small><h2>ANALYSE SETUP</h2><p>Valeurs issues de la télémétrie du jeu. Les réglages non exposés ne sont pas estimés.</p></div><span id="vce-setup-health">EN ATTENTE DE DONNÉES</span></div><div class="vce-setup-categories"></div>';
+const grid=root.querySelector('.vce-setup-categories');
+for(const cat of categories){const section=document.createElement('article');section.className='vce-setup-category';const heading=document.createElement('h3');heading.textContent=cat.icon+' '+cat.name;section.append(heading);const values=document.createElement('div');values.className='vce-setup-values';for(const [key,label,unit] of cat.fields){const card=document.createElement('div');card.className='vce-setup-metric';card.dataset.setupKey=key;const t=document.createElement('small');t.textContent=label;const b=document.createElement('strong');b.textContent='—';const u=document.createElement('span');u.textContent=unit;card.append(t,b,u);values.append(card)}section.append(values);grid.append(section)}
+const intro=main.querySelector('.intro');if(intro)intro.after(root);else main.prepend(root);
+}
+function update(sample){if(!sample||typeof sample!=='object')return;latest=sample;let count=0,total=0;for(const cat of categories)for(const [key,,unit] of cat.fields){total++;const v=val(sample,key),el=document.querySelector('[data-setup-key="'+key+'"]');if(!el)continue;el.querySelector('strong').textContent=v===null?'—':v.toFixed(2);el.classList.toggle('available',v!==null);if(v!==null)count++}const health=$('vce-setup-health');if(health)health.textContent=count+' / '+total+' CANAUX DISPONIBLES'}
+function fromSession(){const s=window.vceSession;if(!s)return;const lapIndex=Number($('lap')?.value||0);const laps=(s.laps||[]).filter(l=>l&&(Number.isFinite(+l.time)||l.samples?.length>=2||Number.isInteger(l.number))).sort((a,b)=>(a.number??0)-(b.number??0));const sample=s.live?.sample||s.live?.telemetry||laps[lapIndex]?.samples?.at(-1);if(sample)update(sample)}
+function start(){mount();document.addEventListener('vce-live-frame',e=>{const d=e.detail||{},samples=d.samples||[];if(samples.length)update(samples.at(-1))});document.addEventListener('vce-cloud-update',fromSession);['lap','session'].forEach(id=>$(id)?.addEventListener('change',()=>setTimeout(fromSession,50)));setInterval(fromSession,2000);fromSession()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
