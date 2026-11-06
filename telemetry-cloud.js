@@ -115,7 +115,7 @@ function normalizeLap(item){
  const first=raw.length?numberOrNull(raw[0].t):null;
  const samples=raw.map(x=>normalizeSample(x,first));
  return {number:item.lap_number,time:numberOrNull(item.lap_time_ms)===null?null:Number(item.lap_time_ms)/1000,
-   valid:item.valid,samples,sectors:[],sampleCount:item.sample_count??samples.length};
+   valid:item.valid,samples,sectors:[],sampleCount:item.sample_count??samples.length,mapQuality:item.map_quality||null};
 }
 function normalizeSession(s,laps){
  const live=String(s.status)==='in_progress' && Date.now()-Date.parse(s.last_heartbeat_at||s.started_at)<60000;
