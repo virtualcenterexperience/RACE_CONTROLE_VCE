@@ -23,3 +23,13 @@
 .vce-cloud-actions button{background:#183955}
 .vce-cloud-login button:hover,.vce-cloud-actions button:hover{filter:brightness(1.15)}
 @media(max-width:680px){.vce-cloud-login{flex-direction:column;align-items:stretch}.vce-cloud-login input,.vce-cloud-login button{width:100%}}
+
+
+.vce-cloud-extra{background:#111f32;border:1px solid #294b6b;border-radius:12px;padding:16px 18px;margin:8px 0 20px}
+.vce-cloud-extra>strong{display:block;color:#a7d1f6;font-size:11px;letter-spacing:1px;margin-bottom:14px}
+.vce-cloud-extra-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.vce-cloud-extra-grid article{background:#0b1829;border:1px solid #2a4766;border-radius:8px;padding:12px;min-width:0}
+.vce-cloud-extra-grid small{display:block;color:#86a6c3;font-size:10px;margin-bottom:7px}
+.vce-cloud-extra-grid b{font-size:18px;word-break:break-word}
+@media(max-width:940px){.vce-cloud-extra-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:510px){.vce-cloud-extra-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
