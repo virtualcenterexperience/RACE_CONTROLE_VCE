@@ -381,7 +381,10 @@ async function refreshVceEvery10Seconds(){
  try{await render();}catch(e){console.warn('Actualisation VCE',e)}finally{__vceRefreshBusy=false}
 }
 window.setInterval(refreshVceEvery10Seconds,10000);
+let __vceRosterSignature='';let __vceRosterBusy=false;
 async function syncPilotRoster(){
+ if(__vceRosterBusy)return;
+ __vceRosterBusy=true;
  try{
   if(!window.VCESupabase?.configured())throw Error('Connexion Supabase non configurée');
   const remote=await VCESupabase.read('pilotes');
@@ -395,6 +398,9 @@ async function syncPilotRoster(){
    if(!res.ok)throw Error('Liste initiale des pilotes indisponible');
    rows=(await res.json()).filter(p=>p&&p.id&&p.name);
   }
+  const signature=JSON.stringify(rows.map(p=>[p.id,p.name]));
+  if(signature===__vceRosterSignature)return;
+  __vceRosterSignature=signature;
   window.VCE_PILOT_ROSTER=rows;
   allPilots.splice(0,allPilots.length,...rows.map(p=>({id:p.id,name:p.name})));
   VCE.names.splice(0,VCE.names.length,...rows.map(p=>p.name));
@@ -408,10 +414,11 @@ async function syncPilotRoster(){
   VCE.names.splice(0,VCE.names.length);
   showPilotList();routePilot();
   document.getElementById('pilotCount').textContent='Liste indisponible — contacte le STAFF';
- }
+ }finally{__vceRosterBusy=false}
 }
 setTimeout(syncPilotRoster,0);
 window.addEventListener('pageshow',()=>syncPilotRoster());
+setInterval(()=>{if(!document.hidden)syncPilotRoster()},15000);
 </script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261103-audit3"></script><script src="vce-pilot-sync.js?v=20261103-assignments"></script><script id="vce-app-shell-script-20261104">
 (function(){
  const dash=document.getElementById('pilotDashboard');if(!dash||dash.dataset.shellReady)return;dash.dataset.shellReady='1';dash.classList.add('vce-shell');
