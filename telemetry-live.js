@@ -78,9 +78,9 @@ function mainPlot(ts){
  for(let i=0;i<=5;i++){c.strokeStyle='#243b54';c.lineWidth=1;c.beginPath();c.moveTo(35,15+i*42);c.lineTo(w-20,15+i*42);c.stroke()}
  if(!last||!first)return;
  const channels=[
-  {key:'speed_kmh',label:'VITESSE',color:'#ff8c20',scale:300},
-  {key:'brake',label:'FREIN',color:'#4d9dff',scale:1},
-  {key:'throttle',label:'ACCÉLÉRATEUR',color:'#ff8c20',scale:1}
+  {key:'speed_kmh',label:'VITESSE',color:'#6366f1',scale:300},
+  {key:'brake',label:'FREIN',color:'#ef4444',scale:1},
+  {key:'throttle',label:'ACCÉLÉRATEUR',color:'#22c55e',scale:1}
  ];
  const xp=t=>35+Math.max(0,Math.min(1,(t-xmin)/15))*(w-55);
  for(const [j,item] of channels.entries()){
