@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id);
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
 let playing=false,progress=0,lastTick=0,rate=1,camera='chase',samples=[],reference=[],duration=0,ready=false,zoom=3;
 const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
-const getLaps=()=>{const s=window.vceSession;return(s?.laps||[]).filter(l=>l.valid!==false&&((finite(+l.time)&&+l.time>0)||(l.samples||[]).length>=10))};
+const getLaps=()=>{const s=window.vceSession;return(s?.laps||[]).filter(l=>l&&((Number.isFinite(+l.time)&&+l.time>0)||(l.samples||[]).length>=2||Number.isInteger(l.number))).slice().sort((a,b)=>(a.number??0)-(b.number??0))};
 function points(lap){
  return (lap?.samples||[]).filter(p=>p.x!==null&&p.y!==null&&p.x!==undefined&&p.y!==undefined&&p.x!==''&&p.y!==''&&finite(+p.x)&&finite(+p.y)).map((p,i)=>({
  x:+p.x,y:+p.y,z:finite(+p.z)&&p.z!==null?+p.z:0,
