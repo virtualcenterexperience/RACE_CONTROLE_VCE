@@ -60,7 +60,7 @@ document.addEventListener('vce-live-frame',event=>{
  for(const p of incoming){
   const x=numeric(p.world_x),z=numeric(p.world_z),t=numeric(p.t);
   if(x===null||z===null||t===null)continue;
-  if(liveFrames.length&&t<=liveFrames.at(-1).absolute)return;
+  if(liveFrames.length&&t<=liveFrames.at(-1).absolute)continue;
   liveFrames.push({x,z,height:0,absolute:t,t:0});
   if(liveFrames.length>2400)liveFrames.shift();
   liveLatest=t;
@@ -169,10 +169,13 @@ function animate(){
  const duration=Math.max(primaryData.at(-1)?.t||0,referenceData.at(-1)?.t||0,1);
  const time=modeLive&&liveFrames.length>=3?primaryData.at(-1).t:
  duration*(+($('vce-replay-slider')?.value||0)/1000);
- const p=locate(primaryData,time),next=locate(primaryData,Math.min(duration,time+.35));
+ const liveMode=modeLive&&liveFrames.length>=3;
+ const p=liveMode?liveFrames.at(-1):locate(primaryData,time);
+ const next=liveMode?(liveFrames.at(-2)||p):locate(primaryData,Math.min(duration,time+.35));
  const q=locate(referenceData,time);
  if(!p||!next)return;
- const yaw=Math.atan2(next.x-p.x,next.z-p.z),angle=Number.isFinite(yaw)?yaw:0;
+ const yaw=liveMode?Math.atan2(p.x-next.x,p.z-next.z):Math.atan2(next.x-p.x,next.z-p.z);
+ const angle=Number.isFinite(yaw)?yaw:0;
  primary.position.set(p.x-center.x,p.height,p.z-center.z);
  primary.rotation.y=angle;
  primary.visible=true;
