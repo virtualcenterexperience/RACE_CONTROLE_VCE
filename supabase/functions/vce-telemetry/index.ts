@@ -536,6 +536,23 @@ Deno.serve(async(req)=>{
    if(uid)query=query.eq("pilot_auth_user",uid);
    const rows=await query;requireOk(rows);return reply({sessions:rows.data});
  }
+ // Track quality is diagnostic only: never reconstruct a fake circuit on the server.
+ function mapQuality(samples:any[]){
+   let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity,usable=0;
+   for(const sample of samples||[]){
+     const x=n(sample?.world_x,-1000000000,1000000000);
+     const z=n(sample?.world_z,-1000000000,1000000000);
+     if(x===null||z===null)continue;
+     minX=Math.min(minX,x);maxX=Math.max(maxX,x);
+     minZ=Math.min(minZ,z);maxZ=Math.max(maxZ,z);usable++;
+   }
+   const spanX=usable?Math.round((maxX-minX)*100)/100:null;
+   const spanZ=usable?Math.round((maxZ-minZ)*100)/100:null;
+   const valid=usable>=8&&(spanX||0)>=3&&(spanZ||0)>=3;
+   return {valid,coordinates:usable,total:Array.isArray(samples)?samples.length:0,
+      span_x:spanX,span_z:spanZ,
+      reason:valid?"ok":usable<8?"missing_xy":(spanZ||0)<3?"flat_z":(spanX||0)<3?"flat_x":"incomplete"};
+ }
  if(action==="get_laps"){
    const u=await authUser(req),id=clean(b.session_id,50);
    if(!UUID.test(id))return reply({error:"Session invalide"},400);
@@ -549,7 +566,7 @@ Deno.serve(async(req)=>{
    if(Number.isInteger(older)&&older>1)query=query.lt("lap_number",older);
    const rows=await query.order("lap_number",{ascending:false}).limit(wanted);requireOk(rows);
    rows.data?.reverse();
-   return reply({laps:rows.data});
+   return reply({laps:(rows.data||[]).map((row:any)=>({...row,map_quality:mapQuality(row.samples)}))});
  }
  return reply({error:"Action inconnue"},404);
  }catch(e){return reply({error:e instanceof Error?e.message:String(e)},403)}
