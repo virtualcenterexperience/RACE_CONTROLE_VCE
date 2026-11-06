@@ -8,7 +8,8 @@ const defs=[
  ['brake','FREIN','%','#ef4567',['brake']],
  ['steering','VOLANT','','#dfba62',['steering','steer']],
  ['rpm','RÉGIME','tr/min','#f8645b',['rpm']],
- ['gear','RAPPORT','','#54aaff',['gear']],
+ ['gear','GEARS · RAPPORT','','#54aaff',['gear']],
+ ['delta','DELTA CHRONO','s','#fa607c',['delta']],
  ['fuel','CARBURANT','L','#e3d164',['fuel_l','fuel']],
  ['suspension_fl','SUSPENSION AVG','mm','#29beae',['suspension_fl']],
  ['suspension_fr','SUSPENSION AVD','mm','#59b6f3',['suspension_fr']],
@@ -27,7 +28,7 @@ const defs=[
  ['rear_downforce','APPUI ARRIÈRE','N','#e68eaa',['rear_downforce']]
 ];
 const val=(s,keys)=>{for(const k of keys)if(finite(s?.[k]))return s[k];return null};
-const state={lap:null,live:false,liveData:[],selected:new Set(['speed','throttle','brake','steering','rpm','gear']),cursor:1};
+const state={lap:null,live:false,liveData:[],selected:new Set(['throttle','brake','speed','gear','delta']),cursor:1};
 const canvas=(id,w,h)=>{let c=document.createElement('canvas');c.id=id;c.width=w;c.height=h;return c};
 const shell=()=>{
  const holder=document.createElement('section');holder.id='vce-engineering-v33';holder.className='panel';
@@ -69,10 +70,33 @@ const shell=()=>{
  '@media(max-width:870px){.vce-eng-layout,.vce-eng-upper{grid-template-columns:1fr}.vce-eng-side{max-height:230px}}';
  document.head.append(css)
 };
+function referenceLap(s,laps){
+ if($('reference')?.value==='external'&&window.VCEexternalReferenceLap?.baseId===s?.id)
+   return window.VCEexternalReferenceLap.lap;
+ return laps[Number($('reference')?.value)]||null;
+}
+function withDelta(primary,reference){
+ const points=(reference?.samples||[]).filter(p=>finite(p.distance)&&finite(p.t))
+   .map(p=>[p.distance,p.t]).sort((a,b)=>a[0]-b[0]);
+ if(points.length<4)return primary;
+ const at=d=>{
+   if(!finite(d)||d<points[0][0]||d>points.at(-1)[0])return null;
+   let lo=0,hi=points.length-1;
+   while(hi-lo>1){const mid=(lo+hi)>>1;if(points[mid][0]<d)lo=mid;else hi=mid}
+   const a=points[lo],b=points[hi],span=b[0]-a[0];
+   return span>.0000001?a[1]+(b[1]-a[1])*(d-a[0])/span:b[1];
+ };
+ return primary.map(p=>({...p,delta:finite(p.t)?(at(p.distance)===null?null:p.t-at(p.distance)):null}));
+}
 function source(){
- const s=window.vceSession, laps=(s?.laps||[]).filter(l=>Array.isArray(l.samples)&&l.samples.length>=2);
- if(!laps.includes(state.lap))state.lap=laps[Number($('lap')?.value)||0]||laps[0]||null;
- return {s,laps,data:state.live?state.liveData:(state.lap?.samples||[])}
+ const s=window.vceSession;
+ const laps=(s?.laps||[]).filter(l=>l&&(Number.isFinite(l.time)&&l.time>0||l.samples?.length>=2||Number.isInteger(l.number)))
+   .slice().sort((a,b)=>(a.number??0)-(b.number??0));
+ const index=Number($('lap')?.value||0);
+ state.lap=laps[index]||null;
+ const raw=state.live?state.liveData:(state.lap?.samples||[]);
+ const ref=referenceLap(s,laps);
+ return {s,laps,selected:state.lap,reference:ref,data:state.live?raw:withDelta(raw,ref)}
 }
 function paintMap(data){
  const canvas=$('vce-eng-map'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
@@ -112,7 +136,7 @@ function curve(canvas,def,data){
  const y=v=>h-13-(v-bounds[0])/Math.max(.00001,bounds[1]-bounds[0])*(h-45);
  ctx.strokeStyle='#344358';for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(60,28+k*30);ctx.lineTo(w-20,28+k*30);ctx.stroke()}
  ctx.strokeStyle=def[3];ctx.lineWidth=2;ctx.beginPath();let pen=false;
- data.forEach((s,i)=>{const v=val(s,def[4]);if(v===null){pen=false;return}if(!pen){ctx.moveTo(x(i),y(v));pen=true}else ctx.lineTo(x(i),y(v))});ctx.stroke();
+ data.forEach((s,i)=>{const v=val(s,def[4]);if(v===null){pen=false;return}if(!pen){ctx.moveTo(x(i),y(v));pen=true}else if(def[0]==='gear'){const previous=val(data[i-1],def[4]);if(previous!==null)ctx.lineTo(x(i),y(previous));ctx.lineTo(x(i),y(v))}else ctx.lineTo(x(i),y(v))});ctx.stroke();
  ctx.fillStyle='#a2b4ca';ctx.font='12px Segoe UI';ctx.fillText(bounds[1].toFixed(1)+(def[2]||''),w-90,19);
 }
 function display(){
@@ -120,7 +144,13 @@ function display(){
  for(const lap of laps){
   const b=document.createElement('button');b.type='button';b.className='vce-eng-lap'+(lap===state.lap?' active':'');
   b.textContent='TOUR '+lap.number+'  '+(finite(lap.time)?lap.time.toFixed(3)+' s':'—')+' · '+lap.samples.length+' pts';
-  b.onclick=()=>{state.lap=lap;display()};list.append(b)
+  b.onclick=()=>{
+   const index=laps.findIndex(x=>x.number===lap.number);
+   if(index<0||!$('lap'))return;
+   $('lap').value=String(index);
+   $('lap').dispatchEvent(new Event('change',{bubbles:true}));
+   display();
+  };list.append(b)
  }
  if(!laps.length)list.textContent='Aucun tour enregistré';
  $('vce-eng-status').textContent=state.live?'● DIRECT':s?.track||'EN ATTENTE';
@@ -153,9 +183,13 @@ function mount(){
  $('vce-eng-x').onchange=display;
  $('vce-eng-curves').addEventListener('pointermove',e=>{
   if(e.target.tagName!=='CANVAS')return;const box=e.target.getBoundingClientRect();
+  const now=performance.now();
+  if(now-(state.lastCursorAt||0)<70)return;
+  state.lastCursorAt=now;
   state.cursor=Math.max(0,Math.min(1,(e.clientX-box.left)/box.width));display()
  });
- document.addEventListener('vce-cloud-update',()=>{state.lap=null;display()});
+ document.addEventListener('vce-cloud-update',()=>{display()});
+ for(const id of ['session','lap','reference'])$(id)?.addEventListener('change',()=>display());
  document.addEventListener('vce-live-frame',e=>{
   if(!state.live)return;
   const p=e.detail;if(!p?.samples?.length)return;
