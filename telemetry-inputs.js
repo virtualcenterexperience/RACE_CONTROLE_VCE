@@ -4,10 +4,10 @@
 const $=id=>document.getElementById(id),finite=n=>typeof n==='number'&&Number.isFinite(n);
 let history=[],lastTime=-Infinity,sessionId='',lastSample=null,drawId=0,lastPacketAt=0,received=0;
 const fields=[
- ['throttle','ACCÉLÉRATEUR · INPUT PROGRESSIF','#ff911d',v=>v*100,'%','0–100 %'],
- ['brake','FREIN · INPUT PROGRESSIF','#4d9dff',v=>v*100,'%','0–100 %'],
+ ['throttle','ACCÉLÉRATEUR · INPUT PROGRESSIF','#22c55e',v=>v*100,'%','0–100 %'],
+ ['brake','FREIN · INPUT PROGRESSIF','#ef4444',v=>v*100,'%','0–100 %'],
  ['steering','VOLANT · STEER LEFT / RIGHT','#d9b0ff',v=>v,'','Braquage natif'],
- ['speed','VITESSE','#f6d269',v=>v,' km/h','Vitesse véhicule']
+ ['speed','VITESSE','#6366f1',v=>v,' km/h','Vitesse véhicule']
 ];
 function mount(){
  const anchor=$('vce-stream');
