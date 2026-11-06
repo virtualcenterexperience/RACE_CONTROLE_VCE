@@ -45,7 +45,14 @@ async function authorizedStaff(req:Request){
 async function authUser(req:Request,allowPasswordChange=false){
  const token=(req.headers.get("authorization")||"").replace(/^Bearer\s+/i,"");
  const x=await db.auth.getUser(token);if(x.error||!x.data.user)throw Error("Connexion pilote requise");
- if(!allowPasswordChange&&x.data.user.app_metadata?.vce_password_change_required===true)
+ const meta=x.data.user.app_metadata||{};
+ if(meta.vce_pilot_slug){
+  if(meta.vce_pilot_active===false)throw Error("Ce profil pilote a été désactivé par le STAFF.");
+  const roster=await readPilotRoster();
+  if(!roster.some((p:any)=>p.id===meta.vce_pilot_slug))
+   throw Error("Ce pilote ne figure plus dans l'équipe active.");
+ }
+ if(!allowPasswordChange&&meta.vce_password_change_required===true)
    throw Error("Modifie le mot de passe provisoire dans ton espace pilote.");
  return x.data.user;
 }
@@ -82,6 +89,50 @@ function temporaryPassword(){
  const alphabet="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
  const bytes=new Uint8Array(24);crypto.getRandomValues(bytes);
  return [...bytes].map(i=>alphabet[i%alphabet.length]).join("");
+}
+async function readPilotRoster(){
+ const r=await db.from("vce_publications").select("payload").eq("kind","pilotes").maybeSingle();
+ requireOk(r);
+ const raw=Array.isArray(r.data?.payload?.items)?r.data.payload.items:[];
+ return raw.filter((p:any)=>p&&typeof p.name==="string"&&typeof p.id==="string")
+  .map((p:any)=>({id:slug(p.id),name:clean(p.name,120)}))
+  .filter((p:any)=>/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.id)&&p.name.length>2);
+}
+async function writePilotRoster(items:{id:string,name:string}[]){
+ const r=await db.from("vce_publications").upsert({
+  kind:"pilotes",payload:{version:2,items,updatedAt:new Date().toISOString()},
+  updated_at:new Date().toISOString()
+ },{onConflict:"kind"});
+ requireOk(r);
+}
+async function provisionVcePilot(id:string){
+ const account=await pilotAccount(id),password=temporaryPassword();
+ let uid=account?.id||"";
+ if(account){
+  const r=await db.auth.admin.updateUserById(account.id,{
+   password,app_metadata:{...account.app_metadata,vce_pilot_slug:id,
+    vce_pilot_active:true,vce_password_change_required:true}
+  });
+  requireOk(r);
+ }else{
+  const r=await db.auth.admin.createUser({
+   email:pilotMail(id),password,email_confirm:true,
+   app_metadata:{vce_pilot_slug:id,vce_pilot_active:true,vce_password_change_required:true}
+  });
+  requireOk(r);
+  if(!r.data.user)throw Error("Impossible de créer le compte pilote");
+  uid=r.data.user.id;
+ }
+ await associatePilotRecord(id,uid);
+ return {pilot_slug:id,identifier:"virtualcenterexperience",temporary_password:password};
+}
+async function deactivateVcePilot(id:string){
+ const account=await pilotAccount(id);
+ if(!account)return;
+ const r=await db.auth.admin.updateUserById(account.id,{
+  app_metadata:{...account.app_metadata,vce_pilot_active:false}
+ });
+ requireOk(r);
 }
 async function associatePilotRecord(id:string,uid:string){
  const dev=await db.from("vce_agent_devices").update({pilot_auth_user:uid})
@@ -244,9 +295,49 @@ Deno.serve(async(req)=>{
   // Compatibility during rollout: legacy profiles stay usable until the STAFF provisions an account.
  if(action==="pilot_account_ready"){
    const id=slug(clean(b.pilot_slug,100));
-   if(!id||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))return reply({ready:false});
-   const account=await pilotAccount(id);
-   return reply({ready:!!account});
+   if(!id||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))return reply({ready:false,listed:false});
+   const roster=await readPilotRoster();
+   const listed=roster.some((p:any)=>p.id===id);
+   const account=listed?await pilotAccount(id):null;
+   return reply({listed,ready:listed&&!!account&&account.app_metadata?.vce_pilot_active!==false});
+ }
+ if(action==="staff_roster_list"){
+   await authorizedStaff(req);
+   return reply({items:await readPilotRoster()});
+ }
+ if(action==="staff_roster_add"){
+   await authorizedStaff(req);
+   const name=clean(b.pilot_name,120).replace(/\\s+/g," ").trim().toUpperCase();
+   if(name.length<3||name.length>100||name.split(" ").length<2||
+      !/^[\\p{L}\\p{M} '-]+$/u.test(name))
+     return reply({error:"Indique un prénom et un nom valides (100 caractères maximum)."},400);
+   const id=slug(name);
+   if(!id||id.length>100)return reply({error:"Identifiant pilote invalide"},400);
+   const roster=await readPilotRoster();
+   if(roster.some((p:any)=>p.id===id))
+     return reply({error:"Ce pilote existe déjà dans la liste."},409);
+   if(roster.length>=250)return reply({error:"Limite de 250 pilotes atteinte."},400);
+   const credentials=await provisionVcePilot(id);
+   try{await writePilotRoster([...roster,{id,name}]);}
+   catch(e){await deactivateVcePilot(id).catch(()=>{});throw e}
+   return reply({ok:true,items:[...roster,{id,name}],credentials});
+ }
+ if(action==="staff_roster_remove"){
+   await authorizedStaff(req);
+   const id=slug(clean(b.pilot_slug,100));
+   const roster=await readPilotRoster();
+   if(!roster.some((p:any)=>p.id===id))return reply({error:"Pilote absent de la liste."},404);
+   await deactivateVcePilot(id);
+   const next=roster.filter((p:any)=>p.id!==id);
+   try{await writePilotRoster(next);}
+   catch(e){
+    const account=await pilotAccount(id);
+    if(account)await db.auth.admin.updateUserById(account.id,{
+     app_metadata:{...account.app_metadata,vce_pilot_active:true}
+    }).catch(()=>{});
+    throw e;
+   }
+   return reply({ok:true,items:next,disabled:id,history_preserved:true});
  }
  if(action==="staff_pilot_accounts"){
    await authorizedStaff(req);
