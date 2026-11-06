@@ -52,7 +52,12 @@ async function refresh(){
  $('status').textContent='Interrogation de Supabase…';
  try{
  const [devices,sessions,rosterData]=await Promise.all([send('staff_list'),send('staff_sessions'),VCESupabase.read('pilotes')]);
- const choices=Array.isArray(rosterData.items)?rosterData.items:[];
+ let choices=Array.isArray(rosterData.items)?rosterData.items:null;
+ if(!choices){
+  const fallback=await fetch('data/vce/pilotes.json',{cache:'no-store'});
+  if(fallback.ok)choices=await fallback.json();
+ }
+ choices=Array.isArray(choices)?choices:[];
  const tbody=$('devices');tbody.replaceChildren();
  for(const d of devices.devices||[]){
  const tr=document.createElement('tr');
