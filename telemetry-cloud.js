@@ -278,7 +278,7 @@ async function exportSelectedSession(){
   const result={format:'vce-telemetry-session-v1',exported_at:new Date().toISOString(),
    session:{id:session.id,game:session.game,car:session.car,track:session.track,
     pilot_slug:session.pilot_slug,date:session.date,status:session.status,
-    total_laps:session.totalLaps},laps,truncated};
+    total_laps:session.totalLaps},laps:laps.map(normalizeLap),raw_laps:laps,truncated};
   const file=new Blob([JSON.stringify(result,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(file);
   const safe=String(session.track||'circuit').replace(/[^a-z0-9_-]/gi,'_').slice(0,48);
