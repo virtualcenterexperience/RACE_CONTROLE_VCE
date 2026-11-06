@@ -12,23 +12,29 @@ toolbar.innerHTML='<span class="vce-map-kicker">TRAJECTOIRES DU TOUR</span><butt
 map.parentNode.insertBefore(toolbar,map);
 let mode='both';
 function updateMode(m){mode=m;toolbar.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===m));map.dataset.mode=m;
- const lines=[...map.querySelectorAll('polyline')];lines.forEach(line=>{const c=(line.getAttribute('stroke')||'').toLowerCase();const ref=['#4d9dff','#3687dc'].includes(c);const pilot=['#ff911d','#f28b28'].includes(c);line.style.opacity=(m==='both'||(m==='pilot'&&!ref)||(m==='reference'&&!pilot))?'1':'.08'})}
+ const lines=[...map.querySelectorAll('path[stroke],polyline[stroke]')];lines.forEach(line=>{const c=(line.getAttribute('stroke')||'').toLowerCase();const ref=['#4d9dff','#3687dc'].includes(c);const pilot=['#ff911d','#f28b28'].includes(c);line.style.opacity=(m==='both'||(m==='pilot'&&!ref)||(m==='reference'&&!pilot))?'1':'.08'})}
 toolbar.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>updateMode(b.dataset.mode));
 // Zoom SVG réel : la carte reste nette et le zoom suit le pointeur.
-const base={x:0,y:0,w:900,h:530};let zoom=1,cx=450,cy=265;
+const base={x:0,y:0,w:900,h:500};let zoom=1,cx=450,cy=250;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function applyZoom(){const w=base.w/zoom,h=base.h/zoom;cx=clamp(cx,w/2,base.w-w/2);cy=clamp(cy,h/2,base.h-h/2);map.setAttribute('viewBox',[cx-w/2,cy-h/2,w,h].join(' '));$('vce-map-zoom-label').textContent=Math.round(zoom*100)+' %'}
 function changeZoom(factor,px=cx,py=cy){const old=zoom;zoom=clamp(zoom*factor,1,12);cx=px+(cx-px)*old/zoom;cy=py+(cy-py)*old/zoom;applyZoom()}
 $('vce-map-plus').onclick=()=>changeZoom(1.6);
 $('vce-map-minus').onclick=()=>changeZoom(1/1.6);
-$('vce-map-fit').onclick=()=>{zoom=1;cx=450;cy=265;applyZoom()};
+$('vce-map-fit').onclick=()=>{zoom=1;cx=450;cy=250;applyZoom()};
 map.addEventListener('wheel',e=>{e.preventDefault();const rect=map.getBoundingClientRect();const box=map.viewBox.baseVal;const px=box.x+(e.clientX-rect.left)/rect.width*box.width;const py=box.y+(e.clientY-rect.top)/rect.height*box.height;changeZoom(e.deltaY<0?1.3:1/1.3,px,py)},{passive:false});
 let drag=null;map.style.cursor='grab';
 map.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={x:e.clientX,y:e.clientY,cx,cy};map.setPointerCapture(e.pointerId);map.style.cursor='grabbing'});
 map.addEventListener('pointermove',e=>{if(!drag)return;const rect=map.getBoundingClientRect();cx=drag.cx-(e.clientX-drag.x)*base.w/(rect.width*zoom);cy=drag.cy-(e.clientY-drag.y)*base.h/(rect.height*zoom);applyZoom()});
 const stop=()=>{drag=null;map.style.cursor='grab'};map.addEventListener('pointerup',stop);map.addEventListener('pointercancel',stop);
 applyZoom();
-new MutationObserver(()=>updateMode(mode)).observe(map,{childList:true});
+// The shared map redraws its path elements and resets viewBox every time the tour changes.
+ // Restore both zoom and visibility without observing attributes (avoids recursive loops).
+ let redrawQueued=false;
+ new MutationObserver(()=>{
+  if(redrawQueued)return;redrawQueued=true;
+  requestAnimationFrame(()=>{redrawQueued=false;updateMode(mode);applyZoom()});
+ }).observe(map,{childList:true});
 const header=document.createElement('div');header.className='vce-input-head';header.innerHTML='<strong>INPUTS & VITESSE · TOUR SÉLECTIONNÉ</strong><span>Courbes issues des échantillons du jeu</span>';
 curvePanel.insertBefore(header,curvePanel.querySelector('.channels'));
 const overview=document.createElement('div');overview.className='vce-tour-summary';
