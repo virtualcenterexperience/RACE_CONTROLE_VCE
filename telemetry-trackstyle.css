@@ -107,3 +107,26 @@ header em,h1 span,.vce-hud-banner h2 span{color:#f32d56}
 #vce-replay-canvas{background:#09182c;border-color:#29476c}
 #vce-cloud-status[data-kind=error]{color:#ff7894!important}
 #vce-cloud-status[data-kind=ok]{color:#66caff!important}
+
+
+/* Tour Studio — blue/red VCE */
+.vce-tour-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin:18px 0 13px}
+.vce-tour-summary>div{background:#101d32;border:1px solid #29496e;border-top:3px solid #2e9cff;border-radius:8px;padding:14px;min-width:0}
+.vce-tour-summary>div:nth-child(3),.vce-tour-summary>div:nth-child(5){border-top-color:#f32d56}
+.vce-tour-summary small{display:block;color:#94b6dd;font-size:10px;font-weight:800;letter-spacing:.8px;margin-bottom:9px}
+.vce-tour-summary b{font-size:clamp(16px,1.7vw,25px);color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vce-tour-summary>div:nth-child(3) b{color:#f86a88}
+.vce-tour-studio{grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);align-items:stretch}
+.vce-track-panel{border-top-color:#2e9cff!important}
+.vce-track-panel #map{width:100%;height:auto;min-height:440px;max-height:620px;background:radial-gradient(ellipse at center,#102440,#081426);border:1px solid #355a83}
+.vce-map-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.vce-map-kicker{color:#80bbff;font-weight:900;font-size:11px;letter-spacing:1px;margin-right:auto}
+.vce-map-tools button{border:1px solid #315782;background:#142a46;color:#b9d9ff;padding:9px 12px;border-radius:6px;font-weight:700;cursor:pointer}
+.vce-map-tools button.selected{background:#236fbb;border-color:#2e9cff;color:white}
+.vce-input-panel{border-top-color:#f32d56!important}
+.vce-input-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0;color:#d7e8ff;font-size:12px}
+.vce-input-head span{color:#86a8ce}
+#tt-curves .channels button.active{background:#236fbb;border-color:#2e9cff}
+#tt-curves #plots canvas{height:330px;background:#081426}
+@media(max-width:1250px){.vce-tour-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){.vce-tour-studio{grid-template-columns:1fr}.vce-tour-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.vce-track-panel #map{min-height:280px}}
