@@ -1,0 +1,39 @@
+/* VCE STAFF — self-contained roster tab. No change to public pilot styles. */
+#dashboard #rcPilotManage[hidden]{display:none!important}
+#dashboard.rc-pilot-tab .rc-content > :not(#rcPilotManage){display:none!important}
+#dashboard.rc-pilot-tab #rcPilotManage{display:block!important}
+#dashboard .rc-navlink.vce-roster-nav{border-left:3px solid #51b5f6}
+#dashboard .rc-navlink.vce-roster-nav.selected{background:#203e56;border-color:#66c5ff;color:#fff}
+#rcPilotManage{max-width:1250px;margin:0 auto;padding:10px 0 40px;color:#ecf4ff}
+#rcPilotManage .vce-roster-title{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid #34475c}
+#rcPilotManage .vce-roster-title h2{font-size:clamp(24px,2.8vw,36px);margin:7px 0 4px;letter-spacing:.02em}
+#rcPilotManage .vce-roster-title small{font-size:11px;color:#8cb7d8;font-weight:800;letter-spacing:.1em}
+#rcPilotManage .vce-roster-title p{margin:6px 0;color:#aec5dc}
+#rcPilotManage .vce-roster-columns{display:grid;grid-template-columns:minmax(290px,.8fr) minmax(350px,1.2fr);gap:18px;margin-top:18px;align-items:start}
+#rcPilotManage .vce-roster-box{border:1px solid #344b65;border-radius:10px;padding:22px;background:#111d2e;min-width:0}
+#rcPilotManage h3{margin:0 0 12px;font-size:18px;color:#f3f9ff}
+#rcPilotManage label{display:block;color:#adc6df;font-size:12px;font-weight:800;margin:8px 0}
+#rcPilotManage input{display:block;width:100%;max-width:none;padding:12px 13px;background:#091525;border:1px solid #425c76;color:#fff;border-radius:7px}
+#rcPilotManage input:focus{outline:2px solid #64baff;outline-offset:1px}
+#rcPilotManage button{border:1px solid #45708c;border-radius:7px;padding:9px 12px;color:#fff;background:#255777;font-size:12px;font-weight:850;margin:0}
+#rcPilotManage button:hover:not(:disabled){filter:brightness(1.18)}
+#rcPilotManage button:disabled{opacity:.45;cursor:not-allowed}
+#rcPilotManage .vce-roster-create{background:#bf3052;border-color:#e75a72;font-size:13px;padding:12px 16px;margin-top:12px}
+#rcPilotManage .vce-roster-danger{background:#582638;border-color:#a75c72}
+#rcPilotManage .vce-roster-restore{background:#1f735a;border-color:#43b893}
+#rcPilotManage .vce-roster-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#rcPilotManage .vce-roster-status{margin:14px 0 0;border-left:3px solid #6badde;padding:11px 12px;background:#0c1a2a;color:#c4d9ee;min-height:39px;line-height:1.5;overflow-wrap:anywhere}
+#rcPilotManage .vce-roster-status[data-error="true"]{border-color:#fa7186;color:#ffc4cc}
+#rcPilotManage .vce-roster-credentials{padding:15px;background:#10322f;border:1px solid #419888;border-radius:8px;margin:15px 0}
+#rcPilotManage .vce-roster-credentials pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.7}
+#rcPilotManage .vce-roster-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #2b425b;padding:12px 2px}
+#rcPilotManage .vce-roster-row:last-child{border-bottom:0}
+#rcPilotManage .vce-roster-identity{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+#rcPilotManage .vce-roster-avatar{display:grid;place-items:center;background:#234965;color:#d8efff;border:1px solid #4879a2;border-radius:50%;width:37px;height:37px;font-size:15px;font-weight:900;flex:none}
+#rcPilotManage .vce-roster-identity strong{font-size:13px;display:block;overflow-wrap:anywhere}
+#rcPilotManage .vce-roster-identity small{color:#9ab6d1;display:block;margin-top:3px;font-size:11px}
+#rcPilotManage .vce-roster-toplinks{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+#rcPilotManage .vce-roster-toplinks a{display:inline-flex;padding:9px 12px;border:1px solid #3f5b73;color:#cbe8ff;background:#152a40;border-radius:7px;text-decoration:none;font-weight:750;font-size:12px}
+#rcPilotManage .vce-roster-count{color:#86d9ff;font-weight:900;font-size:13px}
+@media(max-width:1050px){#rcPilotManage .vce-roster-columns{grid-template-columns:1fr}}
+@media(max-width:640px){#rcPilotManage .vce-roster-box{padding:15px}#rcPilotManage .vce-roster-row{align-items:flex-start;flex-direction:column}#rcPilotManage .vce-roster-actions{padding-left:47px}}
