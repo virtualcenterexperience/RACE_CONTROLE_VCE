@@ -11,8 +11,8 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 if($('vce-hud-throttle')){
-const f=(v,digits=0)=>Number.isFinite(Number(v))?Number(v).toFixed(digits):'—';
-const set=(key,val,pct=false)=>{const e=$('vce-hud-'+key);if(!e)return;e.textContent=f(val)+(pct&&Number.isFinite(Number(val))?'%':'');const bar=$('vce-hud-'+key+'-bar');if(bar)bar.style.width=Math.max(0,Math.min(100,Number(val)||0))+'%'};
+const available=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));const f=(v,digits=0)=>available(v)?Number(v).toFixed(digits):'—';
+const set=(key,val,pct=false)=>{const e=$('vce-hud-'+key);if(!e)return;e.textContent=f(val)+(pct&&available(val)?'%':'');const bar=$('vce-hud-'+key+'-bar');if(bar)bar.style.width=Math.max(0,Math.min(100,Number(val)||0))+'%'};
 let lastKey='',lastHistory='';
 setInterval(()=>{const s=window.vceSession,l=window.vceSession&&(s.laps||[]).find(x=>x===window.vceCurrentLap)||null;
 const selected=$('lap')?.value;const valid=(s?.laps||[]).filter(x=>Number.isFinite(+x.time)&&+x.time>0&&x.valid!==false);const lap=valid[Number(selected)]||null;
