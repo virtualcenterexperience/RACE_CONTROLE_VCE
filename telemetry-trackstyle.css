@@ -181,3 +181,8 @@ html[data-telemetry-view=setup] .vce-mechanical .head h2{color:#8ac9ff!important
 html[data-telemetry-view=setup] .vce-mechanical-grid article{background:#0b182b;border-color:#284364}
 html[data-telemetry-view=setup] #vce-mechanical-plot{background:#09182c;border-color:#284364}
 html[data-telemetry-view=setup] .vce-contact{background:#0b182b;border-color:#284364}
+
+/* Unified pilot login: the telemetry views never request credentials a second time. */
+.vce-cloud-pilot-link{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;margin:12px 0;background:#204b78;border:1px solid #4784b9;border-radius:6px;color:#f5f9ff!important;font-size:12px;font-weight:800;text-decoration:none}
+.vce-cloud-pilot-link[hidden]{display:none!important}
+.vce-cloud-pilot-link:hover{background:#2d699f}
