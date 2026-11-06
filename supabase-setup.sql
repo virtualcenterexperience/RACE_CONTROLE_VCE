@@ -3,7 +3,7 @@ create table if not exists public.vce_staff_users (
  user_id uuid primary key references auth.users(id) on delete cascade
 );
 create table if not exists public.vce_publications (
- kind text primary key check (kind in ('calendrier','lineup','resultats')),
+ kind text primary key check (kind in ('calendrier','lineup','resultats','pilotes','overlays','training_assignments')),
  payload jsonb not null default '{}'::jsonb,
  updated_at timestamptz not null default now()
 );
