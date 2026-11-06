@@ -140,7 +140,7 @@ async function refreshData(forced=false){
      // Only fetch detailed samples for the most recent 4 sessions to avoid
      // transferring the full telemetry archive on every poll.
      if(i>3)return normalizeSession(s,[]);
-     try{const data=await api('get_laps',{session_id:s.session_id,lap_limit:5});
+     try{const data=await api('get_laps',{session_id:s.session_id,lap_limit:100});
        return normalizeSession(s,Array.isArray(data.laps)?data.laps:[])}
      catch(err){if(i===0)banner('Sessions reçues, mais tours indisponibles : '+err.message,'warn');return normalizeSession(s,[])}
    }));
@@ -190,7 +190,7 @@ async function loadSelectedSession(){
  if(!target||target.laps?.length||!target.totalLaps)return;
  try{
   banner('Chargement des tours de '+(target.track||'la session')+'…');
-  const rows=await api('get_laps',{session_id:target.id,lap_limit:8});
+  const rows=await api('get_laps',{session_id:target.id,lap_limit:100});
   target.laps=(rows.laps||[]).map(normalizeLap);
   window.VCEloadTelemetry?.({sessions},{source:'cloud'});
   document.dispatchEvent(new Event('vce-cloud-update'));
@@ -205,7 +205,7 @@ async function fetchOlderLaps(){
  if(!Number.isFinite(oldest)||oldest<=1){banner('Tous les tours disponibles sont déjà chargés','warn');return}
  const button=$('vce-load-more-laps');if(button)button.disabled=true;
  try{
-  const rows=await api('get_laps',{session_id:target.id,lap_limit:8,before_lap:oldest});
+  const rows=await api('get_laps',{session_id:target.id,lap_limit:100,before_lap:oldest});
   if(!(rows.laps||[]).length){banner('Aucun tour plus ancien à charger','warn');return}
   const existing=new Map((target.laps||[]).map(l=>[l.number,l]));
   for(const lap of rows.laps)existing.set(lap.lap_number,normalizeLap(lap));
