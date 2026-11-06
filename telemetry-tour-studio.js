@@ -41,8 +41,8 @@ const stats=()=>{
  const max=k=>{const vals=samples.map(p=>p[k]).filter(v=>typeof v==='number'&&Number.isFinite(v));return vals.length?Math.max(...vals):null};
  const speed=max('speed'),brake=max('brake'),throttle=max('throttle');
  $('vce-tour-summary-speed').textContent=speed===null?'—':fmt(speed)+' km/h';
- $('vce-tour-summary-brake').textContent=brake===null?'—':fmt(brake)+' %';
- $('vce-tour-summary-throttle').textContent=throttle===null?'—':fmt(throttle)+' %';
+ $('vce-tour-summary-brake').textContent=brake===null?'—':fmt(brake*100)+' %';
+ $('vce-tour-summary-throttle').textContent=throttle===null?'—':fmt(throttle*100)+' %';
 };
 ['session','lap','reference'].forEach(id=>$(id)?.addEventListener('change',()=>setTimeout(stats,50)));
 document.addEventListener('vce-cloud-update',()=>setTimeout(stats,50));
