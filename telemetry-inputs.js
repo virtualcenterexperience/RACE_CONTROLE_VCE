@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id),finite=n=>typeof n==='number'&&Number.isFinite(n);
-let history=[],lastTime=0,sessionId='',lastSample=null,drawId=0;
+let history=[],lastTime=-Infinity,sessionId='',lastSample=null,drawId=0,lastPacketAt=0,received=0;
 const fields=[
  ['throttle','ACCÉLÉRATEUR · INPUT PROGRESSIF','#ff911d',v=>v*100,'%','0–100 %'],
  ['brake','FREIN · INPUT PROGRESSIF','#4d9dff',v=>v*100,'%','0–100 %'],
@@ -29,13 +29,17 @@ function update(){
  const state=window.VCEInputFeed;
  if(!state?.samples?.length)return;
  const id=state.sessionId||'unknown';
- if(id!==sessionId){sessionId=id;history=[];lastTime=0}
+ if(id!==sessionId){sessionId=id;history=[];lastTime=-Infinity;lastSample=null;received=0}
  for(const raw of state.samples){
-  if(!finite(raw.t)||raw.t<=lastTime)continue;
-  const sample=normalize(raw);history.push(sample);lastTime=raw.t;lastSample=sample;
+  if(!finite(raw.t))continue;
+  if(raw.t<lastTime-1){history=[];lastTime=-Infinity} // Game clock reset: new run / lap
+  if(raw.t<=lastTime)continue;
+  const sample=normalize(raw);history.push(sample);lastTime=raw.t;lastSample=sample;received++;
  }
  if(history.length>1200)history.splice(0,history.length-1200);
- $('vce-input-status').textContent='● '+history.length+' MESURES · DERNIER LOT REÇU';
+ lastPacketAt=Date.now();
+ $('vce-input-status').textContent='● '+history.length+' MESURES EN MÉMOIRE · '+received+' REÇUES';
+ $('vce-input-diagnostic').textContent='Fenêtre de 15 secondes · '+history.length+' points disponibles. Les courbes ne peuvent se compléter que si de nouveaux échantillons arrivent depuis le jeu.';
  if(lastSample){
   for(const [key,label,color,convert,unit] of fields){
    const item=document.querySelector('.vce-input-values [data-key="'+key+'"]');
@@ -54,7 +58,10 @@ function draw(){
   const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
   c.clearRect(0,0,w,h);c.fillStyle='#17191c';c.fillRect(0,0,w,h);
   const max=history.at(-1).t,min=max-15;
-  const plotX=t=>70+Math.max(0,Math.min(1,(t-min)/15))*(w-95);
+  const first=history[0].t,span=max-first;
+  const liveRange=span>=15?15:Math.max(0.5,span);
+  const left=span>=15?max-15:first;
+  const plotX=t=>70+Math.max(0,Math.min(1,(t-left)/liveRange))*(w-95);
   const rowHeight=116;
   fields.forEach(([key,label,color,convert,unit],i)=>{
    const top=16+i*132,bottom=top+rowHeight;
@@ -64,17 +71,18 @@ function draw(){
    c.fillStyle=color;c.font='bold 18px Segoe UI';c.fillText(label,70,top+24);
    c.strokeStyle=color;c.lineWidth=3;c.beginPath();let started=false;
    const scale=key==='speed'?350:key==='steering'?200:100;
-   for(const s of history){if(s.t<min)continue;const value=s[key];if(!finite(value)){started=false;continue}
+   for(const s of history){if(s.t<left)continue;const value=s[key];if(!finite(value)){started=false;continue}
     const normalized=key==='steering'?(value+100):convert(value);
     const y=bottom-8-Math.max(0,Math.min(1,normalized/scale))*(rowHeight-45);
     if(!started){c.moveTo(plotX(s.t),y);started=true}else c.lineTo(plotX(s.t),y);
    }c.stroke();
+   c.fillStyle='#95abc8';c.font='12px Segoe UI';c.fillText('Données reçues : '+history.length+' · '+span.toFixed(2)+' s',w-275,top+22);
   });
  }
  drawId=requestAnimationFrame(draw);
 }
 function onFrame(e){
- const p=e.detail;if(!p?.samples)return;
+ const p=e.detail;if(!p?.samples?.length)return;
  window.VCEInputFeed={sessionId:p.session_id,samples:p.samples};
  update();
 }
