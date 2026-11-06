@@ -1,0 +1,91 @@
+{
+  "version": "vce-lmu-2026-11-r1",
+  "game": "Le Mans Ultimate",
+  "source": {
+    "title": "Ohne Speed's - LMU laptimes spreadsheet",
+    "public_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTN03UvJDm99byA6vQPZHKOCYVvfxLu1zkJAzdaKyROykzEKY2-Xl1rl1q5znZEf36m88dxMKsY2eaO/pubhtml",
+    "import_status": "onglets identifiés depuis le HTML transmis ; valeurs de chrono non incluses",
+    "reference_times": []
+  },
+  "categories": [
+    "LMGT3",
+    "LMH",
+    "LMP3",
+    "GTE"
+  ],
+  "circuits": [
+    "Bahrain (wec)",
+    "Bahrain (endurance)",
+    "Bahrain (outer)",
+    "Bahrain (paddock)",
+    "Barcelona",
+    "Circuit de la Sarthe",
+    "Circuit de la Sarthe (straight)",
+    "COTA",
+    "COTA (national)",
+    "Daytona",
+    "Fuji (chicane)",
+    "Fuji (classic)",
+    "Imola",
+    "Interlagos",
+    "Laguna Seca",
+    "Long Beach",
+    "Monza",
+    "Monza (curvagrande)",
+    "Paul Ricard",
+    "Paul Ricard (1A)",
+    "Paul Ricard (1A v2)",
+    "Paul Ricard (1A v2 short)",
+    "Paul Ricard (3A)",
+    "Portimao",
+    "Qatar",
+    "Qatar (short)",
+    "Road Atlanta",
+    "Sebring",
+    "Sebring (school)",
+    "Silverstone (GP)",
+    "Silverstone (National)",
+    "Silverstone (International)",
+    "Spa"
+  ],
+  "policy": {
+    "internal_refusal_percent": 105,
+    "regulatory_marker_percent": 107,
+    "thresholds": [
+      {
+        "max_percent": 101,
+        "category": "ESPORT",
+        "decision": "ACCEPTED_AUTO",
+        "label": "COMPETITIVE · accepté d'office · niveau ESPORT"
+      },
+      {
+        "max_percent": 102,
+        "category": "PERFORMANCE",
+        "decision": "ACCEPTED_AUTO",
+        "label": "Accepté d'office · décision Performance"
+      },
+      {
+        "max_percent": 103,
+        "category": "PERFORMANCE",
+        "decision": "REVIEW",
+        "label": "Performance · décision STAFF"
+      },
+      {
+        "max_percent": 104.999999,
+        "category": "ROOKIE",
+        "decision": "REVIEW",
+        "label": "Rookie · décision STAFF"
+      },
+      {
+        "min_percent": 105,
+        "category": "REFUSED",
+        "decision": "REFUSED",
+        "label": "Refusé"
+      }
+    ],
+    "points_grid_status": "NON_FOURNIE",
+    "award_training_xp": false,
+    "award_race_rating": false,
+    "auto_assign_team": false
+  }
+}
