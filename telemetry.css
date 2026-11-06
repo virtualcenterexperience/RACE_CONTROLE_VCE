@@ -69,3 +69,29 @@
 .vce-recap-scrub-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
 @media(max-width:900px){.vce-recap-scrub-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:550px){.vce-recap-metrics,.vce-recap-scrub-values{grid-template-columns:1fr 1fr}}
+
+
+/* VCE RACING LAB · palette TrackTitan-style orange / blue */
+:root{--tt-orange:#ff8b16;--tt-blue:#4d9dff;--tt-dark:#17191c;--tt-panel:#202225;--tt-line:#3c4045;--tt-muted:#b5b8bd}
+body{background:#17191c!important;color:#f4f4f5}
+header,.tt-nav{background:#1b1d20!important;border-color:#36383c!important}
+.panel,.vce-cloud-connect,.kpis article,.vce-recap,.vce-stream{background:#212326!important;border:1px solid #3b3e43!important;border-radius:7px!important;box-shadow:none!important}
+.vce-hud-banner{background:#202225!important;border-color:#ff8b16!important}
+h1 span,.eyebrow,.tt-brand span,.vce-stream .head h2,.vce-recap h2{color:var(--tt-orange)!important}
+.vce-cloud-top strong,.head h2{color:#f1f2f3}
+.vce-cloud-state,.vce-live-value small,.vce-recap-metric small{color:#aeb3bc}
+.vce-live-value,.vce-recap-metric,.vce-recap-scrub-stat,.vce-cloud-extra-grid article{background:#191b1e!important;border-color:#3b4046!important}
+.vce-live-value strong,.vce-recap-metric strong{color:#f4f4f5!important}
+.vce-stream{border-top:3px solid var(--tt-orange)!important}
+#vce-stream-plot,#vce-stream-track{background:#191b1e!important;border:1px solid #33373c}
+#vce-stream-state[data-ok=yes]{border-color:#ff8b16!important;color:#ff8b16!important}
+.vce-other-driver select,.toolbar select,.toolbar input{background:#191b1e!important;border:1px solid #454a50!important;color:#fff!important}
+.vce-other-driver button,.vce-cloud-actions button,.vce-recap-table button{background:#f08b17!important;color:#16181b!important;border:1px solid #f08b17!important;font-weight:800}
+.vce-other-driver button:hover,.vce-cloud-actions button:hover{background:#ffab44!important}
+.vce-recap-table th{color:#ff9b30!important}
+.vce-recap-table th,.vce-recap-table td{border-bottom:1px solid #41444a!important}
+#vce-recap-slider{accent-color:#ff8b16!important}
+.vce-hud-meters article{background:#202225!important;border-color:#3c4045!important}
+.vce-hud-track{background:#393c41!important}
+#vce-hud-throttle-bar{background:#ff8b16!important}
+#vce-hud-brake-bar{background:#4d9dff!important}
