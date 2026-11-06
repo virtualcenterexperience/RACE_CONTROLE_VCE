@@ -170,12 +170,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v3.0.0"
+          $tag = "v3.1.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "VCE 2.3.0 : detection AC ACC LMU RaceRoom et AC EVO, capture AC/ACC lecture seule, import LMU, et correctif de lancement des mises à jour Windows. RaceRoom live non encore integre. Installation sans droits administrateur permanents; association STAFF et consentement necessaires aux transferts."
+          $notes = "VCE 3.1.0 : detection AC, ACC, LMU et AC EVO. Capture native AC/ACC; LMU import de donnees selon compatibilite; AC EVO detection uniquement tant que son adaptateur natif nest pas valide. Transfert soumis au consentement et a lapprobation STAFF."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.0.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.1.0 - Installateur Windows" --notes $notes
           }
