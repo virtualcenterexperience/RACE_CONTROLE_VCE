@@ -15,7 +15,8 @@ const channels={
  gear:{label:'GEARS',unit:'',names:['gear'],color:'#5db7ff',stepped:true},
  delta:{label:'DELTA CHRONO',unit:'s',names:['delta'],color:'#ffb36f',symmetric:true},
  steering:{label:'VOLANT',unit:'',names:['steering','steer'],color:'#e5bf68',symmetric:true},
- rpm:{label:'RÉGIME MOTEUR',unit:'tr/min',names:['rpm'],color:'#f65d60',floor:0}
+ rpm:{label:'RÉGIME MOTEUR',unit:'tr/min',names:['rpm'],color:'#f65d60',floor:0},
+ slip:{label:'GLISSE / SLIP',unit:'',names:['slip'],color:'#db9cff',symmetric:true}
 };
 function bounds(kind,main,ref){
  const d=channels[kind]||channels.speed;
