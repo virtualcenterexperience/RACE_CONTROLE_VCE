@@ -109,7 +109,6 @@ function display(){
    if(index<0||!$('lap'))return;
    $('lap').value=String(index);
    $('lap').dispatchEvent(new Event('change',{bubbles:true}));
-   display();
   };list.append(b)
  }
  if(!laps.length)list.textContent='Aucun tour enregistré';
@@ -130,6 +129,27 @@ function display(){
   const c=canvas('vce-eng-'+d[0],1200,155);wrapper.append(c);charts.append(wrapper);curve(c,d,data,reference?.samples||[])
  }
 }
+/* Cursor updates repaint existing canvases only.
+   Do not rebuild the entire list, charts and canvas DOM on every pointer movement. */
+function cursorOnly(){
+ const {data,reference}=source();
+ const ref=reference?.samples||[];
+ paintMap(data,ref);
+ const index=data.length?Math.max(0,Math.min(data.length-1,Math.round(state.cursor*(data.length-1)))):-1;
+ const point=index>=0?data[index]:null;
+ const names=defs.filter(d=>state.selected.has(d[0])).slice(0,12);
+ const values=$('vce-eng-values')?.querySelectorAll('article b')||[];
+ names.forEach((d,i)=>{
+  const value=val(point,d[4]);
+  if(!values[i])return;
+  values[i].textContent=value===null?'—':
+   (d[0]==='throttle'||d[0]==='brake'?(value*100).toFixed(0):value.toFixed(d[0]==='gear'?0:1))+(d[2]||'');
+ });
+ for(const cv of $('vce-eng-curves')?.querySelectorAll('canvas')||[]){
+  const d=defs.find(item=>'vce-eng-'+item[0]===cv.id);
+  if(d)curve(cv,d,data,ref)
+ }
+}
 function mount(){
  shell();const checks=$('vce-eng-checks');
  for(const d of defs){
@@ -146,7 +166,8 @@ function mount(){
   const now=performance.now();
   if(now-(state.lastCursorAt||0)<70)return;
   state.lastCursorAt=now;
-  state.cursor=Math.max(0,Math.min(1,(e.clientX-box.left)/box.width));display()
+  const px=(e.clientX-box.left)*1200/Math.max(1,box.width);
+  state.cursor=Math.max(0,Math.min(1,(px-78)/(1200-78-22)));cursorOnly()
  });
  document.addEventListener('vce-cloud-update',()=>{display()});
  for(const id of ['session','lap','reference'])$(id)?.addEventListener('change',()=>display());
@@ -154,8 +175,9 @@ function mount(){
   if(!state.live)return;
   const p=e.detail;if(!p?.samples?.length)return;
   state.liveData.push(...p.samples.map(x=>({...x,speed:x.speed_kmh,steering:x.steer,x:x.world_x,y:x.world_z,distance:x.lap_pos})));
-  if(state.liveData.length>1000)state.liveData.splice(0,state.liveData.length-1000);
-  display()
+  if(state.liveData.length>2400)state.liveData.splice(0,state.liveData.length-2400);
+  const now=performance.now();
+  if(!state.lastLiveRender||now-state.lastLiveRender>=110){state.lastLiveRender=now;display()}
  });
  display()
 }
