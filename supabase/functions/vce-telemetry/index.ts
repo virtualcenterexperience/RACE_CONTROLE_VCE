@@ -187,7 +187,7 @@ Deno.serve(async(req)=>{
    const d=await device(b);
    if(d.status!=="approved"||!d.pilot_slug)return reply({error:"PC non approuvé"},403);
    const source=b.session||{};
-   if(!UUID.test(source.session_id||"")||!["AC","ACC"].includes(source.game)||
+   if(!UUID.test(source.session_id||"")||!["AC","ACC","LMU","ACEVO"].includes(source.game)||
       !Array.isArray(source.samples)||source.samples.length<1||source.samples.length>12)
       return reply({error:"Lot live invalide"},400);
    const points=source.samples.map((x:any)=>({
