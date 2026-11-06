@@ -44,6 +44,7 @@ const updateSession=async()=>{
  .on('broadcast',{event:'frame'},message=>{
     const p=message.payload||{};if(p.device_id!==state.device)return;
     state.lastFrame=Date.now();state.session=p.session_id;state.live=p;
+    document.dispatchEvent(new CustomEvent('vce-live-frame',{detail:p}));
     const samples=(p.samples||[]).filter(x=>num(x.t)).slice(-12);
     for(const s of samples){
       if(!state.buffer.length||s.t>state.buffer.at(-1).t){
