@@ -241,7 +241,14 @@ Deno.serve(async(req)=>{
    requireOk(laps);
    return reply({pilot_slug:other.data.pilot_slug,session_id:targetId,laps:laps.data||[]});
  }
-  if(action==="staff_pilot_accounts"){
+  // Compatibility during rollout: legacy profiles stay usable until the STAFF provisions an account.
+ if(action==="pilot_account_ready"){
+   const id=slug(clean(b.pilot_slug,100));
+   if(!id||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))return reply({ready:false});
+   const account=await pilotAccount(id);
+   return reply({ready:!!account});
+ }
+ if(action==="staff_pilot_accounts"){
    await authorizedStaff(req);
    const users=await pilotAccounts();
    return reply({accounts:users.map((u:any)=>({
