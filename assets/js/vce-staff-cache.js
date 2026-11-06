@@ -19,6 +19,7 @@ async function api(action,other={}){
 function setBusy(on){
  busy=on;
  for(const id of ['btnRefresh','btnArchive','btnReset'])$(id).disabled=on
+ $('archives').querySelectorAll('button').forEach(button=>button.disabled=on)
 }
 function display(archives){
  const body=$('archives');body.replaceChildren();
