@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Évaluation Coach IRL — VCE Race Control</title>
+<link rel="stylesheet" href="assets/css/vce-coach-irl-evaluation.css?v=1"></head>
+<body><main class="shell">
+<nav class="brandrow"><span class="brand">VCE <em>ESPORT</em> · COACH IRL</span><div><a href="coach-irl.html">← Coach IRL</a> &nbsp; <a href="entrainement.html">Entraînements</a> &nbsp; <a href="staff.html">STAFF</a></div></nav>
+<p class="eyebrow">PÔLE PERFORMANCE · PROTOCOLE OFFICIEL</p><h1>Évaluation et réévaluation des pilotes</h1>
+<div class="intro"><strong>Cinq tests · 3 h 30 à 4 h indicatives</strong><p>Mesurer la performance, l'adaptation et les qualités en course. Prévoir des pauses et conserver les tours invalides et les incidents séparément. Les résultats sont observés et validés par le STAFF.</p></div>
+<section class="panel"><h2>Organisation de l'évaluation</h2><p class="muted">Les temps comparables nécessitent la même combinaison voiture/circuit et des conditions identiques. Les chronos absolus de Vallelunga ne sont jamais comparés à ceux du Nürburgring GP.</p><div id="vce-irl-schedule"></div></section>
+<section class="panel"><h2>Protocole des cinq tests</h2><div id="vce-irl-tests"></div></section>
+<section class="panel"><h2>Programme de développement · 4 semaines</h2><p class="muted">Volume indicatif : chaque séance comporte un objectif, un exercice, un indicateur et un bilan.</p><div id="vce-irl-development" class="two"></div>
+<p class="banner">Au retest, conserver la même voiture, les mêmes circuits, le même setup, les mêmes conditions et les mêmes formats.</p></section>
+<section class="panel" id="vce-irl-staff" hidden>
+<h2>Dossier d'évaluation STAFF</h2><div class="banner">Les données détaillées ne sont modifiables que depuis un compte STAFF autorisé et sont enregistrées dans la table privée Supabase <code>vce_irl_evaluations</code>. La grille de points officielle reste à définir.</div>
+<div class="three">
+<div><label for="vce-irl-pilot">Identifiant pilote</label><input id="vce-irl-pilot" placeholder="Ex. lucas-galy" required></div>
+<div><label for="vce-irl-phase">Phase</label><select id="vce-irl-phase"><option value="initial">Évaluation initiale</option><option value="retest">Réévaluation après quatre semaines</option><option value="suivi">Suivi</option></select></div>
+<div><label for="vce-irl-date">Date</label><input id="vce-irl-date" type="date"></div>
+<div><label for="vce-irl-coach">Coach évaluateur</label><input id="vce-irl-coach" placeholder="Nom du coach"></div>
+<div><label for="vce-irl-settings">Conditions de référence</label><input id="vce-irl-settings" placeholder="Version, météo, piste, pneus, carburant, setup"></div>
+<div><label for="vce-irl-equipment">Matériel et aides</label><input id="vce-irl-equipment" placeholder="Volant, pédales, aides"></div></div>
+<p class="muted">Saisir les chronos propres un par ligne (ex. <code>1:58.432</code>). Ajouter <code>!</code> devant un tour invalide. Pour les tours de sortie/rentrée, utiliser <code>O</code> ou <code>I</code> devant le chrono. Le décompte attendu de chaque bloc est affiché.</p>
+<div id="vce-irl-entry"></div>
+<h2>Observations par domaine</h2><p class="muted">Chaque appréciation exige un exemple précis. Les appréciations qualitatives ne donnent aucun XP automatique avant validation du barème STAFF.</p>
+<div id="vce-irl-notes"></div>
+<h2>Analyse automatique des tours propres</h2><div id="vce-irl-metrics"></div>
+<h2>Décision sportive</h2><div class="two">
+<div><label for="vce-irl-decision">Décision du STAFF</label><select id="vce-irl-decision"><option value="">En cours — aucune décision</option></select></div>
+<div><label for="vce-irl-approval">Responsable validateur</label><input id="vce-irl-approval" placeholder="Nom du responsable sportif"></div>
+</div><label for="vce-irl-reason">Justification et exemples concrets</label><textarea id="vce-irl-reason" placeholder="Arguments observés, évolution, variabilité normale..."></textarea>
+<label for="vce-irl-plan">Objectif prioritaire pour les quatre prochaines semaines</label><textarea id="vce-irl-plan"></textarea>
+<div id="vce-irl-status" class="status" role="status" aria-live="polite"></div>
+<div class="actions"><button class="primary" id="vce-irl-save" type="button">ENREGISTRER DANS SUPABASE</button><button class="secondary" id="vce-irl-new" type="button">NOUVEAU DOSSIER</button><button class="ghost" id="vce-irl-export" type="button">EXPORTER JSON</button></div>
+<h3>Historique STAFF</h3><div id="vce-irl-list"></div>
+</section>
+<div id="vce-irl-authstatus" class="muted" role="status">Le protocole est consultable. Vérification des droits STAFF pour les saisies...</div>
+</main>
+<script src="vce-supabase-config.js"></script>
+<script src="vce-supabase.js?v=20261106"></script>
+<script defer src="assets/js/vce-coach-irl-evaluation.js?v=1"></script></body></html>
