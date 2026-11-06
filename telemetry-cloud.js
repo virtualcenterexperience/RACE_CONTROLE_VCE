@@ -95,9 +95,19 @@ function normalizeSample(x,origin){
  const n=numberOrNull;const absolute=n(x.t),elapsed=absolute!==null&&origin!==null?absolute-origin:null;
  // Keep native pedal fractions (0..1) in samples; chart layer formats percent.
  const px=n(x.world_x),py=n(x.world_z),progress=n(x.lap_pos);
+ // Preserve supported physical channels only when supplied by the game/collector.
+ const extra={};
+ const physicalKeys=['suspension_fl','suspension_fr','suspension_rl','suspension_rr',
+ 'ride_height_front','ride_height_rear','front_downforce','rear_downforce','drag',
+ 'camber_fl','camber_fr','camber_rl','camber_rr','tyre_wear_fl','tyre_wear_fr',
+ 'tyre_wear_rl','tyre_wear_rr','tyre_temp_fl','tyre_temp_fr','tyre_temp_rl','tyre_temp_rr',
+ 'fuel','fuel_liters','fuel_used','fuel_per_lap','fuel_laps_remaining','ground_contact'];
+ for(const k of physicalKeys){if(k==='ground_contact'){if(typeof x[k]==='boolean')extra[k]=x[k];continue}
+  const v=n(x[k]);if(v!==null)extra[k]=v;
+ }
  return {t:elapsed,distance:progress,lap_pos:progress,speed:n(x.speed_kmh),speed_kmh:n(x.speed_kmh),
    throttle:n(x.throttle),brake:n(x.brake),steering:n(x.steer),gear:n(x.gear),
-   x:px,y:py,slip:n(x.slip),rpm:n(x.rpm),fuel_l:n(x.fuel_l),position:n(x.position),sector_index:n(x.sector_index),abs:n(x.abs),tc:n(x.tc)};
+   x:px,y:py,slip:n(x.slip),rpm:n(x.rpm),fuel_l:n(x.fuel_l),position:n(x.position),sector_index:n(x.sector_index),abs:n(x.abs),tc:n(x.tc),...extra};
 }
 function normalizeLap(item){
  const raw=Array.isArray(item.samples)?item.samples:[];
