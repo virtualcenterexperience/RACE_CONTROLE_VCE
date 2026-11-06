@@ -54,7 +54,7 @@ async function init(){
  $('vce-pilot-provision-create').onclick=()=>provision(false);
  $('vce-pilot-provision-reset').onclick=()=>provision(true);
  $('vce-pilot-provision-refresh').onclick=refresh;
- $('vce-pilot-provision-select').onchange=()=>{$('vce-pilot-provision-result').textContent='';update();const id=$('vce-pilot-provision-select').value;if(id&&!accounts.includes(id))provision(false)};
+ $('vce-pilot-provision-select').onchange=()=>{$('vce-pilot-provision-result').textContent='';update()};
  try{
   if(!await VCESupabase.isStaff())return;
   const data=await VCESupabase.read('pilotes');
