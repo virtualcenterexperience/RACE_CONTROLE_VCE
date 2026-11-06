@@ -313,14 +313,24 @@ Deno.serve(async(req)=>{
      return reply({error:"Indique un prénom et un nom valides (100 caractères maximum)."},400);
    const id=slug(name);
    if(!id||id.length>100)return reply({error:"Identifiant pilote invalide"},400);
+   const row=await db.from("vce_publications").select("payload").eq("kind","pilotes").maybeSingle();
+   requireOk(row);
+   if(!Array.isArray(row.data?.payload?.items))
+     return reply({error:"Liste des pilotes non initialisée : exécute supabase-correctif-roster-2026-11-06.sql dans SQL Editor."},409);
    const roster=await readPilotRoster();
    if(roster.some((p:any)=>p.id===id))
      return reply({error:"Ce pilote existe déjà dans la liste."},409);
    if(roster.length>=250)return reply({error:"Limite de 250 pilotes atteinte."},400);
-   const credentials=await provisionVcePilot(id);
-   try{await writePilotRoster([...roster,{id,name}]);}
-   catch(e){await deactivateVcePilot(id).catch(()=>{});throw e}
-   return reply({ok:true,items:[...roster,{id,name}],credentials});
+   const updated=[...roster,{id,name}];
+   await writePilotRoster(updated);
+   try{
+     const credentials=await provisionVcePilot(id);
+     return reply({ok:true,items:updated,credentials});
+   }catch(e){
+     await deactivateVcePilot(id).catch(()=>{});
+     await writePilotRoster(roster).catch(()=>{});
+     throw e;
+   }
  }
  if(action==="staff_roster_remove"){
    await authorizedStaff(req);
