@@ -3,11 +3,12 @@
 const $=id=>document.getElementById(id);
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const internalEmail=id=>'vce-pilote+'+id+'@virtual-center-experience.fr';
-const state={checked:'',seq:0,identity:null};
+const state={checked:'',seq:0,identity:null,verified:''};
+window.VCEPilotAuthCanAccess=id=>state.verified===slug(id)&&Boolean(id);
 let card=null;
 const current=()=>slug(decodeURIComponent(location.hash.slice(1)||''));
 const cfg=()=>window.VCE_SUPABASE||{};
-function lock(value){document.documentElement.classList.toggle('vce-pilot-auth-locked',value)}
+function lock(value){document.documentElement.classList.toggle('vce-pilot-auth-locked',value);const el=$('pilotDashboard');if(el)el.style.setProperty('display',value?'none':'block','important')}
 async function api(action,extra={}){
  const session=await window.VCESupabase?.validSession();
  if(!session?.access_token)throw Error('Session de connexion absente');
@@ -58,12 +59,12 @@ function showChange(){
  $('vce-pilot-reconnect').hidden=false;
 }
 function openDashboard(){
- card.hidden=true;lock(false);
+ state.verified=current();card.hidden=true;lock(false);
  // The existing profile router handles visible data and navigation.
  window.dispatchEvent(new Event('vce-pilot-verified'));
 }
 async function route(){
- const id=current(),request=++state.seq;
+ const id=current(),request=++state.seq;state.verified='';
  if(!id){lock(true);if(card)card.hidden=true;return}
  lock(true);show('Vérification de ton compte VCE ESPORT…');
  try{
