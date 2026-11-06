@@ -1,0 +1,5 @@
+/* Dedicated TEAM area in the pilot sidebar. Keep training/XP separate. */
+#pilotDashboard .vce-sidebar .vce-sidegroup-team{color:#f5bd69;letter-spacing:.13em;margin-top:22px;padding-top:12px;border-top:1px solid #3c4550}
+#pilotDashboard .vce-sidebar .vce-team-entry{border-left:3px solid #e7a956;background:#262921;color:#ffe2b3;font-weight:850}
+#pilotDashboard .vce-sidebar .vce-team-entry:hover{background:#3b3427;color:#fff}
+#pilotDashboard .vce-sidebar .vce-team-entry~.vce-sideitem{transition:background .15s}
