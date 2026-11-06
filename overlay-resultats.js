@@ -16,10 +16,10 @@ if(n>=1){
  const isTeam=x.mode==='endurance'||x.mode==='equipe'||x.mode==='team';const featured=rows.slice(0,Math.min(n,6));
  featured.forEach((a,i)=>{
   const p=Number(a.position)||i+1,driver=node('group-driver','');
-  const photo=[a.photo,a.photoUrl,a.image,a.imageUrl,a.portrait].find(v=>typeof v==='string'&&/^(https?:\\/\\/|data:image\\/|\\.?\\/?(?:data|images|assets)\\/)/i.test(v));
+  const photo=[a.photo,a.photoUrl,a.image,a.imageUrl,a.portrait].find(v=>typeof v==='string'&&(/^(https?:|data:image|blob:)/i.test(v)||/^(\.?\/)?(?:data|images|assets)\//i.test(v)));
   const name=isTeam?(a.team||[a.firstName,a.lastName].filter(Boolean).join(' ')||'ÉQUIPE') :([a.firstName,a.lastName].filter(Boolean).join(' ')||(Array.isArray(a.drivers)?a.drivers[0]:'')||'PILOTE');
-  if(photo){const img=document.createElement('img');img.src=photo;img.alt=name;img.onerror=()=>img.replaceWith(node('group-placeholder',name.split(/\\s+/).map(w=>w[0]).slice(0,2).join('')));driver.append(img)}
-  else driver.append(node('group-placeholder',name.split(/\\s+/).map(w=>w[0]).slice(0,2).join('')));
+  if(photo){const img=document.createElement('img');img.src=photo;img.alt=name;img.onerror=()=>img.replaceWith(node('group-placeholder',name.split(/\s+/).map(w=>w[0]).slice(0,2).join('')));driver.append(img)}
+  else driver.append(node('group-placeholder',name.split(/\s+/).map(w=>w[0]).slice(0,2).join('')));
   driver.append(node('group-rank','P'+p));driver.append(node('group-name',name));driver.append(node('group-team',isTeam&&Array.isArray(a.drivers)&&a.drivers.length?a.drivers.join(' · '):(a.team||'VCE ESPORT')));portraits.append(driver);
  });
  rows.forEach((a,i)=>{const row=node('group-row','');row.append(node('','P'+(Number(a.position)||i+1)));row.firstChild.tagName;const b=document.createElement('b');b.textContent='P'+(Number(a.position)||i+1);row.replaceChildren(b);row.append(node('',isTeam?(a.team||'ÉQUIPE')+ (Array.isArray(a.drivers)&&a.drivers.length?' — '+a.drivers.join(' / '):'') :([a.firstName,a.lastName].filter(Boolean).join(' ')||(Array.isArray(a.drivers)?a.drivers.join(' / '):'')||'PILOTE')));list.append(row)});
