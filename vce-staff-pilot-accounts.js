@@ -54,13 +54,14 @@ async function init(){
  $('vce-pilot-provision-create').onclick=()=>provision(false);
  $('vce-pilot-provision-reset').onclick=()=>provision(true);
  $('vce-pilot-provision-refresh').onclick=refresh;
- $('vce-pilot-provision-select').onchange=update;
+ $('vce-pilot-provision-select').onchange=()=>{update();if(!accounts.includes($('vce-pilot-provision-select').value))provision(false)};
  try{
   if(!await VCESupabase.isStaff())return;
-  const r=await fetch('data/vce/pilotes.json',{cache:'no-store'});
-  if(!r.ok)throw Error('Liste des pilotes introuvable');
-  pilots=await r.json();
+  const data=await VCESupabase.read('pilotes');
+  if(!Array.isArray(data.items))throw Error('Liste non initialisée : ouvre Gestion des données pilotes dans le STAFF');
+  pilots=data.items.filter(p=>p&&p.id&&p.name);
   const select=$('vce-pilot-provision-select');
+  select.replaceChildren(new Option('— Sélectionner un pilote —',''));
   pilots.forEach(p=>select.add(new Option(p.name,p.id)));
   await refresh();
  }catch(e){$('vce-pilot-provision-message').textContent='Configuration requise : '+e.message}
