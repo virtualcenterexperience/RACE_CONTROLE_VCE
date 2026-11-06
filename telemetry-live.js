@@ -31,7 +31,7 @@ function addUI(){
 }
 const updateSession=async()=>{
  const s=window.vceSession,device=s?.device_id;
- if(!s||!device)return;
+ if(!s||!device){st('AUCUNE SESSION / AUCUN PC ASSOCIÉ');return;}
  if(state.device===device&&state.channel)return;
  if(!window.supabase?.createClient){st('BIBLIOTHÈQUE REALTIME ABSENTE');return}
  const session=await window.VCESupabase?.validSession();
@@ -77,9 +77,9 @@ function mainPlot(ts){
  for(let i=0;i<=5;i++){c.strokeStyle='#243b54';c.lineWidth=1;c.beginPath();c.moveTo(35,15+i*42);c.lineTo(w-20,15+i*42);c.stroke()}
  if(!last||!first)return;
  const channels=[
-  {key:'speed_kmh',label:'VITESSE',color:'#6cc9ff',scale:300},
-  {key:'brake',label:'FREIN',color:'#ff667f',scale:1},
-  {key:'throttle',label:'ACCÉLÉRATEUR',color:'#64efb1',scale:1}
+  {key:'speed_kmh',label:'VITESSE',color:'#ff8c20',scale:300},
+  {key:'brake',label:'FREIN',color:'#4d9dff',scale:1},
+  {key:'throttle',label:'ACCÉLÉRATEUR',color:'#ff8c20',scale:1}
  ];
  const xp=t=>35+Math.max(0,Math.min(1,(t-xmin)/15))*(w-55);
  for(const [j,item] of channels.entries()){
