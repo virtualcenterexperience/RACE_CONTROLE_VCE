@@ -7,3 +7,19 @@
 
 /* VCE Performance Lab — isolated comparison UI */
 .vce-compare-studio{border-color:#3c5b7d;background:linear-gradient(125deg,#16283c,#111a29 68%,#221824)}.vce-compare-studio h2{font-size:21px;margin:7px 0}.vce-compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}.vce-compare-grid article{padding:20px;background:#0b1625;border:1px solid #344c67;border-top:3px solid #3299e9;border-radius:10px;display:flex;flex-direction:column;gap:10px;min-width:0}.vce-compare-grid article:nth-child(2){border-top-color:#4389df}.vce-compare-grid article:nth-child(3){border-top-color:#f38b30}.vce-compare-grid small{color:#95b3d4;font-size:10px;font-weight:800;letter-spacing:1.4px}.vce-compare-grid strong{font-size:clamp(22px,2.8vw,38px);font-variant-numeric:tabular-nums}.vce-compare-grid span{color:#9ab2cc;font-size:12px}.vce-compare-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.vce-compare-toolbar button,.vce-compare-toolbar select{border:1px solid #446384;background:#1b3552;color:white;border-radius:8px;padding:11px 14px;cursor:pointer;font-weight:700}.vce-compare-toolbar label{color:#9bb6d1;font-size:11px;display:flex;flex-direction:column;gap:6px}.vce-compare-studio .muted{margin-bottom:0}@media(max-width:650px){.vce-compare-grid{grid-template-columns:1fr}}
+
+
+/* Live Supabase connector / protected access */
+.vce-cloud-connect{margin:15px 0 24px;border:1px solid #396088;border-left:4px solid #349feb;border-radius:12px;background:#102138;padding:18px}
+.vce-cloud-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between}
+.vce-cloud-state{font-size:12px;border:1px solid #32577a;background:#162b43;color:#b8d9f8;border-radius:20px;padding:7px 11px}
+.vce-cloud-state[data-kind=ok]{color:#74e4b6;border-color:#338b6b}
+.vce-cloud-state[data-kind=warn]{color:#f9c17d;border-color:#927147}
+.vce-cloud-state[data-kind=error]{color:#ff9f9f;border-color:#9e4b56}
+.vce-cloud-login,.vce-cloud-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:12px}
+.vce-cloud-login[hidden]{display:none}
+.vce-cloud-login input{flex:1;min-width:170px;background:#0d1b2d;border:1px solid #3a5878;border-radius:8px;padding:12px;color:white}
+.vce-cloud-login button,.vce-cloud-actions button{padding:12px 14px;border-radius:8px;color:white;border:1px solid #46769e;background:#226ca5;cursor:pointer;font-weight:800}
+.vce-cloud-actions button{background:#183955}
+.vce-cloud-login button:hover,.vce-cloud-actions button:hover{filter:brightness(1.15)}
+@media(max-width:680px){.vce-cloud-login{flex-direction:column;align-items:stretch}.vce-cloud-login input,.vce-cloud-login button{width:100%}}
