@@ -172,7 +172,7 @@ const dashboard=document.getElementById('pilotDashboard');
 const search=document.getElementById('pilotSearch');
 const counter=document.getElementById('pilotCount');
 if(!root||!selection||!dashboard||!search||!counter)return;
-const pilots=["ANTHONY MANGIERACINA","DYLAN DUBOIS","ANTONIN COLIN","MATHYS GOYAT","JULES BAQUE","VICTOR AUGER","MALDONADO MARIUS","MATHIS OCQUIDENT","SAMUEL MENDEZ","NOE FERNANDEZ","WILLIAM ORLINZOO","ALEX LEHOUX","LUCAS GALY","NICOLAS LEFRANCOIS"];
+const pilots=[];
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 function fallbackCards(){
  root.replaceChildren();
@@ -189,21 +189,28 @@ function fallbackCards(){
 function routeFallback(){
  let id='';try{id=decodeURIComponent(location.hash.slice(1))}catch{}
  const chosen=pilots.find(x=>norm(x)===id);
- const visible=!!chosen;
- selection.classList.toggle('hidden',visible);
+ const selected=!!chosen;
+ const visible=selected&&window.VCEPilotAuthCanAccess?.(id)===true;
+ selection.classList.toggle('hidden',selected);
  dashboard.classList.toggle('hidden',!visible);
- selection.style.setProperty('display',visible?'none':'block','important');
+ selection.style.setProperty('display',selected?'none':'block','important');
  dashboard.style.setProperty('display',visible?'block':'none','important');
  dashboard.setAttribute('aria-hidden',String(!visible));
  if(chosen){
   const name=dashboard.querySelector('#name');if(name)name.textContent=chosen;
-  try{sessionStorage.setItem('vce_pilot',chosen)}catch(e){}
+  // Identity is stored only after the verified pilot route succeeds.
  }
 }
 counter.textContent=pilots.length+' PILOTES';
 root.addEventListener('click',e=>{const a=e.target.closest('a[data-pilot-fallback]');if(a){e.preventDefault();location.hash=a.getAttribute('href')}});
 search.addEventListener('input',()=>{if(!root.querySelector('button.pilot-select'))fallbackCards()});
 window.addEventListener('hashchange',routeFallback);
+window.addEventListener('vce-pilot-verified',routeFallback);
+window.addEventListener('vce-roster-updated',()=>{
+ pilots.splice(0,pilots.length,...(window.VCE_PILOT_ROSTER||[]).map(p=>p.name));
+ if(!root.querySelector('button.pilot-select'))fallbackCards();
+ routeFallback();
+});
 routeFallback();
 window.addEventListener('load',()=>{if(root.children.length===0)fallbackCards()});
 })();
@@ -358,14 +365,14 @@ function drawChart(trainingRows,raceEvents,currentRating){
  VCE.$('chartCaption').textContent=series.length+' dates · Rating : '+series[series.length-1].rating+' · XP : '+series[series.length-1].xp;
 }
 VCE.$('refresh').onclick=render;
-const PILOTS=["ANTHONY MANGIERACINA","DYLAN DUBOIS","ANTONIN COLIN","MATHYS GOYAT","JULES BAQUE","VICTOR AUGER","MALDONADO MARIUS","MATHIS OCQUIDENT","SAMUEL MENDEZ","NOE FERNANDEZ","WILLIAM ORLINZOO","ALEX LEHOUX","LUCAS GALY","NICOLAS LEFRANCOIS"];
+const PILOTS=[];
 // All pilots start at class R; actual promotions are computed from shared sessions.
 VCE.names.splice(0,VCE.names.length,...PILOTS);
 const slug=n=>VCE.norm(n).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const allPilots=PILOTS.map(name=>({name,id:slug(name)}));
 function showPilotList(){const q=VCE.norm(document.getElementById('pilotSearch').value);const root=document.getElementById('pilotGrid');root.replaceChildren();let found=allPilots.filter(p=>VCE.norm(p.name).includes(q));document.getElementById('pilotCount').textContent=found.length+' PILOTES';for(const p of found){let b=document.createElement('button');b.className='pilot-select';let av=document.createElement('span');av.className='avatar';av.textContent=p.name.split(' ').slice(0,2).map(x=>x[0]).join('');let label=document.createElement('span');let name=document.createElement('b');name.textContent=p.name;let sub=document.createElement('small');sub.textContent='VOIR LE PROFIL · POINTS & CLASSEMENT';label.append(name,sub);b.append(av,label);b.onclick=()=>{location.hash=encodeURIComponent(p.id)};root.append(b)}}
 function showAssignments(name){const root=document.getElementById('assignedList');root.replaceChildren();let items=[];try{items=JSON.parse(localStorage.getItem('vce_training_assignments_v1')||'[]')}catch{}const selected=(Array.isArray(items)?items:[]).filter(x=>VCE.norm(x.driver||'')===VCE.norm(name));if(!selected.length){root.textContent='Aucun entraînement attribué pour le moment.';return}for(const x of selected.slice().reverse()){const article=document.createElement('article');article.className='item';const title=document.createElement('h3');title.textContent=x.mode==='rhythm'?'ENTRAÎNEMENT DE RYTHME':'EXERCICE SPÉCIFIQUE';const info=document.createElement('p');info.textContent=[x.circuit,x.car,x.laps+' tour(s)',x.target?'Chrono objectif : '+x.target:''].filter(Boolean).join(' · ');const task=document.createElement('p');task.textContent='EXERCICE : '+(x.exercise||'');const status=document.createElement('small');status.textContent='STATUT : '+({assigned:'À EFFECTUER',in_progress:'EN COURS',submitted:'EN ATTENTE STAFF',approved:'VALIDÉ',rejected:'REFUSÉ'}[x.status]||'À EFFECTUER');const link=document.createElement('a');link.href='coach-irl.html?assignment='+encodeURIComponent(x.id)+'&pilot='+encodeURIComponent(name);link.textContent='CONSULTER LA SÉANCE →';article.append(title,info,task,status,document.createElement('br'),link);root.append(article)}}
-function routePilot(){let id='';try{id=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')}catch{}let p=allPilots.find(x=>x.id===id);const selection=document.getElementById('pilotSelection'),dashboard=document.getElementById('pilotDashboard');const verified=!!p&&window.VCEPilotAuthCanAccess?.(id)===true;selection.classList.toggle('hidden',!!p);dashboard.classList.toggle('hidden',!verified);selection.style.setProperty('display',p?'none':'block','important');dashboard.style.setProperty('display',verified?'block':'none','important');dashboard.setAttribute('aria-hidden',String(!verified));if(p){VCE.selectPilot(p.name);showAssignments(p.name);VCE.$('name').textContent=p.name;render();document.title=p.name+' | VCE ESPORT'}else{document.title='Profils pilotes | VCE ESPORT'}window.scrollTo(0,0)}
+function routePilot(){let id='';try{id=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')}catch{}let p=allPilots.find(x=>x.id===id);const selection=document.getElementById('pilotSelection'),dashboard=document.getElementById('pilotDashboard');const verified=!!p&&window.VCEPilotAuthCanAccess?.(id)===true;selection.classList.toggle('hidden',!!p);dashboard.classList.toggle('hidden',!verified);selection.style.setProperty('display',p?'none':'block','important');dashboard.style.setProperty('display',verified?'block':'none','important');dashboard.setAttribute('aria-hidden',String(!verified));if(verified){VCE.selectPilot(p.name);showAssignments(p.name);VCE.$('name').textContent=p.name;render();document.title=p.name+' | VCE ESPORT'}else if(!p){document.title='Profils pilotes | VCE ESPORT'}window.scrollTo(0,0)}
 document.getElementById('pilotSearch').oninput=showPilotList;document.getElementById('backToPilots')?.addEventListener('click',()=>location.hash='');window.addEventListener('hashchange',routePilot);window.addEventListener('vce-pilot-verified',routePilot);showPilotList();routePilot();
 let __vceRefreshBusy=false;
 async function refreshVceEvery10Seconds(){
@@ -374,11 +381,29 @@ async function refreshVceEvery10Seconds(){
  try{await render();}catch(e){console.warn('Actualisation VCE',e)}finally{__vceRefreshBusy=false}
 }
 window.setInterval(refreshVceEvery10Seconds,10000);
-setTimeout(()=>{(async()=>{try{const remote=await VCESupabase.read('pilotes');if(Array.isArray(remote.items))return remote.items}catch(e){console.warn('Liste Supabase indisponible, repli JSON',e)}const r=await fetch('data/vce/pilotes.json?v='+Date.now(),{cache:'no-store'});return r.ok?r.json():null})().then(rows=>{
- if(!Array.isArray(rows)||!rows.length||!rows.some(p=>p&&p.name&&p.id))return;
- allPilots.splice(0,allPilots.length,...rows.filter(p=>p&&p.name&&p.id).map(p=>({id:p.id,name:p.name})));VCE.names.splice(0,VCE.names.length,...rows.filter(p=>p&&p.name&&p.id).map(p=>p.name));
- showPilotList();routePilot();
-}).catch(console.warn)},0);
+async function syncPilotRoster(){
+ try{
+  if(!window.VCESupabase?.configured())throw Error('Connexion Supabase non configurée');
+  const remote=await VCESupabase.read('pilotes');
+  if(!Array.isArray(remote.items))throw Error('Liste non initialisée par le STAFF');
+  const rows=remote.items.filter(p=>p&&p.id&&p.name);
+  window.VCE_PILOT_ROSTER=rows;
+  allPilots.splice(0,allPilots.length,...rows.map(p=>({id:p.id,name:p.name})));
+  VCE.names.splice(0,VCE.names.length,...rows.map(p=>p.name));
+  showPilotList();routePilot();
+  window.dispatchEvent(new Event('vce-roster-updated'));
+ }catch(e){
+  // Don't resurrect deleted pilots from a stale JSON or hard-coded roster.
+  console.warn('Roster VCE indisponible :',e);
+  window.VCE_PILOT_ROSTER=[];
+  allPilots.splice(0,allPilots.length);
+  VCE.names.splice(0,VCE.names.length);
+  showPilotList();routePilot();
+  document.getElementById('pilotCount').textContent='Liste indisponible — contacte le STAFF';
+ }
+}
+setTimeout(syncPilotRoster,0);
+window.addEventListener('pageshow',()=>syncPilotRoster());
 </script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261103-audit3"></script><script src="vce-pilot-sync.js?v=20261103-assignments"></script><script id="vce-app-shell-script-20261104">
 (function(){
  const dash=document.getElementById('pilotDashboard');if(!dash||dash.dataset.shellReady)return;dash.dataset.shellReady='1';dash.classList.add('vce-shell');
@@ -428,8 +453,12 @@ load();document.addEventListener('visibilitychange',()=>{if(!document.hidden)loa
 'use strict';
 let client,channel,lastName='',lastPage='',connected=false;
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const pilots=["ANTHONY MANGIERACINA","DYLAN DUBOIS","ANTONIN COLIN","MATHYS GOYAT","JULES BAQUE","VICTOR AUGER","MALDONADO MARIUS","MATHIS OCQUIDENT","SAMUEL MENDEZ","NOE FERNANDEZ","WILLIAM ORLINZOO","ALEX LEHOUX","LUCAS GALY","NICOLAS LEFRANCOIS"];
-function active(){let id='';try{id=decodeURIComponent(location.hash.slice(1))}catch{}return pilots.find(p=>norm(p)===id)||''}
+const pilots=[];
+function active(){
+ let id='';try{id=decodeURIComponent(location.hash.slice(1))}catch{}
+ if(!window.VCEPilotAuthCanAccess?.(id))return '';
+ return (window.VCE_PILOT_ROSTER||[]).find(p=>norm(p.id)===id)?.name||'';
+}
 function page(){return 'Dashboard pilote'}
 async function sync(){
  const name=!document.hidden?active():'';
@@ -443,7 +472,7 @@ function init(){
  try{client=(()=>{const cfg=window.VCE_SUPABASE;const sdk=window.supabase;if(!sdk?.createClient||!cfg?.url||!cfg?.key)return null;return sdk.createClient(cfg.url,cfg.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:2}}});})();if(!client)return;
  channel=client.channel('vce-pilot-presence-v1',{config:{presence:{key:crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random()}}});
  channel.subscribe(status=>{connected=status==='SUBSCRIBED';if(connected){lastName='';lastPage='';sync()}});
- window.addEventListener('hashchange',sync);document.addEventListener('visibilitychange',sync);
+ window.addEventListener('hashchange',sync);window.addEventListener('vce-pilot-verified',sync);window.addEventListener('vce-roster-updated',sync);document.addEventListener('visibilitychange',sync);
  setInterval(()=>{if(connected&&active()&&!document.hidden){lastName='';sync()}},20000);
  window.addEventListener('pagehide',()=>{channel?.untrack()});
  }catch(e){console.warn('Présence indisponible',e)}
