@@ -83,9 +83,63 @@
         "label": "Refusé"
       }
     ],
-    "points_grid_status": "NON_FOURNIE",
+    "points_grid_status": "PROPOSITION_A_VALIDER",
     "award_training_xp": false,
     "award_race_rating": false,
-    "auto_assign_team": false
+    "auto_assign_team": false,
+    "combined_classification": {
+      "status": "PROPOSITION_A_VALIDER_PAR_STAFF",
+      "criteria_count": 20,
+      "criteria_grade_min": 1,
+      "criteria_grade_max": 5,
+      "score50_formula": "sum_of_20_scores / 2",
+      "score50_bands_proposed": [
+        {
+          "minimum": 40,
+          "category": "ESPORT"
+        },
+        {
+          "minimum": 30,
+          "category": "ACADÉMIE"
+        },
+        {
+          "minimum": 20,
+          "category": "ROOKIE"
+        },
+        {
+          "minimum": 10,
+          "category": "REFUSÉ"
+        }
+      ],
+      "lmu_percent_bands": [
+        {
+          "min_inclusive": null,
+          "max_inclusive": 101,
+          "category": "ESPORT"
+        },
+        {
+          "min_exclusive": 101,
+          "max_inclusive": 103,
+          "category": "ACADÉMIE",
+          "note": "anciennement PERFORMANCE, 102 % accepté d'office selon l'ancienne grille"
+        },
+        {
+          "min_exclusive": 103,
+          "max_exclusive": 105,
+          "category": "ROOKIE"
+        },
+        {
+          "min_inclusive": 105,
+          "max_inclusive": null,
+          "category": "REFUSÉ"
+        }
+      ],
+      "composition": "niveau final = niveau le plus bas des deux évaluations; 105 % et plus refuse",
+      "requires_full_criteria": true,
+      "requires_verified_lmu_reference": true,
+      "auto_publish_official_result": false,
+      "staff_signoff_required": true,
+      "references_missing_behavior": "Évaluation en attente — pas de classement sans référence vérifiée"
+    }
   }
 }
