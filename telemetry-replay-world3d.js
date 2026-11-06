@@ -45,6 +45,32 @@ const glow=()=>{
  const dot=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),material);return dot
 };
 let selectedKey='',primaryData=[],referenceData=[],center={x:0,z:0},size=150,roadMeshes=[];
+let modeLive=false,liveFrames=[],liveSession='',liveLatest=null;
+const direct=document.createElement('button');direct.type='button';direct.textContent='● Direct 3D';direct.id='vce-replay-live-toggle';
+$('vce-replay-reload')?.after(direct);
+direct.onclick=()=>{
+ modeLive=!modeLive;direct.textContent=modeLive?'● Direct 3D ACTIF':'● Direct 3D';
+ direct.style.background=modeLive?'#7e2947':'';
+ selectedKey='';
+};
+document.addEventListener('vce-live-frame',event=>{
+ const frame=event.detail||{};
+ if(frame.session_id!==liveSession){liveSession=frame.session_id||'';liveFrames=[];liveLatest=null}
+ const incoming=Array.isArray(frame.samples)?frame.samples:[];
+ for(const p of incoming){
+  const x=numeric(p.world_x),z=numeric(p.world_z),t=numeric(p.t);
+  if(x===null||z===null||t===null)continue;
+  if(liveFrames.length&&t<=liveFrames.at(-1).absolute)return;
+  liveFrames.push({x,z,height:0,absolute:t,t:0});
+  if(liveFrames.length>2400)liveFrames.shift();
+  liveLatest=t;
+ }
+ if(liveFrames.length){
+  const origin=liveFrames[0].absolute;
+  for(const p of liveFrames)p.t=p.absolute-origin;
+ }
+ if(modeLive&&liveFrames.length>2&&liveFrames.length%40===0)selectedKey='';
+});
 function numeric(v){return v!==null&&v!==undefined&&v!==''&&Number.isFinite(+v)?+v:null}
 function samplesFor(lap){
  const raw=Array.isArray(lap?.samples)?lap.samples:[];
@@ -109,8 +135,12 @@ function road(data){
 }
 function rebuild(){
  const chosen=getSelected();
- if(chosen.key===selectedKey)return;
- selectedKey=chosen.key;primaryData=samplesFor(chosen.a);referenceData=samplesFor(chosen.b);
+ const directEnabled=modeLive&&liveFrames.length>=3;
+ const key=chosen.key+':'+(directEnabled?liveSession+':'+Math.floor(liveFrames.length/40):'recorded');
+ if(key===selectedKey)return;
+ selectedKey=key;
+ primaryData=directEnabled?liveFrames.slice():samplesFor(chosen.a);
+ referenceData=samplesFor(chosen.b);
  dispose();
  const all=[...primaryData,...referenceData];
  if(primaryData.length<3){wrapper.style.display='none';canvas.style.display='block';return}
@@ -137,7 +167,8 @@ function animate(){
  rebuild();
  if(!primaryData.length||wrapper.style.display==='none')return;
  const duration=Math.max(primaryData.at(-1)?.t||0,referenceData.at(-1)?.t||0,1);
- const time=duration*(+($('vce-replay-slider')?.value||0)/1000);
+ const time=modeLive&&liveFrames.length>=3?primaryData.at(-1).t:
+ duration*(+($('vce-replay-slider')?.value||0)/1000);
  const p=locate(primaryData,time),next=locate(primaryData,Math.min(duration,time+.35));
  const q=locate(referenceData,time);
  if(!p||!next)return;
@@ -168,5 +199,6 @@ note.textContent='Modèle 3D indicatif basé sur les données enregistrées, pas
 wrapper.after(note);
 ['lap','reference','session'].forEach(id=>$(id)?.addEventListener('change',()=>{selectedKey=''}));
 document.addEventListener('vce-cloud-update',()=>{selectedKey=''});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)selectedKey=''});
 animate();
 })();
