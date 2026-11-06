@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id),finite=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));
 const defs=[['speed','Vitesse','km/h','#6366f1'],['throttle','Accélérateur','%','#22c55e'],['brake','Frein','%','#ef4444'],['steering','Volant','°','#eab308'],['suspension_fl','Suspension AVG','mm','#38bdf8'],['suspension_fr','Suspension AVD','mm','#f97316'],['suspension_rl','Suspension ARG','mm','#a78bfa'],['suspension_rr','Suspension ARD','mm','#f472b6'],['ride_height_front','Hauteur AV','mm','#22d3ee'],['ride_height_rear','Hauteur AR','mm','#f43f5e'],['fuel','Carburant','L','#facc15'],['tyre_temp_fl','Pneu AVG','°C','#22c55e'],['tyre_temp_fr','Pneu AVD','°C','#ef4444'],['tyre_temp_rl','Pneu ARG','°C','#38bdf8'],['tyre_temp_rr','Pneu ARD','°C','#f59e0b']];
-const alias={speed:['speed_kmh'],steering:['steer'],fuel:['fuel_liters','fuel_remaining']};
+const alias={speed:['speed_kmh'],steering:['steer'],fuel:['fuel_l','fuel_liters','fuel_remaining']};
 const read=(p,k)=>{for(const key of [k,...(alias[k]||[])])if(finite(p?.[key]))return +p[key];return null};
 let samples=[],range=[0,1],selected=new Set(['speed','throttle','brake']),cursor=null,live=false;
 function mount(){const root=$('vce-setup-overview');if(!root||$('vce-engineering-studio'))return;
