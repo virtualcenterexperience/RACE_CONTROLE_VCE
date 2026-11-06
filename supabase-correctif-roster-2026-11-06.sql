@@ -10,7 +10,7 @@ BEGIN
   FROM (
     SELECT kind FROM public.vce_publications
     UNION
-    SELECT unnest(ARRAY['calendrier','lineup','resultats','pilotes','overlays'])
+    SELECT unnest(ARRAY['calendrier','lineup','resultats','pilotes','overlays','training_assignments'])
   ) kinds;
   EXECUTE 'ALTER TABLE public.vce_publications DROP CONSTRAINT IF EXISTS vce_publications_kind_check';
   EXECUTE 'ALTER TABLE public.vce_publications ADD CONSTRAINT vce_publications_kind_check CHECK (kind IN (' || allowed || '))';
