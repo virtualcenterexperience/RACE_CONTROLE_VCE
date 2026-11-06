@@ -202,6 +202,14 @@ async function updateComparisonCatalog(){
    list.add(new Option(title,row.session_id));
   }
   if([...list.options].some(opt=>opt.value===previous))list.value=previous;
+  // Auto-pair the first explicitly shareable compatible team reference.
+  // The server checks account/team permissions and same game, car and circuit.
+  const candidates=Array.isArray(data.sessions)?data.sessions:[];
+  if(candidates.length&&!window.VCEexternalReferenceLap?.baseId&&app.autoComparedBase!==target){
+    app.autoComparedBase=target;
+    list.value=candidates[0].session_id;
+    await loadOtherReference();
+  }
  }catch(e){list.replaceChildren(new Option('Références indisponibles',''));banner('Comparaison : '+e.message,'warn')}
 }
 async function loadOtherReference(){
