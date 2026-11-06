@@ -25,6 +25,12 @@ th{color:#8cc5ff}.actions{display:flex;gap:6px}td input{max-width:155px}
 <section class="panel"><div class="row"><strong>Flux Supabase</strong><button id="refresh">Actualiser les données</button></div>
 <p id="status" class="muted" role="status">Connexion…</p>
 <p class="small muted">Si aucun PC n'est visible : vérifier l'URL Supabase, la fonction Edge vce-telemetry et le clic « ASSOCIER AU STAFF » dans le launcher Windows.</p></section>
+<section class="panel" id="vceIdentityDiagnostics" aria-label="État de transmission VCE 3.2">
+<div class="row"><strong>DIAGNOSTIC APPLICATION ↔ SUPABASE</strong><button type="button" id="vceIdentityRefresh">Vérifier maintenant</button></div>
+<p class="small muted">Mesures serveur réelles. SteamID64 et IP sont des informations de liaison, jamais des identifiants de connexion.</p>
+<div class="row" id="vceIdentityValues" aria-live="polite" style="justify-content:flex-start;gap:16px;flex-wrap:wrap"><span>En attente du contrôle…</span></div>
+<p class="small muted" id="vceIdentityNote">Le jeu et les capteurs ne sont validés que lorsqu'une session réelle est reçue.</p>
+</section>
 <section class="panel scroll"><h2>Appareils</h2><table><thead><tr><th>Pilote demandé</th><th>SteamID64</th><th>IP locale (info)</th><th>ID de PC</th><th>Statut</th><th>Jeu</th><th>Dernier signal</th><th>Rattachement / décision</th></tr></thead>
 <tbody id="devices"><tr><td colspan="7">Chargement…</td></tr></tbody></table></section>
 <section class="panel scroll"><h2>Dernières sessions</h2>
@@ -48,6 +54,17 @@ async function send(action,extra={}){
 function cell(tr,text){const td=document.createElement('td');td.textContent=text??'—';tr.append(td);return td}
 function date(v){return v?new Date(v).toLocaleString('fr-FR'):'Jamais'}
 function slug(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+async function refreshIdentity(){
+ const output=$('vceIdentityValues'),note=$('vceIdentityNote');
+ if(!output)return;
+ try{
+   const d=await send('staff_identity_diagnostics');
+   const fields=[['APPAREILS',d.devices],['APPROUVÉS',d.approved],['STEAM ID64',d.steam_identified],['IP LOCALE',d.ip_identified],['ACTIFS < 60S',d.recently_seen],['SESSIONS',d.sessions],['ASSOCIÉES',d.linked_sessions],['LIVE ENREGISTRÉ',d.sessions_with_live]];
+   output.replaceChildren();
+   for(const [name,val] of fields){const item=document.createElement('span');item.className='pill';item.textContent=name+' : '+val;output.append(item);}
+   note.textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR')+' · Un SteamID64 ou une IP absents ne bloquent pas une association STAFF existante.';
+ }catch(e){output.textContent='⚠ Diagnostic inaccessible : '+e.message;}
+}
 async function refresh(){
  $('status').textContent='Interrogation de Supabase…';
  try{
@@ -101,6 +118,7 @@ async function refresh(){
  ts.append(tr)}
  if(!ts.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune session reçue');td.colSpan=7;ts.append(tr)}
  $('status').textContent='Connecté : '+(devices.devices||[]).length+' appareil(s), '+(sessions.sessions||[]).length+' session(s).';
+ await refreshIdentity();
  }catch(e){$('status').textContent='FLUX INDISPONIBLE : '+e.message}
 }
 async function init(){try{
@@ -109,6 +127,7 @@ async function init(){try{
  setInterval(()=>{if(!document.hidden)refresh()},10000);
  }catch(e){$('gateMessage').textContent=e.message}}
  $('refresh').addEventListener('click',refresh);
+ $('vceIdentityRefresh')?.addEventListener('click',refreshIdentity);
  init();
 })();
 </script><script src="vce-staff-pilot-accounts.js" defer></script></body></html>
