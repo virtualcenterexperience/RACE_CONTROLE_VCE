@@ -1,3 +1,5 @@
+**NOUVEAU :** l'ajout et le retrait des pilotes sont maintenant gérés automatiquement depuis le STAFF, sans retoucher le JavaScript. Voir [Guide du roster dynamique](GUIDE-ROSTER-DYNAMIQUE-VCE.md). L'ajout dans « Gestion des données pilotes » crée directement le compte et le code provisoire ; retirer un pilote désactive son accès sans effacer son historique.
+
 # Connexion unique VCE ESPORT — activation des profils pilotes
 
 Date : 6 novembre 2026
