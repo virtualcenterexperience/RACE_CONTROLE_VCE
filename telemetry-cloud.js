@@ -21,14 +21,13 @@ function makeUI(){
  head.append(el('strong','', 'SYNCHRONISATION VCE SUPABASE'));
  const badge=el('span','vce-cloud-state','VÉRIFICATION');badge.id='vce-cloud-status';head.append(badge);section.append(head);
  section.append(el('p','muted','Les sessions et les tours sont chargés automatiquement depuis le compte authentifié. Le nom dans l’adresse ne donne pas accès aux données d’un autre pilote.'));
- const form=el('form','vce-cloud-login');form.id='vce-cloud-login';
- const email=el('input');email.id='vce-cloud-email';email.type='email';email.autocomplete='username';email.required=true;email.placeholder='Email Supabase du pilote';
- const password=el('input');password.id='vce-cloud-password';password.type='password';password.autocomplete='current-password';password.required=true;password.placeholder='Mot de passe';
- const submit=el('button');submit.type='submit';submit.textContent='CONNECTER MON COMPTE';
- form.append(email,password,submit);section.append(form);
+ const loginLink=el('a','vce-cloud-pilot-link','OUVRIR MA CONNEXION PILOTE');
+ loginLink.id='vce-cloud-pilot-link';
+ loginLink.href='pilote.html'+(requested()?'#'+encodeURIComponent(requested()):'');
+ loginLink.hidden=true;section.append(loginLink);
  const controls=el('div','vce-cloud-actions');
  const refresh=el('button');refresh.type='button';refresh.textContent='ACTUALISER';refresh.onclick=()=>refreshData(true);
- const logout=el('button');logout.type='button';logout.textContent='DÉCONNECTER';logout.onclick=()=>{window.VCESupabase?.logout();banner('Déconnecté · données privées non chargées','warn');form.hidden=false;app.lastKey=''};
+ const logout=el('button');logout.type='button';logout.textContent='DÉCONNECTER';logout.onclick=()=>{window.VCESupabase?.logout();location.href='pilote.html'+(requested()?'#'+encodeURIComponent(requested()):'')};
  controls.append(refresh,logout);section.append(controls);controls.id='vce-cloud-actions';
  const more=el('button');more.type='button';more.id='vce-load-more-laps';
  more.textContent='CHARGER LES TOURS PRÉCÉDENTS';
@@ -72,12 +71,7 @@ function makeUI(){
      const mode=$('vce-cloud-value-session_type');if(mode)mode.textContent=session?.session_type||'—';
    },1300);
  }
- form.addEventListener('submit',async e=>{
-   e.preventDefault();submit.disabled=true;banner('Connexion à Supabase…');
-   try{await window.VCESupabase.login(email.value,password.value);password.value='';form.hidden=true;await refreshData(true)}
-   catch(ex){banner('Connexion impossible : '+ex.message,'error')}
-   finally{submit.disabled=false}
- });
+
 }
 const api=async(action,extra={})=>{
  const session=await window.VCESupabase?.validSession();
@@ -148,10 +142,22 @@ async function refreshData(forced=false){
    if(!window.VCESupabase?.configured())throw Error('Configuration Supabase absente');
    const token=await window.VCESupabase.validSession();
    if(!token?.access_token){
-     $('vce-cloud-login').hidden=false;banner('CONNEXION REQUISE · sessions privées','warn');return;
+     $('vce-cloud-pilot-link').hidden=false;
+     banner('CONNEXION REQUISE · connecte-toi dans ton espace pilote','warn');return;
    }
-   $('vce-cloud-login').hidden=true;
    let staff=false;try{staff=await window.VCESupabase.isStaff()}catch{}
+   if(!staff){
+     const identity=await api('pilot_whoami');
+     if(identity.password_change_required){
+       $('vce-cloud-pilot-link').hidden=false;
+       banner('CHANGE TON MOT DE PASSE PROVISOIRE DANS TON ESPACE PILOTE','warn');return;
+     }
+     if(!identity.pilot_slug||(requested()&&slug(identity.pilot_slug)!==requested())){
+       $('vce-cloud-pilot-link').hidden=false;
+       banner('Ce profil ne correspond pas à ton compte authentifié','error');return;
+     }
+   }
+   $('vce-cloud-pilot-link').hidden=true;
    const list=await api(staff?'staff_sessions':'pilot_sessions');
    let sessions=Array.isArray(list.sessions)?list.sessions:[];
    if(staff && requested())sessions=sessions.filter(s=>slug(s.pilot_slug)===requested());
