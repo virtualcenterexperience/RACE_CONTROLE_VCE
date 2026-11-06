@@ -205,7 +205,7 @@ async function updateComparisonCatalog(){
   // Auto-pair the first explicitly shareable compatible team reference.
   // The server checks account/team permissions and same game, car and circuit.
   const candidates=Array.isArray(data.sessions)?data.sessions:[];
-  if(candidates.length&&!window.VCEexternalReferenceLap?.baseId&&app.autoComparedBase!==target){
+  if(candidates.length&&window.VCEexternalReferenceLap?.baseId!==target&&app.autoComparedBase!==target){
     app.autoComparedBase=target;
     list.value=candidates[0].session_id;
     await loadOtherReference();
