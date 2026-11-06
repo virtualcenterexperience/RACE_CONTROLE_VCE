@@ -479,9 +479,15 @@ Deno.serve(async(req)=>{
  }
  // VCE avatar: an authenticated, active pilot can publish only their OWN profile picture.
  // The bucket is public read-only; the service role remains exclusively in this Edge Function.
- if(action==="pilot_avatar_save"){
-   const user=await authUser(req);
-   const id=user.app_metadata?.vce_pilot_slug;
+ if(action==="pilot_avatar_save"||action==="staff_avatar_save"){
+   const isStaff=action==="staff_avatar_save";
+   const user=isStaff?await authorizedStaff(req):await authUser(req);
+   const id=isStaff?slug(clean(b.pilot_slug,100)):user.app_metadata?.vce_pilot_slug;
+   if(isStaff){
+     const currentRoster=await readPilotRoster();
+     if(!currentRoster.some((p:any)=>p.id===id))
+       return reply({error:"Pilote inexistant dans l'effectif actif."},404);
+   }
    if(typeof id!=="string"||!id||slug(id)!==id)
      return reply({error:"Connexion avec un compte pilote requise."},403);
    const encoded=typeof b.image_base64==="string"?b.image_base64:"";
