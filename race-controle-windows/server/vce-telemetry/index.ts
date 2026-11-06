@@ -307,9 +307,9 @@ Deno.serve(async(req)=>{
  }
  if(action==="staff_roster_add"){
    await authorizedStaff(req);
-   const name=clean(b.pilot_name,120).replace(/\\s+/g," ").trim().toUpperCase();
+   const name=clean(b.pilot_name,120).replace(/\s+/g," ").trim().toUpperCase();
    if(name.length<3||name.length>100||name.split(" ").length<2||
-      !/^[\\p{L}\\p{M} '-]+$/u.test(name))
+      !/^[\p{L}\p{M} '-]+$/u.test(name))
      return reply({error:"Indique un prénom et un nom valides (100 caractères maximum)."},400);
    const id=slug(name);
    if(!id||id.length>100)return reply({error:"Identifiant pilote invalide"},400);
