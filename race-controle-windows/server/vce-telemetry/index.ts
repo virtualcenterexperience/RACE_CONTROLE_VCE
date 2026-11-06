@@ -92,6 +92,36 @@ Deno.serve(async(req)=>{
      steam_id64:steam||null,local_ip,status:"pending"}));
    return reply({status:"pending",device_id:id});
  }
+ if(action==="live_batch"){
+   const d=await device(b);
+   if(d.status!=="approved"||!d.pilot_slug)return reply({error:"PC non approuvé"},403);
+   const source=b.session||{};
+   if(!UUID.test(source.session_id||"")||!["AC","ACC"].includes(source.game)||
+      !Array.isArray(source.samples)||source.samples.length<1||source.samples.length>12)
+      return reply({error:"Lot live invalide"},400);
+   const points=source.samples.map((x:any)=>({
+     t:n(x.t,946684800,5000000000),lap_pos:n(x.lap_pos,0,1),
+     speed_kmh:n(x.speed_kmh,0,800),brake:n(x.brake,0,1),
+     throttle:n(x.throttle,0,1),steer:n(x.steer,-100,100),
+     gear:n(x.gear,-2,20),rpm:n(x.rpm,0,30000),
+     fuel_l:n(x.fuel_l,0,1000),position:n(x.position,0,1000),
+     sector_index:n(x.sector_index,0,50),world_x:n(x.world_x,-1e7,1e7),
+     world_z:n(x.world_z,-1e7,1e7)
+   })).filter((x:any)=>x.t!==null);
+   if(!points.length)return reply({error:"Aucune donnée valide"},400);
+   const payload={device_id:d.device_id,session_id:source.session_id,
+     game:source.game,track:clean(source.track,100),car:clean(source.car,100),
+     session_type:clean(source.session_type,40),
+     lap_number:n(source.lap_number,0,100000),
+     timestamp:Date.now(),samples:points};
+   const topic="vce:device:"+d.device_id;
+   const result=await fetch(base+"/realtime/v1/api/broadcast/"+
+     encodeURIComponent(topic)+"/events/frame?private=true",{
+     method:"POST",headers:{"apikey":adminKey,"Authorization":"Bearer "+adminKey,
+       "Content-Type":"application/json"},body:JSON.stringify(payload)});
+   if(!result.ok)return reply({error:"Realtime "+result.status},503);
+   return reply({ok:true,frames:points.length});
+ }
  if(["status","presence","session_state","upload"].includes(action)){
    const d=await device(b);
    if(action==="status")return reply({status:d.status,pilot_slug:d.status==="approved"?d.pilot_slug:null});
