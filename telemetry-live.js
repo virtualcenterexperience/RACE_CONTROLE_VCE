@@ -14,7 +14,7 @@ function addUI(){
  const root=$('vce-cloud-connect')||document.querySelector('main');
  if(!root)return;
  const box=document.createElement('section');box.id='vce-stream';box.className='panel vce-stream';
- box.innerHTML='<div class="head"><h2>● TÉLÉMÉTRIE EN DIRECT</h2><span id="vce-stream-state">CONNEXION…</span></div><p class="muted">Rendu 60 FPS · mesures natives selon le jeu · transmission via canal privé. Les graphes montrent les dernières secondes de roulage.</p>';
+ box.innerHTML='<div class="head"><h2>● TÉLÉMÉTRIE EN DIRECT</h2><span id="vce-stream-state">CONNEXION…</span></div><p class="muted">Affichage jusqu’à 30 échantillons par lot · rendu 60 FPS · mesures natives selon le jeu · transmission via canal privé. Les graphes montrent les dernières secondes de roulage.</p>';
  const hud=document.createElement('div');hud.id='vce-live-hud';
  for(const [key,label] of [['track','CIRCUIT'],['car','VOITURE'],['lap','TOUR'],['progress','POSITION PISTE'],
   ['speed','VITESSE'],['brake','FREIN'],['throttle','ACCÉLÉRATEUR'],['gear','RAPPORT'],['rpm','RÉGIME']]){
@@ -45,7 +45,7 @@ const updateSession=async()=>{
     const p=message.payload||{};if(p.device_id!==state.device)return;
     state.lastFrame=Date.now();state.session=p.session_id;state.live=p;
     document.dispatchEvent(new CustomEvent('vce-live-frame',{detail:p}));
-    const samples=(p.samples||[]).filter(x=>num(x.t)).slice(-12);
+    const samples=(p.samples||[]).filter(x=>num(x.t)).slice(-30);
     for(const s of samples){
       if(!state.buffer.length||s.t>state.buffer.at(-1).t){
        state.buffer.push(s);if(state.buffer.length>600)state.buffer.shift();
