@@ -1,4 +1,4 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gestion des données pilotes — VCE STAFF</title><style>:root{color-scheme:dark;font-family:system-ui}*{box-sizing:border-box}body{background:linear-gradient(140deg,#091322,#192d47);color:#f3f7ff;margin:0}main{max-width:860px;margin:35px auto;padding:20px}a{color:#8fd0ff}.panel{background:#11243b;border:1px solid #3a5473;border-radius:16px;padding:24px;margin:20px 0}h1{font-size:35px}p{color:#b6cbe2;line-height:1.7}label{display:block;margin:12px 0;font-weight:700}input{width:100%;padding:13px;background:#081728;border:1px solid #42617f;color:white;border-radius:9px;font:inherit}button{padding:12px 18px;border:0;border-radius:9px;background:#dd3556;color:white;font-weight:800;cursor:pointer;margin-top:14px}button:disabled{opacity:.5}.notice{border-left:4px solid #ffbd5a;padding:13px;background:#302d2e}li{margin:8px 0;color:#c5daef}</style></head><body><main><a href="staff.html">← Retour STAFF</a><h1>Gestion des données pilotes</h1><p>Outil de contrôle des données d'entraînement, réservé au STAFF. Aucune suppression n'est lancée automatiquement.</p><section class="panel" id="gate">Vérification des droits STAFF…</section><section class="panel" id="app" hidden><h2>Réinitialisation des points d'entraînement</h2><div class="notice">Cette action retire définitivement les validations d'entraînement du pilote sélectionné dans Supabase. Ses XP et sa classe seront recalculés après actualisation. Les résultats de course, le rating, les dossiers coach et les autres pilotes ne sont pas modifiés. Une sauvegarde des décisions est téléchargée avant la suppression.</div><label for="pilot">Nom exact du pilote (identique aux validations)</label><input id="pilot" placeholder="Prénom NOM"><button id="inspect">Vérifier les données</button><p id="summary" role="status"></p><div id="confirmArea" hidden><p>Pour confirmer, saisis <strong>REMETTRE À ZÉRO</strong> ci-dessous.</p><input id="confirmText" placeholder="REMETTRE À ZÉRO"><button id="reset" disabled>Exporter puis supprimer les validations</button></div><p id="message" role="status"></p></section><section class="panel" id="rosterPanel" hidden><h2>👥 Liste des pilotes VCE</h2><p>Ajoute ou retire un pilote des profils et des formulaires. Retirer un pilote de la liste <strong>ne supprime pas</strong> son historique ni ses résultats.</p><label for="newPilot">Prénom et nom</label><input id="newPilot" placeholder="Ex. Jules BAQUE" maxlength="120"><button id="addPilot" type="button">+ Ajouter le pilote</button><p id="rosterStatus" role="status"></p><div id="rosterList"></div></section><section class="panel" id="historyPanel" hidden><h2>🧹 Effacer l'historique des tests</h2><div class="notice">Supprime les séances envoyées et les décisions STAFF d'un seul pilote. Les résultats de compétition et le rating ne sont pas effacés. Sauvegarde JSON préalable obligatoire.</div><label for="historyPilot">Pilote concerné</label><select id="historyPilot" style="width:100%;padding:13px;background:#081728;border:1px solid #42617f;color:white;border-radius:9px"></select><button id="inspectHistory" type="button">Vérifier les séances et validations</button><p id="historySummary"></p><div id="historyConfirm" hidden><label for="historyPhrase">Tape EFFACER HISTORIQUE pour confirmer</label><input id="historyPhrase" placeholder="EFFACER HISTORIQUE"><button id="deleteHistory" disabled>Exporter et effacer l'historique du pilote</button></div><p id="historyStatus" role="status"></p></section></main><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261103-training"></script><script>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gestion des données pilotes — VCE STAFF</title><style>:root{color-scheme:dark;font-family:system-ui}*{box-sizing:border-box}body{background:linear-gradient(140deg,#091322,#192d47);color:#f3f7ff;margin:0}main{max-width:860px;margin:35px auto;padding:20px}a{color:#8fd0ff}.panel{background:#11243b;border:1px solid #3a5473;border-radius:16px;padding:24px;margin:20px 0}h1{font-size:35px}p{color:#b6cbe2;line-height:1.7}label{display:block;margin:12px 0;font-weight:700}input{width:100%;padding:13px;background:#081728;border:1px solid #42617f;color:white;border-radius:9px;font:inherit}button{padding:12px 18px;border:0;border-radius:9px;background:#dd3556;color:white;font-weight:800;cursor:pointer;margin-top:14px}button:disabled{opacity:.5}.notice{border-left:4px solid #ffbd5a;padding:13px;background:#302d2e}li{margin:8px 0;color:#c5daef}</style></head><body><main><a href="staff.html">← Retour STAFF</a><h1>Gestion des données pilotes</h1><p>Outil de contrôle des données d'entraînement, réservé au STAFF. Aucune suppression n'est lancée automatiquement.</p><section class="panel" id="gate">Vérification des droits STAFF…</section><section class="panel" id="app" hidden><h2>Réinitialisation des points d'entraînement</h2><div class="notice">Cette action retire définitivement les validations d'entraînement du pilote sélectionné dans Supabase. Ses XP et sa classe seront recalculés après actualisation. Les résultats de course, le rating, les dossiers coach et les autres pilotes ne sont pas modifiés. Une sauvegarde des décisions est téléchargée avant la suppression.</div><label for="pilot">Nom exact du pilote (identique aux validations)</label><input id="pilot" placeholder="Prénom NOM"><button id="inspect">Vérifier les données</button><p id="summary" role="status"></p><div id="confirmArea" hidden><p>Pour confirmer, saisis <strong>REMETTRE À ZÉRO</strong> ci-dessous.</p><input id="confirmText" placeholder="REMETTRE À ZÉRO"><button id="reset" disabled>Exporter puis supprimer les validations</button></div><p id="message" role="status"></p></section><section class="panel" id="rosterPanel" hidden><h2>👥 Liste des pilotes VCE</h2><p>Ajoute ou retire un pilote des profils et des formulaires. Retirer un pilote de la liste <strong>ne supprime pas</strong> son historique ni ses résultats.</p><label for="newPilot">Prénom et nom</label><input id="newPilot" placeholder="Ex. Jules BAQUE" maxlength="120"><button id="addPilot" type="button">+ Ajouter le pilote</button> <button id="refreshRoster" type="button" style="background:#285879">↻ Actualiser la liste</button><p id="rosterStatus" role="status" aria-live="polite"></p><div id="rosterList"></div></section><section class="panel" id="historyPanel" hidden><h2>🧹 Effacer l'historique des tests</h2><div class="notice">Supprime les séances envoyées et les décisions STAFF d'un seul pilote. Les résultats de compétition et le rating ne sont pas effacés. Sauvegarde JSON préalable obligatoire.</div><label for="historyPilot">Pilote concerné</label><select id="historyPilot" style="width:100%;padding:13px;background:#081728;border:1px solid #42617f;color:white;border-radius:9px"></select><button id="inspectHistory" type="button">Vérifier les séances et validations</button><p id="historySummary"></p><div id="historyConfirm" hidden><label for="historyPhrase">Tape EFFACER HISTORIQUE pour confirmer</label><input id="historyPhrase" placeholder="EFFACER HISTORIQUE"><button id="deleteHistory" disabled>Exporter et effacer l'historique du pilote</button></div><p id="historyStatus" role="status"></p></section></main><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261103-training"></script><script>
 'use strict';const $=id=>document.getElementById(id);let found=[];const cfg=window.VCE_SUPABASE;
 async function auth(){if(!VCESupabase.session()||!await VCESupabase.isStaff())throw Error('Connexion STAFF requise')}
 async function call(path,method='GET'){const sess=VCESupabase.session();const token=sess?.access_token;if(!token)throw Error('Session absente');const r=await fetch(cfg.url+'/rest/v1/'+path,{method,headers:{apikey:cfg.key,Authorization:'Bearer '+token,Prefer:'return=representation'},cache:'no-store'});if(!r.ok)throw Error('Supabase '+r.status+' : '+(await r.text()).slice(0,160));return r.status===204?[]:r.json()}
@@ -51,24 +51,15 @@ async function rosterAction(action,data={}){
 }
 async function loadRoster(){
  try{
-  const remote=await VCESupabase.read('pilotes');
-  if(Array.isArray(remote.items)){
-   roster=remote.items;
-   status('✓ Liste STAFF synchronisée.');
-  }else{
-   // Restore the existing drivers while the initial SQL migration is pending.
-   roster=(await rosterDefault()).filter(p=>p&&p.name&&p.id);
-   try{
-    await VCESupabase.save('pilotes',{version:2,items:roster,updatedAt:new Date().toISOString()});
-    status('✓ Liste initiale restaurée et synchronisée dans Supabase.');
-   }catch(err){
-    status('Liste initiale restaurée ('+roster.length+' pilotes), mais Supabase refuse la sauvegarde. Applique le correctif SQL vce_publications_kind_check pour activer les ajouts.');
-    console.warn('Migration roster nécessaire',err);
-   }
-  }
-  roster=roster.filter(p=>p&&p.name&&p.id);
+  const response=await rosterAction('staff_roster_list');
+  if(!Array.isArray(response.items))throw Error('Réponse du serveur invalide : liste absente');
+  roster=response.items.filter(p=>p&&p.id&&p.name);
   drawRoster();
- }catch(e){status('Impossible de charger la liste STAFF : '+e.message)}
+  status('✓ Liste STAFF synchronisée avec Supabase : '+roster.length+' pilote(s).');
+ }catch(e){
+  status('Chargement du roster impossible : '+e.message+' · Aucune modification appliquée.');
+  throw e;
+ }
 }
 function drawRoster(){
  const list=$('rosterList');list.replaceChildren();
@@ -92,8 +83,9 @@ async function removeRosterPilot(p){
  rosterBusy=true;hideCredential();drawRoster();status('Désactivation du pilote…');
  try{
   const result=await rosterAction('staff_roster_remove',{pilot_slug:p.id});
-  roster=result.items;status('✓ '+p.name+' retiré. Son compte ne peut plus consulter la télémétrie ; historiques conservés.');
- }catch(e){status('Retrait non effectué : '+e.message)}
+  if(!result.ok||!Array.isArray(result.items))throw Error('Le serveur n’a pas confirmé le retrait.');
+  roster=result.items;status('✓ '+p.name+' retiré. Compte désactivé ; historiques conservés.');
+ }catch(e){status('Retrait non effectué : '+e.message);await loadRoster().catch(()=>{})}
  finally{rosterBusy=false;drawRoster()}
 }
 $('addPilot').onclick=async()=>{
@@ -104,12 +96,15 @@ $('addPilot').onclick=async()=>{
  rosterBusy=true;hideCredential();drawRoster();$('addPilot').disabled=true;status('Création du profil et de ses identifiants…');
  try{
   const result=await rosterAction('staff_roster_add',{pilot_name:name});
+  if(!result.ok||!Array.isArray(result.items)||!result.credentials?.temporary_password)
+   throw Error('Le serveur n’a pas confirmé la création complète du profil et de son compte.');
   roster=result.items;input.value='';drawRoster();
   showCredential({name},result.credentials);
-  status('✓ Pilote ajouté et compte généré automatiquement. Transmets le code provisoire en privé.');
- }catch(e){status('Ajout non effectué : '+e.message)}
+  status('✓ Pilote ajouté dans Supabase ('+roster.length+' pilotes). Compte créé ; transmets le code provisoire en privé.');
+ }catch(e){status('Ajout non effectué : '+e.message+' · Tu peux actualiser la liste sans recréer le compte.');await loadRoster().catch(()=>{});}
  finally{rosterBusy=false;$('addPilot').disabled=false;drawRoster()}
 };
+$('refreshRoster').onclick=()=>loadRoster().catch(()=>{});
 async function historyCall(table,filter,method='GET'){const sess=VCESupabase.session();if(!sess?.access_token)throw Error('Session STAFF expirée');const cfg=window.VCE_SUPABASE;const response=await fetch(cfg.url+'/rest/v1/'+table+'?'+filter,{method,headers:{apikey:cfg.key,Authorization:'Bearer '+sess.access_token,Prefer:'return=representation'},cache:'no-store'});const body=await response.text();if(!response.ok)throw Error('Supabase '+response.status+' '+body.slice(0,220));return body.trim()?JSON.parse(body):[]}
 const histSel=document.getElementById('historyPilot');histSel.onchange=()=>{checked=null;document.getElementById('historyConfirm').hidden=true;document.getElementById('historySummary').textContent=''};
 document.getElementById('inspectHistory').onclick=async()=>{try{await auth();const pilot=histSel.value;if(!pilot)throw Error('Sélectionne un pilote');const [submissions,reviews]=await Promise.all([historyCall('vce_training_submissions','pilot=eq.'+encodeURIComponent(pilot)+'&select=session_id,pilot,payload,submitted_at'),historyCall('vce_training_reviews','pilot=eq.'+encodeURIComponent(pilot)+'&select=session_id,pilot,decision,reviewed_at')]);checked={pilot,submissions,reviews};document.getElementById('historySummary').textContent=pilot+' : '+submissions.length+' séance(s) envoyée(s), '+reviews.length+' validation(s)/refus.';document.getElementById('historyConfirm').hidden=!(submissions.length||reviews.length);document.getElementById('historyPhrase').value='';document.getElementById('deleteHistory').disabled=true}catch(e){document.getElementById('historySummary').textContent='Erreur : '+e.message;checked=null;document.getElementById('historyConfirm').hidden=true}};
