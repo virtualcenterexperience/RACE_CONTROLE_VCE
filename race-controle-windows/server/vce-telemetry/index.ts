@@ -352,13 +352,15 @@ Deno.serve(async(req)=>{
    await authorizedStaff(req);
    const id=slug(clean(b.pilot_slug,100));
    if(!id||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))return reply({error:"Profil pilote invalide"},400);
+   const roster=await readPilotRoster();
+   if(!roster.some((p:any)=>p.id===id))return reply({error:"Pilote non présent dans le roster STAFF"},404);
    const existing=await pilotAccount(id),password=temporaryPassword();
    if(action==="staff_provision_pilot"&&existing)return reply({error:"Compte déjà créé. Utiliser réinitialisation si nécessaire."},409);
    if(action==="staff_reset_pilot"&&!existing)return reply({error:"Compte absent. Créer le compte."},404);
    let uid="";
    if(existing){
      const changed=await db.auth.admin.updateUserById(existing.id,{
-       password,app_metadata:{...existing.app_metadata,vce_pilot_slug:id,vce_password_change_required:true}
+       password,app_metadata:{...existing.app_metadata,vce_pilot_slug:id,vce_pilot_active:true,vce_password_change_required:true}
      });requireOk(changed);uid=existing.id;
    }else{
      const created=await db.auth.admin.createUser({
@@ -401,8 +403,11 @@ Deno.serve(async(req)=>{
    if(!UUID.test(b.target_device_id||"")||!["approved","rejected"].includes(b.decision))return reply({error:"Décision invalide"},400);
    const pilot=slug(clean(b.pilot_slug,100));
    if(b.decision==="approved"&&!pilot)return reply({error:"Profil pilote requis"},400);
+   const roster=b.decision==="approved"?await readPilotRoster():[];
+   if(b.decision==="approved"&&!roster.some((p:any)=>p.id===pilot))
+      return reply({error:"Ajoute ce pilote à la liste STAFF avant d'approuver son PC."},409);
    const account=b.decision==="approved"?await pilotAccount(pilot):null;
-   const user=account?.id||null;
+   const user=account&&account.app_metadata?.vce_pilot_active!==false?account.id:null;
    requireOk(await db.from("vce_agent_devices").update({status:b.decision,
      pilot_slug:b.decision==="approved"?pilot:null,pilot_auth_user:b.decision==="approved"?user:null,
      approved_at:b.decision==="approved"?new Date().toISOString():null}).eq("device_id",b.target_device_id));
