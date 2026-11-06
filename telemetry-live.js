@@ -138,12 +138,13 @@ function trackPlot(){
   if(points.length>best.length)best=points;
  }
  const live=state.points;
- const path=best.length>=20?best:live;
  const validSpan=arr=>{
   if(arr.length<5)return false;
   const x=arr.map(p=>p[0]),z=arr.map(p=>p[1]);
   return Math.max(...x)-Math.min(...x)>.5&&Math.max(...z)-Math.min(...z)>.5;
  };
+ const useRecorded=best.length>=20&&validSpan(best);
+ const path=useRecorded?best:live;
  if(!validSpan(path)){
   c.fillStyle='#93aecb';c.font='16px Segoe UI';
   c.fillText('Trajectoire 2D indisponible',24,50);
@@ -173,11 +174,11 @@ function trackPlot(){
   }c.stroke()
  };
  draw(path,'#4f86bb',3.2);
- if(best.length>=20&&live.length>1)draw(live,'#ffae62',2.5);
+ if(useRecorded&&live.length>1)draw(live,'#ffae62',2.5);
  if(live.length){
   const [x,y]=point(live.at(-1));c.fillStyle='#ffbe69';c.beginPath();c.arc(x,y,6,0,Math.PI*2);c.fill()
  }
- $('vce-stream-caption').textContent=best.length>=20?
+ $('vce-stream-caption').textContent=useRecorded?
   'Tracé basé sur un tour enregistré · orange : position live':'Tracé progressif basé sur les coordonnées X/Z live ('+live.length+' points)';
 }
 function hud(ts){
