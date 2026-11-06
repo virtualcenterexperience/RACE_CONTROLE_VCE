@@ -6,7 +6,7 @@ const internalEmail=id=>'vce-pilote+'+id+'@virtual-center-experience.fr';
 const state={checked:'',seq:0,identity:null,verified:''};
 window.VCEPilotAuthCanAccess=id=>state.verified===slug(id)&&Boolean(id);
 let card=null;
-const current=()=>slug(decodeURIComponent(location.hash.slice(1)||''));
+const current=()=>slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''));
 const cfg=()=>window.VCE_SUPABASE||{};
 function lock(value){document.documentElement.classList.toggle('vce-pilot-auth-locked',value);const el=$('pilotDashboard');if(el)el.style.setProperty('display',value?'none':'block','important')}
 async function api(action,extra={}){
