@@ -142,14 +142,29 @@ function rebuild(){
  primaryData=directEnabled?liveFrames.slice():samplesFor(chosen.a);
  referenceData=samplesFor(chosen.b);
  dispose();
- const all=[...primaryData,...referenceData];
- if(primaryData.length<3){wrapper.style.display='none';canvas.style.display='block';return}
+ const quality=window.VCETrack35?.analyze(primaryData);
+ const refQuality=window.VCETrack35?.analyze(referenceData);
+ // Disable fake, distorted 3D roads for sessions with missing/flat world coordinates.
+ if(!quality?.ok){
+  wrapper.style.display='none';canvas.style.display='block';
+  const warning=$('vce-replay-world-note');
+  if(warning)warning.textContent='Replay 3D indisponible : '+(quality?.reason||'coordonnées X/Z absentes')+'. Reviens à la carte 2D ou sélectionne un autre tour.';
+  return;
+ }
  wrapper.style.display='block';canvas.style.display='none';
- center={x:(Math.min(...all.map(p=>p.x))+Math.max(...all.map(p=>p.x)))/2,
- z:(Math.min(...all.map(p=>p.z))+Math.max(...all.map(p=>p.z)))/2};
- size=Math.max(75,Math.max(...all.map(p=>p.x))-Math.min(...all.map(p=>p.x)),
- Math.max(...all.map(p=>p.z))-Math.min(...all.map(p=>p.z)));
- road(primaryData);polyline(primaryData,0xff951d);polyline(referenceData,0x49a1ff);
+ const cleaned=quality.segments.map(segment=>segment.map(p=>primaryData[p.index]))
+    .filter(segment=>segment.length>=5);
+ const refCleaned=refQuality?.ok?
+   refQuality.segments.map(segment=>segment.map(p=>referenceData[p.index])).filter(segment=>segment.length>=5):[];
+ let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity;
+ for(const segment of [...cleaned,...refCleaned])for(const p of segment){
+  minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);
+  minZ=Math.min(minZ,p.z);maxZ=Math.max(maxZ,p.z)
+ }
+ center={x:(minX+maxX)/2,z:(minZ+maxZ)/2};
+ size=Math.max(75,maxX-minX,maxZ-minZ);
+ for(const section of cleaned){road(section);polyline(section,0xff951d)}
+ for(const section of refCleaned)polyline(section,0x49a1ff);
  const message=$('vce-replay-world-note');
  if(message)message.textContent='SCÈNE 3D reconstruite depuis les coordonnées des tours. Route, largeur, décors et véhicules schématiques : ils ne représentent pas le modèle réel du circuit.'
 }
