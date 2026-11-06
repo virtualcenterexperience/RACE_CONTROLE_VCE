@@ -4,7 +4,7 @@ const $=id=>document.getElementById(id);
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const validId=s=>/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s||'');
 const cfg=()=>window.VCE_SUPABASE||{};
-let photos=new Map(),panel=null,current='',checking=0,refreshing=false,lastRefresh=0;const brokenPhotos=new Set();
+let photos=new Map(),panel=null,current='',checking=0,refreshing=false,lastRefresh=0;let staffMode=false;const brokenPhotos=new Set();
 const active=()=>{try{return slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''))}catch{return ''}};
 const urlFor=entry=>{
  const path=entry?.storage_path;
@@ -62,7 +62,7 @@ async function refresh(force=false){
  refreshing=true;lastRefresh=Date.now();
  try{
   const res=await fetch(c.url+'/rest/v1/vce_pilot_avatars?select=pilot_slug,storage_path,updated_at',{
-   headers:{apikey:c.key,Authorization:'Bearer '+c.key},cache:'no-store'
+   headers:{apikey:c.key},cache:'no-store'
   });
   if(!res.ok)throw Error('Photo HTTP '+res.status);
   const data=await res.json();if(!Array.isArray(data))throw Error('Format des photos invalide');
@@ -86,16 +86,23 @@ async function api(action,values={}){
 async function verifyEdit(){
  const id=active(),request=++checking,button=$('vce-photo-change'),input=$('vce-photo-file');
  if(!button||!input)return;
- button.hidden=true;input.disabled=true;
+ button.hidden=true;input.disabled=true;staffMode=false;
  if(!id||!window.VCEPilotAuthCanAccess?.(id))return;
  try{
+  const isStaff=await window.VCESupabase?.isStaff();
+  if(request!==checking||active()!==id)return;
+  if(isStaff){
+    staffMode=true;button.hidden=false;input.disabled=false;
+    $('vce-photo-status').textContent='STAFF : photo publique de ce pilote. Choisis un portrait avec son accord.';
+    return
+  }
   const data=await api('pilot_whoami');
   if(request!==checking||active()!==id)return;
   if(data.pilot_slug!==id||data.password_change_required)return;
   button.hidden=false;input.disabled=false;
   $('vce-photo-status').textContent='Ta photo sera visible par tous les visiteurs.'
  }catch{
-  if(request===checking)$('vce-photo-status').textContent='Modification réservée au compte personnel de ce pilote.'
+  if(request===checking)$('vce-photo-status').textContent='Modification réservée au pilote ou au STAFF authentifié.'
  }
 }
 async function compress(file){
@@ -125,7 +132,7 @@ async function sendImage(file){
  try{
   if(!id||!window.VCEPilotAuthCanAccess?.(id))throw Error('Profil non vérifié');
   const image_base64=await compress(file);
-  const result=await api('pilot_avatar_save',{image_base64});
+  const result=await api(staffMode?'staff_avatar_save':'pilot_avatar_save',{image_base64,pilot_slug:id});
   if(result.pilot_slug!==id||!result.storage_path)throw Error('La photo enregistrée ne correspond pas au profil');
   photos.set(id,{pilot_slug:id,storage_path:result.storage_path,updated_at:result.updated_at});
   drawSelection();drawProfile();
