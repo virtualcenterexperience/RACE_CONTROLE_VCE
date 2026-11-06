@@ -53,3 +53,19 @@
 .vce-other-driver button:hover{filter:brightness(1.2)}
 @media(max-width:870px){#vce-live-hud{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){#vce-live-hud{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+.vce-recap{border-color:#375878}
+.vce-recap-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.vce-recap-metric,.vce-recap-scrub-stat{min-width:0;padding:12px;background:#0b1b2e;border:1px solid #36516e;border-radius:8px}
+.vce-recap-metric small,.vce-recap-scrub-stat small{display:block;color:#8aadc9;font-size:10px;font-weight:800;margin-bottom:7px}
+.vce-recap-metric strong,.vce-recap-scrub-stat strong{display:block;font-size:18px;overflow-wrap:break-word}
+.vce-recap-scroll{overflow:auto;max-height:430px}
+.vce-recap-table{width:100%;min-width:650px;border-collapse:collapse;font-size:12px}
+.vce-recap-table th,.vce-recap-table td{padding:13px 9px;text-align:left;border-bottom:1px solid #2c4259}
+.vce-recap-table th{color:#7db9eb}
+.vce-recap-table button{background:#2161a0;color:white;border:1px solid #4f83b0;border-radius:6px;padding:8px 11px;cursor:pointer}
+#vce-recap-slider{display:block;width:100%;accent-color:#ff8f4f;margin:17px 0 11px}
+.vce-recap-scrub-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+@media(max-width:900px){.vce-recap-scrub-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.vce-recap-metrics,.vce-recap-scrub-values{grid-template-columns:1fr 1fr}}
