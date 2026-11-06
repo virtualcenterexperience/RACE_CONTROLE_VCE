@@ -218,7 +218,7 @@ async function fetchOlderLaps(){
 function start(){
  makeUI();if(!window.VCESupabase){banner('Scripts Supabase introuvables','error');return}
  refreshData(true);
- app.poll=setInterval(()=>{if(!document.hidden)refreshData()},12000);
+ app.poll=setInterval(()=>{if(!document.hidden)refreshData()},2500);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshData(true)});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
