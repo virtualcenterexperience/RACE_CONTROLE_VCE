@@ -609,6 +609,48 @@ Deno.serve(async(req)=>{
      approved_at:b.decision==="approved"?new Date().toISOString():null}).eq("device_id",b.target_device_id));
    return reply({ok:true});
  }
+ // STAFF history: paginate at the database, never return the entire session table.
+ // Date arguments are local-day boundaries already converted to UTC ISO by the UI.
+ if(action==="staff_session_history"){
+   await authorizedStaff(req);
+   const page=Number(b.page??0),pageSize=15;
+   if(!Number.isSafeInteger(page)||page<0||page>99999)
+     return reply({error:"Page d'historique invalide"},400);
+   let query=db.from("vce_agent_sessions")
+     .select("session_id,pilot_slug,game,track,car,started_at,ended_at,status,laps_count,best_lap_ms",{count:"exact"});
+   const pilot=clean(b.pilot_slug,100);
+   if(pilot){
+     if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pilot))
+       return reply({error:"Filtre pilote invalide"},400);
+     query=query.eq("pilot_slug",pilot);
+   }
+   const game=clean(b.game,12);
+   if(game){
+     if(!GAMES.includes(game))return reply({error:"Filtre jeu invalide"},400);
+     query=query.eq("game",game);
+   }
+   const status=clean(b.status,24);
+   if(status){
+     if(!["in_progress","completed","stopped"].includes(status))
+       return reply({error:"Filtre état invalide"},400);
+     query=query.eq("status",status);
+   }
+   for(const [field,operator] of [["after", "gte"],["before", "lt"]] as const){
+     const value=clean(b[field],35);
+     if(!value)continue;
+     if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)||
+        !Number.isFinite(Date.parse(value)))
+       return reply({error:"Filtre date invalide"},400);
+     query=operator==="gte"?query.gte("started_at",value):query.lt("started_at",value);
+   }
+   const rows=await query.order("started_at",{ascending:false})
+     .order("session_id",{ascending:false})
+     .range(page*pageSize,(page+1)*pageSize-1);
+   requireOk(rows);
+   const total=rows.count??0;
+   return reply({ok:true,sessions:rows.data||[],total,page,page_size:pageSize,
+     pages:Math.ceil(total/pageSize),has_more:(page+1)*pageSize<total});
+ }
  if(action==="staff_sessions"||action==="pilot_sessions"){
    const actor=action==="staff_sessions"?await authorizedStaff(req):null;
    const uid=actor?null:(await authUser(req)).id;
