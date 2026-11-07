@@ -1,0 +1,14 @@
+/* STAFF TELEMETRY · Code provisoire (v20261107) */
+.vce-provision-panel .vce-provision-controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.vce-provision-panel .vce-provision-controls select{min-width:220px;flex:1;max-width:370px}
+.vce-provision-panel .vce-provision-controls button{white-space:normal;font-size:12px}
+.vce-provision-panel .vce-provision-controls button:disabled{opacity:.45;cursor:not-allowed}
+#vce-pilot-provision-help{font-size:13px;line-height:1.5;margin:10px 0 5px;color:#b8d2ea}
+#vce-pilot-provision-message{margin:10px 0;min-height:20px;line-height:1.5}
+#vce-pilot-provision-message[data-error="true"]{color:#ffaec0}
+#vce-pilot-provision-credentials{border:2px solid #50d9b1;background:#103027;color:#edfff9;padding:18px 20px;border-radius:9px;margin-top:16px}
+#vce-pilot-provision-credentials[hidden]{display:none}
+#vce-pilot-provision-credentials strong{color:#88f5d2;display:block;margin-bottom:10px;font-size:14px}
+#vce-pilot-provision-result{background:#091c19;border:1px solid #3e8978;padding:15px;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere;color:#f1fff9;font-size:14px;line-height:1.8;user-select:text}
+#vce-pilot-provision-copy{background:#167963;border-color:#43c3a6}
+#vce-pilot-provision-credentials small{display:block;margin-top:10px;color:#a6dcca;line-height:1.5}
