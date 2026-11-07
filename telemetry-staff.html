@@ -17,7 +17,7 @@ button{cursor:pointer;font-weight:700}button:hover{background:#235484}.danger{ba
 th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #2e4055;font-size:12px;vertical-align:middle}
 th{color:#8cc5ff}.actions{display:flex;gap:6px}td input{max-width:155px}
 .pill{padding:5px 9px;border-radius:20px;background:#24445f;display:inline-block}
-</style><link rel="stylesheet" href="assets/css/vce-global-background.css?v=20261106"><link rel="stylesheet" href="assets/css/vce-staff-provision.css?v=20261107-1"></head><body><main>
+</style><link rel="stylesheet" href="assets/css/vce-global-background.css?v=20261106"><link rel="stylesheet" href="assets/css/vce-staff-provision.css?v=20261107-1"><link rel="stylesheet" href="assets/css/vce-staff-history.css?v=20261107-1"></head><body><main>
 <header><div class="brand">RACE CONTROLE <em>VCE</em></div><a href="staff.html">Retour STAFF</a></header>
 <h1>Appareils et flux de télémétrie</h1>
 <p class="muted">Association sécurisée entre le PC d'un pilote et son profil VCE. Les demandes n'envoient aucune télémétrie avant approbation.</p>
@@ -34,8 +34,27 @@ th{color:#8cc5ff}.actions{display:flex;gap:6px}td input{max-width:155px}
 </section>
 <section class="panel scroll"><h2>Appareils</h2><table><thead><tr><th>Pilote demandé</th><th>SteamID64</th><th>IP locale (info)</th><th>ID de PC</th><th>Statut</th><th>Jeu</th><th>Dernier signal</th><th>Rattachement / décision</th></tr></thead>
 <tbody id="devices"><tr><td colspan="7">Chargement…</td></tr></tbody></table></section>
-<section class="panel scroll"><h2>Dernières sessions</h2>
-<table><thead><tr><th>Pilote</th><th>Jeu</th><th>Circuit</th><th>Voiture</th><th>Début</th><th>État</th><th>Tours</th></tr></thead><tbody id="sessions"><tr><td colspan="7">Chargement…</td></tr></tbody></table></section>
+<section class="panel vce-staff-history" id="vceHistory">
+ <div class="row"><div><h2>HISTORIQUE DES SESSIONS</h2><p class="muted small">Toutes les données restent dans Supabase. Affichage de 15 séances par page.</p></div>
+  <button type="button" id="vceHistoryToggle" aria-expanded="false" aria-controls="vceHistoryContent">Ouvrir l'historique</button>
+ </div>
+ <div id="vceHistoryContent" hidden>
+  <div class="vce-history-filters">
+   <label>Pilote<select id="vceHistoryPilot"><option value="">Tous les pilotes</option></select></label>
+   <label>Jeu<select id="vceHistoryGame"><option value="">Tous les jeux</option><option value="AC">Assetto Corsa</option><option value="ACC">ACC</option><option value="LMU">Le Mans Ultimate</option><option value="ACEVO">AC Evo</option><option value="R3E">RaceRoom</option></select></label>
+   <label>État<select id="vceHistoryState"><option value="">Tous les états</option><option value="completed">Terminée</option><option value="in_progress">En cours</option><option value="stopped">Arrêtée</option></select></label>
+   <label>À partir du<input id="vceHistoryFrom" type="date"></label>
+   <label>Jusqu'au<input id="vceHistoryTo" type="date"></label>
+  </div>
+  <div class="vce-history-actions">
+   <button type="button" id="vceHistoryReset">Effacer les filtres</button>
+   <button type="button" id="vceHistoryRefresh">Actualiser l'historique</button>
+   <span id="vceHistorySummary" role="status" aria-live="polite">Historique en attente.</span>
+  </div>
+  <div class="scroll vce-history-table"><table><thead><tr><th>Pilote</th><th>Jeu</th><th>Circuit</th><th>Voiture</th><th>Début</th><th>État</th><th>Tours</th><th>Meilleur tour</th><th>Analyse</th></tr></thead><tbody id="sessions"><tr><td colspan="9">Ouvre l'historique pour charger les données.</td></tr></tbody></table></div>
+  <div class="vce-history-pagination"><button type="button" id="vceHistoryPrevious">← Précédent</button><span id="vceHistoryPage">Page —</span><button type="button" id="vceHistoryNext">Suivant →</button></div>
+ </div>
+</section>
 </div></main>
 <script src="vce-supabase-config.js"></script><script src="vce-supabase.js"></script>
 <script>
@@ -69,7 +88,7 @@ async function refreshIdentity(){
 async function refresh(){
  $('status').textContent='Interrogation de Supabase…';
  try{
- const [devices,sessions,rosterData]=await Promise.all([send('staff_list'),send('staff_sessions'),VCESupabase.read('pilotes')]);
+ const [devices,rosterData]=await Promise.all([send('staff_list'),VCESupabase.read('pilotes')]);
  let choices=Array.isArray(rosterData.items)?rosterData.items:null;
  if(!choices){
   const fallback=await fetch('data/vce/pilotes.json',{cache:'no-store'});
@@ -101,24 +120,7 @@ async function refresh(){
  wrap.append(field,approve,reject);td.append(wrap);tbody.append(tr);
  }
  if(!tbody.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune demande reçue');td.colSpan=8;tbody.append(tr)}
- const ts=$('sessions');ts.replaceChildren();
- for(const s of sessions.sessions||[]){const tr=document.createElement('tr');
- const col=cell(tr,'');
- const name=document.createElement('strong');name.textContent=s.pilot_slug||'Pilote';col.append(name);
- const actions=document.createElement('div');actions.className='actions';
- for(const [label,view] of [['TOUR','tour'],['SETUP','setup']]){
-  const link=document.createElement('a');
-  link.href='telemetry.html?view='+view+'#'+encodeURIComponent(s.pilot_slug||'');
-  link.textContent=label;
-  link.title='Ouvrir la télémétrie '+view+' du pilote avec les droits STAFF';
-  link.style.cssText='display:inline-flex;padding:6px 9px;margin:4px 5px 0 0;border:1px solid #386089;border-radius:5px;background:#142a46;color:#d5eaff;text-decoration:none;font-size:12px;font-weight:800';
-  actions.append(link);
- }
- col.append(actions);
- for(const value of [s.game,s.track,s.car,date(s.started_at),s.status,s.laps_count])cell(tr,value);
- ts.append(tr)}
- if(!ts.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune session reçue');td.colSpan=7;ts.append(tr)}
- $('status').textContent='Connecté : '+(devices.devices||[]).length+' appareil(s), '+(sessions.sessions||[]).length+' session(s).';
+ $('status').textContent='Connecté : '+(devices.devices||[]).length+' appareil(s). Historique consultable ci-dessous.';
  await refreshIdentity();
  }catch(e){$('status').textContent='FLUX INDISPONIBLE : '+e.message}
 }
@@ -131,4 +133,4 @@ async function init(){try{
  $('vceIdentityRefresh')?.addEventListener('click',refreshIdentity);
  init();
 })();
-</script><script src="vce-staff-pilot-accounts.js?v=20261107-1" defer></script></body></html>
+</script><script src="vce-staff-pilot-accounts.js?v=20261107-1" defer></script><script src="assets/js/vce-staff-history.js?v=20261107-1" defer></script></body></html>
