@@ -1,0 +1,20 @@
+/* VCE TELEMETRY STAFF · bounded, filterable session history */
+.vce-staff-history h2{font-size:21px;margin:2px 0 8px}
+.vce-staff-history .small{margin:5px 0}
+#vceHistoryContent[hidden]{display:none!important}
+.vce-history-filters{display:grid;grid-template-columns:repeat(5,minmax(135px,1fr));gap:12px;margin:20px 0 13px}
+.vce-history-filters label{display:flex;flex-direction:column;gap:7px;font-size:12px;color:#b9d7f3;font-weight:800}
+.vce-history-filters select,.vce-history-filters input{max-width:100%;width:100%;min-width:0;height:42px;border:1px solid #446787;background:#101f34;padding:9px 10px;color:white;border-radius:6px}
+.vce-history-actions,.vce-history-pagination{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}
+.vce-history-actions span,.vce-history-pagination span{font-variant-numeric:tabular-nums;color:#b0cee6;font-size:13px}
+.vce-history-pagination{justify-content:center;margin-top:20px}
+.vce-history-pagination button:disabled{opacity:.35;cursor:not-allowed}
+.vce-history-table{max-height:660px;overflow:auto;border:1px solid #35506e;border-radius:8px;background:#101c2c}
+.vce-history-table table{min-width:1020px}
+.vce-history-table th{background:#16283f;position:sticky;top:0;z-index:1}
+.vce-history-table td{font-variant-numeric:tabular-nums}
+.vce-history-table tr:hover td{background:#192a3e}
+.vce-history-link{display:inline-block;padding:6px 8px;margin:3px;border:1px solid #426c91;border-radius:5px;background:#173958;text-decoration:none;font-size:11px;font-weight:800;color:#ddedff}
+.vce-history-link:hover{background:#24618a}
+@media(max-width:1050px){.vce-history-filters{grid-template-columns:repeat(3,minmax(150px,1fr))}}
+@media(max-width:620px){.vce-history-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.vce-history-actions{align-items:stretch}.vce-history-actions span{width:100%}}
