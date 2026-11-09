@@ -3,7 +3,7 @@
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id);
-const app={poll:null,busy:false,lastKey:'',loginOpen:false};
+const app={poll:null,busy:false,lastKey:'',loginOpen:false,lapCache:new Map(),identity:null,identityAt:0,catalogKey:''};
 const cfg=()=>window.VCE_SUPABASE||{};
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const requested=()=>slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''));
@@ -53,7 +53,10 @@ function makeUI(){
   try{await api('pilot_share',{enabled:true});banner('Comparaison autorisée pour les autres pilotes','ok')}
   catch(e){banner('Partage impossible : '+e.message,'error')}
  };
- compare.append(list,button,optIn);section.append(compare);
+ compare.append(list,button,optIn);
+ const host=document.getElementById('tt-compare');
+ if(new URLSearchParams(location.search).get('view')==='setup'){compare.hidden=true;section.append(compare)}
+ else if(host)host.append(compare);else section.append(compare);
   target.after(section);
  const meters=document.querySelector('.vce-hud-meters');
  if(meters){
@@ -85,7 +88,7 @@ const api=async(action,extra={})=>{
  if(!session?.access_token)throw Error('Compte non connecté');
  const c=cfg();
  const response=await fetch(c.url+'/functions/v1/vce-telemetry',{
-   method:'POST',cache:'no-store',headers:{'apikey':c.key,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
+   method:'POST',cache:'no-store',signal:AbortSignal.timeout(14000),headers:{'apikey':c.key,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
    body:JSON.stringify({action,...extra})});
  const result=await response.json().catch(()=>({error:'Réponse non JSON du serveur'}));
  if(!response.ok||result.error)throw Error('HTTP '+response.status+' : '+(result.error||'Erreur inconnue'));
@@ -154,7 +157,8 @@ async function refreshData(forced=false){
    }
    let staff=false;try{staff=await window.VCESupabase.isStaff()}catch{}
    if(!staff){
-     const identity=await api('pilot_whoami');
+     const identity=app.identity&&Date.now()-app.identityAt<60000?app.identity:await api('pilot_whoami');
+     app.identity=identity;app.identityAt=Date.now();
      if(identity.password_change_required){
        $('vce-cloud-pilot-link').hidden=false;
        banner('CHANGE TON MOT DE PASSE PROVISOIRE DANS TON ESPACE PILOTE','warn');return;
@@ -174,15 +178,24 @@ async function refreshData(forced=false){
      app.lastKey='';window.VCEloadTelemetry?.({sessions:[]},{source:'cloud'});
      banner(staff?'AUCUNE SESSION POUR CE PROFIL':'AUCUNE SESSION LIÉE À TON COMPTE','warn');return;
    }
-   const key=sessions.map(s=>[s.session_id,s.status,s.laps_count,s.last_heartbeat_at].join(':')).join('|');
+   // Heartbeats do not invalidate downloaded historical laps.
+   const key=sessions.map(s=>[s.session_id,s.status,s.laps_count,s.live_sample?.t??''].join(':')).join('|');
    if(key===app.lastKey&&!forced)return;
    const enriched=await Promise.all(sessions.map(async(s,i)=>{
-     // Only fetch detailed samples for the most recent 4 sessions to avoid
-     // transferring the full telemetry archive on every poll.
-     if(i>3)return normalizeSession(s,[]);
-     try{const rows=await fetchSessionLaps(s.session_id,40);
-       return normalizeSession(s,rows)}
-     catch(err){if(i===0)banner('Sessions reçues, mais tours indisponibles : '+err.message,'warn');return normalizeSession(s,[])}
+     // Preserve historical samples in memory. Refetch only after new laps arrive.
+     const cached=app.lapCache.get(s.session_id),count=Number(s.laps_count||0);
+     const fresh=cached&&cached.count===count&&
+       (s.status!=='in_progress'||Date.now()-cached.at<30000);
+     if(fresh)return normalizeSession(s,cached.rows);
+     if(i>3)return normalizeSession(s,cached?.rows||[]);
+     try{
+       const rows=await fetchSessionLaps(s.session_id,40);
+       app.lapCache.set(s.session_id,{count,rows,at:Date.now()});
+       return normalizeSession(s,rows);
+     }catch(err){
+       if(i===0)banner('Sessions reçues, tours indisponibles : '+err.message,'warn');
+       return normalizeSession(s,cached?.rows||[]);
+     }
    }));
    app.lastKey=key;
    window.VCEloadTelemetry?.({sessions:enriched},{source:'cloud'});
@@ -215,15 +228,8 @@ async function updateComparisonCatalog(){
    list.add(new Option(title,row.session_id));
   }
   if([...list.options].some(opt=>opt.value===previous))list.value=previous;
-  // Auto-pair the first explicitly shareable compatible team reference.
-  // The server checks account/team permissions and same game, car and circuit.
-  const candidates=Array.isArray(data.sessions)?data.sessions:[];
-  if(candidates.length&&window.VCEexternalReferenceLap?.baseId!==target&&app.autoComparedBase!==target){
-    app.autoComparedBase=target;
-    list.value=candidates[0].session_id;
-    await loadOtherReference();
-  }
- }catch(e){list.replaceChildren(new Option('Références indisponibles',''));banner('Comparaison : '+e.message,'warn')}
+  // Comparisons are manual: never silently replace the selected pilot.
+  }catch(e){list.replaceChildren(new Option('Références indisponibles',''));banner('Comparaison : '+e.message,'warn')}
 }
 async function loadOtherReference(){
  const session=window.vceSession,id=$('vce-other-session')?.value;
@@ -246,6 +252,7 @@ async function loadSelectedSession(){
   banner('Chargement des tours de '+(target.track||'la session')+'…');
   const rows=await fetchSessionLaps(target.id,40);
   target.laps=rows.map(normalizeLap);
+  app.lapCache.set(target.id,{count:target.totalLaps||rows.length,rows,at:Date.now()});
   window.VCEloadTelemetry?.({sessions},{source:'cloud'});
   document.dispatchEvent(new Event('vce-cloud-update'));
   banner('Tours chargés · '+target.laps.length,'ok');
@@ -301,6 +308,7 @@ async function fetchOlderLaps(){
   const existing=new Map((target.laps||[]).map(l=>[l.number,l]));
   for(const lap of rows.laps)existing.set(lap.lap_number,normalizeLap(lap));
   target.laps=[...existing.values()].sort((a,b)=>a.number-b.number);
+   app.lapCache.delete(target.id);
   window.VCEloadTelemetry?.({sessions},{source:'cloud'});
   document.dispatchEvent(new Event('vce-cloud-update'));
   banner(target.laps.length+' tours disponibles pour comparaison','ok');
@@ -310,8 +318,9 @@ async function fetchOlderLaps(){
 function start(){
  makeUI();if(!window.VCESupabase){banner('Scripts Supabase introuvables','error');return}
  refreshData(true);
- app.poll=setInterval(()=>{if(!document.hidden)refreshData()},2500);
+ app.poll=setInterval(()=>{if(!document.hidden)refreshData()},10000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshData(true)});
+ document.getElementById('session')?.addEventListener('change',()=>setTimeout(updateComparisonCatalog,80));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
