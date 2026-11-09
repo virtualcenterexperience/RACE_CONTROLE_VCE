@@ -1,0 +1,97 @@
+/* VCE Performance Lab v4.0 — Tour and Setup workspaces.
+   Keep data-layer IDs stable; never style an absent measurement as a valid reading. */
+:root{--v40-panel:#101c2e;--v40-edge:#304867;--v40-ink:#ecf5ff;--v40-muted:#a6bdd4;--v40-blue:#47a3fa;--v40-red:#f14769}
+body.vce-telemetry-workspace main{max-width:1680px!important}
+body.vce-telemetry-workspace .intro{margin-bottom:12px!important}
+.vce-mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 18px}
+.vce-mode-switch a{display:flex;flex-direction:column;gap:5px;min-height:78px;padding:16px 20px;background:#0d1d33;border:1px solid #294969;border-radius:11px;color:#e4f3ff;font-size:14px;font-weight:850;letter-spacing:.45px;text-decoration:none;transition:background-color .15s,border-color .15s}
+.vce-mode-switch a small{color:#9db8d5;font-weight:500;font-size:12px;letter-spacing:0}
+.vce-mode-switch a:hover{background:#162c49;border-color:#6daee9}
+html[data-telemetry-view=tour] #vce-tour-tab,html[data-telemetry-view=setup] #vce-setup-tab{background:#153356;border-color:#5a99d6;border-left:4px solid #f14769}
+.vce-tour-guide{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:20px 25px;margin:0 0 17px;background:linear-gradient(105deg,#142a47 0%,#101b2e 65%,#231724);border:1px solid #335474;border-radius:12px}
+.vce-tour-guide small,.vce-kicker,.vce-setup-dashboard-heading small{font-size:10px;letter-spacing:1.6px;color:#83c5ff;font-weight:900}
+.vce-tour-guide h2{margin:7px 0!important;color:#f5f8ff;font-size:23px!important;letter-spacing:-.35px}
+.vce-tour-guide p{max-width:630px;margin:5px 0 0;font-size:13px}
+.vce-tour-jumps{display:flex;gap:8px;flex-wrap:wrap}
+.vce-tour-jumps a{display:inline-flex;align-items:center;border:1px solid #3c6287;border-radius:8px;background:#122a43;color:#e4f3ff;padding:12px 14px;font-weight:750;font-size:11px;letter-spacing:.2px;text-decoration:none}
+.vce-tour-jumps a:hover{background:#1d446b}
+#vce-tour-live-host:empty{display:none}
+#vce-tour-live-host>.vce-stream{margin:0 0 18px!important;background:#0d1d32!important;border:1px solid #34628b!important;border-top:3px solid #f14769!important}
+#vce-tour-live-host>.vce-stream #vce-stream-plot{min-height:170px}
+body.vce-telemetry-workspace .layout#tt-circuit{grid-template-columns:minmax(0,1.6fr) minmax(270px,.8fr)}
+#tt-circuit>.panel:first-child{border-top:3px solid #3e98e5!important}
+#tt-circuit #map{min-height:370px}
+#tt-compare{border-top:3px solid #ed466e!important}
+#tt-curves{border-top:3px solid #4f9deb!important}
+#tt-history{border-top:3px solid #3d9bdd!important}
+#tt-delta{border-top:3px solid #ed466e!important}
+#tt-sessions label{font-size:12px}
+#lap,#reference,#session{font-size:13px!important}
+.vce-setup-dashboard{margin:0 0 30px}
+.vce-setup-dashboard-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;border:1px solid #355578;border-left:4px solid #f14769;border-radius:11px;padding:23px 26px;background:linear-gradient(110deg,#142940,#0d1a2d 78%);margin-bottom:17px}
+.vce-setup-dashboard-heading h2{color:#f5f9ff!important;font-size:clamp(20px,2.4vw,30px)!important;margin:7px 0 6px;letter-spacing:-.6px}
+.vce-setup-dashboard-heading p{max-width:810px;margin:0;font-size:13px}
+#vce-setup-data-state{color:#97cbf5;font-size:11px;font-weight:800;border:1px solid #3b648e;border-radius:25px;padding:9px 12px;background:#0a1d31}
+.vce-setup-zone{margin-bottom:16px}
+#vce-setup-live .vce-setup-live-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+#vce-setup-live .vce-setup-live-heading h2{font-size:20px;color:#f5f8ff;margin:0!important}
+#vce-setup-live .vce-setup-live-heading span{font-size:12px;color:#b4d2ed}
+.vce-setup-live-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.vce-setup-live-card{min-width:0;padding:17px;border:1px solid #2c4c70;background:#0e1d31;border-top:2px solid #4489d6;border-radius:10px}
+.vce-setup-live-card:nth-child(even){border-top-color:#ee4c70}
+.vce-setup-live-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:11px}
+.vce-setup-live-card-head strong{font-size:13px;color:#f0f7ff}
+.vce-setup-live-card-head span{font-size:10px;color:#98b6d4}
+.vce-setup-live-card canvas{display:block;width:100%;height:170px!important;max-height:170px;aspect-ratio:auto!important;background:#091527;border:1px solid #263f5f;border-radius:7px}
+.vce-setup-live-values{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 0}
+.vce-setup-live-values span{display:inline-flex;align-items:center;gap:6px;font-size:11px;background:#132b46;border:1px solid #2b4c71;border-radius:6px;padding:5px 8px;color:#d3e5f7}
+.vce-setup-live-values span::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--series-color,#59a1f4)}
+#vce-setup-compare{margin:15px 0 17px!important;border-top:3px solid #e8456e!important}
+.vce-setup-compare-controls{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:11px;margin:15px 0}
+.vce-setup-compare-controls label{font-size:11px;font-weight:700;color:#bed3eb}
+.vce-setup-compare-controls select{display:block;width:100%;height:44px;margin-top:7px;border:1px solid #355c82;border-radius:7px;color:#f1f7ff;background:#0b2036;padding:9px 11px;font-size:12px}
+.vce-setup-map-layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(260px,.7fr);gap:15px}
+.vce-setup-map-surface{min-width:0;background:#071525;border:1px solid #254368;border-radius:9px;padding:12px}
+#vce-setup-map-canvas{display:block;width:100%;height:auto!important;min-height:310px;max-height:540px;aspect-ratio:920/510!important;background:#071525;border:none}
+.vce-map-legend{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:12px 0 2px;color:#adc8e3;font-size:11px}
+.vce-map-legend span:before{content:"";display:inline-block;width:16px;height:3px;background:#d8e9fc;vertical-align:middle;margin-right:7px}
+.vce-map-legend .lap-a:before{background:#49a9f7}.vce-map-legend .lap-b:before{background:#ff5f79}
+.vce-map-legend .gain:before{background:#31ce98}.vce-map-legend .loss:before{background:#fb526a}
+.vce-setup-analysis{background:#0b1b30;border:1px solid #2c496e;padding:20px;border-radius:9px;min-width:0}
+.vce-setup-analysis>small{font-size:10px;letter-spacing:1px;font-weight:800;color:#9bc9f8;display:block}
+.vce-setup-analysis>strong{font-size:30px;color:#f5faff;display:block;margin:5px 0 19px;font-variant-numeric:tabular-nums}
+.vce-setup-analysis>label{font-size:11px;color:#b5cae2;display:block}
+#vce-setup-scrub{accent-color:#ec456a;display:block;width:100%;margin:13px 0 18px}
+.vce-setup-delta-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.vce-setup-delta-grid>div{background:#112941;border:1px solid #2f5378;border-radius:8px;padding:12px;min-width:0}
+.vce-setup-delta-grid small{font-size:10px;color:#a8c1df;display:block;margin-bottom:9px}
+.vce-setup-delta-grid strong{font-size:17px;font-variant-numeric:tabular-nums;display:block;overflow-wrap:anywhere}
+#vce-setup-map-note{color:#b6cce2;font-size:12px;margin:18px 0 0;line-height:1.6}
+#vce-setup-map-status{font-size:11px;color:#9ac7ed}
+.vce-methodology{background:#17273c;border-left:3px solid #82bff5;padding:12px 14px;border-radius:4px;color:#c3d3e6;font-size:12px;line-height:1.55}
+#vce-setup-dashboard #vce-other-driver{display:block!important;margin:12px 0 16px!important;background:#10213a;padding:15px;border:1px solid #2d4d6f;border-radius:9px}
+#vce-setup-curves #vce-engineering-studio{display:block!important;margin:0!important}
+#vce-setup-curves #vce-eng-chart{height:420px!important;min-height:0}
+#vce-setup-values #vce-setup-overview{display:block!important;margin:14px 0!important}
+#vce-setup-values #tt-setup{margin-bottom:12px}
+html[data-telemetry-view=tour] body.vce-telemetry-workspace .vce-setup-dashboard{display:none!important}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace .vce-tour-guide,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-tour-live-host,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace .vce-hud-banner,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace .vce-hud-meters,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace .vce-cloud-extra,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace main>.kpis,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-circuit,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-compare,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-curves,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-history,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-analysis,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-delta,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-stream{display:none!important}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{display:grid!important;grid-template-columns:1.6fr 2fr 1fr 1fr 1.2fr;margin:0 0 16px!important}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions label:nth-child(3),
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions label:nth-child(4){display:none!important}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{grid-template-columns:1fr 2fr 1fr}
+@media(max-width:1200px){.vce-setup-map-layout{grid-template-columns:1fr}.vce-setup-live-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.vce-tour-guide{align-items:flex-start;flex-direction:column}.vce-setup-live-grid{grid-template-columns:1fr}.vce-setup-compare-controls{grid-template-columns:1fr 1fr}.vce-setup-compare-controls label:last-child{grid-column:1/-1}}
+@media(max-width:650px){.vce-mode-switch{grid-template-columns:1fr}.vce-setup-dashboard-heading{padding:18px}.vce-setup-compare-controls{grid-template-columns:1fr}.vce-setup-compare-controls label:last-child{grid-column:auto}.vce-setup-map-surface{padding:4px}#vce-setup-map-canvas{min-height:230px}.vce-setup-delta-grid{grid-template-columns:1fr 1fr}html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{grid-template-columns:1fr}}
