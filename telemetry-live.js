@@ -187,7 +187,10 @@ function render(ts){
   if(ts-state.lastChart>cadence){state.lastChart=ts;mainPlot(ts)}
   trackPlot(ts);hud(ts);
  }
-  if(state.lastFrame&&Date.now()-state.lastFrame>5000){st('● CANAL CONNECTÉ · AUCUNE TRAME DEPUIS '+Math.round((Date.now()-state.lastFrame)/1000)+' s');}
+  if(state.lastFrame&&Date.now()-state.lastFrame>5000){
+   if(window.vceSession?.id===state.session&&window.vceSession?.live)window.vceSession.live.active=false;
+   st('● CANAL CONNECTÉ · AUCUNE TRAME DEPUIS '+Math.round((Date.now()-state.lastFrame)/1000)+' s');
+  }
  state.raf=requestAnimationFrame(render);
 }
 function start(){
