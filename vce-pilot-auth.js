@@ -3,32 +3,36 @@
 const $=id=>document.getElementById(id);
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const internalEmail=id=>'vce-pilote+'+id+'@virtual-center-experience.fr';
-const state={checked:'',seq:0,identity:null,verified:''};
+const state={checked:'',seq:0,identity:null,verified:'',verification:null,verificationId:'',inFlightStatus:new Map()};
 window.VCEPilotAuthCanAccess=id=>state.verified===slug(id)&&Boolean(id);
 let card=null;
 const current=()=>slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''));
 const cfg=()=>window.VCE_SUPABASE||{};
 function lock(value){document.documentElement.classList.toggle('vce-pilot-auth-locked',value);const el=$('pilotDashboard');if(el)el.style.setProperty('display',value?'none':'block','important')}
 async function accountStatus(id){
- const config=cfg();
- if(!window.VCESupabase?.configured())return {ready:false,listed:null};
- try{
+ if(state.inFlightStatus.has(id))return state.inFlightStatus.get(id);
+ const promise=(async()=>{
+  const config=cfg();
+  if(!window.VCESupabase?.configured())throw Error('Supabase indisponible');
   const response=await fetch(config.url+'/functions/v1/vce-telemetry',{
-   method:'POST',cache:'no-store',
+   method:'POST',cache:'no-store',signal:AbortSignal.timeout(12000),
    headers:{apikey:config.key,'Content-Type':'application/json'},
    body:JSON.stringify({action:'pilot_account_ready',pilot_slug:id})
   });
-  if(!response.ok)return {ready:false,listed:null};
+  if(!response.ok)throw Error('Vérification serveur HTTP '+response.status);
   const body=await response.json();
-  return {ready:body?.ready===true,listed:typeof body?.listed==='boolean'?body.listed:null};
- }catch{return {ready:false,listed:null}}
+  if(typeof body?.ready!=='boolean'||typeof body?.listed!=='boolean')throw Error('Réponse de vérification incomplète');
+  return {ready:body.ready,listed:body.listed};
+ })().finally(()=>state.inFlightStatus.delete(id));
+ state.inFlightStatus.set(id,promise);
+ return promise;
 }
 async function api(action,extra={}){
  const session=await window.VCESupabase?.validSession();
  if(!session?.access_token)throw Error('Session de connexion absente');
  const config=cfg();if(!window.VCESupabase.configured())throw Error('Supabase non configuré');
  const r=await fetch(config.url+'/functions/v1/vce-telemetry',{
-  method:'POST',headers:{apikey:config.key,Authorization:'Bearer '+session.access_token,
+  method:'POST',signal:AbortSignal.timeout(12000),headers:{apikey:config.key,Authorization:'Bearer '+session.access_token,
     'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({action,...extra})
  });
  const data=await r.json().catch(()=>({error:'Réponse invalide du serveur'}));
@@ -82,7 +86,11 @@ async function route(){
  if(!id){lock(true);if(card)card.hidden=true;return}
  lock(true);show('Vérification de ton compte VCE ESPORT…');
  try{
-  const access=await accountStatus(id);
+  // Start the server account lookup and session refresh together.
+  // Both are independently checked by Supabase, no client-side permissions are assumed.
+  const accessPromise=accountStatus(id);
+  const sessionPromise=window.VCESupabase?.validSession().catch(()=>null);
+  const access=await accessPromise;
   if(request!==state.seq)return;
   if(access.listed===false){
    // Distinguish an uninitialized database roster from an actual STAFF removal.
@@ -101,13 +109,18 @@ async function route(){
   }
   // Existing unprovisioned profiles remain accessible during the server rollout.
   if(!access.ready){openDashboard();return}
-  const session=await window.VCESupabase?.validSession();
+  const session=await sessionPromise;
   if(request!==state.seq)return;
   if(!session?.access_token){showForm();return}
-  let isStaff=false;try{isStaff=await window.VCESupabase.isStaff()}catch{}
+  // Permission and pilot ownership queries run in parallel. Ownership still
+  // must match the profile before the dashboard is unlocked.
+  const [staffResult,identityResult]=await Promise.allSettled([
+    window.VCESupabase.isStaff(),api('pilot_whoami')
+  ]);
   if(request!==state.seq)return;
-  if(isStaff){openDashboard();return}
-  const identity=await api('pilot_whoami');
+  if(staffResult.status==='fulfilled'&&staffResult.value===true){openDashboard();return}
+  if(identityResult.status==='rejected')throw identityResult.reason;
+  const identity=identityResult.value;
   if(request!==state.seq)return;
   state.identity=identity;
   if(slug(identity.pilot_slug)!==id){showForm('Ce navigateur est connecté à un autre pilote. Déconnecte ce compte pour ouvrir ce profil.');return}
