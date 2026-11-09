@@ -92,10 +92,11 @@ change("engine.py",
     "self.log('Lecture indisponible : '+str(e));adapter.close();adapter=None;frame=None;next_open=now+3")
 
 # Important: V3.6 polled LMU's recording folders up to ~333 times PER SECOND.
-# This never wrote to the game, but was needless disk activity. Now 10s max.
+# Never poll the game's DuckDB files while LMU is active. After LMU exits,
+# import completed recordings at most once every 10s (read-only).
 change("engine.py",
     "if game=='LMU' or self.cfg.get('enabled_game')=='AUTO':\n                    for file in self.lmu.poll():",
-    """if (game=='LMU' or self.cfg.get('enabled_game')=='AUTO') and now-last_lmu_poll>=10:
+    """if (game!='LMU' and self.cfg.get('enabled_game') in ('AUTO','LMU') and now-last_lmu_poll>=10):
                     last_lmu_poll=now
                     for file in self.lmu.poll():""")
 
