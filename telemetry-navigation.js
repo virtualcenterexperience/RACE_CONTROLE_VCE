@@ -47,12 +47,12 @@ function errorMessage(path){
 async function loadModules(){
  // Start network downloads together but execute in order to preserve module dependencies.
  scripts.forEach(path=>{
-  const pre=document.createElement('link');pre.rel='preload';pre.as='script';pre.href=path+'?v=20261109-v40';document.head.append(pre);
+  const pre=document.createElement('link');pre.rel='preload';pre.as='script';pre.href=path+'?v=20261109-v41';document.head.append(pre);
  });
  for(const path of scripts){
   try{
    await new Promise((resolve,reject)=>{
-    const script=document.createElement('script');script.src=path+'?v=20261109-v40';
+    const script=document.createElement('script');script.src=path+'?v=20261109-v41';
     script.onload=resolve;script.onerror=()=>reject(new Error(path));
     document.body.append(script);
    });
