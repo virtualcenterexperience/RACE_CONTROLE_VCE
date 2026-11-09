@@ -143,6 +143,10 @@ jobs:
         shell: pwsh
         run: python race-controle-windows/patch_v38.py
 
+      - name: Version 3.9 et synchronisation en arrière-plan
+        shell: pwsh
+        run: python race-controle-windows/patch_v39.py
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -205,12 +209,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v3.8.0"
+          $tag = "v3.9.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "VCE 3.8.0 : detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
+          $notes = "VCE 3.9.0 : detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.7.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.9.0 - Installateur Windows" --notes $notes
           }
