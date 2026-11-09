@@ -48,6 +48,28 @@ def scan_games(only_lmu=False):
 '''
 core.write_text(src, encoding="utf-8")
 
+# If VCE starts while LMU is already running, do not even list the game's
+# telemetry directory. On exit, import only files changed after this startup.
+change("engine.py",
+    "self.started=True;self.stop_flag.clear();self.lmu.initialize()",
+    """self.started=True;self.stop_flag.clear()
+        from vce_lmu_safe_scan import lmu_mapping_available
+        if lmu_mapping_available():
+            self.lmu.safe_cutoff=time.time()
+            self.log('LMU : démarrage sans scan des fichiers du jeu')
+        else:
+            self.lmu.initialize()""")
+
+change("lmu_watcher.py",
+    """                key=str(file.resolve());signature=(st.st_size,st.st_mtime_ns)
+                previous=self.seen.get(key)""",
+    """                key=str(file.resolve());signature=(st.st_size,st.st_mtime_ns)
+                if (getattr(self,'safe_cutoff',None) is not None and
+                        st.st_mtime < self.safe_cutoff):
+                    self.seen[key]=(signature,now,True)
+                    continue
+                previous=self.seen.get(key)""")
+
 change("engine.py",
     "current=None;adapter=None;rec=None;last_live=0;last_scan=0;game=None;next_open=0;last_rate_at=0;last_rate_count=0;rate_session=None",
     "current=None;adapter=None;rec=None;last_live=0;last_scan=0;game=None;next_open=0;last_rate_at=0;last_rate_count=0;rate_session=None;last_lmu_poll=0;last_lmu_hint=-1000000")
