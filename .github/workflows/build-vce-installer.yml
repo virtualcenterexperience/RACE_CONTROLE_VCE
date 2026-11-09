@@ -124,6 +124,14 @@ jobs:
         shell: pwsh
         run: python race-controle-windows/patch_v35.py
 
+      - name: Activer LMU natif sans injection et exports locaux V3.6
+        shell: pwsh
+        run: |
+          Copy-Item "race-controle-windows/vce_lmu_native.py" "agent/vce_lmu_native.py" -Force
+          Copy-Item "race-controle-windows/vce_local_archive.py" "agent/vce_local_archive.py" -Force
+          python race-controle-windows/patch_v36.py
+          python -c "import sys;sys.path.insert(0,'agent');import vce_lmu_native as l; l.verify_layout();import vce_local_archive;import adapters;import engine;assert 'LMU' in engine.SUPPORTED_LIVE;print('VCE 3.6: LMU native layout, imports and engine routing OK')"
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -186,9 +194,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v3.5.0"
+          $tag = "v3.6.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "VCE 3.5.0 : detection AC, ACC, LMU et AC EVO. Capture native AC/ACC; LMU import de donnees selon compatibilite; AC EVO detection uniquement tant que son adaptateur natif nest pas valide. Transfert soumis au consentement et a lapprobation STAFF."
+          $notes = "VCE 3.6.0 : capture LMU_Data native en lecture seule sans injection DLL, inputs LMU disponibles, exports locaux JSON/CSV dans ANTICHEAT, envoi LIVE moins en retard, archivage conserve. AC/ACC inchanges. Frequence native selon le jeu; aucun contournement EAC. Publication apres verification antivirus."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
