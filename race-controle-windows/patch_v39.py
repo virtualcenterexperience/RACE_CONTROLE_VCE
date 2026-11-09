@@ -23,7 +23,7 @@ p.write_text(s,encoding="utf-8")
 app=root/"app.py";app_source=app.read_text(encoding="utf-8")
 old="self.root.after(3000,self._check_updates_background)"
 if app_source.count(old)!=1:raise RuntimeError("Updater startup anchor missing")
-app_source=app_source.replace(old,old+"\\n        self.root.after(6*60*60*1000,self._vce_periodic_update_check)",1)
+app_source=app_source.replace(old,old+"\n        self.root.after(6*60*60*1000,self._vce_periodic_update_check)",1)
 method="    def _load_remote_preferences(self):"
 if app_source.count(method)!=1:raise RuntimeError("Updater preferences anchor missing")
 app_source=app_source.replace(method,'''    def _vce_periodic_update_check(self):
