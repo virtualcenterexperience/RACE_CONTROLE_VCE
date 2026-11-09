@@ -10,7 +10,7 @@ a{color:#82bfff}.brand{font-size:23px;font-weight:900;letter-spacing:.5px}.brand
 h1{margin:30px 0 8px;font-size:clamp(25px,4vw,37px)}.muted{color:#9eb6d1;line-height:1.5}
 .panel{background:#111f32;border:1px solid #284664;border-radius:13px;margin:18px 0;padding:18px}
 button,input{border-radius:7px;padding:10px 12px;background:#163859;color:white;border:1px solid #41698f;font:inherit}
-button{cursor:pointer;font-weight:700}button:hover{background:#235484}.danger{background:#632239;border-color:#a74159}
+button{cursor:pointer;font-weight:700;touch-action:manipulation}button:disabled{opacity:.55;cursor:wait}button:hover{background:#235484}.danger{background:#632239;border-color:#a74159}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .small{font-size:12px}.notice{border-left:3px solid #fdca78;padding:8px 12px;background:#263040}
 #work[hidden]{display:none}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;min-width:860px}
@@ -39,7 +39,7 @@ const cfg=window.VCE_SUPABASE||{};
 async function send(action,extra={}){
  const session=await window.VCESupabase?.validSession();
  if(!session?.access_token)throw Error('Session STAFF expirée. Reconnecte-toi sur staff.html.');
- const result=await fetch(cfg.url+'/functions/v1/vce-telemetry',{method:'POST',
+ const result=await fetch(cfg.url+'/functions/v1/vce-telemetry',{method:'POST',signal:AbortSignal.timeout(12000),
  headers:{apikey:cfg.key,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
  body:JSON.stringify({action,...extra}),cache:'no-store'});
  const data=await result.json().catch(()=>({error:'Réponse non JSON'}));
@@ -49,10 +49,16 @@ async function send(action,extra={}){
 function cell(tr,text){const td=document.createElement('td');td.textContent=text??'—';tr.append(td);return td}
 function date(v){return v?new Date(v).toLocaleString('fr-FR'):'Jamais'}
 function slug(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+let refreshing=false,lastSnapshot='';
 async function refresh(){
- $('status').textContent='Interrogation de Supabase…';
+ if(refreshing)return;
+ refreshing=true;
+ if(!lastSnapshot)$('status').textContent='Chargement initial…';
  try{
  const [devices,sessions]=await Promise.all([send('staff_list'),send('staff_sessions')]);
+ const snapshot=JSON.stringify([devices.devices||[],sessions.sessions||[]]);
+ if(snapshot===lastSnapshot){$('status').textContent='Connecté · données à jour';return}
+ lastSnapshot=snapshot;
  const tbody=$('devices');tbody.replaceChildren();
  for(const d of devices.devices||[]){
  const tr=document.createElement('tr');
@@ -81,11 +87,13 @@ async function refresh(){
  if(!ts.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune session reçue');td.colSpan=7;ts.append(tr)}
  $('status').textContent='Connecté : '+(devices.devices||[]).length+' appareil(s), '+(sessions.sessions||[]).length+' session(s).';
  }catch(e){$('status').textContent='FLUX INDISPONIBLE : '+e.message}
+ finally{refreshing=false}
 }
 async function init(){try{
  if(!window.VCESupabase?.configured()||!await window.VCESupabase.isStaff())throw Error('Accès réservé au STAFF. Connecte-toi depuis staff.html.');
  $('gate').hidden=true;$('work').hidden=false;window.dispatchEvent(new Event('vce-telemetry-staff-authenticated'));await refresh();
- setInterval(()=>{if(!document.hidden)refresh()},10000);
+ setInterval(()=>{if(!document.hidden)refresh()},30000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
  }catch(e){$('gateMessage').textContent=e.message}}
  $('refresh').addEventListener('click',refresh);
  init();
