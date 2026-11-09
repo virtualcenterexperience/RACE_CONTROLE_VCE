@@ -53,3 +53,22 @@ button.ghost{background:transparent}
 .banner{padding:14px;background:#112e37;border-left:4px solid #48c1d8;margin:12px 0}
 #vce-irl-authstatus{font-size:12px}
 @media(max-width:850px){.two,.three,.notegrid{grid-template-columns:1fr}.shell{padding:14px}.panel{padding:15px}.table{font-size:12px}}
+
+/* VCE 2026 — restored official five-stage coach IRL review. */
+#vce-irl-schedule .vce-irl-table{width:100%;border-collapse:collapse;background:#0b192b;border:1px solid #324e6e;border-radius:8px;overflow:hidden}
+.vce-irl-table th,.vce-irl-table td{text-align:left;padding:12px 15px;border-bottom:1px solid #29435f;color:#dbeaff}
+.vce-irl-table td{text-align:right;font-variant-numeric:tabular-nums;color:#8fc8fa;font-weight:850}
+.vce-irl-test{padding:19px 21px;border:1px solid #345a7a;border-left:4px solid #e63a62;background:linear-gradient(120deg,#162b44,#101b2c);margin:12px 0;border-radius:10px}
+.vce-irl-test h3{font-size:17px!important;color:#f5faff;margin:0 0 9px}
+.vce-irl-test p{font-size:13px;color:#c0d4e9;margin:7px 0}
+.vce-irl-segment{display:inline-flex;margin:4px 6px 4px 0;padding:6px 10px;border:1px solid #315b7e;border-radius:6px;background:#102e4c;color:#b8d9fa;font-size:11px}
+.vce-irl-week{padding:16px 19px;border:1px solid #355170;background:#102238;border-radius:9px;margin:0 0 12px}
+.vce-irl-week h3{margin:0 0 7px;color:#eaf6ff}
+.vce-irl-week p,.vce-irl-week small{color:#b5d0eb;font-size:12px}
+.vce-irl-entry{border:1px solid #33526f;border-radius:9px;padding:15px;margin:13px 0;background:#0b1b30}
+.vce-irl-entry legend{color:#89c6fa;font-weight:900;font-size:12px;letter-spacing:.35px;padding:0 8px}
+.vce-irl-entry label{margin:12px 0}
+.vce-irl-entry textarea{font-family:Consolas,monospace;min-height:110px}
+.vce-irl-stats{display:grid;gap:8px}
+.vce-irl-stats>strong{display:block;padding:13px;border:1px solid #346a72;background:#103735;color:#c9fff0;border-radius:7px}
+.vce-irl-stats>p{border:1px solid #2f5072;background:#0e243b;padding:10px 12px;border-radius:7px;margin:0}
