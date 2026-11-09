@@ -1,5 +1,5 @@
 #define MyAppName "RACE CONTROLE VCE"
-#define MyAppVersion "3.7.0"
+#define MyAppVersion "3.8.0"
 #define MyAppExeName "Race-Controle-VCE.exe"
 
 [Setup]
