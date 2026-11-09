@@ -98,7 +98,7 @@ async function copyCode(){
  }
 }
 async function init(){
- const host=$('dashboard');if(!host)return;
+ const host=$('dashboard')||$('work');if(!host)return;
  const section=document.createElement('section');section.className='panel vce-provision-panel';
  section.innerHTML='<h2>ACCÈS PILOTES · COMPTES SUPABASE</h2>'+
   '<p class="muted">Sélectionne un pilote pour créer son accès ou générer un nouveau code provisoire.</p>'+
@@ -145,6 +145,7 @@ async function init(){
 let started=false;
 function start(){if(started)return;started=true;init()}
 window.addEventListener('vce-staff-authenticated',start);
+window.addEventListener('vce-telemetry-staff-authenticated',start);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{if($('dashboard')?.style.display==='block')start()},{once:true});
 else if($('dashboard')?.style.display==='block')start();
 })();
