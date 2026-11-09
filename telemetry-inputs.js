@@ -7,7 +7,8 @@ const fields=[
  ['throttle','ACCÉLÉRATEUR · INPUT PROGRESSIF','#22c55e',v=>v*100,'%','0–100 %'],
  ['brake','FREIN · INPUT PROGRESSIF','#ef4444',v=>v*100,'%','0–100 %'],
  ['steering','VOLANT · STEER LEFT / RIGHT','#d9b0ff',v=>v,'','Braquage natif'],
- ['speed','VITESSE','#6366f1',v=>v,' km/h','Vitesse véhicule']
+ ['speed','VITESSE','#6366f1',v=>v,' km/h','Vitesse véhicule'],
+ ['clutch','EMBRAYAGE','#eab308',v=>v*100,'%','0–100 %']
 ];
 function mount(){
  const anchor=$('vce-stream');
@@ -21,13 +22,20 @@ function mount(){
  anchor.after(el);
  const box=$('vce-input-values');
  for(const [key,label,color] of fields){const item=document.createElement('article');item.innerHTML='<small></small><strong>—</strong><div class="vce-input-meter"><i></i></div>';item.dataset.key=key;item.querySelector('small').textContent=label;item.querySelector('i').style.background=color;box.append(item)}
- const extra=document.createElement('article');extra.dataset.key='gear';extra.innerHTML='<small>RAPPORT ENGAGÉ</small><strong>—</strong><div class="vce-input-meter"><i style="width:0"></i></div>';box.append(extra);
+ for(const [key,label] of [['gear','RAPPORT ENGAGÉ'],['rpm','RÉGIME MOTEUR']]){
+ const extra=document.createElement('article');extra.dataset.key=key;
+ extra.innerHTML='<small></small><strong>—</strong><div class="vce-input-meter"><i style="width:0"></i></div>';
+ extra.querySelector('small').textContent=label;box.append(extra);
+}
  requestAnimationFrame(draw);
 }
 function normalize(s){
  const steer=finite(s.steer)?s.steer:finite(s.steering)?s.steering:null;
  return {t:s.t,throttle:finite(s.throttle)?s.throttle:null,brake:finite(s.brake)?s.brake:null,
- steering:steer,speed:finite(s.speed_kmh)?s.speed_kmh:null,gear:finite(s.gear)?s.gear:null};
+ steering:steer,speed:finite(s.speed_kmh)?s.speed_kmh:null,
+ clutch:finite(s.clutch)?s.clutch:null,
+ rpm:finite(s.rpm)?s.rpm:null,
+ gear:finite(s.gear)?s.gear:null};
 }
 function update(){
  const state=window.VCEInputFeed;
@@ -55,6 +63,7 @@ function update(){
    item.querySelector('i').style.width=finite(val)?width+'%':'0%';
   }
   document.querySelector('[data-key="gear"] strong').textContent=finite(lastSample.gear)?String(lastSample.gear):'—';
+  document.querySelector('[data-key="rpm"] strong').textContent=finite(lastSample.rpm)?Math.round(lastSample.rpm)+' tr/min':'—';
  }
 }
 function draw(){
@@ -67,9 +76,9 @@ function draw(){
   const liveRange=span>=15?15:Math.max(0.5,span);
   const left=span>=15?max-15:first;
   const plotX=t=>70+Math.max(0,Math.min(1,(t-left)/liveRange))*(w-95);
-  const rowHeight=116;
+  const rowHeight=96;
   fields.forEach(([key,label,color,convert,unit],i)=>{
-   const top=16+i*132,bottom=top+rowHeight;
+   const top=10+i*105,bottom=top+rowHeight;
    c.fillStyle='#222428';c.fillRect(58,top,w-85,rowHeight);
    c.strokeStyle='#383c42';c.lineWidth=1;
    for(let j=0;j<=4;j++){const y=top+j*rowHeight/4;c.beginPath();c.moveTo(58,y);c.lineTo(w-27,y);c.stroke()}
