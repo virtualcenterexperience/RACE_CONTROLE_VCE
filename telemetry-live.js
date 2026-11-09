@@ -5,7 +5,7 @@
 const $=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
 const W=()=>window.VCE_SUPABASE||{};
 const state={client:null,channel:null,device:'',session:'',authorized:false,
-  lastFrame:0,buffer:[],live:null,hud:null,lastUi:0,lastDraw:0,raf:0,status:'DÉCONNECTÉ',
+  lastFrame:0,buffer:[],live:null,hud:null,lastUi:0,lastDraw:0,lastChart:0,refKey:'',refData:null,raf:0,status:'DÉCONNECTÉ',
   lastCloudPoll:0,points:[],lapPoints:[],lapNumber:null,trackName:'',started:0,fail:'',displayEnabled:true,frames:0,lastSampleTime:null};
 const num=x=>typeof x==='number'&&Number.isFinite(x);
 const st=(msg,ok=false)=>{const el=$('vce-stream-state');if(el){el.textContent=msg;el.dataset.ok=ok?'yes':'no'}};
@@ -46,7 +46,7 @@ const updateSession=async()=>{
  state.channel=null;
  if(!state.client)state.client=window.supabase.createClient(W().url,W().key,{auth:{persistSession:false,autoRefreshToken:false}});
  state.client.realtime.setAuth(session.access_token);
- state.device=device;state.session=s.id;state.buffer=[];state.points=[];state.lapPoints=[];state.lapNumber=null;state.lastSampleTime=null;state.trackName=s.track||'';
+ state.device=device;state.session=s.id;state.buffer=[];state.points=[];state.lapPoints=[];state.lapNumber=null;state.lastSampleTime=null;state.trackName=s.track||'';state.lastFrame=0;state.refKey='';
  state.channel=state.client.channel('vce:device:'+device,{config:{private:true}})
  .on('broadcast',{event:'frame'},message=>{
     const p=message.payload||{};if(p.device_id!==state.device)return;
@@ -54,7 +54,7 @@ const updateSession=async()=>{
     state.lastFrame=Date.now();state.session=p.session_id||state.session;state.live=p;
     if(typeof p.track==='string'&&p.track.trim())state.trackName=p.track.trim();
     if(Number.isInteger(p.lap_number)&&state.lapNumber!==p.lap_number){state.lapPoints=[];state.lapNumber=p.lap_number;}
-    document.dispatchEvent(new CustomEvent('vce-live-frame',{detail:p}));
+    
     const samples=(Array.isArray(p.samples)?p.samples:[]).filter(x=>num(x.t)).sort((a,b)=>a.t-b.t);
     state.frames++;
     for(const sample of samples){
@@ -76,10 +76,20 @@ const updateSession=async()=>{
           }
         }
       }
-    }
     const quality=$('vce-live-quality');
     if(quality)quality.textContent='Flux reçu : '+state.buffer.length+' échantillons · '+state.frames+' trames · '+state.points.length+' positions XY distinctes';
-    if(samples.length){state.hud=samples.at(-1)}
+    if(samples.length){
+      state.hud=samples.at(-1);
+      const selected=window.vceSession;
+      // The cockpit and live graph show the same real measured values.
+      if(selected&&(!p.session_id||selected.id===p.session_id)){
+        const raw=state.hud;
+        selected.live={...(selected.live||{}),active:true,
+          lap:p.lap_number??selected.live?.lap,
+          sample:{...raw,speed:raw.speed_kmh??raw.speed,steering:raw.steering??raw.steer}};
+      }
+    }
+    document.dispatchEvent(new CustomEvent('vce-live-frame',{detail:p}));
     if(state.trackName){const t=$('vce-live-track');if(t)t.textContent=state.trackName}
     if(p.car){const c=$('vce-live-car');if(c)c.textContent=p.car}
     st('● FLUX CONNECTÉ · '+samples.length+' ÉCHANTILLONS',true)
@@ -128,19 +138,24 @@ function mainPlot(){
  c.fillStyle='#a4b9d4';c.fillText('Fenêtre : dernières 15 secondes · 0 % en bas, 100 % en haut',left,top+12);
 }
 function trackPlot(ts){
- if(ts-state.lastDraw<180)return;
+ if(ts-state.lastDraw<(state.lastFrame&&Date.now()-state.lastFrame<3000?260:2000))return;
  state.lastDraw=ts;
  const canvas=$('vce-stream-track');
  if(!canvas||!window.VCETrack35)return;
  const session=window.vceSession;
  const laps=Array.isArray(session?.laps)?session.laps:[];
- let reference=null,refCount=0;
- for(const lap of laps){
-  const arr=Array.isArray(lap.samples)?lap.samples:[];
-  if(arr.length<=refCount)continue;
-  const candidate=window.VCETrack35.analyze(arr);
-  if(candidate.ok){reference=arr;refCount=arr.length}
+ const refKey=(session?.id||'')+'|'+laps.map(l=>(l.number??'')+':'+(l.samples?.length||0)).join(',');
+ if(refKey!==state.refKey){
+  let reference=null,refCount=0;
+  for(const lap of laps){
+   const arr=Array.isArray(lap.samples)?lap.samples:[];
+   if(arr.length<=refCount)continue;
+   const candidate=window.VCETrack35.analyze(arr);
+   if(candidate.ok){reference=arr;refCount=arr.length}
+  }
+  state.refData=reference;state.refKey=refKey;
  }
+ const reference=state.refData;
  const current=state.lapPoints||[];
  const result=window.VCETrack35.canvas(canvas,current,reference||[],{
   primaryColor:'#ffad59',progress:1
@@ -167,13 +182,17 @@ function hud(ts){
 }
 function render(ts){
  // 60 FPS is the target browser rendering cadence, NOT an invented 60Hz sensor frequency.
- if(state.displayEnabled){mainPlot(ts);trackPlot(ts);hud(ts)}
+ if(state.displayEnabled&&!document.hidden){
+  const cadence=state.lastFrame&&Date.now()-state.lastFrame<3000?110:1500;
+  if(ts-state.lastChart>cadence){state.lastChart=ts;mainPlot(ts)}
+  trackPlot(ts);hud(ts);
+ }
   if(state.lastFrame&&Date.now()-state.lastFrame>5000){st('● CANAL CONNECTÉ · AUCUNE TRAME DEPUIS '+Math.round((Date.now()-state.lastFrame)/1000)+' s');}
  state.raf=requestAnimationFrame(render);
 }
 function start(){
  addUI();render(0);
- document.addEventListener('vce-cloud-update',()=>updateSession().catch(e=>st('REALTIME : '+e.message)));
+ document.addEventListener('vce-cloud-update',()=>{state.refKey='';updateSession().catch(e=>st('REALTIME : '+e.message))});
  const token=window.VCESupabase?.validSession();
  Promise.resolve(token).then(()=>updateSession()).catch(()=>{});
 }
