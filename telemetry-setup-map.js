@@ -134,13 +134,16 @@ function draw(){
  const ta=interpolate(timeA,progressFraction),tb=interpolate(timeB,progressFraction);
  const startA=timeA.length?timeA[0].v:0,startB=timeB.length?timeB[0].v:0;
  const timeDelta=ta!==null&&tb!==null?(ta-startA)-(tb-startB):null;
- const u=unit[channel]||'';
- $('vce-setup-value-a').textContent=format(at,u);
- $('vce-setup-value-b').textContent=format(bt,u);
- const difference=at!==null&&bt!==null?at-bt:null;
+ const u=unit[channel]||'',time=channel==='time';
+ // A live frame's absolute session clock is not comparable with an archived lap clock.
+ const displayA=time&&at!==null?at-startA:at;
+ const displayB=time&&bt!==null?bt-startB:bt;
+ $('vce-setup-value-a').textContent=format(displayA,u);
+ $('vce-setup-value-b').textContent=format(displayB,u);
+ const difference=time?timeDelta:at!==null&&bt!==null?at-bt:null;
  $('vce-setup-value-delta').textContent=difference===null?'—':(difference>0?'+':'')+format(difference,u);
  $('vce-setup-time-delta').textContent=timeDelta===null?'—':(timeDelta>0?'+':'')+format(timeDelta,'s');
- const time=channel==='time';
+
  const legend=canvas.parentNode.querySelector('.vce-map-legend');
  if(legend)legend.dataset.channel=time?'time':'mechanical';
  if(both.length<2){
