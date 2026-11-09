@@ -102,7 +102,7 @@ html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-other-driver{d
 html[data-telemetry-view=setup] body.vce-telemetry-workspace .intro{margin-bottom:20px}
 body.vce-telemetry-workspace .vce-salon-back{margin-left:auto;color:#a4cbf5!important}
 body.vce-telemetry-workspace .vce-tour-nav[hidden]{display:none!important}
-body.vce-telemetry-workspace .panel,.vce-salon-card,.vce-staff-telemetry .panel{content-visibility:auto;contain-intrinsic-size:auto 320px}
+/* Keep graph containers measurable while they are off-screen. */
 /* Salon selection */
 body.vce-telemetry-salon{background-color:#081221!important}
 body.vce-telemetry-salon .vce-salon{max-width:1120px;margin:0 auto;min-height:100vh;padding:clamp(35px,7vh,80px) 25px}
@@ -163,3 +163,17 @@ body.vce-staff-telemetry #vce-pilot-provision-result{white-space:pre-wrap;overfl
  body.vce-staff-telemetry .panel{padding:15px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button,.vce-salon-card{transition:none!important}}
+
+/* Strict separation: Lap telemetry never displays mechanical Setup channels. */
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #tt-setup,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-setup-overview,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-mechanical,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-engineering-studio{display:none!important}
+/* Setup mode never duplicates lap maps, comparisons or racing replays. */
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-compare,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-curves,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-delta,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-history,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-replay,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-engineering-v33,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-interop{display:none!important}
