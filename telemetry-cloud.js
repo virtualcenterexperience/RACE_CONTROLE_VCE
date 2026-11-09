@@ -54,9 +54,10 @@ function makeUI(){
   catch(e){banner('Partage impossible : '+e.message,'error')}
  };
  compare.append(list,button,optIn);
- const host=document.getElementById('tt-compare');
- if(new URLSearchParams(location.search).get('view')==='setup'){compare.hidden=true;section.append(compare)}
- else if(host)host.append(compare);else section.append(compare);
+ const setupView=new URLSearchParams(location.search).get('view')==='setup';
+ const host=document.getElementById(setupView?'vce-setup-compare':'tt-compare');
+ if(host){compare.hidden=false;host.append(compare)}
+ else section.append(compare);
   target.after(section);
  const meters=document.querySelector('.vce-hud-meters');
  if(meters){
