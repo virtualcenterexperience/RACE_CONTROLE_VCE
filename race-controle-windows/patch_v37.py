@@ -96,10 +96,10 @@ change("engine.py",
 # Earlier adapters can already use a guarded open condition.
 engine_path=root/"engine.py"
 engine_text=engine_path.read_text(encoding="utf-8")
-if "                    if adapter is None:\\n" in engine_text:
+if "                    if adapter is None:\n" in engine_text:
     change("engine.py",
-        "                    if adapter is None:\\n",
-        "                    if adapter is None and now>=next_open:\\n")
+        "                    if adapter is None:\n",
+        "                    if adapter is None and now>=next_open:\n")
 elif "if adapter is None and now>=next_open:" not in engine_text:
     raise RuntimeError("engine.py: missing compatible adapter reopen condition")
 
