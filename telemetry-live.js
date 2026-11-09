@@ -43,6 +43,7 @@ const updateSession=async()=>{
  const session=await window.VCESupabase?.validSession();
  if(!session?.access_token){st('CONNEXION PILOTE OU STAFF REQUISE');return}
  if(state.channel)try{await state.client.removeChannel(state.channel)}catch{}
+ state.channel=null;
  if(!state.client)state.client=window.supabase.createClient(W().url,W().key,{auth:{persistSession:false,autoRefreshToken:false}});
  state.client.realtime.setAuth(session.access_token);
  state.device=device;state.session=s.id;state.buffer=[];state.points=[];state.lapPoints=[];state.lapNumber=null;state.lastSampleTime=null;state.trackName=s.track||'';
@@ -85,7 +86,7 @@ const updateSession=async()=>{
  })
  .subscribe(status=>{
     state.status=status;
-    if(status==='SUBSCRIBED')st('● EN ATTENTE DE SESSION',true);
+    if(status==='SUBSCRIBED')st('● CANAL CONNECTÉ · EN ATTENTE DE TRAMES',true);
     else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')st('ERREUR CANAL PRIVÉ · VÉRIFIER LES POLICIES SUPABASE');
  });
 };
@@ -167,6 +168,7 @@ function hud(ts){
 function render(ts){
  // 60 FPS is the target browser rendering cadence, NOT an invented 60Hz sensor frequency.
  if(state.displayEnabled){mainPlot(ts);trackPlot(ts);hud(ts)}
+  if(state.lastFrame&&Date.now()-state.lastFrame>5000){st('● CANAL CONNECTÉ · AUCUNE TRAME DEPUIS '+Math.round((Date.now()-state.lastFrame)/1000)+' s');}
  state.raf=requestAnimationFrame(render);
 }
 function start(){
