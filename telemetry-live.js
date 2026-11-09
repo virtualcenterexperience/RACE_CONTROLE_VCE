@@ -182,7 +182,7 @@ function hud(ts){
 }
 function render(ts){
  // 60 FPS is the target browser rendering cadence, NOT an invented 60Hz sensor frequency.
- if(state.displayEnabled&&!document.hidden){
+ if(state.displayEnabled&&!document.hidden&&document.documentElement.dataset.telemetryView!=='setup'){
   const cadence=state.lastFrame&&Date.now()-state.lastFrame<3000?110:1500;
   if(ts-state.lastChart>cadence){state.lastChart=ts;mainPlot(ts)}
   trackPlot(ts);hud(ts);
