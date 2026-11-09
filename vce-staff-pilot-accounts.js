@@ -146,6 +146,7 @@ let started=false;
 function start(){if(started)return;started=true;init()}
 window.addEventListener('vce-staff-authenticated',start);
 window.addEventListener('vce-telemetry-staff-authenticated',start);
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{if($('dashboard')?.style.display==='block')start()},{once:true});
-else if($('dashboard')?.style.display==='block')start();
+function visibleStaffSpace(){return $('dashboard')?.style.display==='block'||($('work')&&!$('work').hidden)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{if(visibleStaffSpace())start()},{once:true});
+else if(visibleStaffSpace())start();
 })();
