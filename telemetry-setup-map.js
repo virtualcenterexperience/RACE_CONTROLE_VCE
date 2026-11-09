@@ -142,12 +142,7 @@ function draw(){
  $('vce-setup-time-delta').textContent=timeDelta===null?'—':(timeDelta>0?'+':'')+format(timeDelta,'s');
  const time=channel==='time';
  const legend=canvas.parentNode.querySelector('.vce-map-legend');
- if(legend){
-  const signs=[...legend.querySelectorAll('.gain,.loss')];
-  if(signs.length===2){signs[0].textContent=time?'Vert : gain chrono mesuré':'Cyan : valeur A supérieure';
-   signs[1].textContent=time?'Rouge : perte chrono mesurée':'Violet : valeur A inférieure'}
-  legend.dataset.channel=time?'time':'mechanical';
- }
+ if(legend)legend.dataset.channel=time?'time':'mechanical';
  if(both.length<2){
   c.fillStyle='#a6bad4';c.font='20px Segoe UI';c.fillText('En attente des positions X / Z réelles',80,h/2);
   if(status)status.textContent='Carte : coordonnées indisponibles';
@@ -161,15 +156,34 @@ function draw(){
  const offsetX=(w-extentX*scale)/2,offsetY=(h-extentY*scale)/2;
  const proj=p=>({x:offsetX+(p.x-minX)*scale,y:h-(offsetY+(p.y-minY)*scale)});
  drawPath(c,cb,proj,'#fb577c',3);drawPath(c,ca,proj,'#49a9f7',3.5);
+ // Color each segment by the LOCAL change in time delta, not the cumulative delta.
+ // Red = actual time lost in this interval; green = time recovered in this interval.
+ if(timeA.length>1&&timeB.length>1&&ca.length>3){
+  const stride=Math.max(1,Math.ceil(ca.length/3500));
+  for(let i=stride;i<ca.length;i+=stride){
+   const prev=ca[i-stride],point=ca[i];
+   if(prev.p===null||point.p===null||point.p<=prev.p)continue;
+   const a0=interpolate(timeA,prev.p),a1=interpolate(timeA,point.p);
+   const b0=interpolate(timeB,prev.p),b1=interpolate(timeB,point.p);
+   if(a0===null||a1===null||b0===null||b1===null)continue;
+   const from=proj(prev),to=proj(point);
+   if(Math.hypot(to.x-from.x,to.y-from.y)>90)continue;
+   const localDelta=(a1-a0)-(b1-b0);
+   c.beginPath();c.lineWidth=4.8;
+   c.strokeStyle=localDelta>.014?'#fa526d':localDelta<-.014?'#35d0a0':'#7d9db9';
+   c.globalAlpha=.94;c.moveTo(from.x,from.y);c.lineTo(to.x,to.y);c.stroke();c.globalAlpha=1;
+  }
+ }
  const hasCompare=a&&b&&current.length>1&&baseline.length>1;
- if(hasCompare&&ca.length>3){
+ if(!time&&hasCompare&&ca.length>3){
   const stride=Math.max(1,Math.round(ca.length/130));
   for(let i=stride;i<ca.length;i+=stride){
-   const p=ca[i],v=interpolate(current,p.p),ref=interpolate(baseline,p.p);
-   if(p.p===null||v===null||ref===null)continue;
-   const d=(time?(v-startA)-(ref-startB):v-ref),point=proj(p);
-   c.beginPath();c.fillStyle=time?(d>0.008?'#fa5774':d<-.008?'#33d2a4':'#d4deec'):(d>0?'#36d0ef':d<0?'#a78bfa':'#d4deec');
-   c.arc(point.x,point.y,3.3,0,Math.PI*2);c.fill();
+   const p=ca[i];if(p.p===null)continue;
+   const v=interpolate(current,p.p),ref=interpolate(baseline,p.p);
+   if(v===null||ref===null)continue;
+   const d=v-ref,point=proj(p);
+   c.beginPath();c.fillStyle=d>0?'#36d0ef':d<0?'#a78bfa':'#d4deec';
+   c.arc(point.x,point.y,3.2,0,Math.PI*2);c.fill();
   }
  }
  const cursorPoint=ca.reduce((best,p)=>p.p===null?best:(!best||Math.abs(p.p-progressFraction)<Math.abs(best.p-progressFraction)?p:best),null);
@@ -177,8 +191,8 @@ function draw(){
  if(status)status.textContent=(a?.live?'DIRECT · ':'ARCHIVES · ')+ca.length+' positions A · '+cb.length+' positions B';
  if(note)note.textContent=(!a||!b)?'Sélectionne deux tours compatibles pour comparer leurs mesures.':
   !hasCompare?'Tracés disponibles, mais aucune comparaison de '+channel+' possible aux mêmes positions.':
-  time?'Rouge / vert : variation du temps écoulé entre les deux tours, à progression égale.':
-       'Points colorés : différence de '+($('vce-setup-channel')?.selectedOptions[0]?.text||channel)+' à progression égale ; cela ne démontre pas un gain de temps dû à ce réglage.';
+  time?'Carte : les segments rouges/verts montrent où le delta chrono mesuré augmente ou diminue entre ces deux tours.':
+       'Segmentation rouge/verte : gain ou perte chrono locale mesurée. Points cyan/violet : écart de '+($('vce-setup-channel')?.selectedOptions[0]?.text||channel)+' à progression égale. Aucun lien de causalité n’est supposé.';
 }
 function schedule(){if(renderPending)return;renderPending=true;requestAnimationFrame(()=>{renderPending=false;syncOptions();draw()})}
 function receive(e){
