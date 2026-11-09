@@ -177,3 +177,13 @@ html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-history,
 html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-replay,
 html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-engineering-v33,
 html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-interop{display:none!important}
+
+/* Driving-input colors: accelerator green, brake red, steering violet, speed blue. */
+body.vce-telemetry-workspace .vce-inputs-lab{border-top-color:#378de4!important}
+body.vce-telemetry-workspace .vce-inputs-lab .head h2{color:#a6d4ff!important}
+body.vce-telemetry-workspace #vce-input-status{color:#a9d2ff!important}
+body.vce-telemetry-workspace #vce-hud-throttle-bar{background:#22c55e!important}
+body.vce-telemetry-workspace #vce-hud-brake-bar{background:#ef4444!important}
+body.vce-telemetry-workspace #vce-hud-steering-bar{background:#8b8bf6!important}
+body.vce-telemetry-workspace .vce-replay{border-top-color:#398fe7!important}
+body.vce-telemetry-workspace .vce-replay .head h2{color:#c9e7ff!important}
