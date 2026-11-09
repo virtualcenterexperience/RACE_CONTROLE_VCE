@@ -1,5 +1,5 @@
 #define MyAppName "RACE CONTROLE VCE"
-#define MyAppVersion "3.5.0"
+#define MyAppVersion "3.6.0"
 #define MyAppExeName "Race-Controle-VCE.exe"
 
 [Setup]
@@ -30,6 +30,9 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "Créer un raccourci sur le Bureau"; GroupDescription: "Raccourcis :"
+
+[Dirs]
+Name: "{app}\ANTICHEAT"
 
 [Files]
 Source: "..\agent\dist\Race-Controle-VCE\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
