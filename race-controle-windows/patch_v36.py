@@ -44,10 +44,10 @@ if live.count("cloud=CloudClient(self.cfg)") != 1:
     raise RuntimeError("Expected one CloudClient construction inside LIVE")
 live = live.replace(
     "        last_index=0;last_session=None;last_lap_no=None;previous_error='';announced=False",
-    "        last_index=0;last_session=None;last_lap_no=None;previous_error='';announced=False\\n"
-    "        cloud=CloudClient(self.cfg)\\n        lag_reported=False"
+    "        last_index=0;last_session=None;last_lap_no=None;previous_error='';announced=False\n"
+    "        cloud=CloudClient(self.cfg)\n        lag_reported=False"
 )
-live = live.replace("                cloud=CloudClient(self.cfg)\\n", "")
+live = live.replace("                cloud=CloudClient(self.cfg)\n", "")
 if live.count("end=min(length,last_index+12)") != 1:
     raise RuntimeError("LIVE batch size source changed")
 live = live.replace(
