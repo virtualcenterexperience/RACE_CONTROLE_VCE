@@ -163,8 +163,10 @@ function draw(){
   for(let i=stride;i<ca.length;i+=stride){
    const prev=ca[i-stride],point=ca[i];
    if(prev.p===null||point.p===null||point.p<=prev.p)continue;
-   const a0=interpolate(timeA,prev.p),a1=interpolate(timeA,point.p);
-   const b0=interpolate(timeB,prev.p),b1=interpolate(timeB,point.p);
+   // A 1.5% moving lap window avoids amplifying one-sample timing jitter.
+   const lookback=Math.max(0,point.p-.015);
+   const a0=interpolate(timeA,lookback),a1=interpolate(timeA,point.p);
+   const b0=interpolate(timeB,lookback),b1=interpolate(timeB,point.p);
    if(a0===null||a1===null||b0===null||b1===null)continue;
    const from=proj(prev),to=proj(point);
    if(Math.hypot(to.x-from.x,to.y-from.y)>90)continue;
