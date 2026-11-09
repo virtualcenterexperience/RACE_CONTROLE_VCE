@@ -17,7 +17,7 @@ button{cursor:pointer;font-weight:700}button:hover{background:#235484}.danger{ba
 th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #2e4055;font-size:12px;vertical-align:middle}
 th{color:#8cc5ff}.actions{display:flex;gap:6px}td input{max-width:155px}
 .pill{padding:5px 9px;border-radius:20px;background:#24445f;display:inline-block}
-</style><link rel="stylesheet" href="assets/css/vce-global-background.css?v=20261106"><link rel="stylesheet" href="assets/css/vce-staff-provision.css?v=20261107-1"><link rel="stylesheet" href="assets/css/vce-staff-history.css?v=20261107-1"></head><body><main>
+</style><link rel="stylesheet" href="assets/css/vce-global-background.css?v=20261106"><link rel="stylesheet" href="assets/css/vce-staff-provision.css?v=20261107-1"><link rel="stylesheet" href="assets/css/vce-staff-history.css?v=20261107-1"><link rel="stylesheet" href="assets/css/vce-telemetry-refresh.css?v=20261109-1"></head><body class="vce-staff-telemetry"><main>
 <header><div class="brand">RACE CONTROLE <em>VCE</em></div><a href="staff.html">Retour STAFF</a></header>
 <h1>Appareils et flux de télémétrie</h1>
 <p class="muted">Association sécurisée entre le PC d'un pilote et son profil VCE. Les demandes n'envoient aucune télémétrie avant approbation.</p>
@@ -74,7 +74,9 @@ async function send(action,extra={}){
 function cell(tr,text){const td=document.createElement('td');td.textContent=text??'—';tr.append(td);return td}
 function date(v){return v?new Date(v).toLocaleString('fr-FR'):'Jamais'}
 function slug(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
-async function refreshIdentity(){
+let identityCheckedAt=0,refreshBusy=false,lastDevices='';
+async function refreshIdentity(force=false){
+ if(!force&&Date.now()-identityCheckedAt<60000)return;
  const output=$('vceIdentityValues'),note=$('vceIdentityNote');
  if(!output)return;
  try{
@@ -82,11 +84,13 @@ async function refreshIdentity(){
    const fields=[['APPAREILS',d.devices],['APPROUVÉS',d.approved],['STEAM ID64',d.steam_identified],['IP LOCALE',d.ip_identified],['ACTIFS < 60S',d.recently_seen],['SESSIONS',d.sessions],['ASSOCIÉES',d.linked_sessions],['LIVE ENREGISTRÉ',d.sessions_with_live]];
    output.replaceChildren();
    for(const [name,val] of fields){const item=document.createElement('span');item.className='pill';item.textContent=name+' : '+val;output.append(item);}
+   identityCheckedAt=Date.now();
    note.textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR')+' · Un SteamID64 ou une IP absents ne bloquent pas une association STAFF existante.';
  }catch(e){output.textContent='⚠ Diagnostic inaccessible : '+e.message;}
 }
 async function refresh(){
- $('status').textContent='Interrogation de Supabase…';
+ if(refreshBusy)return;refreshBusy=true;
+ if(!lastDevices)$('status').textContent='Chargement des appareils…';
  try{
  const [devices,rosterData]=await Promise.all([send('staff_list'),VCESupabase.read('pilotes')]);
  let choices=Array.isArray(rosterData.items)?rosterData.items:null;
@@ -95,6 +99,9 @@ async function refresh(){
   if(fallback.ok)choices=await fallback.json();
  }
  choices=Array.isArray(choices)?choices:[];
+ const snapshot=JSON.stringify([devices.devices||[],choices.map(p=>[p.id,p.name])]);
+ if(snapshot===lastDevices){$('status').textContent='Appareils connectés · données à jour';await refreshIdentity();return}
+ lastDevices=snapshot;
  const tbody=$('devices');tbody.replaceChildren();
  for(const d of devices.devices||[]){
  const tr=document.createElement('tr');
@@ -123,14 +130,18 @@ async function refresh(){
  $('status').textContent='Connecté : '+(devices.devices||[]).length+' appareil(s). Historique consultable ci-dessous.';
  await refreshIdentity();
  }catch(e){$('status').textContent='FLUX INDISPONIBLE : '+e.message}
+ finally{refreshBusy=false}
 }
 async function init(){try{
  if(!window.VCESupabase?.configured()||!await window.VCESupabase.isStaff())throw Error('Accès réservé au STAFF. Connecte-toi depuis staff.html.');
- $('gate').hidden=true;$('work').hidden=false;await refresh();
- setInterval(()=>{if(!document.hidden)refresh()},10000);
+ $('gate').hidden=true;$('work').hidden=false;
+ window.dispatchEvent(new Event('vce-telemetry-staff-authenticated'));
+ await refresh();
+ setInterval(()=>{if(!document.hidden)refresh()},30000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
  }catch(e){$('gateMessage').textContent=e.message}}
  $('refresh').addEventListener('click',refresh);
- $('vceIdentityRefresh')?.addEventListener('click',refreshIdentity);
+ $('vceIdentityRefresh')?.addEventListener('click',()=>refreshIdentity(true));
  init();
 })();
-</script><script src="vce-staff-pilot-accounts.js?v=20261107-1" defer></script><script src="assets/js/vce-staff-history.js?v=20261107-1" defer></script></body></html>
+</script><script src="vce-staff-pilot-accounts.js?v=20261109-1" defer></script><script src="assets/js/vce-staff-history.js?v=20261107-1" defer></script></body></html>
