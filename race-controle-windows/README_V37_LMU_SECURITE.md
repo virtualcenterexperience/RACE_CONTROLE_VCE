@@ -6,7 +6,7 @@
 - Vérification des installations par les seuls manifests Steam `appmanifest_*.acf`, sans analyser les DLL de LMU.
 - Si LMU est sélectionné dans les paramètres VCE, le scan ne parcourt **aucun processus**.
 - Quand LMU publie `LMU_Data`, le scan ne parcourt **aucun processus**, même en sélection AUTO.
-- Les enregistrements officiels `.duckdb` sont consultés en lecture seule au maximum une fois toutes les dix secondes, et seulement lorsqu'ils sont stabilisés.
+- Les enregistrements officiels `.duckdb` ne sont **pas scannés pendant que LMU est actif**. Après la fermeture du jeu, ils peuvent être consultés en lecture seule au maximum une fois toutes les dix secondes, et seulement lorsqu'ils sont stabilisés.
 - Les fichiers JSON/CSV locaux sont créés dans le dossier VCE `ANTICHEAT`, **jamais** dans le dossier du jeu.
 
 ## Ce que VCE ne fait pas
