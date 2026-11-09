@@ -132,6 +132,13 @@ jobs:
           python race-controle-windows/patch_v36.py
           python -c "import sys;sys.path.insert(0,'agent');import vce_lmu_native as l; l.verify_layout();import vce_local_archive;import adapters;import engine;assert 'LMU' in engine.SUPPORTED_LIVE;print('VCE 3.6: LMU native layout, imports and engine routing OK')"
 
+      - name: Securiser scan LMU et compatibilite EAC V3.7
+        shell: pwsh
+        run: |
+          Copy-Item "race-controle-windows/vce_lmu_safe_scan.py" "agent/vce_lmu_safe_scan.py" -Force
+          python race-controle-windows/patch_v37.py
+          python -m unittest discover -s race-controle-windows/tests -p "test_v37.py" -v
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -194,12 +201,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v3.6.0"
+          $tag = "v3.7.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "VCE 3.6.0 : capture LMU_Data native en lecture seule sans injection DLL, inputs LMU disponibles, exports locaux JSON/CSV dans ANTICHEAT, envoi LIVE moins en retard, archivage conserve. AC/ACC inchanges. Frequence native selon le jeu; aucun contournement EAC. Publication apres verification antivirus."
+          $notes = "VCE 3.7.0 : detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.5.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.7.0 - Installateur Windows" --notes $notes
           }
