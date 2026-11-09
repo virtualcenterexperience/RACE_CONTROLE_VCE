@@ -1,0 +1,86 @@
+{
+  "version": "2026-11-09",
+  "schema": "vce.resource-manifest.v1",
+  "note": "Logical index. Existing URLs are retained for backwards compatibility; large files loaded only when needed. Never infer a track's or car's exact configuration from approximate metadata.",
+  "resources": [
+    {
+      "id": "coach-base",
+      "path": "data/ressources/coach-index-v1.json",
+      "count": 1000,
+      "kind": "coaching",
+      "load": "on-demand",
+      "source": "data/solutions_1000.json"
+    },
+    {
+      "id": "coach-detail",
+      "path": "data/solutions_5000.json",
+      "kind": "coaching-depth",
+      "load": "explicit-deep-diagnostic-only",
+      "note": "Large file: not loaded on page startup."
+    },
+    {
+      "id": "exercise-library",
+      "path": "entrainements/exercices_vce.json",
+      "count": 45,
+      "kind": "training"
+    },
+    {
+      "id": "gt3-rythme",
+      "path": "entrainements/exercices_rythme_gt3.json",
+      "kind": "training"
+    },
+    {
+      "id": "gt3-trajectory",
+      "path": "entrainements/exercices_trajectoires_gt3.json",
+      "kind": "training"
+    },
+    {
+      "id": "cars",
+      "path": "data/vce-cars-database-v20.json",
+      "kind": "vehicle"
+    },
+    {
+      "id": "car-track-lookup",
+      "path": "data/catalogue_voitures_circuits.json",
+      "kind": "index"
+    },
+    {
+      "id": "africa",
+      "path": "data/afrique.json",
+      "kind": "circuit"
+    },
+    {
+      "id": "north-america",
+      "path": "data/amerique-du-nord.json",
+      "kind": "circuit"
+    },
+    {
+      "id": "south-america",
+      "path": "data/amerique-du-sud.json",
+      "kind": "circuit"
+    },
+    {
+      "id": "asia",
+      "path": "data/asie.json",
+      "kind": "circuit"
+    },
+    {
+      "id": "europe",
+      "path": "data/europe.json",
+      "kind": "circuit"
+    },
+    {
+      "id": "oceania",
+      "path": "data/oceanie.json",
+      "kind": "circuit"
+    }
+  ],
+  "duplicates": [
+    {
+      "path": "entrainements/exercices_rythme_gt3 3.json",
+      "canonical": "entrainements/exercices_rythme_gt3.json",
+      "identical": true,
+      "action": "excluded from logical index; original left unchanged"
+    }
+  ]
+}
