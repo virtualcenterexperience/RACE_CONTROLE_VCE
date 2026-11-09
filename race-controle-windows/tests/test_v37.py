@@ -1,5 +1,8 @@
 """Regression tests for VCE 3.7 LMU safe detection; run after patch_v37.py."""
 import pathlib
+import os
+import tempfile
+import time
 import sys
 import unittest
 from unittest.mock import patch
@@ -10,6 +13,7 @@ sys.path.insert(0, str(ROOT / "agent"))
 import core
 import vce_lmu_safe_scan
 import vce_lmu_native
+import lmu_watcher
 
 
 class LMUSafeScanTests(unittest.TestCase):
@@ -32,6 +36,18 @@ class LMUSafeScanTests(unittest.TestCase):
     def test_native_mapping_layout(self):
         vce_lmu_native.verify_layout()
         self.assertEqual(vce_lmu_native.FILE_MAP_READ, 4)
+
+    def test_older_lmu_files_skipped_after_safe_start(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = pathlib.Path(folder) / "previous-session.duckdb"
+            path.write_bytes(b"old recording")
+            old = time.time() - 120
+            os.utime(path, (old, old))
+            watcher = lmu_watcher.LMUWatcher(folder)
+            watcher.safe_cutoff = time.time() - 30
+            with patch.object(lmu_watcher, "lmu_folders", return_value=[pathlib.Path(folder)]):
+                self.assertEqual(watcher.poll(), [])
+                self.assertTrue(watcher.seen[str(path.resolve())][2])
 
     def test_no_game_writes_or_eac_interaction(self):
         scan_source = pathlib.Path(vce_lmu_safe_scan.__file__).read_text(encoding="utf-8")
