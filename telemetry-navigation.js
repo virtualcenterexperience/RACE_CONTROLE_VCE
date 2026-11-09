@@ -59,8 +59,19 @@ async function loadModules(){
   }catch(error){console.error('[VCE telemetry module]',error);errorMessage(path)}
  }
 }
+function updateTourArchive(){
+ const badge=document.getElementById('vce-tour-recording-status');
+ if(!badge)return;
+ const sessions=window.vceTelemetryData?.sessions||[];
+ const loaded=sessions.reduce((total,session)=>total+(session.laps||[]).filter(l=>Array.isArray(l.samples)&&l.samples.length>1).length,0);
+ const available=sessions.length;
+ badge.textContent=loaded?'● '+loaded+' TOUR(S) CHARGÉ(S) · '+available+' SÉANCE(S)':'○ AUCUN TOUR ARCHIVÉ CHARGÉ';
+ badge.dataset.ready=loaded?'yes':'no';
+}
 function init(){
  document.body.classList.add('vce-telemetry-workspace');
+ document.addEventListener('vce-cloud-update',updateTourArchive);
+ updateTourArchive();
  const title=document.querySelector('.intro h1');
  if(title){title.innerHTML=mode==='setup'?'TÉLÉMÉTRIE <span>SETUP</span>':'TÉLÉMÉTRIE <span>TOUR</span>'}
  const desc=document.querySelector('.intro p');
