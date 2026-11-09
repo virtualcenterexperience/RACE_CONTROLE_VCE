@@ -1,0 +1,18 @@
+
+.vce-exercise-flow{margin-top:18px;padding:22px;background:linear-gradient(110deg,#101f35,#101a2b);border:1px solid #3b698d;border-radius:12px;color:#eff8ff}
+.vce-flow-head{display:flex;justify-content:space-between;align-items:center;gap:15px;color:#9dccff;font-size:11px;font-weight:900;letter-spacing:1.2px}
+.vce-flow-progress{display:flex;gap:5px;min-width:150px}
+.vce-flow-progress i{display:block;height:5px;border-radius:4px;background:#28435d;flex:1}
+.vce-flow-progress i.done{background:#fe3e65}
+.vce-flow-scene{padding:16px 0 12px}
+.vce-flow-scene h3{font-size:21px;margin:7px 0;color:white}
+.vce-flow-scene p{font-size:14px;line-height:1.65}
+.vce-flow-graphic{width:100%;height:auto;background:radial-gradient(circle at 55% 55%,#1b3d54,#081726);border-radius:9px;margin:14px 0;border:1px solid #254760}
+.vce-flow-line{animation:vce-flow-move 2.1s linear infinite}
+@keyframes vce-flow-move{to{stroke-dashoffset:-112}}
+.vce-flow-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+.vce-flow-actions button{background:#246297;padding:10px 18px;border-radius:8px;color:white;border:1px solid #3d9adb;cursor:pointer}
+.vce-flow-actions button:last-child{background:#c52a4d;border-color:#f54f74}
+.vce-flow-actions button:disabled{opacity:.45;cursor:not-allowed}
+.vce-flow-scene select{display:block;width:100%;max-width:420px;margin-top:7px}
+@media(prefers-reduced-motion:reduce){.vce-flow-line{animation:none}}
