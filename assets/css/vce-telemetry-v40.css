@@ -95,3 +95,15 @@ html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{grid-t
 @media(max-width:1200px){.vce-setup-map-layout{grid-template-columns:1fr}.vce-setup-live-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.vce-tour-guide{align-items:flex-start;flex-direction:column}.vce-setup-live-grid{grid-template-columns:1fr}.vce-setup-compare-controls{grid-template-columns:1fr 1fr}.vce-setup-compare-controls label:last-child{grid-column:1/-1}}
 @media(max-width:650px){.vce-mode-switch{grid-template-columns:1fr}.vce-setup-dashboard-heading{padding:18px}.vce-setup-compare-controls{grid-template-columns:1fr}.vce-setup-compare-controls label:last-child{grid-column:auto}.vce-setup-map-surface{padding:4px}#vce-setup-map-canvas{min-height:230px}.vce-setup-delta-grid{grid-template-columns:1fr 1fr}html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{grid-template-columns:1fr}}
+
+/* Explicit Tour A versus Tour B selector and archive confirmation. */
+.vce-tour-selection-head{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:#0f2037;border:1px solid #345a7e;border-radius:11px;padding:18px 20px;margin:0 0 10px}
+.vce-tour-selection-head small{color:#88c7ff;font-size:10px;letter-spacing:1.4px;font-weight:850}
+.vce-tour-selection-head h2{font-size:19px;color:#f4f8ff;margin:6px 0}
+.vce-tour-selection-head p{font-size:12px;line-height:1.4;margin:0;color:#adc2d8}
+#vce-tour-recording-status{font-size:11px;font-weight:800;white-space:normal;border-radius:6px;color:#b6d0ec;background:#132f49;border:1px solid #335c86;padding:10px 12px}
+#vce-tour-recording-status[data-ready=yes]{background:#133b36;color:#8ee6cb;border-color:#2d766b}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace .vce-tour-selection-head{display:none!important}
+.vce-map-legend[data-channel=mechanical] .gain:before{background:#36d0ef}
+.vce-map-legend[data-channel=mechanical] .loss:before{background:#a78bfa}
+@media(max-width:650px){.vce-tour-selection-head{padding:15px;align-items:flex-start}#vce-tour-recording-status{width:100%}}
