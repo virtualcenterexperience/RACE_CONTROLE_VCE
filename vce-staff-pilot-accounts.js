@@ -10,7 +10,7 @@ async function api(action,pilot_slug){
  const c=window.VCE_SUPABASE;
  if(!c?.url||!c?.key)throw Error('Configuration Supabase indisponible');
  const response=await fetch(c.url+'/functions/v1/vce-telemetry',{
-  method:'POST',cache:'no-store',
+  method:'POST',cache:'no-store',signal:AbortSignal.timeout(12000),
   headers:{apikey:c.key,Authorization:'Bearer '+auth.access_token,'Content-Type':'application/json'},
   body:JSON.stringify({action,pilot_slug})
  });
@@ -128,18 +128,18 @@ async function init(){
  node('select').addEventListener('change',()=>{clearCode();message('');update()});
  clearCode();update();
  try{
-  if(!await window.VCESupabase?.isStaff())throw Error('Connexion STAFF autorisée requise.');
-  let list;
-  try{
-   list=await api('staff_roster_list');
-  }catch(e){
-   list={items:(await VCESupabase.read('pilotes')).items};
-  }
+  const [list,data]=await Promise.all([
+   api('staff_roster_list').catch(async()=>({items:(await window.VCESupabase.read('pilotes')).items})),
+   api('staff_pilot_accounts')
+  ]);
   if(!Array.isArray(list.items))throw Error('Liste des pilotes indisponible');
   pilots=list.items.filter(x=>x&&x.id&&x.name);
   const select=node('select');select.replaceChildren(new Option('— Sélectionner un pilote —',''));
   pilots.forEach(p=>select.add(new Option(p.name,p.id)));
-  await refresh();
+  if(!Array.isArray(data.accounts))throw Error('Liste des comptes non reçue');
+  accounts=new Map(data.accounts.filter(a=>a?.pilot_slug).map(a=>[a.pilot_slug,a]));
+  node('status').textContent=[...accounts.values()].filter(x=>x.active!==false).length+' compte(s) actif(s) · '+accounts.size+' compte(s) créé(s)';
+  update();message('Liste synchronisée avec Supabase.');
  }catch(e){message('Chargement des comptes impossible : '+e.message,true)}
 }
 let started=false;
