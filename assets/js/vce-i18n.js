@@ -19,7 +19,7 @@ function localize(root){
   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
   while(walker.nextNode())nodes.push(walker.currentNode);
   if(root.nodeType===1)translateAttrs(root);
-  root.querySelectorAll?.('[placeholder],[title],[aria-label]').forEach(translateAttrs);
+  root.querySelectorAll?.('[placeholder],[title],[aria-label],[data-en]').forEach(translateAttrs);
  }
  for(const node of nodes){
   const parent=node.parentElement;if(!parent||parent.closest(excluded))continue;
