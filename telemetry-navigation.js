@@ -7,11 +7,11 @@ const mode=new URLSearchParams(location.search).get('view')==='setup'?'setup':'t
 document.documentElement.dataset.telemetryView=mode;
 document.body?.classList.add('vce-telemetry-workspace');
 const sections={
- tour:[['#tt-overview','Vue d’ensemble'],['#vce-stream','Direct'],['#tt-sessions','Sessions & tours'],['#tt-circuit','Carte & trajectoires'],['#tt-curves','Courbes'],['#tt-compare','Comparaison pilotes'],['#vce-replay','Replay'],['#tt-history','Historique'],['#vce-analysis','Analyse du tour']],
- setup:[['#tt-overview','Vue d’ensemble'],['#tt-setup','Données Setup'],['#vce-mechanical','Suspensions & mécanique'],['#vce-setup-overview','État de la voiture'],['#vce-engineering-studio','Courbes Setup']]
+ tour:[['#tt-overview','Vue d’ensemble'],['#vce-tour-live-host','Tour en direct'],['#tt-sessions','Tour X contre X'],['#tt-circuit','Carte & trajectoires'],['#tt-compare','Comparaison de tours'],['#tt-curves','Courbes de pilotage'],['#tt-history','Tours enregistrés'],['#vce-replay','Replay'],['#vce-analysis','Analyse du tour']],
+ setup:[['#tt-overview','Vue d’ensemble'],['#tt-sessions','Choisir la séance'],['#vce-setup-live','Capteurs en direct'],['#vce-setup-compare','Carte & comparaison'],['#vce-setup-curves','Courbes mécaniques'],['#vce-setup-values','Données du véhicule']]
 };
 const scripts=mode==='setup'
- ? ['telemetry-mechanical.js','telemetry-setup-overview.js','telemetry-setup-studio.js']
+ ? ['telemetry-setup-live.js','telemetry-setup-map.js','telemetry-setup-overview.js','telemetry-setup-studio.js']
  : ['telemetry-inputs.js','telemetry-recap.js','telemetry-advanced.js','telemetry-compare-ui.js','telemetry-replay3d.js','telemetry-replay-world3d.js','telemetry-engineering-v33.js','telemetry-tour-studio.js'];
 function link(label,href,cls=''){
  const a=document.createElement('a');a.href=href;a.textContent=label;a.className=cls;return a;
@@ -47,12 +47,12 @@ function errorMessage(path){
 async function loadModules(){
  // Start network downloads together but execute in order to preserve module dependencies.
  scripts.forEach(path=>{
-  const pre=document.createElement('link');pre.rel='preload';pre.as='script';pre.href=path+'?v=20261109-ui';document.head.append(pre);
+  const pre=document.createElement('link');pre.rel='preload';pre.as='script';pre.href=path+'?v=20261109-v40';document.head.append(pre);
  });
  for(const path of scripts){
   try{
    await new Promise((resolve,reject)=>{
-    const script=document.createElement('script');script.src=path+'?v=20261109-ui';
+    const script=document.createElement('script');script.src=path+'?v=20261109-v40';
     script.onload=resolve;script.onerror=()=>reject(new Error(path));
     document.body.append(script);
    });
@@ -67,6 +67,15 @@ function init(){
  if(desc)desc.textContent=mode==='setup'
   ? 'Analyse mécanique · suspensions, pneus, aérodynamique et carburant · données natives uniquement.'
   : 'Analyse pilotage · carte du circuit, inputs, comparaison et chronos · live et sessions sauvegardées.';
+ const hash=location.hash;
+ const tourTab=document.getElementById('vce-tour-tab'),setupTab=document.getElementById('vce-setup-tab');
+ if(tourTab)tourTab.href='telemetry.html?view=tour'+hash;
+ if(setupTab)setupTab.href='telemetry.html?view=setup'+hash;
+ // Existing streaming and archive IDs remain stable; only their layout changes.
+ const live=document.getElementById('vce-stream'),liveHost=document.getElementById('vce-tour-live-host');
+ if(live&&liveHost)liveHost.append(live);
+ const setup=document.getElementById('tt-setup'),values=document.getElementById('vce-setup-values');
+ if(setup&&values)values.append(setup);
  const header=document.querySelector('body>header');
  if(header&&!header.querySelector('.vce-salon-back'))header.append(link('← Salon général','telemetry-salon.html'+location.hash,'vce-salon-back'));
  navigation();
