@@ -115,9 +115,13 @@ change("engine.py",
                             with self.guard:self.presence_state='game_detected'
                             self.status('EN ATTENTE DE SESSION · '+game)""")
 
-change("engine.py",
-    "self.log('Lecture indisponible : '+str(e));adapter.close();adapter=None;frame=None",
-    "self.log('Lecture indisponible : '+str(e));adapter.close();adapter=None;frame=None;next_open=now+3")
+engine_text=(root/"engine.py").read_text(encoding="utf-8")
+if "self.log('Lecture indisponible : '+str(e));adapter.close();adapter=None;frame=None" in engine_text:
+    change("engine.py",
+        "self.log('Lecture indisponible : '+str(e));adapter.close();adapter=None;frame=None",
+        "self.log('Lecture indisponible : '+str(e));adapter.close();adapter=None;frame=None;next_open=now+3")
+else:
+    print("V3.7: legacy adapter read error handler absent; retaining current guarded handler")
 
 # Important: V3.6 polled LMU's recording folders up to ~333 times PER SECOND.
 # Never poll the game's DuckDB files while LMU is active. After LMU exits,
