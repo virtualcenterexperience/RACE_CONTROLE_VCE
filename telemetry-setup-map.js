@@ -199,6 +199,7 @@ function draw(){
 function schedule(){if(renderPending)return;renderPending=true;requestAnimationFrame(()=>{renderPending=false;syncOptions();draw()})}
 function receive(e){
  const p=e.detail||{},sid=p.session_id||'',lapNumber=n(p.lap_number);
+ if(sid&&window.vceSession?.id&&sid!==window.vceSession.id)return;
  if(sid!==liveSession||lapNumber!==liveLap){liveSession=sid;liveLap=lapNumber;liveSamples=[]}
  const arr=Array.isArray(p.samples)?p.samples:[];
  for(const raw of arr){
@@ -217,8 +218,15 @@ function receive(e){
 function init(){
  if(!$('vce-setup-map-canvas'))return;
  for(const id of ['vce-setup-lap','vce-setup-reference','vce-setup-channel','vce-setup-scrub'])$(id)?.addEventListener(id==='vce-setup-scrub'?'input':'change',schedule);
- document.getElementById('session')?.addEventListener('change',()=>{signature='';schedule()});
- document.addEventListener('vce-cloud-update',()=>{signature='';schedule()});
+ const clearStale=()=>{
+  const current=window.vceSession?.id||'';
+  if(liveSession&&current&&liveSession!==current){
+   liveSamples=[];liveSession='';liveLap=null;profileCache.delete(liveSamples);
+  }
+  signature='';schedule();
+ };
+ document.getElementById('session')?.addEventListener('change',clearStale);
+ document.addEventListener('vce-cloud-update',clearStale);
  document.addEventListener('vce-live-frame',receive);
  if(typeof ResizeObserver==='function')new ResizeObserver(schedule).observe($('vce-setup-map-canvas'));
  schedule();
