@@ -107,3 +107,11 @@ html[data-telemetry-view=setup] body.vce-telemetry-workspace .vce-tour-selection
 .vce-map-legend[data-channel=mechanical] .gain:before{background:#36d0ef}
 .vce-map-legend[data-channel=mechanical] .loss:before{background:#a78bfa}
 @media(max-width:650px){.vce-tour-selection-head{padding:15px;align-items:flex-start}#vce-tour-recording-status{width:100%}}
+
+/* Map overlays: real local time changes remain red/green, mechanical differences add cyan/violet. */
+.vce-map-legend .phys-pos:before{background:#36d0ef}
+.vce-map-legend .phys-neg:before{background:#a78bfa}
+.vce-map-legend[data-channel=time] .phys-pos,
+.vce-map-legend[data-channel=time] .phys-neg{display:none}
+.vce-map-legend[data-channel=mechanical] .phys-pos,
+.vce-map-legend[data-channel=mechanical] .phys-neg{display:inline}
