@@ -1,0 +1,23 @@
+/* VCE graphic overlay editor — only active with ?edit=1 */
+body.vce-graphic-editing .vce-editor-panel{position:fixed;right:13px;top:13px;bottom:13px;width:310px;overflow:auto;z-index:200000;background:#09182af4;color:#e9f5ff;border:1px solid #54789f;border-radius:14px;padding:17px;box-shadow:0 14px 48px #000a;font:13px/1.45 "Segoe UI",Arial,sans-serif;backdrop-filter:blur(12px)}
+.vce-editor-panel h2{font-size:19px!important;color:#fff;margin:0 0 7px!important}
+.vce-editor-panel .vce-editor-muted{font-size:11px;color:#a4c2e3;line-height:1.45;margin:4px 0 13px}
+.vce-editor-panel label{display:block;font-size:11px;font-weight:800;letter-spacing:.5px;color:#bad5ef;margin-top:12px}
+.vce-editor-panel select,.vce-editor-panel input{display:block;width:100%;margin-top:5px;padding:9px;background:#0f2a45;border:1px solid #436889;color:#fff;border-radius:7px;font:inherit}
+.vce-editor-panel input[type=range]{padding:0;accent-color:#f0466c}
+.vce-editor-panel .vce-editor-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}
+.vce-editor-panel button{padding:9px 11px;border:1px solid #4b7fac;border-radius:7px;color:#fff;background:#204b74;font:800 11px "Segoe UI",Arial,sans-serif;cursor:pointer}
+.vce-editor-panel button:hover{background:#30618a}
+.vce-editor-panel button[data-theme=red]{background:#9a2340;border-color:#f34b68}
+.vce-editor-panel button[data-theme=blue]{background:#174f87;border-color:#4cacef}
+.vce-editor-panel .vce-editor-status{margin-top:13px;white-space:pre-wrap;color:#9adebd;font-size:11px}
+body.vce-graphic-editing .vce-graphic-target{cursor:grab!important}
+body.vce-graphic-editing .vce-graphic-target[data-vce-selected=yes]{outline:3px dashed #83daff!important;outline-offset:6px;cursor:grabbing!important}
+body.vce-graphic-editing .stage,body.vce-graphic-editing #stage{user-select:none}
+[data-vce-overlay-theme=red] #stage,[data-vce-overlay-theme=red] .stage{background:linear-gradient(128deg,#260c20,#0f1a34 60%,#0b0c17)!important}
+[data-vce-overlay-theme=blue] #stage,[data-vce-overlay-theme=blue] .stage{background:linear-gradient(128deg,#08182b,#102e52 62%,#050d1a)!important}
+[data-vce-overlay-theme=red] .headline span,[data-vce-overlay-theme=red] .heading h1,[data-vce-overlay-theme=red] .rule{color:#ff526e!important}
+[data-vce-overlay-theme=blue] .headline span,[data-vce-overlay-theme=blue] .heading h1{color:#68c2ff!important}
+[data-vce-overlay-theme=red] .rule{background:#f14566!important}
+[data-vce-overlay-theme=blue] .rule{background:#398be0!important}
+@media(max-width:760px){body.vce-graphic-editing .vce-editor-panel{width:min(275px,78vw);top:8px;bottom:8px;right:8px;padding:11px}}
