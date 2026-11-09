@@ -24,7 +24,7 @@
 const $=id=>document.getElementById(id);
 if($('vce-hud-throttle')){
 const available=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));const f=(v,digits=0)=>available(v)?Number(v).toFixed(digits):'—';
-const set=(key,val,pct=false)=>{const e=$('vce-hud-'+key);if(!e)return;e.textContent=f(val)+(pct&&available(val)?'%':'');const bar=$('vce-hud-'+key+'-bar');if(bar)bar.style.width=Math.max(0,Math.min(100,Number(val)||0))+'%'};
+const set=(key,val,pct=false)=>{const e=$('vce-hud-'+key);if(!e)return;e.textContent=f(val)+(pct&&available(val)?'%':'');const bar=$('vce-hud-'+key+'-bar');if(bar)bar.style.width=Math.max(0,Math.min(100,key==='steering'?Math.abs(Number(val)||0):(Number(val)||0)))+'%'};
 let lastKey='',lastHistory='';
 const renderHud=()=>{const s=window.vceSession,l=window.vceSession&&(s.laps||[]).find(x=>x===window.vceCurrentLap)||null;
 const selected=$('lap')?.value;const availableLaps=(s?.laps||[]).filter(x=>Number.isFinite(+x.time)&&+x.time>0||x.samples?.length>=2||Number.isInteger(x.number)).sort((a,b)=>(a.number??0)-(b.number??0));const lap=availableLaps[Number(selected)]||null;
