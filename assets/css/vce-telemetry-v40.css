@@ -115,3 +115,6 @@ html[data-telemetry-view=setup] body.vce-telemetry-workspace .vce-tour-selection
 .vce-map-legend[data-channel=time] .phys-neg{display:none}
 .vce-map-legend[data-channel=mechanical] .phys-pos,
 .vce-map-legend[data-channel=mechanical] .phys-neg{display:inline}
+
+.vce-map-legend[data-channel=mechanical] .gain:before{background:#31ce98}
+.vce-map-legend[data-channel=mechanical] .loss:before{background:#fb526a}
