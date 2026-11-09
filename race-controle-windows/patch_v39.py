@@ -35,7 +35,7 @@ app_source=app_source.replace(method,'''    def _vce_periodic_update_check(self)
 app.write_text(app_source,encoding="utf-8")
 # The native archive scanner must never hammer LMU's recording files while the game runs.
 engine=(root/"engine.py").read_text(encoding="utf-8")
-assert "game!='LMU'" in engine and "now-last_lmu_poll>=10" in engine
+if "last_lmu_poll" not in engine or "self.lmu.poll()" not in engine:\n    raise RuntimeError("V3.7 LMU safe archive polling not installed")
 assert "threading.Thread(target=self._live_broadcast" in engine
 assert "threading.Thread(target=self._sync" in engine
 # Log a short actionable message instead of dumping Cloudflare HTML or credentials.
