@@ -139,6 +139,10 @@ jobs:
           python race-controle-windows/patch_v37.py
           python -m unittest discover -s race-controle-windows/tests -p "test_v37.py" -v
 
+      - name: Version 3.8 et controle des sources
+        shell: pwsh
+        run: python race-controle-windows/patch_v38.py
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -201,9 +205,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v3.7.0"
+          $tag = "v3.8.0"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "VCE 3.7.0 : detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
+          $notes = "VCE 3.8.0 : detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
