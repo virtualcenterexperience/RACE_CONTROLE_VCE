@@ -21,7 +21,7 @@ async function accountStatus(id){
   });
   if(!response.ok)throw Error('Vérification serveur HTTP '+response.status);
   const body=await response.json();
-  if(typeof body?.ready!=='boolean'||typeof body?.listed!=='boolean')throw Error('Réponse de vérification incomplète');
+  if(typeof body?.ready!=='boolean'||(body.listed!==null&&body.listed!==undefined&&typeof body.listed!=='boolean'))throw Error('Réponse de vérification incomplète');
   return {ready:body.ready,listed:body.listed};
  })().finally(()=>state.inFlightStatus.delete(id));
  state.inFlightStatus.set(id,promise);
