@@ -18,6 +18,21 @@ p=root/"vce_lmu_native.py";s=p.read_text(encoding="utf-8")
 s=s.replace("self.last_lap = None","self.last_lap = None\n        self.last_valid_at = 0.0",1)
 s=s.replace("self.last_elapsed = elapsed\n        self.last_lap = car.mLapNumber","self.last_elapsed = elapsed\n        self.last_lap = car.mLapNumber\n        self.last_valid_at = time.monotonic()",1)
 p.write_text(s,encoding="utf-8")
+# Keep checking official GitHub releases while the app stays in the tray.
+# No restart or remote code execution without a verified installer.
+app=root/"app.py";app_source=app.read_text(encoding="utf-8")
+old="self.root.after(3000,self._check_updates_background)"
+if app_source.count(old)!=1:raise RuntimeError("Updater startup anchor missing")
+app_source=app_source.replace(old,old+"\\n        self.root.after(6*60*60*1000,self._vce_periodic_update_check)",1)
+method="    def _load_remote_preferences(self):"
+if app_source.count(method)!=1:raise RuntimeError("Updater preferences anchor missing")
+app_source=app_source.replace(method,'''    def _vce_periodic_update_check(self):
+        if not self.alive:return
+        if not getattr(self,'updating',False):self._check_updates_background()
+        self.root.after(6*60*60*1000,self._vce_periodic_update_check)
+
+'''+method,1)
+app.write_text(app_source,encoding="utf-8")
 # The native archive scanner must never hammer LMU's recording files while the game runs.
 engine=(root/"engine.py").read_text(encoding="utf-8")
 assert "game!='LMU'" in engine and "now-last_lmu_poll>=10" in engine
