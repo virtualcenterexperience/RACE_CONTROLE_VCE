@@ -1,12 +1,12 @@
 
 (function(){
-const root='data/vce/',get=async name=>{try{let r=await fetch(root+name+'.json?'+Date.now(),{cache:'no-store'});return r.ok?await r.json():[]}catch{return []}};
+const root='data/vce/',get=async name=>{try{let r=await fetch(root+name+'.json',{cache:'default',signal:AbortSignal.timeout(6500)});return r.ok?await r.json():[]}catch{return []}};
 const activeCycle=()=>Number(localStorage.getItem('vce_training_cache_generation_v1')||0);
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function resultsFor(p){
  let all=[];if(window.VCESupabase?.configured()){try{const d=await window.VCESupabase.read('resultats');const groups=(d.presets||[]).filter(x=>x.published&&x.data).map(x=>x.data);for(const g of groups)for(const x of (g.results||[])){const names=[(x.firstName||'')+' '+(x.lastName||''),x.pilot||'',...(Array.isArray(x.drivers)?x.drivers:[])];if(names.some(n=>slug(n)===p.id||slug(n)===slug(p.name)))all.push({...x,event:g.event||g.title||'Course',date:x.resultDate||g.date||''})}}catch(e){console.warn('Résultats Supabase',e)}return [...new Map(all.map(r=>[[r.event,r.date,r.position,r.firstName,r.lastName].join('|'),r])).values()]}for(const file of ['resultats-presets.json','resultats.json']){
-  try{const r=await fetch('data/team/'+file+'?v='+Date.now(),{cache:'no-store'});if(!r.ok)continue;const d=await r.json();
+  try{const r=await fetch('data/team/'+file,{cache:'default',signal:AbortSignal.timeout(6500)});if(!r.ok)continue;const d=await r.json();
   const groups=Array.isArray(d.presets)?d.presets.filter(x=>x.published&&x.data).map(x=>x.data):[d];
   for(const g of groups)for(const x of (g.results||[])){
    const names=[(x.firstName||'')+' '+(x.lastName||''),x.pilot||'',...(Array.isArray(x.drivers)?x.drivers:[])];
@@ -58,5 +58,5 @@ async function coach(){
  else div.textContent='Exercice non publié dans data/vce/attributions.json ou pilote incorrect.';
  main.append(div);
 }
-document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('hashchange',sync);setInterval(()=>{if(!document.hidden)sync()},10000)}coach()});
+document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('hashchange',sync);setInterval(()=>{if(!document.hidden)sync()},30000)}coach()});
 })();
