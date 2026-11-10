@@ -28,3 +28,43 @@
 #dashboard .vce-staff-hub-side-links{display:flex;flex-direction:column;gap:4px}
 @media(max-width:850px){#dashboard .vce-staff-hub-side-links{flex-direction:row}#dashboard .vce-staff-hub-photo{height:200px}}
 @media(max-width:600px){#dashboard .vce-staff-hub-choice,#dashboard .vce-staff-hub-links{grid-template-columns:1fr}#dashboard .vce-staff-hub-group{padding:14px}#dashboard .vce-staff-hub-photo{height:190px}}
+
+/* 2026-11-10: true two-level STAFF routing — no permanently expanded categories. */
+#dashboard .vce-staff-hub-group{display:none}
+#dashboard.vce-staff-team-selected #staff-team,
+#dashboard.vce-staff-pilotes-selected #staff-pilotes{display:block}
+#dashboard.vce-staff-team-selected .rc-hero,
+#dashboard.vce-staff-pilotes-selected .rc-hero,
+#dashboard.vce-staff-team-selected .rc-stats,
+#dashboard.vce-staff-pilotes-selected .rc-stats,
+#dashboard.vce-staff-team-selected .rc-workspace,
+#dashboard.vce-staff-pilotes-selected .rc-workspace{display:none!important}
+#dashboard.vce-staff-team-selected .vce-staff-hub-intro,
+#dashboard.vce-staff-pilotes-selected .vce-staff-hub-intro{display:none}
+#dashboard.vce-staff-team-selected .vce-staff-hub,
+#dashboard.vce-staff-pilotes-selected .vce-staff-hub{margin-top:8px}
+#dashboard.vce-staff-team-selected .vce-staff-hub-photo,
+#dashboard.vce-staff-pilotes-selected .vce-staff-hub-photo{height:125px}
+#dashboard.vce-staff-team-selected .vce-staff-hub-tile-label,
+#dashboard.vce-staff-pilotes-selected .vce-staff-hub-tile-label{padding:13px 18px}
+#dashboard.vce-staff-team-selected .vce-staff-hub-tile-label strong,
+#dashboard.vce-staff-pilotes-selected .vce-staff-hub-tile-label strong{font-size:26px;margin:2px 0 3px}
+#dashboard.vce-staff-team-selected .vce-staff-hub-choice,
+#dashboard.vce-staff-pilotes-selected .vce-staff-hub-choice{margin-bottom:16px}
+#dashboard .vce-staff-hub-group:target{scroll-margin-top:30px}
+#dashboard .vce-staff-hub-heading .vce-staff-hub-back{display:inline-flex;align-items:center;border:1px solid #4a7094;background:#17334f;color:#bde5ff;font-size:11px;font-weight:800;padding:10px 12px;border-radius:7px;text-decoration:none}
+#dashboard .vce-staff-hub-heading .vce-staff-hub-back:hover{border-color:#73c7ff;color:white}
+#dashboard.vce-staff-team-selected .vce-staff-hub-group,
+#dashboard.vce-staff-pilotes-selected .vce-staff-hub-group{padding:24px}
+@media(max-width:620px){
+ #dashboard.vce-staff-team-selected .vce-staff-hub-choice,
+ #dashboard.vce-staff-pilotes-selected .vce-staff-hub-choice{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #dashboard.vce-staff-team-selected .vce-staff-hub-photo,
+ #dashboard.vce-staff-pilotes-selected .vce-staff-hub-photo{height:120px}
+ #dashboard.vce-staff-team-selected .vce-staff-hub-tile-label,
+ #dashboard.vce-staff-pilotes-selected .vce-staff-hub-tile-label{padding:10px}
+ #dashboard.vce-staff-team-selected .vce-staff-hub-tile-label strong,
+ #dashboard.vce-staff-pilotes-selected .vce-staff-hub-tile-label strong{font-size:20px}
+ #dashboard.vce-staff-team-selected .vce-staff-hub-tile-label span,
+ #dashboard.vce-staff-pilotes-selected .vce-staff-hub-tile-label span{font-size:10px}
+}
