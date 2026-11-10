@@ -21,3 +21,8 @@ body.vce-graphic-editing .stage,body.vce-graphic-editing #stage{user-select:none
 [data-vce-overlay-theme=red] .rule{background:#f14566!important}
 [data-vce-overlay-theme=blue] .rule{background:#398be0!important}
 @media(max-width:760px){body.vce-graphic-editing .vce-editor-panel{width:min(275px,78vw);top:8px;bottom:8px;right:8px;padding:11px}}
+
+/* Text editing controls, all overlays, no change to export dimensions. */
+body.vce-graphic-editing .vce-editor-panel textarea{display:block;width:100%;min-height:74px;resize:vertical;background:#0f2a45;border:1px solid #436889;color:#eef8ff;border-radius:7px;margin-top:6px;padding:9px;font:12px/1.45 "Segoe UI",Arial,sans-serif}
+body.vce-graphic-editing .vce-editor-panel label:has(textarea){margin-top:16px}
+body.vce-graphic-editing .vce-editor-panel button:focus-visible{outline:2px solid #7bd0ff;outline-offset:3px}
