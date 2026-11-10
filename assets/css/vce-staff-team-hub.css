@@ -1,0 +1,30 @@
+/* Staff landing: VCE visual categories, readable and sober. */
+#dashboard .vce-staff-hub{margin:5px 0 35px}
+#dashboard .vce-staff-hub-intro{margin:0 0 20px}
+#dashboard .vce-staff-hub-intro small{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#65b7f1}
+#dashboard .vce-staff-hub-intro h2{font-size:clamp(22px,2.6vw,32px)!important;color:#f2f8ff!important;margin:7px 0 5px}
+#dashboard .vce-staff-hub-intro p{font-size:12px;margin:0;max-width:730px}
+#dashboard .vce-staff-hub-choice{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-bottom:28px}
+#dashboard .vce-staff-hub-tile{display:block;overflow:hidden;border:1px solid #355879;border-top:4px solid #e83d60;border-radius:11px;background:#112338;text-decoration:none;transition:transform .16s,border-color .16s}
+#dashboard .vce-staff-hub-tile:nth-child(2){border-top-color:#47acfa}
+#dashboard .vce-staff-hub-tile:hover,#dashboard .vce-staff-hub-tile.selected{border-color:#9bd4ff;transform:translateY(-3px)}
+#dashboard .vce-staff-hub-photo{position:relative;height:245px;background-size:cover;background-position:center}
+#dashboard .vce-staff-hub-tile-label{position:absolute;bottom:0;left:0;right:0;padding:25px}
+#dashboard .vce-staff-hub-tile-label small{font-size:10px;color:#a8cfe9;letter-spacing:1.3px;font-weight:900}
+#dashboard .vce-staff-hub-tile-label strong{display:block;margin:5px 0 9px;font-size:clamp(27px,3.4vw,45px);letter-spacing:-.7px;color:white}
+#dashboard .vce-staff-hub-tile-label span{font-size:12px;color:#deebf8;font-weight:600}
+#dashboard .vce-staff-hub-group{border:1px solid #304e70;border-radius:12px;padding:20px;margin:16px 0 19px;background:linear-gradient(140deg,#10233b,#091728);scroll-margin-top:65px}
+#dashboard .vce-staff-hub-heading{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 15px}
+#dashboard .vce-staff-hub-heading h2{color:#fff;font-size:22px;letter-spacing:.4px;margin:0}
+#dashboard .vce-staff-hub-heading p{margin:0;color:#a8bdd6;font-size:12px}
+#dashboard .vce-staff-hub-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#dashboard .vce-staff-hub-action{display:flex;align-items:center;gap:13px;min-height:83px;padding:13px 15px;border:1px solid #315173;background:#132b47;border-radius:9px;color:#e9f6ff;text-decoration:none}
+#dashboard .vce-staff-hub-action:hover{border-color:#73bbf3;background:#1d4164}
+#dashboard .vce-staff-hub-action-icon{width:38px;height:38px;display:grid;place-items:center;border:1px solid #4a7097;border-radius:9px;background:#0e243b;font-size:19px;flex-shrink:0}
+#dashboard .vce-staff-hub-action>div{flex:1;min-width:0}
+#dashboard .vce-staff-hub-action strong{display:block;font-size:13px;margin-bottom:4px}
+#dashboard .vce-staff-hub-action small{font-size:11px;line-height:1.4;color:#a9c2dc;display:block}
+#dashboard .vce-staff-hub-chevron{font-size:19px;color:#86cdff}
+#dashboard .vce-staff-hub-side-links{display:flex;flex-direction:column;gap:4px}
+@media(max-width:850px){#dashboard .vce-staff-hub-side-links{flex-direction:row}#dashboard .vce-staff-hub-photo{height:200px}}
+@media(max-width:600px){#dashboard .vce-staff-hub-choice,#dashboard .vce-staff-hub-links{grid-template-columns:1fr}#dashboard .vce-staff-hub-group{padding:14px}#dashboard .vce-staff-hub-photo{height:190px}}
