@@ -54,7 +54,7 @@
  };
  const data=contents[name];if(!data)return;
  const root=document.querySelector('main .wrap')||document.querySelector('main')||document.querySelector('.app')||document.body;
- const title=root.querySelector('h1');if(!title||document.getElementById('vce-tool-guide'))return;
+ const title=root.querySelector('h1')||(name==='strategie.html'?document.querySelector('.app .top'):null);if(!title||document.getElementById('vce-tool-guide'))return;
  const help=document.createElement('details');help.id='vce-tool-guide';help.className='vce-tool-guide';
  const summary=document.createElement('summary');summary.textContent='ⓘ REPÈRES POUR UTILISER CET OUTIL';help.append(summary);
  const intro=document.createElement('p');intro.className='vce-tool-guide-title';intro.textContent=data.title;help.append(intro);
