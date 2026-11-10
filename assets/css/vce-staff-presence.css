@@ -1,0 +1,23 @@
+/* Verified VCE website pilot presence — STAFF only */
+#dashboard .vce-site-presence{background:linear-gradient(120deg,#11263f,#0b182a);border:1px solid #416386;border-radius:12px;padding:18px;margin:0 0 20px}
+#dashboard .vce-site-presence-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+#dashboard .vce-site-presence-header h3{font-size:16px;margin:0 0 4px;color:#f2f8ff;letter-spacing:.5px}
+#dashboard .vce-site-presence-header p{color:#abc4da;font-size:11px;margin:0}
+#dashboard .vce-site-presence-refresh{border:1px solid #4382b0;background:#16456d;color:#e6f5ff;padding:9px 13px;font-size:11px;font-weight:900;border-radius:7px;cursor:pointer}
+#dashboard .vce-site-presence-refresh:hover{background:#21608e}
+#dashboard .vce-site-presence-meta{font-size:11px;color:#9ec6e7;margin:10px 0}
+#dashboard .vce-site-presence-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#dashboard .vce-site-presence-entry{min-width:0;display:flex;align-items:center;gap:11px;background:#10243b;border:1px solid #31516e;padding:11px;border-radius:9px}
+#dashboard .vce-site-presence-avatar{width:40px;height:40px;flex-shrink:0;border:1px solid #4382b7;background:#1b3b56;display:grid;place-items:center;font-size:13px;font-weight:900;border-radius:50%;color:#eaf8ff}
+#dashboard .vce-site-presence-name{flex:1;min-width:0}
+#dashboard .vce-site-presence-name strong{display:block;font-size:12px;color:#f2f8ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dashboard .vce-site-presence-name small{display:block;font-size:11px;color:#a7c0d8;margin-top:4px}
+#dashboard .vce-site-presence-dot{flex-shrink:0;width:9px;height:9px;border-radius:50%;background:#6b7b91;box-shadow:0 0 0 3px #6b7b9119}
+#dashboard .vce-site-presence-entry[data-online=true] .vce-site-presence-dot{background:#30dc98;box-shadow:0 0 0 4px #30dc9829,0 0 12px #30dc9875}
+#dashboard .vce-site-presence-entry[data-online=true] .vce-site-presence-name small{color:#7beebc}
+#dashboard .vce-roster-row .vce-site-presence-compact{display:inline-flex;align-items:center;gap:6px;margin-top:5px;font-size:11px;color:#a2c0dd}
+#dashboard .vce-site-presence-compact:before{content:'';width:7px;height:7px;border-radius:50%;background:#71869d}
+#dashboard .vce-site-presence-compact[data-online=true]{color:#78ebc5}
+#dashboard .vce-site-presence-compact[data-online=true]:before{background:#30dc98}
+@media(max-width:1100px){#dashboard .vce-site-presence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){#dashboard .vce-site-presence-grid{grid-template-columns:1fr}}
