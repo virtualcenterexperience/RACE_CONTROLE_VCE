@@ -13,7 +13,7 @@ const overlays={
 };
 const basename=location.pathname.split('/').pop(),groups=overlays[basename];if(!groups)return;
 const store='vce-overlay-editor-v1:'+basename;
-let settings={theme:'blue',items:{},images:{}},target=null,selected=null,drag=null;
+let settings={theme:'blue',items:{},images:{},texts:{}},target=null,selected=null,drag=null;
 const $=id=>document.getElementById(id);
 const finite=(n,min,max,fallback)=>{const x=Number(n);return Number.isFinite(x)?Math.max(min,Math.min(max,x)):fallback};
 const stage=()=>document.querySelector('#stage,.stage');
@@ -23,18 +23,41 @@ function load(){
   settings.theme=stored.theme==='red'?'red':'blue';
   if(stored.items&&typeof stored.items==='object')settings.items=stored.items;
   if(stored.images&&typeof stored.images==='object')settings.images=stored.images;
+  if(stored.texts&&typeof stored.texts==='object')settings.texts=stored.texts;
  }}catch{}
 }
 function ids(){
  const arr=groups.slice();
+ const textItems={
+ 'overlay-lineup.html':[['name-title','.heading h1'],['caption','.heading p'],['strapline','.eyebrow'],['main-brand','.top .brand']],
+ 'overlay-resultats.html':[['results-title','.headline span'],['results-caption','.subhead'],['results-event','#event'],['results-season','#season'],['footer-title','.foot span:first-child']],
+ 'overlay-calendrier.html':[['calendar-title','.title'],['calendar-eyebrow','.eyebrow'],['calendar-championship','.champname'],['calendar-right','.righttitle span']]
+ };
+ arr.push(...(textItems[basename]||[]));
+ for(const id of Object.keys(settings.texts||{}))if(id.startsWith('custom-'))arr.push([id,'[data-vce-custom-text="'+id+'"]']);
  if(basename==='overlay-lineup.html')document.querySelectorAll('.drivers .driver').forEach((e,i)=>arr.push(['driver-'+(i+1),'.drivers .driver:nth-child('+(i+1)+')']));
  if(basename==='overlay-resultats.html')document.querySelectorAll('#board .result,#board .group-row,#board .group-driver').forEach((e,i)=>arr.push(['result-'+(i+1),'#board .result:nth-child('+(i+1)+'),#board .group-row:nth-child('+(i+1)+'),#board .group-driver:nth-child('+(i+1)+')']));
  return arr;
 }
 const locate=id=>document.querySelector(ids().find(x=>x[0]===id)?.[1]||'nosuchtag');
+function ensureCustomText(){
+ const surface=stage();if(!surface)return;
+ for(const [id,value] of Object.entries(settings.texts||{})){
+  if(!id.startsWith('custom-')||!/^custom-[1-9]\d*$/.test(id))continue;
+  let el=surface.querySelector('[data-vce-custom-text="'+id+'"]');
+  if(!el){el=document.createElement('div');el.dataset.vceCustomText=id;
+   el.style.cssText='position:absolute;left:180px;top:400px;z-index:45;color:#f5fbff;font:900 54px/1.1 Arial,sans-serif;text-transform:uppercase;max-width:1000px;white-space:pre-wrap;pointer-events:auto';
+   surface.append(el)}
+  if(el.textContent!==String(value))el.textContent=String(value);
+ }
+}
 function renderItem(id){
  const el=locate(id);if(!el)return;
  const x=settings.items[id]||{};
+ if(Object.prototype.hasOwnProperty.call(settings.texts,id)){
+  const content=String(settings.texts[id]).slice(0,240);
+  if(el.textContent!==content)el.textContent=content;
+ }
  el.style.translate=finite(x.x,-1000,1000,0)+'px '+finite(x.y,-1000,1000,0)+'px';
  el.style.scale=String(finite(x.scale,.3,2.2,1));
  el.style.rotate=finite(x.rotation,-40,40,0)+'deg';
@@ -47,6 +70,7 @@ function renderItem(id){
 }
 function apply(){
  const body=document.body;body.dataset.vceOverlayTheme=settings.theme;
+ ensureCustomText();
  for(const [id] of ids())renderItem(id);
 }
 function save(){
@@ -61,6 +85,11 @@ function pick(id){
  const fields=['x','y','scale','rotation'];
  for(const k of fields){const f=$('vce-editor-'+k);if(f)f.value=settings.items[id]?.[k]??(k==='scale'?1:0)}
  if($('vce-editor-pick'))$('vce-editor-pick').value=id;
+ if($('vce-editor-text')){
+  const current=selected?.textContent||'';
+  $('vce-editor-text').value=Object.prototype.hasOwnProperty.call(settings.texts,id)?settings.texts[id]:current.trim().slice(0,240);
+  $('vce-editor-text').disabled=!selected;
+ }
 }
 function readControls(){
  if(!target)return;
@@ -94,6 +123,8 @@ function marker(){
  '<label>Décalage vertical (px)<input id="vce-editor-y" type="number" step="5" value="0"></label>'+
  '<label>Taille (facteur)<input id="vce-editor-scale" type="range" min=".3" max="2.2" step=".05" value="1"></label>'+
  '<label>Rotation (degrés)<input id="vce-editor-rotation" type="range" min="-40" max="40" step="1" value="0"></label>'+
+ '<label>Texte à afficher (240 caractères max)<textarea id="vce-editor-text" maxlength="240" rows="3" placeholder="Titre, sous-titre, nom, annonce…"></textarea></label>'+
+ '<div class="vce-editor-buttons"><button type="button" id="vce-editor-add-text">+ AJOUTER UN TEXTE</button><button type="button" id="vce-editor-reset-text">TEXTE PAR DÉFAUT</button></div>'+
  '<label>Remplacer la photo / le logo<input id="vce-editor-image" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
  '<div class="vce-editor-buttons"><button type="button" id="vce-editor-save">ENREGISTRER</button><button type="button" id="vce-editor-export">EXPORT JSON</button><button type="button" id="vce-editor-import">IMPORT JSON</button><button type="button" id="vce-editor-reset">RÉINITIALISER</button></div>'+
  '<input id="vce-editor-import-file" type="file" accept=".json,application/json" hidden>'+
@@ -104,16 +135,34 @@ function marker(){
  populate();
  list.onchange=()=>pick(list.value);
  for(const k of ['x','y','scale','rotation'])$('vce-editor-'+k).oninput=readControls;
+ $('vce-editor-text').oninput=()=>{
+  if(!target||!selected)return;
+  settings.texts[target]=$('vce-editor-text').value.slice(0,240);
+  renderItem(target);
+ };
+ $('vce-editor-reset-text').onclick=()=>{
+  if(!target)return;delete settings.texts[target];
+  if(target.startsWith('custom-')){locate(target)?.remove();delete settings.items[target];pick(ids()[0][0])}
+  else $('vce-editor-status').textContent='Texte par défaut rétabli au prochain rechargement de cet overlay.';
+  save();location.reload();
+ };
+ $('vce-editor-add-text').onclick=()=>{
+  let n=1;while(settings.texts['custom-'+n]!==undefined)n++;
+  const id='custom-'+n;settings.texts[id]='NOUVEAU TEXTE';
+  settings.items[id]={x:0,y:0,scale:1,rotation:0};
+  ensureCustomText();refresh();pick(id);save()
+ };
  panel.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{settings.theme=b.dataset.theme;apply();save()});
  $('vce-editor-save').onclick=()=>{$('vce-editor-status').textContent=save()?'Brouillon enregistré. Ouvre ?layout=local pour un aperçu propre.':'Stockage local indisponible. Exporte le JSON.'};
  $('vce-editor-export').onclick=download;
- $('vce-editor-reset').onclick=()=>{if(!confirm('Réinitialiser toutes les positions et images locales ?'))return;settings={theme:'blue',items:{},images:{}};save();location.reload()};
+ $('vce-editor-reset').onclick=()=>{if(!confirm('Réinitialiser toutes les positions et images locales ?'))return;settings={theme:'blue',items:{},images:{},texts:{}};save();location.reload()};
  $('vce-editor-import').onclick=()=>$('vce-editor-import-file').click();
  $('vce-editor-import-file').onchange=async e=>{
   const f=e.target.files?.[0];if(!f||f.size>5000000)return;
   try{const incoming=JSON.parse(await f.text());if(incoming?.schema!=='vce.overlay-layout.v1'||incoming.overlay!==basename)throw Error('Ce fichier ne correspond pas à cet overlay.');
    settings.theme=incoming.theme==='red'?'red':'blue';settings.items=incoming.items&&typeof incoming.items==='object'?incoming.items:{};
    settings.images=incoming.images&&typeof incoming.images==='object'?incoming.images:{};
+   settings.texts=incoming.texts&&typeof incoming.texts==='object'?incoming.texts:{};
    apply();pick(target||ids()[0][0]);save();$('vce-editor-status').textContent='Composition importée.'
   }catch(err){$('vce-editor-status').textContent='Import impossible : '+err.message}
  };
@@ -137,7 +186,13 @@ function marker(){
   renderItem(drag.id);pick(drag.id);
  },true);
  document.addEventListener('pointerup',()=>{if(drag){save();drag=null}},true);
- const refresh=()=>{for(const [id] of ids()){const el=locate(id);if(el&&!el.dataset.vceElement){el.dataset.vceElement=id;el.classList.add('vce-graphic-target');renderItem(id)}}populate()};
+ const refresh=()=>{ensureCustomText();
+  for(const [id] of ids()){const el=locate(id);if(el){
+   if(!el.dataset.vceElement){el.dataset.vceElement=id;el.classList.add('vce-graphic-target')}
+   renderItem(id)
+  }}
+  populate()
+ };
  refresh();
  new MutationObserver(()=>{if(!panel.__refresh){panel.__refresh=true;requestAnimationFrame(()=>{panel.__refresh=false;refresh()})}}).observe(stage(),{childList:true,subtree:true});
 }
