@@ -10,7 +10,7 @@ const cfg=window.VCE_SUPABASE;
 if(!cfg||!/^https:\/\/[^/]+\.supabase\.co$/.test(cfg.url||'')||!cfg.key)return;
 fetch(cfg.url+'/rest/v1/vce_publications?kind=eq.pilotes&select=payload',{
  cache:'no-store',signal:AbortSignal.timeout(9000),
- headers:{apikey:cfg.key,Authorization:'Bearer '+cfg.key}
+ headers:{apikey:cfg.key}
 }).then(async r=>{
  if(!r.ok)throw Error('HTTP '+r.status);
  const rows=await r.json(),roster=rows?.[0]?.payload?.items;
