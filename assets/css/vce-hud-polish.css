@@ -1,0 +1,24 @@
+/* VCE HUD cockpit v1 — visual layer only; telemetry IDs and data bindings unchanged. */
+body.vce-telemetry-workspace .vce-hud-banner{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:22px 26px;margin:20px 0 0;background:linear-gradient(105deg,#0b2037 0%,#101627 70%,#280f22 100%);border:1px solid #355a7e;border-left:5px solid #f23d5d;border-radius:12px 12px 0 0;box-shadow:0 14px 38px #0005}
+body.vce-telemetry-workspace .vce-hud-kicker{font:800 11px/1.4 system-ui,sans-serif;letter-spacing:1.6px;color:#83caff}
+body.vce-telemetry-workspace .vce-hud-banner h2{margin:7px 0 3px;font-size:clamp(20px,2.6vw,32px);letter-spacing:.01em}
+body.vce-telemetry-workspace .vce-hud-banner h2 span{color:#ff506d}
+body.vce-telemetry-workspace .vce-hud-banner p{margin:0;color:#b3cbe2;line-height:1.5}
+body.vce-telemetry-workspace .vce-hud-state{flex-shrink:0;padding:11px 16px;background:#091727;border:1px solid #405f7c;border-radius:7px;color:#d8e9fa;font-size:12px;font-weight:800;letter-spacing:.5px}
+body.vce-telemetry-workspace .vce-hud-meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 1fr 1fr 1fr;gap:10px;padding:14px;margin:0 0 18px;background:#0a1728;border:1px solid #355a7e;border-top:0;border-radius:0 0 12px 12px}
+body.vce-telemetry-workspace .vce-hud-meters article{min-width:0;padding:14px 14px 12px;background:linear-gradient(180deg,#132c46,#0b1a2d);border:1px solid #2a4a66;border-radius:8px;display:flex;flex-direction:column;justify-content:space-between;gap:8px}
+body.vce-telemetry-workspace .vce-hud-meters article>span{color:#acc5dd;font-size:10px;letter-spacing:1.2px;font-weight:800}
+body.vce-telemetry-workspace .vce-hud-meters article>b{font:900 clamp(21px,2.7vw,37px)/1.1 system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#f4f9ff;overflow-wrap:anywhere}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(1){border-top:3px solid #24c98a}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(2){border-top:3px solid #ff4b61}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(3){border-top:3px solid #5bbaff}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(4){border-top:3px solid #a88aff}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(4)>small{color:#aec6da}
+body.vce-telemetry-workspace .vce-hud-track{height:8px;min-height:8px;overflow:hidden;border-radius:5px;background:#07111d;border:1px solid #35516e}
+body.vce-telemetry-workspace .vce-hud-track i{display:block;height:100%;border-radius:4px;transition:width .08s linear,transform .08s linear}
+body.vce-telemetry-workspace #vce-hud-throttle-bar{background:#27d69a}
+body.vce-telemetry-workspace #vce-hud-brake-bar{background:#ff4b61}
+body.vce-telemetry-workspace #vce-hud-steering-bar{background:#5bbaff}
+@media(max-width:1080px){body.vce-telemetry-workspace .vce-hud-meters{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){body.vce-telemetry-workspace .vce-hud-banner{padding:16px;flex-wrap:wrap}body.vce-telemetry-workspace .vce-hud-meters{grid-template-columns:repeat(2,minmax(0,1fr));padding:9px;gap:8px}body.vce-telemetry-workspace .vce-hud-meters article{padding:12px}body.vce-telemetry-workspace .vce-hud-state{width:100%;text-align:center}}
+@media(prefers-reduced-motion:reduce){body.vce-telemetry-workspace .vce-hud-track i{transition:none}}
