@@ -16,3 +16,9 @@
 .vce-flow-actions button:disabled{opacity:.45;cursor:not-allowed}
 .vce-flow-scene select{display:block;width:100%;max-width:420px;margin-top:7px}
 @media(prefers-reduced-motion:reduce){.vce-flow-line{animation:none}}
+
+/* Training flow / contextual handoff */
+#trainingContext{padding:16px;border:1px solid #315374;border-radius:12px;background:#0b1d31;margin:16px 0}
+.training-follow-link{display:block;margin-top:14px;padding:13px;border-radius:8px;background:#195b9c;color:#fff;text-align:center;font-weight:800;text-decoration:none}
+.training-follow-link:hover{background:#287bc3}
+@media(max-width:700px){#trainingContext{padding:12px}}
