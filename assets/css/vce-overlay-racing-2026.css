@@ -183,3 +183,21 @@ body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage .number{border-rig
 body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage .number b{color:#75ceff}
 body[data-vce-overlay-theme=blue].vce-overlay-lineup .stage>.drivers .driver{border-bottom-color:#4fbaff!important}
 body[data-vce-overlay-theme=blue].vce-overlay-race #stage.cinematic-solo .solo-name{background:linear-gradient(95deg,#18669c,#319bc9)}
+
+/* VCE graphic refinement: stronger hierarchy, legible people, restrained racing palette. */
+body.vce-overlay-race #stage .header .headline{letter-spacing:-.045em;text-shadow:0 5px 24px #000c}
+body.vce-overlay-race #stage .meta{background:linear-gradient(135deg,#08182ae8,#0b1020df);border:1px solid #406080;padding:20px 26px;border-radius:8px;box-shadow:0 12px 35px #0007}
+body.vce-overlay-race #stage .event{overflow-wrap:anywhere;max-width:100%}
+body.vce-overlay-race #stage .board{min-width:0}
+body.vce-overlay-race #stage .foot{border-top-color:#36618b!important}
+body.vce-overlay-race #stage.group-results .group-driver .group-name{white-space:normal;overflow-wrap:anywhere;line-height:1.08}
+body.vce-overlay-race #stage.group-results .group-row{border-left-color:#4ab8fc;background:#0b2033e8}
+body.vce-overlay-race #stage.group-results .group-row:nth-child(odd){border-left-color:#fb3e62}
+body.vce-overlay-lineup .stage>.drivers .driver .name{overflow-wrap:anywhere;line-height:1.05;text-shadow:0 3px 16px #000,0 1px 5px #000}
+body.vce-overlay-lineup .stage>.drivers .driver .role{color:#dcecff!important}
+body.vce-overlay-lineup .stage>.drivers .driver .num{color:#b8dfff!important}
+body.vce-overlay-lineup .stage>.heading p{max-width:1200px;overflow-wrap:anywhere}
+body.vce-overlay-calendar #stage .card{border-top:1px solid #53728e!important;border-right:1px solid #53728e!important}
+body.vce-overlay-calendar #stage .date{color:#fff;line-height:1.17;text-shadow:0 2px 6px #000}
+body.vce-overlay-calendar #stage .circuit{text-shadow:0 2px 7px #000}
+body.vce-overlay-calendar #stage .country{color:#c4d8ea}
