@@ -10,7 +10,7 @@ on:
       - 'assets/**'
       - 'data/**'
       - 'entrainements/**'
-      - 'tools/validate_site.py'
+      - 'tools/**'
       - '.github/workflows/validate-vce-site.yml'
 jobs:
   validate:
