@@ -133,9 +133,10 @@ async function review(row,decision,note){
  info('Enregistrement de la décision STAFF…');
  try{
   const session=await identity();
-  await req('vce_race_result_submissions?id=eq.'+encodeURIComponent(row.id)+'&status=eq.pending',
+  const changed=await req('vce_race_result_submissions?id=eq.'+encodeURIComponent(row.id)+'&status=eq.pending',
    'PATCH',{status:decision,staff_notes:String(note||'').slice(0,2000),
    reviewed_by:session.user.id,reviewed_at:new Date().toISOString()},'return=representation');
+  if(!Array.isArray(changed)||changed.length!==1)throw Error('Ce résultat a déjà été traité ou la modification a été refusée. Actualise la liste.');
   info('Décision enregistrée. Pour actualiser le rating et les publications, utilise le générateur Résultats.');
   await load()
  }catch(e){info('Décision refusée : '+e.message,true)}
