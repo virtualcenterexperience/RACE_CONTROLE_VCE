@@ -221,12 +221,12 @@ const names=['LUCAS GALY','ALEX LEHOUX','NICOLAS LEFRANCOIS','DYLAN DUBOIS','ANT
 const $=id=>document.getElementById(id),arr=x=>Array.isArray(x)?x:[],norm=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase(),safe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])),get=(key,def)=>{try{return JSON.parse(localStorage.getItem(key))??def}catch{return def}},set=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
 const pilot=()=>sessionStorage.getItem('vce_pilot')||localStorage.getItem('vce_pilot')||'',selectPilot=name=>{sessionStorage.setItem('vce_pilot',name);localStorage.setItem('vce_pilot',name)};
 function repo(){const parts=location.hostname.split('.');if(parts.length>=3&&parts[1]==='github'&&parts[2]==='io')return {owner:parts[0],repo:location.pathname.split('/').filter(Boolean)[0]||parts[0]};return null}
-const paths=['data/vce/seances.json','vce-data.json','data/sauvegardes/vce-data.json'];let currentPath='';
+const paths=['data/vce/seances.json'];let currentPath='';
 async function read(){
  const sources=[],merged={entrainements:[],seances:[],sessions:[],historique:[],historiques:[],validations:{}};
  for(const path of paths){
   try{
-   const r=await fetch(path+'?v='+Date.now(),{cache:'no-store'});
+   const r=await fetch(path,{cache:'no-cache',signal:AbortSignal.timeout(6500)});
    if(!r.ok)continue;
    const raw=await r.json(),d=Array.isArray(raw)?{seances:raw}:raw;
    if(!d||typeof d!=='object')continue;
@@ -254,7 +254,7 @@ function statusOf(x,d){return norm(d?.validations?.[x.id]||x.session.statut||x.s
 function completed(x,d){const status=statusOf(x,d);return ['TERMINE','TERMINEE','COMPLETED','FINISHED','DONE','VALID','VALIDE','VALIDATED','APPROVED'].includes(status)||x.session.termine===true||x.session.completed===true}
 function valid(x,d){const status=statusOf(x,d);return ['VALID','VALIDE','VALIDATED','APPROVED'].includes(status)||x.session.valide===true||x.session.validated===true}
 let circuits={};
-async function loadCircuits(){try{let r=await fetch('data/longueurs-circuits.json?v='+Date.now(),{cache:'no-store'});if(r.ok){let d=await r.json();circuits=d.circuits||{}}}catch{}}
+async function loadCircuits(){try{let r=await fetch('data/longueurs-circuits.json',{cache:'default',signal:AbortSignal.timeout(6000)});if(r.ok){let d=await r.json();circuits=d.circuits||{}}}catch{}}
 function lengthOf(s){const key=norm(s.circuit||s.track||s.piste).replace(/[^A-Z0-9]/g,'');for(const [name,info] of Object.entries(circuits)){const aliases=[name,...(info.aliases||[])];if(aliases.some(a=>norm(a).replace(/[^A-Z0-9]/g,'')===key))return Number(info.km)||0}return 0}
 function stats(d,name){const rows=records(d,name),finished=rows.filter(x=>completed(x,d)),approved=rows.filter(x=>valid(x,d)).length,tours=finished.reduce((a,x)=>a+(Number(x.session.tours??x.session.laps??x.session.nombreTours??x.session.nbTours)||0),0),distance=finished.reduce((a,x)=>{const s=x.session,laps=Number(s.tours??s.laps??s.nombreTours??s.nbTours)||0,km=Number(s.distanceKm??s.distance)||0;return a+(km>0?km:laps*lengthOf(s))},0),unknown=finished.filter(x=>{const s=x.session;return Number(s.tours??s.laps??s.nombreTours??s.nbTours)>0&&!Number(s.distanceKm??s.distance)&&!lengthOf(s)}).length;return {rows,finished,approved,tours,distance,unknown}}
 async function saveSession(entry,token){const records=local();records.push(entry);set('vce_local_sessions_v2',records);if(!token)return {synced:false,reason:'Enregistré sur cet appareil uniquement. Pour publier sur GitHub, renseigne un token autorisé.'};const r=repo();if(!r)return {synced:false,reason:'Enregistré localement. Ouvre le site sur GitHub Pages pour la sauvegarde partagée.'};let target=currentPath;let data={},sha;try{let found=await read();data=found.data;target=currentPath}catch{return {synced:false,reason:'Sauvegarde locale effectuée, mais le JSON distant est introuvable.'}};const endpoint='https://api.github.com/repos/'+encodeURIComponent(r.owner)+'/'+encodeURIComponent(r.repo)+'/contents/'+target;const headers={'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'};for(let attempt=0;attempt<3;attempt++){try{let getR=await fetch(endpoint,{headers,cache:'no-store'});if(!getR.ok)throw Error('Lecture GitHub HTTP '+getR.status);let j=await getR.json();sha=j.sha;let raw=Uint8Array.from(atob(j.content.replace(/\s/g,'')),x=>x.charCodeAt(0));data=JSON.parse(new TextDecoder().decode(raw));data.entrainements=arr(data.entrainements);if(!data.entrainements.some(x=>x.id===entry.id))data.entrainements.push(entry);let bytes=new TextEncoder().encode(JSON.stringify(data,null,2));let binary='';for(let k=0;k<bytes.length;k+=8192)binary+=String.fromCharCode(...bytes.slice(k,k+8192));let put=await fetch(endpoint,{method:'PUT',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({message:'VCE : nouvelle séance '+entry.pilot,content:btoa(binary),sha,branch:'main'})});if(put.ok)return {synced:true,reason:'Séance enregistrée sur GitHub.'};if(![409,422].includes(put.status))throw Error('Écriture GitHub HTTP '+put.status)}catch(e){if(attempt===2)return {synced:false,reason:'Sauvegarde locale effectuée, mais GitHub a échoué : '+e.message}}}return {synced:false,reason:'Sauvegarde locale uniquement : conflit GitHub.'}}
@@ -264,7 +264,7 @@ return {names,$,arr,norm,safe,get,set,pilot,selectPilot,read,local,records,stats
 
 const Rating=(()=>{
 const fallback={startDate:'2026-11-02',dailyTrainingPoints:3,maxRewardedSessionsPerDay:3,weeklyTrainingPoints:3,weeklyMissPenalty:0,xpPointsStep:15,classes:[{code:'R',name:'ROOKIE',xpPer15Points:150,xpToNext:1000},{code:'F',name:'BRONZE',xpPer15Points:125,xpToNext:1000},{code:'E',name:'SILVER',xpPer15Points:100,xpToNext:1000},{code:'D',name:'DIAMANT',xpPer15Points:75,xpToNext:1000},{code:'C',name:'BLINDÉ',xpPer15Points:50,xpToNext:1000},{code:'B',name:'OR',xpPer15Points:25,xpToNext:1000},{code:'A',name:'ALIEN',xpPer15Points:10,xpToNext:50000}]};
-async function config(){try{let r=await fetch('data/rating-config.json?v='+Date.now(),{cache:'no-store'});if(r.ok){let j=await r.json();if(Array.isArray(j.classes)&&j.classes.length===7)return j}}catch{}return fallback}
+async function config(){try{let r=await fetch('data/rating-config.json',{cache:'default',signal:AbortSignal.timeout(6000)});if(r.ok){let j=await r.json();if(Array.isArray(j.classes)&&j.classes.length===7)return j}}catch{}return fallback}
 const normalize=VCE.norm;
 function weekStart(value){let d=new Date(value);if(!Number.isFinite(d.getTime()))return null;let x=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));x.setUTCDate(x.getUTCDate()-((x.getUTCDay()+6)%7));return x.toISOString().slice(0,10)}
 function dateKey(s){let d=new Date(s);return Number.isFinite(d.getTime())?d.toISOString():null}
@@ -307,7 +307,17 @@ async function approvedTrainingData(){
   }))};
  }catch(e){console.warn('Validations STAFF non disponibles',e);return {seances:[],error:e.message}}
 }
-async function render(){let d={},remote=false;try{let r=await VCE.read();d=r.data;remote=true;VCE.$('source').textContent='Données synchronisées depuis : '+r.source}catch(e){VCE.$('source').textContent='Attention : JSON partagé indisponible. Classement et rating non synchronisés. '+e.message}await VCE.loadCircuits();let cfg=await Rating.config(),now=new Date(),approvedData=await approvedTrainingData(),ranks=Rating.ranking(approvedData||{seances:[]},cfg,now),publishedResults=await publishedRaceEntries(),raceData=await raceRatings(publishedResults),raceScores=raceData.scores;showMyRaceResults(publishedResults,VCE.pilot());
+async function render(){
+ let d={},remote=false;
+ // Independent datasets run together instead of forming a 4–5 request waterfall.
+ const [shared, , cfg, approvedData, publishedResults]=await Promise.all([
+  VCE.read().then(value=>({value}),error=>({error})),
+  VCE.loadCircuits(),Rating.config(),approvedTrainingData(),publishedRaceEntries()
+ ]);
+ if(shared.value){d=shared.value.data;remote=true;VCE.$('source').textContent='Données synchronisées depuis : '+shared.value.source}
+ else VCE.$('source').textContent='Attention : JSON partagé indisponible. Classement et rating non synchronisés. '+(shared.error?.message||'Erreur réseau');
+ const now=new Date(),ranks=Rating.ranking(approvedData||{seances:[]},cfg,now),raceData=await raceRatings(publishedResults),raceScores=raceData.scores;
+ showMyRaceResults(publishedResults,VCE.pilot());
  ranks.forEach(x=>{
   x.racePoints=raceScores.get(VCE.norm(x.name))||0;
   x.rating=x.racePoints;
@@ -381,7 +391,7 @@ async function refreshVceEvery10Seconds(){
  __vceRefreshBusy=true;
  try{await render();}catch(e){console.warn('Actualisation VCE',e)}finally{__vceRefreshBusy=false}
 }
-window.setInterval(refreshVceEvery10Seconds,10000);
+window.setInterval(refreshVceEvery10Seconds,30000);
 let __vceRosterSignature='';let __vceRosterBusy=false;
 async function syncPilotRoster(){
  if(__vceRosterBusy)return;
@@ -419,7 +429,7 @@ async function syncPilotRoster(){
 }
 setTimeout(syncPilotRoster,0);
 window.addEventListener('pageshow',()=>syncPilotRoster());
-setInterval(()=>{if(!document.hidden)syncPilotRoster()},15000);
+setInterval(()=>{if(!document.hidden)syncPilotRoster()},30000);
 </script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261109-connect-fast"></script><script src="vce-pilot-sync.js?v=20261106-rosterfix"></script><script id="vce-app-shell-script-20261104">
 (function(){
  const dash=document.getElementById('pilotDashboard');if(!dash||dash.dataset.shellReady)return;dash.dataset.shellReady='1';dash.classList.add('vce-shell');
