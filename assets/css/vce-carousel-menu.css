@@ -1,0 +1,44 @@
+/* VCE 2026 race menu — reference: horizontal racing event cards */
+.vce-race-carousel{position:relative;margin:12px 0 32px;padding:0;background:#07111fee;border:1px solid #29435b;border-radius:9px;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,.35)}
+.vce-race-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:19px 23px 15px;background:linear-gradient(90deg,#131c2c,#0b1729);border-bottom:2px solid #264a69}
+.vce-race-heading small{display:block;color:#73a9d5;font:800 10px/1.2 Arial,sans-serif;letter-spacing:2px}
+.vce-race-heading h2{font:900 clamp(16px,2vw,25px)/1.12 'Arial Narrow',Arial,sans-serif!important;color:#f1f8ff!important;margin:5px 0 0!important;letter-spacing:.4px}
+.vce-race-controls{display:flex;align-items:center;gap:9px}
+.vce-race-index{font:800 12px Consolas,monospace;color:#a2c8e5;white-space:nowrap}
+.vce-race-arrow{display:grid!important;place-items:center!important;width:41px!important;height:41px!important;border:1px solid #3d6685!important;border-radius:6px!important;background:#15314a!important;color:#fff!important;font:400 31px/1 Arial,sans-serif!important;cursor:pointer!important;padding:0!important}
+.vce-race-arrow:hover:not(:disabled){background:#275f8d!important;border-color:#81c9f8!important}
+.vce-race-arrow:disabled{opacity:.3;cursor:default!important}
+.vce-race-viewport{position:relative;padding:17px 19px 20px}
+.vce-race-track{display:flex!important;flex-wrap:nowrap!important;gap:13px!important;overflow-x:auto!important;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:4px;overscroll-behavior-inline:contain;scrollbar-width:thin;scrollbar-color:#385d7f #081324}
+.vce-race-track>*{scroll-snap-align:start}
+body.vce-page-chooser .vce-choice-visuals{display:none!important}
+body.vce-page-chooser .vce-race-carousel .cards{margin:0!important;width:100%!important;max-width:none!important;padding:2px 0 10px!important}
+body.vce-page-chooser .vce-race-carousel .card{box-sizing:border-box;flex:0 0 calc((100% - 26px)/3)!important;width:calc((100% - 26px)/3)!important;min-width:0!important;min-height:395px!important;background:#0c1727!important;padding:0 0 21px!important;border:1px solid #3b5067!important;border-top:3px solid var(--accent)!important;border-radius:5px!important;box-shadow:none!important;transition:border-color .17s,transform .17s!important}
+body.vce-page-chooser .vce-race-carousel .card:hover{transform:translateY(-2px)!important;border-color:#86bde4!important}
+body.vce-page-chooser .vce-race-carousel .vce-card-photo{height:200px!important;margin:0 0 19px!important;border:0!important;border-bottom:2px solid #2d4e69!important;position:relative!important}
+body.vce-page-chooser .vce-race-carousel .vce-card-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#061124cc,transparent 65%);pointer-events:none}
+body.vce-page-chooser .vce-race-carousel .vce-card-photo img{filter:brightness(.85) saturate(1.03)!important}
+body.vce-page-chooser .vce-race-carousel .card .icon{left:18px!important;top:163px!important;width:48px!important;height:48px!important;border:2px solid #4c90bf!important;background:#102e48!important}
+body.vce-page-chooser .vce-race-carousel .card h2{font-size:clamp(17px,2vw,25px)!important;letter-spacing:.6px!important;margin:11px 20px 9px!important;color:#f5f8fd!important}
+body.vce-page-chooser .vce-race-carousel .card p{font-size:12px!important;line-height:1.5!important;margin:0 20px 18px!important;color:#bed0e1!important}
+body.vce-page-chooser .vce-race-carousel .card .go{margin:auto 20px 0!important;color:#86c9ff!important;letter-spacing:.5px!important;font-size:11px!important}
+body.vce-page-pilot #pilotSelection{min-height:45vh}
+body.vce-page-pilot .vce-race-carousel{margin:10px 0 25px!important}
+body.vce-page-pilot .vce-race-carousel #pilotGrid{max-width:none!important;width:100%!important;grid-template-columns:none!important;margin:0!important;padding:2px 0 11px!important;justify-content:flex-start!important;visibility:visible!important}
+html body.vce-page-pilot #pilotSelection:not(.hidden) #pilotGrid{display:flex!important}
+body.vce-page-pilot .vce-race-carousel .pilot-select{position:relative;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-end!important;flex:0 0 calc((100% - 39px)/4)!important;width:calc((100% - 39px)/4)!important;min-height:315px!important;height:315px!important;min-width:0!important;max-width:none!important;margin:0!important;padding:0 15px 16px!important;overflow:hidden;border-radius:6px!important;border:1px solid #34536e!important;border-top:3px solid #367fbe!important;box-shadow:0 8px 22px #0004!important;background:linear-gradient(160deg,#142d46,#071527)!important;color:#fff!important;transition:transform .16s,border-color .16s!important;text-align:left!important;cursor:pointer}
+body.vce-page-pilot .vce-race-carousel .pilot-select:nth-child(even){border-top-color:#e84064!important}
+body.vce-page-pilot .vce-race-carousel .pilot-select:hover{transform:translateY(-2px)!important;border-color:#8bc1e7!important}
+body.vce-page-pilot .vce-race-pilot-art{position:absolute;inset:0 0 70px;background-position:center;background-size:cover;opacity:.8;filter:saturate(.85);pointer-events:none}
+body.vce-page-pilot .vce-race-pilot-art:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#06132412,#071525)}
+body.vce-page-pilot .vce-race-carousel .pilot-select .avatar{position:relative!important;z-index:2!important;margin-bottom:13px!important;width:84px!important;height:84px!important;font-size:28px!important;border:3px solid #e1eefc!important;border-radius:50%!important;background:#0b2037!important;box-shadow:0 5px 23px #0009!important;overflow:hidden!important;flex-shrink:0!important}
+body.vce-page-pilot .vce-race-carousel .pilot-select .avatar img{width:100%!important;height:100%!important;object-fit:cover!important;display:block}
+body.vce-page-pilot .vce-race-carousel .pilot-select>span:last-child{position:relative;z-index:2;min-width:0}
+body.vce-page-pilot .vce-race-carousel .pilot-select b{display:block;font-size:clamp(15px,1.5vw,19px)!important;white-space:normal;line-height:1.15;color:#fff}
+body.vce-page-pilot .vce-race-carousel .pilot-select small{display:block;margin:7px 0 0;font-size:10px!important;color:#9ac7e5!important;letter-spacing:.6px}
+body.vce-page-pilot .vce-race-carousel .vce-roster-skeleton{opacity:.66;pointer-events:none;cursor:default}
+body.vce-page-pilot .vce-race-carousel .vce-roster-skeleton .avatar{background:#21405c}
+@media(max-width:1100px){body.vce-page-pilot .vce-race-carousel .pilot-select{flex-basis:calc((100% - 26px)/3)!important;width:calc((100% - 26px)/3)!important}}
+@media(max-width:790px){body.vce-page-chooser .vce-race-carousel .card{flex-basis:calc((100% - 13px)/2)!important;width:calc((100% - 13px)/2)!important}body.vce-page-pilot .vce-race-carousel .pilot-select{flex-basis:calc((100% - 13px)/2)!important;width:calc((100% - 13px)/2)!important}}
+@media(max-width:540px){.vce-race-toolbar{padding:13px 14px}.vce-race-viewport{padding:11px}.vce-race-heading h2{font-size:17px!important}.vce-race-controls{gap:5px}.vce-race-arrow{width:35px!important;height:35px!important}.vce-race-index{font-size:10px}body.vce-page-chooser .vce-race-carousel .card{flex-basis:83%!important;width:83%!important;min-height:370px!important}body.vce-page-pilot .vce-race-carousel .pilot-select{flex-basis:76%!important;width:76%!important;min-height:300px!important;height:300px!important}}
+@media(prefers-reduced-motion:reduce){.vce-race-carousel *{scroll-behavior:auto!important;transition:none!important}}
