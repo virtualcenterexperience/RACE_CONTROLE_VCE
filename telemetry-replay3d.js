@@ -76,9 +76,9 @@ function paint(){
  const basePath=samples.length>=5?samples:reference;
  const track=basePath.length>700?basePath.filter((_,i)=>i%Math.ceil(basePath.length/700)===0):basePath;
  line(track,'#0b1016',37);line(track,'#3a4852',30);line(track,'#151b22',24);
- line(reference,'#4d9dff',4);line(samples,'#ff951d',4);
+ line(samples,'#ff951d',7);line(reference,'#4d9dff',3);
  function car(p,color,label,arr){if(!p)return;const [x,y]=project(p);const t=arr===reference?time:time;const before=sampleAt(arr,Math.max(0,t-.2)),after=sampleAt(arr,t+.2);const dir=before&&after?Math.atan2(after.y-before.y,after.x-before.x):0;ctx.save();ctx.translate(x,y);ctx.rotate(dir-(camera==='chase'||camera==='cockpit'?heading:0)+Math.PI/2);ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=10;ctx.beginPath();ctx.moveTo(0,-15);ctx.lineTo(9,10);ctx.lineTo(0,6);ctx.lineTo(-9,10);ctx.closePath();ctx.fill();ctx.restore();ctx.fillStyle='#fff';ctx.font='bold 12px Segoe UI';ctx.fillText(label,x+12,y-10)}
- car(b,'#4d9dff',referenceName,reference);if(camera!=='cockpit')car(a,'#f32d56','PILOTE',samples);
+ car(b,'#4d9dff',referenceName,reference);if(camera!=='cockpit')car(a,'#ff951d','PILOTE',samples);
  if(camera==='cockpit'&&a){ctx.fillStyle='#080d16';ctx.beginPath();ctx.moveTo(w*.28,h);ctx.lineTo(w*.39,h*.83);ctx.lineTo(w*.61,h*.83);ctx.lineTo(w*.72,h);ctx.closePath();ctx.fill();ctx.strokeStyle='#f32d56';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(w*.4,h*.85);ctx.lineTo(w*.6,h*.85);ctx.stroke();ctx.fillStyle='#dbeafe';ctx.font='bold 15px Segoe UI';ctx.fillText('CAMÉRA EMBARQUÉE · RECONSTITUTION XY',18,h-22)}
  ctx.fillStyle='rgba(7,13,24,.83)';ctx.fillRect(12,12,315,62);
  ctx.fillStyle='#ff951d';ctx.fillRect(24,25,18,4);ctx.fillStyle='#e7f1ff';ctx.font='bold 14px Segoe UI';ctx.fillText('PILOTE',52,30);
@@ -96,9 +96,17 @@ function loop(ts){
 function mount(){
  const anchor=$('tt-circuit');if(!anchor||$('vce-replay'))return;
  const section=el('section',undefined,'panel vce-replay');section.id='vce-replay';
- section.innerHTML='<div class="head"><h2>REPLAY 3D · COMPARAISON DES TRAJECTOIRES</h2><span id="vce-replay-state">En attente de session</span></div><p class="muted">Replay des positions enregistrées. Rouge : pilote · bleu : référence. Les bordures et la largeur réelle de piste ne sont pas connues : la bande grise est indicative, pas une limite de piste.</p><div class="vce-replay-tools"><button id="vce-replay-play" disabled>▶ Lecture</button><label>Vitesse <select id="vce-replay-rate"><option value=".25">0,25×</option><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><label>Caméra <select id="vce-replay-camera"><option value="chase">Suivi voiture</option><option value="cockpit">Vue embarquée (reconstitution)</option><option value="overview">Perspective générale</option><option value="top">Vue de dessus</option></select></label><label>Zoom <input id="vce-replay-zoom" type="range" min="1" max="12" step="0.5" value="3" style="width:130px;vertical-align:middle"></label><button id="vce-replay-reload">Recharger les tours</button><button type="button" id="vce-replay-team">⇄ Pilote VCE</button></div><canvas id="vce-replay-canvas" width="1100" height="520"></canvas><input type="range" id="vce-replay-slider" min="0" max="1000" value="0" step="1" aria-label="Position du replay"><div class="vce-replay-stats"><span id="vce-replay-time">—</span><span>Référence : <b id="vce-replay-reference-name">—</b></span><span>Vitesse : <b id="vce-replay-speed">—</b></span><span>Frein : <b id="vce-replay-brake">—</b></span><span>Accélérateur : <b id="vce-replay-throttle">—</b></span></div>';
+ section.innerHTML='<div class="head"><h2>REPLAY 3D · COMPARAISON DES TRAJECTOIRES</h2><span id="vce-replay-state">En attente de session</span></div><p class="muted"><span class="vce-replay-pilot-key">● Pilote</span> · <span class="vce-replay-reference-key">● Référence</span></p><div class="vce-replay-tools"><button id="vce-replay-play" disabled>▶ Lecture</button><label>Vitesse <select id="vce-replay-rate"><option value=".25">0,25×</option><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><label>Caméra <select id="vce-replay-camera"><option value="chase">Suivi voiture</option><option value="cockpit">Vue embarquée (reconstitution)</option><option value="overview">Perspective générale</option><option value="top">Vue de dessus</option></select></label><label>Zoom <input id="vce-replay-zoom" type="range" min="1" max="12" step="0.5" value="3" style="width:130px;vertical-align:middle"></label><button type="button" id="vce-replay-fit">Cadrer les deux trajectoires</button><button id="vce-replay-reload">Recharger les tours</button><button type="button" id="vce-replay-team">⇄ Pilote VCE</button></div><div class="vce-replay-timeline"><input type="range" id="vce-replay-slider" min="0" max="1000" value="0" step="1" aria-label="Position du replay"><span id="vce-replay-time">—</span></div><canvas id="vce-replay-canvas" width="1100" height="520"></canvas><div class="vce-replay-stats"><span>Référence : <b id="vce-replay-reference-name">—</b></span><span>Vitesse : <b id="vce-replay-speed">—</b></span><span>Frein : <b id="vce-replay-brake">—</b></span><span>Accélérateur : <b id="vce-replay-throttle">—</b></span></div>';
  anchor.after(section);
  $('vce-replay-play').onclick=()=>{if(progress>=1)progress=0;playing=!playing;lastTick=0;$('vce-replay-play').textContent=playing?'❚❚ Pause':'▶ Lecture'};
+ $('vce-replay-fit').onclick=()=>{
+  const view=$('vce-replay-camera');
+  const scale=$('vce-replay-zoom');
+  view.value='top';
+  scale.value='1';
+  view.dispatchEvent(new Event('change'));
+  scale.dispatchEvent(new Event('input'));
+ };
  $('vce-replay-slider').oninput=e=>{progress=+e.target.value/1000;lastTick=0};
  $('vce-replay-rate').onchange=e=>rate=+e.target.value;
  $('vce-replay-zoom').oninput=e=>zoom=+e.target.value;

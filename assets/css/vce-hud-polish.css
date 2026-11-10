@@ -22,3 +22,20 @@ body.vce-telemetry-workspace #vce-hud-steering-bar{background:#5bbaff}
 @media(max-width:1080px){body.vce-telemetry-workspace .vce-hud-meters{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){body.vce-telemetry-workspace .vce-hud-banner{padding:16px;flex-wrap:wrap}body.vce-telemetry-workspace .vce-hud-meters{grid-template-columns:repeat(2,minmax(0,1fr));padding:9px;gap:8px}body.vce-telemetry-workspace .vce-hud-meters article{padding:12px}body.vce-telemetry-workspace .vce-hud-state{width:100%;text-align:center}}
 @media(prefers-reduced-motion:reduce){body.vce-telemetry-workspace .vce-hud-track i{transition:none}}
+
+.vce-replay-timeline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 0 12px;
+  margin-bottom: 12px;
+  border: 1px solid #355a7e;
+  border-radius: 8px;
+  background: #0a1728;
+  font-variant-numeric: tabular-nums;
+}
+.vce-replay-timeline #vce-replay-slider { accent-color: #ff951d; }
+.vce-replay-pilot-key { color: #ffad54; }
+.vce-replay-reference-key { color: #7abaff; }
+#vce-replay-world-note:empty { display: none; }
