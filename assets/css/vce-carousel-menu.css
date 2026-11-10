@@ -42,3 +42,8 @@ body.vce-page-pilot .vce-race-carousel .vce-roster-skeleton .avatar{background:#
 @media(max-width:790px){body.vce-page-chooser .vce-race-carousel .card{flex-basis:calc((100% - 13px)/2)!important;width:calc((100% - 13px)/2)!important}body.vce-page-pilot .vce-race-carousel .pilot-select{flex-basis:calc((100% - 13px)/2)!important;width:calc((100% - 13px)/2)!important}}
 @media(max-width:540px){.vce-race-toolbar{padding:13px 14px}.vce-race-viewport{padding:11px}.vce-race-heading h2{font-size:17px!important}.vce-race-controls{gap:5px}.vce-race-arrow{width:35px!important;height:35px!important}.vce-race-index{font-size:10px}body.vce-page-chooser .vce-race-carousel .card{flex-basis:83%!important;width:83%!important;min-height:370px!important}body.vce-page-pilot .vce-race-carousel .pilot-select{flex-basis:76%!important;width:76%!important;min-height:300px!important;height:300px!important}}
 @media(prefers-reduced-motion:reduce){.vce-race-carousel *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Override legacy selection rules that hid helper text and forced a grid. */
+html body.vce-page-pilot #pilotSelection #pilotGrid .pilot-select small{display:block!important}
+html body.vce-page-pilot #pilotSelection:not(.hidden) #pilotGrid{display:flex!important}
+body.vce-page-pilot .vce-race-carousel .vce-roster-skeleton span:last-child{font:700 13px Arial,sans-serif;color:#b2c7df;z-index:2}
