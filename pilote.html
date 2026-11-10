@@ -392,39 +392,70 @@ async function refreshVceEvery10Seconds(){
  try{await render();}catch(e){console.warn('Actualisation VCE',e)}finally{__vceRefreshBusy=false}
 }
 window.setInterval(refreshVceEvery10Seconds,30000);
-let __vceRosterSignature='';let __vceRosterBusy=false;
+let __vceRosterSignature='',__vceRosterBusy=false;
+const __vceRosterCacheKey='vce_verified_public_roster_v2';
+function applyPilotRoster(rows,{save=false}={}){
+ if(!Array.isArray(rows))return false;
+ const valid=rows.filter(p=>p&&typeof p.id==='string'&&/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.id)
+   &&typeof p.name==='string'&&p.name.trim());
+ const signature=JSON.stringify(valid.map(p=>[p.id,p.name]));
+ if(signature!==__vceRosterSignature){
+  __vceRosterSignature=signature;
+  window.VCE_PILOT_ROSTER=valid;
+  allPilots.splice(0,allPilots.length,...valid.map(p=>({id:p.id,name:p.name})));
+  VCE.names.splice(0,VCE.names.length,...valid.map(p=>p.name));
+  showPilotList();routePilot();
+  window.dispatchEvent(new Event('vce-roster-updated'));
+ }
+ if(save)try{sessionStorage.setItem(__vceRosterCacheKey,JSON.stringify({at:Date.now(),rows:valid}))}catch{}
+ return true;
+}
+function restoreRecentRoster(){
+ try{
+  const cached=JSON.parse(sessionStorage.getItem(__vceRosterCacheKey)||'null');
+  // Only the last successfully fetched Supabase roster, never the old static list.
+  if(cached&&Date.now()-cached.at<120000&&Array.isArray(cached.rows))return applyPilotRoster(cached.rows);
+ }catch{}
+ return false;
+}
+const __vceHasCachedRoster=restoreRecentRoster();
+if(!__vceHasCachedRoster){
+ const root=document.getElementById('pilotGrid');
+ root.replaceChildren();
+ for(let i=0;i<4;i++){
+  const card=document.createElement('div');card.className='pilot-select vce-roster-skeleton';
+  const avatar=document.createElement('span');avatar.className='avatar';avatar.textContent='··';
+  const body=document.createElement('span');body.textContent='Synchronisation VCE';
+  card.append(avatar,body);root.append(card);
+ }
+ document.getElementById('pilotCount').textContent='CHARGEMENT DES PROFILS…';
+}
 async function syncPilotRoster(){
  if(__vceRosterBusy)return;
  __vceRosterBusy=true;
  try{
   if(!window.VCESupabase?.configured())throw Error('Connexion Supabase non configurée');
   const remote=await VCESupabase.read('pilotes');
-  // An absent roster is a first-time setup, NOT an intentionally empty team.
-  // Recover the original profiles until the STAFF initializes the Supabase row.
+  // Staff-maintained roster is authoritative; static JSON only for first setup.
   let rows;
-  if(Array.isArray(remote.items)){
-   rows=remote.items.filter(p=>p&&p.id&&p.name);
-  }else{
-   const res=await fetch('data/vce/pilotes.json',{cache:'no-store'});
+  if(Array.isArray(remote.items))rows=remote.items;
+  else{
+   const res=await fetch('data/vce/pilotes.json',{cache:'default',signal:AbortSignal.timeout(6000)});
    if(!res.ok)throw Error('Liste initiale des pilotes indisponible');
    rows=(await res.json()).filter(p=>p&&p.id&&p.name);
   }
-  const signature=JSON.stringify(rows.map(p=>[p.id,p.name]));
-  if(signature===__vceRosterSignature)return;
-  __vceRosterSignature=signature;
-  window.VCE_PILOT_ROSTER=rows;
-  allPilots.splice(0,allPilots.length,...rows.map(p=>({id:p.id,name:p.name})));
-  VCE.names.splice(0,VCE.names.length,...rows.map(p=>p.name));
-  showPilotList();routePilot();
-  window.dispatchEvent(new Event('vce-roster-updated'));
+  applyPilotRoster(rows,{save:true});
  }catch(e){
-  // Don't resurrect deleted pilots from a stale JSON or hard-coded roster.
   console.warn('Roster VCE indisponible :',e);
-  window.VCE_PILOT_ROSTER=[];
-  allPilots.splice(0,allPilots.length);
-  VCE.names.splice(0,VCE.names.length);
-  showPilotList();routePilot();
-  document.getElementById('pilotCount').textContent='Liste indisponible — contacte le STAFF';
+  // Keep only short-lived verified data while the server is temporarily offline.
+  if(!__vceRosterSignature){
+   allPilots.splice(0,allPilots.length);
+   VCE.names.splice(0,VCE.names.length);
+   document.getElementById('pilotGrid').replaceChildren();
+   document.getElementById('pilotCount').textContent='PROFILS INDISPONIBLES · RÉESSAYER';
+  }else{
+   document.getElementById('pilotCount').textContent=allPilots.length+' PILOTES · SYNCHRONISATION EN ATTENTE';
+  }
  }finally{__vceRosterBusy=false}
 }
 setTimeout(syncPilotRoster,0);
