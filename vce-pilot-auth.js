@@ -84,49 +84,52 @@ function openDashboard(){
 async function route(){
  const id=current(),request=++state.seq;state.verified='';
  if(!id){lock(true);if(card)card.hidden=true;return}
- lock(true);show('Vérification de ton compte VCE ESPORT…');
+ lock(true);
+ // Open the credential form immediately, without waiting for Edge cold starts.
+ // Server checks still gate all access to the dashboard.
+ showForm('Saisis ton code ou ton mot de passe. Vérification du profil en arrière-plan…');
+ const accessPromise=accountStatus(id).then(value=>({value}),error=>({error}));
  try{
-  // Start the server account lookup and session refresh together.
-  // Both are independently checked by Supabase, no client-side permissions are assumed.
-  const accessPromise=accountStatus(id);
-  const sessionPromise=window.VCESupabase?.validSession().catch(()=>null);
-  const access=await accessPromise;
+  const session=await window.VCESupabase?.validSession().catch(()=>null);
   if(request!==state.seq)return;
-  if(access.listed===false){
-   // Distinguish an uninitialized database roster from an actual STAFF removal.
-   const remote=await window.VCESupabase.read('pilotes');
-   if(request!==state.seq)return;
-   if(Array.isArray(remote.items)){
-    show('Ce pilote a été retiré de la liste par le STAFF. Reviens à la sélection des pilotes.');
-    $('vce-pilot-login-form').hidden=true;
-    $('vce-pilot-change-form').hidden=true;
-    $('vce-pilot-reconnect').hidden=true;
-    return;
-   }
-   // The initial roster has not been installed yet: allow legacy public dashboard only.
-   openDashboard();
+  if(!session?.access_token){
+   accessPromise.then(result=>{
+    if(request!==state.seq||state.verified)return;
+    if(result.value?.listed===false)showForm('Ce pilote ne figure plus dans l’effectif actif. Contacte le STAFF.');
+    else if(result.value?.ready===false)showForm('Profil non activé. Demande un code d’accès au STAFF.');
+    else if(result.error)showForm('Le contrôle du compte est momentanément indisponible. Tu peux réessayer de te connecter.');
+    else showForm();
+   });
    return;
   }
-  // Existing unprovisioned profiles remain accessible during the server rollout.
-  if(!access.ready){openDashboard();return}
-  const session=await sessionPromise;
-  if(request!==state.seq)return;
-  if(!session?.access_token){showForm();return}
-  // Permission and pilot ownership queries run in parallel. Ownership still
-  // must match the profile before the dashboard is unlocked.
-  const [staffResult,identityResult]=await Promise.allSettled([
-    window.VCESupabase.isStaff(),api('pilot_whoami')
+  // Concurrent authorization checks: no login bypass when an API is slow.
+  const [accessResult,staffResult,identityResult]=await Promise.all([
+   accessPromise,
+   window.VCESupabase.isStaff().then(value=>({value}),error=>({error})),
+   api('pilot_whoami').then(value=>({value}),error=>({error}))
   ]);
   if(request!==state.seq)return;
-  if(staffResult.status==='fulfilled'&&staffResult.value===true){openDashboard();return}
-  if(identityResult.status==='rejected')throw identityResult.reason;
+  if(accessResult.error)throw accessResult.error;
+  const access=accessResult.value;
+  if(access?.listed!==true){
+   showForm('Ce pilote a été retiré de l’équipe ou la liste active est indisponible. Contacte le STAFF.');
+   return;
+  }
+  if(staffResult.value===true){openDashboard();return}
+  if(!access.ready){
+   showForm('Ce compte pilote doit être activé par le STAFF avant la connexion.');
+   return;
+  }
+  if(identityResult.error)throw identityResult.error;
   const identity=identityResult.value;
-  if(request!==state.seq)return;
   state.identity=identity;
-  if(slug(identity.pilot_slug)!==id){showForm('Ce navigateur est connecté à un autre pilote. Déconnecte ce compte pour ouvrir ce profil.');return}
+  if(slug(identity?.pilot_slug)!==id){
+   showForm('Ce navigateur est connecté à un autre pilote. Déconnecte ce compte pour ouvrir ce profil.');
+   return;
+  }
   if(identity.password_change_required){showChange();return}
   openDashboard();
- }catch(e){if(request===state.seq)showForm('Connexion indisponible : '+e.message)}
+ }catch(e){if(request===state.seq)showForm('Vérification impossible : '+e.message)}
 }
 async function signIn(e){
  e.preventDefault();const id=current(),input=$('vce-pilot-secret'),secret=input.value;
