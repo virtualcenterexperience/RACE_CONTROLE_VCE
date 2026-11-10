@@ -13,7 +13,7 @@ const overlays={
 };
 const basename=location.pathname.split('/').pop(),groups=overlays[basename];if(!groups)return;
 const store='vce-overlay-editor-v1:'+basename;
-let settings={theme:'blue',items:{},images:{},texts:{}},target=null,selected=null,drag=null;
+let settings={theme:'blue',items:{},images:{},texts:{},background:{mode:'default',preset:'blue',image:'',position:50,darkness:32}},target=null,selected=null,drag=null;
 const $=id=>document.getElementById(id);
 const finite=(n,min,max,fallback)=>{const x=Number(n);return Number.isFinite(x)?Math.max(min,Math.min(max,x)):fallback};
 const stage=()=>document.querySelector('#stage,.stage');
@@ -24,6 +24,7 @@ function load(){
   if(stored.items&&typeof stored.items==='object')settings.items=stored.items;
   if(stored.images&&typeof stored.images==='object')settings.images=stored.images;
   if(stored.texts&&typeof stored.texts==='object')settings.texts=stored.texts;
+  if(stored.background&&typeof stored.background==='object')settings.background={...settings.background,...stored.background};
  }}catch{}
 }
 function ids(){
@@ -70,9 +71,53 @@ function renderItem(id){
 }
 function apply(){
  const body=document.body;body.dataset.vceOverlayTheme=settings.theme;
+ applyBackground();
  ensureCustomText();
  for(const [id] of ids())renderItem(id);
 }
+
+// Independent background editor: same settings for lineup, results and calendar.
+function applyBackground(){
+ const surface=stage();if(!surface)return;
+ const bg=settings.background||{};
+ const mode=['default','preset','image'].includes(bg.mode)?bg.mode:'default';
+ document.body.dataset.vceBgMode=mode;
+ surface.style.removeProperty('background');
+ if(mode==='default')return;
+ const palettes={
+  blue:'linear-gradient(125deg,#07111f 0%,#113456 55%,#030915 100%)',
+  red:'linear-gradient(125deg,#150912 0%,#56142b 60%,#070b15 100%)',
+  graphite:'linear-gradient(135deg,#05090f 0%,#17202c 55%,#05070b 100%)',
+  violet:'linear-gradient(125deg,#100c20 0%,#292047 52%,#080b15 100%)',
+  black:'linear-gradient(125deg,#020304,#0a1018 60%,#020304)'
+ };
+ if(mode==='preset'){
+  surface.style.setProperty('background',palettes[bg.preset]||palettes.blue,'important');
+ }else if(mode==='image'&&typeof bg.image==='string'&&/^data:image\/(?:png|jpeg|webp);base64,/.test(bg.image)){
+  const darkness=finite(bg.darkness,0,85,32)/100;
+  surface.style.setProperty('background',`linear-gradient(rgba(1,7,15,${darkness}),rgba(1,7,15,${darkness})),url("${bg.image}") ${finite(bg.position,0,100,50)}% center / cover no-repeat`,'important');
+ }else{
+  surface.style.setProperty('background',palettes.blue,'important');
+ }
+}
+async function uploadBackground(file){
+ if(!file||!/^image\/(png|jpeg|webp)$/.test(file.type)||file.size>12000000)throw Error('Sélectionne un JPG, PNG ou WebP de 12 Mo maximum.');
+ const img=new Image(),u=URL.createObjectURL(file);
+ try{
+  await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('Impossible de lire cette image.'));img.src=u});
+  const canvas=document.createElement('canvas');
+  const ratio=Math.min(1,1920/Math.max(img.width,img.height));
+  canvas.width=Math.max(1,Math.round(img.width*ratio));canvas.height=Math.max(1,Math.round(img.height*ratio));
+  canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+  const converted=canvas.toDataURL('image/webp',.76);
+  if(converted.length>3200000)throw Error('Image trop volumineuse après compression : utilise une image plus légère.');
+  const previous={...settings.background};
+  settings.background={...previous,mode:'image',image:converted};
+  applyBackground();
+  if(!save()){settings.background=previous;applyBackground();throw Error('Stockage navigateur saturé. Exporte le JSON ou choisis une image plus légère.')}
+ }finally{URL.revokeObjectURL(u)}
+}
+
 function save(){
  try{localStorage.setItem(store,JSON.stringify(settings));return true}
  catch(e){return false}
@@ -117,7 +162,8 @@ function marker(){
  document.body.classList.add('vce-graphic-editing');
  const panel=document.createElement('aside');panel.className='vce-editor-panel';panel.innerHTML=
  '<h2>VCE GRAPHIC STUDIO</h2><p class="vce-editor-muted">Déplace les blocs à la souris. Choisis un thème, modifie les tailles et place les portraits / logos. Les modifications restent sur cet appareil tant que tu ne les exportes pas.</p>'+
- '<div class="vce-editor-buttons"><button type="button" data-theme="red">FOND ROUGE</button><button type="button" data-theme="blue">FOND BLEU</button></div>'+
+ '<section class="vce-editor-background"><h3>ARRIÈRE-PLAN</h3><label>Type de fond<select id="vce-bg-mode"><option value="default">Design original VCE</option><option value="preset">Dégradé personnalisé</option><option value="image">Photo / image importée</option></select></label><label>Couleur / ambiance<select id="vce-bg-preset"><option value="blue">Bleu racing</option><option value="red">Rouge compétition</option><option value="graphite">Graphite</option><option value="violet">Violet nuit</option><option value="black">Noir studio</option></select></label><label>Importer un arrière-plan<input id="vce-bg-file" type="file" accept="image/png,image/jpeg,image/webp"></label><label>Position horizontale de la photo <output id="vce-bg-position-label">50 %</output><input id="vce-bg-position" type="range" min="0" max="100" value="50"></label><label>Assombrir pour la lisibilité <output id="vce-bg-darkness-label">32 %</output><input id="vce-bg-darkness" type="range" min="0" max="85" value="32"></label><div class="vce-editor-buttons"><button type="button" id="vce-bg-remove">SUPPRIMER LA PHOTO</button></div><p class="vce-editor-muted">L’image et son cadrage sont conservés dans le brouillon de cet overlay et inclus dans l’export JSON.</p></section>'+
+ '<div class="vce-editor-buttons"><button type="button" data-theme="red">ACCENT ROUGE</button><button type="button" data-theme="blue">ACCENT BLEU</button></div>'+
  '<label>Élément à modifier<select id="vce-editor-pick"></select></label>'+
  '<label>Décalage horizontal (px)<input id="vce-editor-x" type="number" step="5" value="0"></label>'+
  '<label>Décalage vertical (px)<input id="vce-editor-y" type="number" step="5" value="0"></label>'+
@@ -133,6 +179,26 @@ function marker(){
  const list=$('vce-editor-pick');
  function populate(){const old=list.value;list.replaceChildren(...ids().filter(([id])=>locate(id)).map(([id])=>new Option(id.toUpperCase().replaceAll('-',' '),id)));if([...list.options].some(o=>o.value===old))list.value=old;else if(list.options.length)pick(list.options[0].value)}
  populate();
+ const bgMode=$('vce-bg-mode'),bgPreset=$('vce-bg-preset'),bgPosition=$('vce-bg-position'),bgDarkness=$('vce-bg-darkness');
+ function syncBackgroundControls(){
+  const bg=settings.background||{};
+  bgMode.value=bg.mode||'default';bgPreset.value=bg.preset||'blue';
+  bgPosition.value=finite(bg.position,0,100,50);bgDarkness.value=finite(bg.darkness,0,85,32);
+  $('vce-bg-position-label').textContent=bgPosition.value+' %';
+  $('vce-bg-darkness-label').textContent=bgDarkness.value+' %';
+  bgPosition.disabled=bgMode.value!=='image';bgDarkness.disabled=bgMode.value!=='image';
+ }
+ function updateBackground(){settings.background={...settings.background,mode:bgMode.value,preset:bgPreset.value,position:Number(bgPosition.value),darkness:Number(bgDarkness.value)};applyBackground();syncBackgroundControls();save()}
+ bgMode.onchange=updateBackground;bgPreset.onchange=()=>{if(bgMode.value==='default')bgMode.value='preset';updateBackground()};
+ bgPosition.oninput=updateBackground;bgDarkness.oninput=updateBackground;
+ $('vce-bg-file').onchange=async e=>{
+  const status=$('vce-editor-status');
+  try{await uploadBackground(e.target.files?.[0]);syncBackgroundControls();status.textContent='Arrière-plan chargé et enregistré sur cet appareil.'}
+  catch(err){status.textContent=err.message}
+  e.target.value='';
+ };
+ $('vce-bg-remove').onclick=()=>{settings.background={...settings.background,image:'',mode:'default'};applyBackground();syncBackgroundControls();save();$('vce-editor-status').textContent='Arrière-plan personnalisé supprimé.'};
+ syncBackgroundControls();
  list.onchange=()=>pick(list.value);
  for(const k of ['x','y','scale','rotation'])$('vce-editor-'+k).oninput=readControls;
  $('vce-editor-text').oninput=()=>{
@@ -155,7 +221,7 @@ function marker(){
  panel.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{settings.theme=b.dataset.theme;apply();save()});
  $('vce-editor-save').onclick=()=>{$('vce-editor-status').textContent=save()?'Brouillon enregistré. Ouvre ?layout=local pour un aperçu propre.':'Stockage local indisponible. Exporte le JSON.'};
  $('vce-editor-export').onclick=download;
- $('vce-editor-reset').onclick=()=>{if(!confirm('Réinitialiser toutes les positions et images locales ?'))return;settings={theme:'blue',items:{},images:{},texts:{}};save();location.reload()};
+ $('vce-editor-reset').onclick=()=>{if(!confirm('Réinitialiser toutes les positions et images locales ?'))return;settings={theme:'blue',items:{},images:{},texts:{},background:{mode:'default',preset:'blue',image:'',position:50,darkness:32}};save();location.reload()};
  $('vce-editor-import').onclick=()=>$('vce-editor-import-file').click();
  $('vce-editor-import-file').onchange=async e=>{
   const f=e.target.files?.[0];if(!f||f.size>5000000)return;
@@ -163,7 +229,8 @@ function marker(){
    settings.theme=incoming.theme==='red'?'red':'blue';settings.items=incoming.items&&typeof incoming.items==='object'?incoming.items:{};
    settings.images=incoming.images&&typeof incoming.images==='object'?incoming.images:{};
    settings.texts=incoming.texts&&typeof incoming.texts==='object'?incoming.texts:{};
-   apply();pick(target||ids()[0][0]);save();$('vce-editor-status').textContent='Composition importée.'
+   if(incoming.background&&typeof incoming.background==='object')settings.background={...settings.background,...incoming.background};
+   apply();syncBackgroundControls();pick(target||ids()[0][0]);save();$('vce-editor-status').textContent='Composition importée.'
   }catch(err){$('vce-editor-status').textContent='Import impossible : '+err.message}
  };
  $('vce-editor-image').onchange=async e=>{
