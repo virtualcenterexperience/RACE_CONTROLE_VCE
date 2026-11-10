@@ -37,3 +37,5 @@ jobs:
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find . -type f -name '*.js' ! -path './race-controle-windows/*' -print0)
+      - name: Verify Supabase publishable key authentication headers
+        run: node tools/test-auth-headers.mjs
