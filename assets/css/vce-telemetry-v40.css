@@ -88,10 +88,10 @@ html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-history,
 html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-analysis,
 html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-delta,
 html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-stream{display:none!important}
-html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{display:grid!important;grid-template-columns:1.6fr 2fr 1fr 1fr 1.2fr;margin:0 0 16px!important}
+
 html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions label:nth-child(3),
 html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions label:nth-child(4){display:none!important}
-html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{grid-template-columns:1fr 2fr 1fr}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,2fr) minmax(0,1fr);margin:0 0 16px!important}
 @media(max-width:1200px){.vce-setup-map-layout{grid-template-columns:1fr}.vce-setup-live-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.vce-tour-guide{align-items:flex-start;flex-direction:column}.vce-setup-live-grid{grid-template-columns:1fr}.vce-setup-compare-controls{grid-template-columns:1fr 1fr}.vce-setup-compare-controls label:last-child{grid-column:1/-1}}
 @media(max-width:650px){.vce-mode-switch{grid-template-columns:1fr}.vce-setup-dashboard-heading{padding:18px}.vce-setup-compare-controls{grid-template-columns:1fr}.vce-setup-compare-controls label:last-child{grid-column:auto}.vce-setup-map-surface{padding:4px}#vce-setup-map-canvas{min-height:230px}.vce-setup-delta-grid{grid-template-columns:1fr 1fr}html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{grid-template-columns:1fr}}
@@ -104,8 +104,8 @@ html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-sessions{grid-t
 #vce-tour-recording-status{font-size:11px;font-weight:800;white-space:normal;border-radius:6px;color:#b6d0ec;background:#132f49;border:1px solid #335c86;padding:10px 12px}
 #vce-tour-recording-status[data-ready=yes]{background:#133b36;color:#8ee6cb;border-color:#2d766b}
 html[data-telemetry-view=setup] body.vce-telemetry-workspace .vce-tour-selection-head{display:none!important}
-.vce-map-legend[data-channel=mechanical] .gain:before{background:#36d0ef}
-.vce-map-legend[data-channel=mechanical] .loss:before{background:#a78bfa}
+
+
 @media(max-width:650px){.vce-tour-selection-head{padding:15px;align-items:flex-start}#vce-tour-recording-status{width:100%}}
 
 /* Map overlays: real local time changes remain red/green, mechanical differences add cyan/violet. */
