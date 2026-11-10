@@ -80,7 +80,7 @@
       "path": "entrainements/exercices_rythme_gt3 3.json",
       "canonical": "entrainements/exercices_rythme_gt3.json",
       "identical": true,
-      "action": "excluded from logical index; original left unchanged"
+      "action": "Removed exact duplicate from GitHub; canonical file retained."
     }
   ]
 }
