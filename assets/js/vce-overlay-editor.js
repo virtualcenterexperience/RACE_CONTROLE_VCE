@@ -13,7 +13,7 @@ const overlays={
 };
 const basename=location.pathname.split('/').pop(),groups=overlays[basename];if(!groups)return;
 const store='vce-overlay-editor-v1:'+basename;
-let settings={theme:'blue',items:{},images:{},texts:{},background:{mode:'default',preset:'blue',image:'',position:50,darkness:32}},target=null,selected=null,drag=null;
+let settings={theme:'blue',items:{},images:{},texts:{},background:{mode:'default',preset:'blue',image:'',position:50,positionY:50,darkness:32}},target=null,selected=null,drag=null;
 const $=id=>document.getElementById(id);
 const finite=(n,min,max,fallback)=>{const x=Number(n);return Number.isFinite(x)?Math.max(min,Math.min(max,x)):fallback};
 const stage=()=>document.querySelector('#stage,.stage');
@@ -95,7 +95,7 @@ function applyBackground(){
   surface.style.setProperty('background',palettes[bg.preset]||palettes.blue,'important');
  }else if(mode==='image'&&typeof bg.image==='string'&&/^data:image\/(?:png|jpeg|webp);base64,/.test(bg.image)){
   const darkness=finite(bg.darkness,0,85,32)/100;
-  surface.style.setProperty('background',`linear-gradient(rgba(1,7,15,${darkness}),rgba(1,7,15,${darkness})),url("${bg.image}") ${finite(bg.position,0,100,50)}% center / cover no-repeat`,'important');
+  surface.style.setProperty('background',`linear-gradient(rgba(1,7,15,${darkness}),rgba(1,7,15,${darkness})),url("${bg.image}") ${finite(bg.position,0,100,50)}% ${finite(bg.positionY,0,100,50)}% / cover no-repeat`,'important');
  }else{
   surface.style.setProperty('background',palettes.blue,'important');
  }
@@ -162,7 +162,7 @@ function marker(){
  document.body.classList.add('vce-graphic-editing');
  const panel=document.createElement('aside');panel.className='vce-editor-panel';panel.innerHTML=
  '<h2>VCE GRAPHIC STUDIO</h2><p class="vce-editor-muted">Déplace les blocs à la souris. Choisis un thème, modifie les tailles et place les portraits / logos. Les modifications restent sur cet appareil tant que tu ne les exportes pas.</p>'+
- '<section class="vce-editor-background"><h3>ARRIÈRE-PLAN</h3><label>Type de fond<select id="vce-bg-mode"><option value="default">Design original VCE</option><option value="preset">Dégradé personnalisé</option><option value="image">Photo / image importée</option></select></label><label>Couleur / ambiance<select id="vce-bg-preset"><option value="blue">Bleu racing</option><option value="red">Rouge compétition</option><option value="graphite">Graphite</option><option value="violet">Violet nuit</option><option value="black">Noir studio</option></select></label><label>Importer un arrière-plan<input id="vce-bg-file" type="file" accept="image/png,image/jpeg,image/webp"></label><label>Position horizontale de la photo <output id="vce-bg-position-label">50 %</output><input id="vce-bg-position" type="range" min="0" max="100" value="50"></label><label>Assombrir pour la lisibilité <output id="vce-bg-darkness-label">32 %</output><input id="vce-bg-darkness" type="range" min="0" max="85" value="32"></label><div class="vce-editor-buttons"><button type="button" id="vce-bg-remove">SUPPRIMER LA PHOTO</button></div><p class="vce-editor-muted">L’image et son cadrage sont conservés dans le brouillon de cet overlay et inclus dans l’export JSON.</p></section>'+
+ '<section class="vce-editor-background"><h3>ARRIÈRE-PLAN</h3><label>Type de fond<select id="vce-bg-mode"><option value="default">Design original VCE</option><option value="preset">Dégradé personnalisé</option><option value="image">Photo / image importée</option></select></label><label>Couleur / ambiance<select id="vce-bg-preset"><option value="blue">Bleu racing</option><option value="red">Rouge compétition</option><option value="graphite">Graphite</option><option value="violet">Violet nuit</option><option value="black">Noir studio</option></select></label><label>Importer un arrière-plan<input id="vce-bg-file" type="file" accept="image/png,image/jpeg,image/webp"></label><label>Position horizontale de la photo <output id="vce-bg-position-label">50 %</output><input id="vce-bg-position" type="range" min="0" max="100" value="50"></label><label>Position verticale <output id="vce-bg-position-y-label">50 %</output><input id="vce-bg-position-y" type="range" min="0" max="100" value="50"></label><label>Assombrir pour la lisibilité <output id="vce-bg-darkness-label">32 %</output><input id="vce-bg-darkness" type="range" min="0" max="85" value="32"></label><div class="vce-editor-buttons"><button type="button" id="vce-bg-remove">SUPPRIMER LA PHOTO</button></div><p class="vce-editor-muted">L’image et son cadrage sont conservés dans le brouillon de cet overlay et inclus dans l’export JSON.</p></section>'+
  '<div class="vce-editor-buttons"><button type="button" data-theme="red">ACCENT ROUGE</button><button type="button" data-theme="blue">ACCENT BLEU</button></div>'+
  '<label>Élément à modifier<select id="vce-editor-pick"></select></label>'+
  '<label>Décalage horizontal (px)<input id="vce-editor-x" type="number" step="5" value="0"></label>'+
@@ -179,18 +179,18 @@ function marker(){
  const list=$('vce-editor-pick');
  function populate(){const old=list.value;list.replaceChildren(...ids().filter(([id])=>locate(id)).map(([id])=>new Option(id.toUpperCase().replaceAll('-',' '),id)));if([...list.options].some(o=>o.value===old))list.value=old;else if(list.options.length)pick(list.options[0].value)}
  populate();
- const bgMode=$('vce-bg-mode'),bgPreset=$('vce-bg-preset'),bgPosition=$('vce-bg-position'),bgDarkness=$('vce-bg-darkness');
+ const bgMode=$('vce-bg-mode'),bgPreset=$('vce-bg-preset'),bgPosition=$('vce-bg-position'),bgPositionY=$('vce-bg-position-y'),bgDarkness=$('vce-bg-darkness');
  function syncBackgroundControls(){
   const bg=settings.background||{};
   bgMode.value=bg.mode||'default';bgPreset.value=bg.preset||'blue';
-  bgPosition.value=finite(bg.position,0,100,50);bgDarkness.value=finite(bg.darkness,0,85,32);
-  $('vce-bg-position-label').textContent=bgPosition.value+' %';
+  bgPosition.value=finite(bg.position,0,100,50);bgPositionY.value=finite(bg.positionY,0,100,50);bgDarkness.value=finite(bg.darkness,0,85,32);
+  $('vce-bg-position-label').textContent=bgPosition.value+' %';$('vce-bg-position-y-label').textContent=bgPositionY.value+' %';
   $('vce-bg-darkness-label').textContent=bgDarkness.value+' %';
-  bgPosition.disabled=bgMode.value!=='image';bgDarkness.disabled=bgMode.value!=='image';
+  bgPosition.disabled=bgMode.value!=='image';bgPositionY.disabled=bgMode.value!=='image';bgDarkness.disabled=bgMode.value!=='image';
  }
- function updateBackground(){settings.background={...settings.background,mode:bgMode.value,preset:bgPreset.value,position:Number(bgPosition.value),darkness:Number(bgDarkness.value)};applyBackground();syncBackgroundControls();save()}
- bgMode.onchange=updateBackground;bgPreset.onchange=()=>{if(bgMode.value==='default')bgMode.value='preset';updateBackground()};
- bgPosition.oninput=updateBackground;bgDarkness.oninput=updateBackground;
+ function updateBackground(){settings.background={...settings.background,mode:bgMode.value,preset:bgPreset.value,position:Number(bgPosition.value),positionY:Number(bgPositionY.value),darkness:Number(bgDarkness.value)};applyBackground();syncBackgroundControls();save()}
+ bgMode.onchange=updateBackground;bgPreset.onchange=()=>{bgMode.value='preset';updateBackground()};
+ bgPosition.oninput=updateBackground;bgPositionY.oninput=updateBackground;bgDarkness.oninput=updateBackground;
  $('vce-bg-file').onchange=async e=>{
   const status=$('vce-editor-status');
   try{await uploadBackground(e.target.files?.[0]);syncBackgroundControls();status.textContent='Arrière-plan chargé et enregistré sur cet appareil.'}
@@ -221,7 +221,7 @@ function marker(){
  panel.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{settings.theme=b.dataset.theme;apply();save()});
  $('vce-editor-save').onclick=()=>{$('vce-editor-status').textContent=save()?'Brouillon enregistré. Ouvre ?layout=local pour un aperçu propre.':'Stockage local indisponible. Exporte le JSON.'};
  $('vce-editor-export').onclick=download;
- $('vce-editor-reset').onclick=()=>{if(!confirm('Réinitialiser toutes les positions et images locales ?'))return;settings={theme:'blue',items:{},images:{},texts:{},background:{mode:'default',preset:'blue',image:'',position:50,darkness:32}};save();location.reload()};
+ $('vce-editor-reset').onclick=()=>{if(!confirm('Réinitialiser toutes les positions et images locales ?'))return;settings={theme:'blue',items:{},images:{},texts:{},background:{mode:'default',preset:'blue',image:'',position:50,positionY:50,darkness:32}};save();location.reload()};
  $('vce-editor-import').onclick=()=>$('vce-editor-import-file').click();
  $('vce-editor-import-file').onchange=async e=>{
   const f=e.target.files?.[0];if(!f||f.size>5000000)return;
