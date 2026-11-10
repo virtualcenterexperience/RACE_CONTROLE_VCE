@@ -4,8 +4,8 @@
 (()=>{
 'use strict';
 const params=new URLSearchParams(location.search);
-const edit=params.get('edit')==='1',preview=params.get('layout')==='local';
-if(!edit&&!preview)return;
+const edit=params.get('edit')==='1';
+// Saved local layout is also shown in the ordinary overlay view.
 const overlays={
  'overlay-lineup.html':[['logo','.vce-official-logo'],['header','.top'],['title','.heading'],['drivers','.drivers'],['footer','.footer']],
  'overlay-resultats.html':[['logo','.vce-official-logo'],['header','.header'],['board','#board'],['footer','.foot']],
@@ -196,6 +196,15 @@ function marker(){
  refresh();
  new MutationObserver(()=>{if(!panel.__refresh){panel.__refresh=true;requestAnimationFrame(()=>{panel.__refresh=false;refresh()})}}).observe(stage(),{childList:true,subtree:true});
 }
-function run(){load();apply();marker()}
+function run(){
+ load();apply();marker();
+ if(!edit){
+  const surface=stage();if(!surface)return;let scheduled=false;
+  new MutationObserver(()=>{
+   if(scheduled)return;scheduled=true;
+   requestAnimationFrame(()=>{scheduled=false;apply()});
+  }).observe(surface,{childList:true,subtree:true});
+ }
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
 })();
