@@ -461,7 +461,7 @@ async function syncPilotRoster(){
 setTimeout(syncPilotRoster,0);
 window.addEventListener('pageshow',()=>syncPilotRoster());
 setInterval(()=>{if(!document.hidden)syncPilotRoster()},30000);
-</script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261110-authfix"></script><script src="vce-pilot-sync.js?v=20261110-fast"></script><script id="vce-app-shell-script-20261104">
+</script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261110-presence"></script><script src="vce-pilot-sync.js?v=20261110-fast"></script><script id="vce-app-shell-script-20261104">
 (function(){
  const dash=document.getElementById('pilotDashboard');if(!dash||dash.dataset.shellReady)return;dash.dataset.shellReady='1';dash.classList.add('vce-shell');
  const workspace=document.createElement('div');workspace.className='vce-workspace';
@@ -537,4 +537,4 @@ function init(){
 }
 if(document.readyState==='complete')init();else window.addEventListener('load',init,{once:true});
 })();
-</script><script id="vce-telemetry-profile-link">(function(){function sync(){const a=document.getElementById('vce-telemetry-link');if(a)a.href='telemetry-salon.html'+(location.hash||'')}window.addEventListener('hashchange',sync);new MutationObserver(sync).observe(document.body,{childList:true,subtree:false});sync()})();</script><script defer src="assets/js/vce-pilot-firstnames.js?v=1"></script><script src="assets/js/vce-pilot-avatars.js?v=20261106b" defer></script><script src="vce-pilot-auth.js?v=20261110-fastgate" defer></script><script defer src="assets/js/vce-training-cycle-cache.js?v=1"></script></body></html>
+</script><script id="vce-telemetry-profile-link">(function(){function sync(){const a=document.getElementById('vce-telemetry-link');if(a)a.href='telemetry-salon.html'+(location.hash||'')}window.addEventListener('hashchange',sync);new MutationObserver(sync).observe(document.body,{childList:true,subtree:false});sync()})();</script><script defer src="assets/js/vce-pilot-firstnames.js?v=1"></script><script src="assets/js/vce-pilot-avatars.js?v=20261106b" defer></script><script src="vce-pilot-auth.js?v=20261110-fastgate" defer></script><script defer src="assets/js/vce-training-cycle-cache.js?v=1"></script><script defer src="assets/js/vce-pilot-presence.js?v=20261110-1"></script></body></html>
