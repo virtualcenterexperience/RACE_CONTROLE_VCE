@@ -40,3 +40,22 @@
 .vce-race-page .vce-race-empty{padding:18px;background:#10263f;border:1px solid #335373;border-radius:9px}
 @media(max-width:860px){.vce-race-page .vce-race-layout{grid-template-columns:1fr}}
 @media(max-width:580px){.vce-race-form-grid,.vce-race-info{grid-template-columns:1fr 1fr}.vce-race-page main{padding:21px 13px}.vce-race-page .vce-race-panel{padding:16px}}
+
+/* Digital tool details: filters, clear operator feedback and mobile controls. */
+.vce-race-filterbar{margin:18px 0 16px;padding:14px;background:linear-gradient(100deg,#132b47,#0a1c31);border:1px solid #3b5c7d;border-left:4px solid #ec4264;border-radius:8px}
+.vce-race-filter-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-bottom:12px}
+.vce-race-filter-head strong{font-size:11px;letter-spacing:1.3px;color:#e4f2fe}
+.vce-race-filter-head small{font-size:11px;color:#a6c8e2}
+.vce-race-filter-controls{display:grid;grid-template-columns:minmax(145px,.8fr) minmax(145px,.8fr) minmax(200px,1.4fr);gap:9px}
+.vce-race-filter-controls input,.vce-race-filter-controls select{min-width:0;width:100%;background:#08182a;color:#f1f8ff;border:1px solid #456789;border-radius:7px;padding:11px 12px;font:650 12px system-ui}
+.vce-race-filter-controls input:focus-visible,.vce-race-filter-controls select:focus-visible{outline:2px solid #67b8f4;outline-offset:2px}
+.vce-race-showing{margin:10px 0 0;font-size:11px;color:#9fc3df}
+.vce-race-page [role=status]{overflow-wrap:anywhere}
+.vce-race-page button:focus-visible,.vce-race-page a:focus-visible{outline:2px solid #8ad6ff;outline-offset:3px}
+.vce-race-entry{transition:border-color .12s}
+.vce-race-entry:hover{border-color:#5987ae}
+.vce-race-review-notes{margin-top:13px!important;min-height:64px;resize:vertical}
+.vce-race-page .vce-race-approve:hover{background:#238c78}
+.vce-race-page .vce-race-reject:hover{background:#a93e58}
+@media(max-width:900px){.vce-race-filter-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.vce-race-filter-controls input{grid-column:1/-1}}
+@media(max-width:520px){.vce-race-filter-controls{grid-template-columns:1fr}.vce-race-filter-controls input{grid-column:auto}.vce-race-entry-head{flex-direction:column}.vce-race-info{grid-template-columns:repeat(2,minmax(0,1fr))}}
