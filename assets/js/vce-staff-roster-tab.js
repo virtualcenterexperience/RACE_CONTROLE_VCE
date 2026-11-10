@@ -53,6 +53,10 @@ function render(){
   const current=accounts.get(p.id);
   const subtitle=current?.active===false?'Compte désactivé':current?'Compte pilote créé':'Compte non activé';
   label.append(element('small','',subtitle));
+  const presence=window.VCEPilotPresenceStatus?.(p.id);
+  const seen=element('small','vce-site-presence-compact',presence?.text||'Aucune connexion enregistrée');
+  seen.dataset.online=presence?.state==='online'?'true':'false';
+  label.append(seen);
   identity.append(label);
   const actions=element('div','vce-roster-actions');
   if(current?.active===false){
@@ -151,6 +155,7 @@ $('rcRosterReload').addEventListener('click',()=>reload());
 $('rcRosterHide').addEventListener('click',clearSecret);
 window.addEventListener('hashchange',route);
 window.addEventListener('pageshow',route);
+window.addEventListener('vce-site-presence-updated',()=>{if(loaded&&location.hash==='#gestion-pilotes')render()});
 window.addEventListener('vce-staff-authenticated',()=>{
  if(location.hash==='#gestion-pilotes')reload()
 });
