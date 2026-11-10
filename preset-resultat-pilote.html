@@ -11,11 +11,117 @@ function poly(points,color){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h)}
 function text(t,x,y,size,color='#fff',align='left',maxWidth){ctx.textAlign=align;ctx.fillStyle=color;ctx.font='italic 900 '+size+'px Arial';ctx.fillText(String(t||''),x,y,maxWidth||1900)}
 function fit(t,w,s){ctx.font='italic 900 '+s+'px Arial';while(s>20&&ctx.measureText(t).width>w){s-=3;ctx.font='italic 900 '+s+'px Arial'}return s}
-function background(){const isBlue=vceGraphicTheme==='blue';const g=ctx.createLinearGradient(0,0,1920,1080);g.addColorStop(0,isBlue?'#082347':'#300407');g.addColorStop(.42,isBlue?'#101a2d':'#0c080e');g.addColorStop(1,'#03070d');rect(0,0,1920,1080,g);poly([[0,0],[480,0],[0,760]],'#6b0a12');poly([[0,0],[300,0],[0,430]],'#a00d1d');poly([[1920,0],[1440,0],[1920,750]],'#690a15');poly([[1920,0],[1620,0],[1920,450]],'#a10b1e');poly([[0,860],[1920,860],[1920,1080],[0,1080]],'#050a11');ctx.globalAlpha=.13;for(let i=0;i<1920;i+=34){ctx.beginPath();ctx.strokeStyle='#dfe9ff';ctx.lineWidth=2;ctx.moveTo(i,0);ctx.lineTo(i-380,1080);ctx.stroke()}ctx.globalAlpha=1;rect(80,70,14,95,isBlue?'#2391ed':'#e01630');if(vceOfficialLogo.complete&&vceOfficialLogo.naturalWidth){const lw=205*vceLogoScale,lh=115*vceLogoScale;ctx.drawImage(vceOfficialLogo,118,70,lw,lh)}else{text('VCE',120,133,89);text('ESPORT',125,174,28,isBlue?'#4ba8fc':'#ff425c')}text('RACE CONTROL TEAM',1820,96,29,'#dce6f6','right');rect(1220,118,600,4,'#e5203b');text($('championship').value.toUpperCase(),1820,171,35,'#e8eef7','right',840);text($('round').value.toUpperCase(),1820,213,24,'#9db3c9','right',900);rect(95,990,1730,2,'#a3192b');text('VCE ESPORT  /  RACE RESULTS',100,1036,23,'#aab7cc');text('1920 × 1080',1820,1036,22,'#aab7cc','right')}
-function portrait(img,x,y,w,h,index=0){if(!img)return;const pose=vcePose[index]||vcePose[0],ratio=Math.min(w/img.width,h/img.height)*pose.scale,dw=img.width*ratio,dh=img.height*ratio;ctx.save();ctx.shadowColor='#090000';ctx.shadowBlur=32;ctx.drawImage(img,x+(w-dw)/2+pose.x,y+h-dh+pose.y,dw,dh);ctx.restore()}
-function placeholder(x,y,w,h,n){ctx.save();ctx.setLineDash([14,10]);ctx.strokeStyle='#ffffff30';ctx.lineWidth=3;ctx.strokeRect(x+18,y+18,w-36,h-36);ctx.restore();text('PHOTO '+n,x+w/2,y+h*.58,Math.min(35,w*.11),'#8c8992','center')}
-function solo(){text('RACE RESULT',110,345,102,'#fff');text('P'+$('position').value,1300,520,310,'#fff','center');text($('team').value.toUpperCase(),1100,638,46,'#f3f5f9','center',800);const name=($('first').value+' '+$('last').value).trim().toUpperCase();text(name,1090,762,fit(name,1200,112),'#ff2443','center',1200);rect(580,795,1180,7,'#f02442');text('INDIVIDUAL RESULT',1170,865,45,'#e2e8f4','center');if(photos[0])portrait(photos[0],35,160,820,830,0);else placeholder(45,320,610,600,1)}
-function endurance(){text('RACE RESULT',960,320,107,'#fff','center');text('P'+$('position').value,960,485,188,'#fff','center');text($('team').value.toUpperCase(),960,555,57,'#ff334e','center',1600);rect(300,583,1320,6,'#f12643');const names=driverNames(),n=names.length;const gap=10,w=Math.min(345,(1780-gap*(n-1))/n),total=w*n+gap*(n-1),start=(1920-total)/2;for(let i=0;i<n;i++){const x=start+i*(w+gap);if(photos[i])portrait(photos[i],x,615,w,315,i);else placeholder(x,650,w,265,i+1);rect(x,929,w,42,'#120810');rect(x,929,w,4,'#f12643');text(names[i].toUpperCase(),x+w/2,959,fit(names[i].toUpperCase(),w-14,25),'#fff','center',w-14)}}
+
+function vceAccent(){return vceGraphicTheme==='blue'?'#42b6ff':'#ff3155'}
+function softGlow(x,y,r,shade){
+ const g=ctx.createRadialGradient(x,y,30,x,y,r);g.addColorStop(0,shade);g.addColorStop(1,'#00000000');
+ ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r)
+}
+function background(){
+ const blue=vceGraphicTheme==='blue',accent=vceAccent();
+ const fill=ctx.createLinearGradient(0,0,1920,1080);
+ fill.addColorStop(0,blue?'#041528':'#1d040b');fill.addColorStop(.55,blue?'#080f20':'#10070e');fill.addColorStop(1,'#030710');
+ rect(0,0,1920,1080,fill);
+ softGlow(100,490,980,blue?'#166cc24b':'#bb123b5b');
+ softGlow(1500,570,780,blue?'#125caf3a':'#ab0a273e');
+ // Original VCE light loops: vector paths, not a copied racing graphic.
+ ctx.save();ctx.translate(930,632);ctx.rotate(-.14);
+ for(let k=0;k<16;k++){
+  const radius=k*6.8;
+  ctx.beginPath();ctx.ellipse(0,0,840+radius,370+radius,0,Math.PI*.92,Math.PI*2.09);
+  ctx.lineWidth=k%4===0?4:1.8;
+  ctx.strokeStyle=blue?('rgba(44,151,255,'+(0.54-k*.023)+')'):('rgba(255,37,77,'+(0.62-k*.027)+')');
+  ctx.shadowBlur=k%4===0?26:0;ctx.shadowColor=accent;ctx.stroke();
+ }ctx.restore();
+ ctx.save();ctx.globalAlpha=.13;ctx.lineWidth=1;
+ for(let t=-1200;t<2600;t+=62){ctx.beginPath();ctx.moveTo(t,0);ctx.lineTo(t-520,1080);ctx.strokeStyle='#d7e6fc';ctx.stroke()}
+ ctx.restore();
+ const bar=ctx.createLinearGradient(0,0,1920,0);bar.addColorStop(0,accent);bar.addColorStop(.55,blue?'#176c9f':'#8c132d');bar.addColorStop(1,'#00000000');
+ rect(0,0,1920,14,bar);rect(78,210,1760,3,blue?'#338fc488':'#ad1c3b80');
+ rect(78,981,1760,3,blue?'#2d86c1':'#b51e39');
+ if(vceOfficialLogo.complete&&vceOfficialLogo.naturalWidth){
+  const scale=vceLogoScale;ctx.drawImage(vceOfficialLogo,79,55,205*scale,120*scale);
+ }else{text('VCE',85,126,78,'#fff');text('ESPORT',90,169,26,accent)}
+ ctx.save();ctx.font='900 21px Arial';ctx.textAlign='right';ctx.fillStyle='#dcecff';ctx.fillText('VCE ESPORT / RACE CONTROL',1834,81);
+ ctx.restore();
+ text($('championship').value.toUpperCase(),1834,132,40,'#ffffff','right',900);
+ ctx.font='700 24px Arial';ctx.textAlign='right';ctx.fillStyle=blue?'#a5d8ff':'#ffb8c7';
+ ctx.fillText(($('round').value||'ROUND / TRACK').toUpperCase(),1834,179,850);
+ ctx.textAlign='left';ctx.font='800 21px Arial';ctx.fillStyle='#d7e6f7';ctx.fillText('VCE / OFFICIAL RACE GRAPHIC',87,1032);
+ ctx.textAlign='right';ctx.font='700 20px Arial';ctx.fillText('1920 × 1080  •  TEAM PERFORMANCE',1835,1032);
+}
+function portrait(img,x,y,w,h,index=0){
+ if(!img)return;
+ const pose=vcePose[index]||vcePose[0],ratio=Math.min(w/img.width,h/img.height)*pose.scale;
+ const dw=img.width*ratio,dh=img.height*ratio;
+ ctx.save();ctx.shadowColor='#000000de';ctx.shadowBlur=47;
+ ctx.drawImage(img,x+(w-dw)/2+pose.x,y+h-dh+pose.y,dw,dh);
+ ctx.restore()
+}
+function placeholder(x,y,w,h,n){
+ ctx.save();
+ const glow=ctx.createRadialGradient(x+w/2,y+h*.6,4,x+w/2,y+h*.6,w*.65);
+ glow.addColorStop(0,vceGraphicTheme==='blue'?'#3072a466':'#a82b4766');
+ glow.addColorStop(1,'#00000000');
+ ctx.fillStyle=glow;ctx.fillRect(x,y,w,h);
+ ctx.fillStyle='#74869f35';ctx.beginPath();ctx.ellipse(x+w/2,y+h*.44,w*.14,h*.17,0,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.ellipse(x+w/2,y+h*1.2,w*.42,h*.58,0,Math.PI,0,true);ctx.fill();
+ ctx.font='900 19px Arial';ctx.textAlign='center';ctx.fillStyle='#d6e5f399';
+ ctx.fillText('PORTRAIT '+String(n).padStart(2,'0'),x+w/2,y+h*.94,w*.8);
+ ctx.restore()
+}
+function textSans(content,x,y,size,color='#fff',align='left',width=1900,weight=900){
+ ctx.font=weight+' '+size+'px Arial';ctx.textAlign=align;ctx.fillStyle=color;
+ ctx.fillText(String(content||''),x,y,width)
+}
+function solo(){
+ const accent=vceAccent();
+ // Two-stage composition: portrait left, competitive result at right.
+ textSans('RACE  RESULT',80,340,114,'#fff','left',1660);
+ rect(80,358,440,8,accent);
+ const photo=photos[0];
+ if(photo)portrait(photo,-45,205,1120,740,0);
+ else placeholder(45,360,790,550,1);
+ const mask=ctx.createLinearGradient(780,0,1300,0);mask.addColorStop(0,'#05091400');mask.addColorStop(.4,'#050914aa');mask.addColorStop(1,'#050914eb');
+ rect(780,365,1048,585,mask);
+ textSans('RÉSULTAT INDIVIDUEL',970,455,26,accent);
+ textSans('P'+$('position').value,972,686,215,'#fff','left',780);
+ const first=($('first').value||'PILOTE').trim().toUpperCase(),last=($('last').value||'VCE').trim().toUpperCase();
+ textSans(first,969,766,fit(first,820,66),'#f6faff','left',820);
+ textSans(last,968,858,fit(last,835,99),accent,'left',835);
+ rect(970,894,808,5,accent);
+ textSans(($('team').value||'VCE ESPORT').toUpperCase(),971,941,31,'#d0dce9','left',820);
+}
+function endurance(){
+ const accent=vceAccent();
+ textSans('RACE RESULTS',95,345,114,'#fff');
+ const position='P'+$('position').value;
+ textSans('ENDURANCE  /  ÉQUIPAGE',99,400,28,accent);
+ textSans(position,1800,340,152,'#fff','right',420);
+ const indices=crew.map((p,i)=>((p.first||p.last||photos[i])?i:-1)).filter(i=>i>=0);
+ if(!indices.length)indices.push(0,1,2);
+ const n=Math.min(indices.length,5);
+ const gap=n<=3?18:10,usable=1780,w=Math.min(n<=3?558:390,(usable-(n-1)*gap)/n);
+ const total=n*w+(n-1)*gap,start=(1920-total)/2;
+ const baseY=410,bottom=911;
+ for(let slot=0;slot<n;slot++){
+  const i=indices[slot],x=start+slot*(w+gap);
+  const g=ctx.createLinearGradient(x,baseY,x,bottom);
+  g.addColorStop(0,'#09121c12');g.addColorStop(.6,'#10111d66');g.addColorStop(1,'#081019f2');
+  rect(x,baseY,w,bottom-baseY,g);
+  if(photos[i])portrait(photos[i],x-10,baseY,w+20,bottom-baseY-3,i);
+  else placeholder(x+5,baseY+40,w-10,bottom-baseY-45,slot+1);
+  // Deep transparent caption: never obscure the driver's face.
+  const band=ctx.createLinearGradient(x,bottom-145,x,bottom);
+  band.addColorStop(0,'#07101900');band.addColorStop(.58,'#06101bdc');band.addColorStop(1,'#060d18');
+  rect(x,bottom-145,w,145,band);rect(x,bottom-5,w,5,slot%2===0?accent:'#42aafa');
+  const full=[crew[i].first,crew[i].last].filter(Boolean).join(' ').trim().toUpperCase()||'PILOTE '+(slot+1);
+  textSans('DRIVER 0'+(slot+1),x+22,bottom-100,20,accent);
+  textSans(full,x+w/2,bottom-40,fit(full,w-28,42),'#fff','center',w-28);
+ }
+ rect(108,933,1705,2,accent);
+ textSans(($('team').value||'VCE ESPORT').toUpperCase(),115,968,27,'#fff','left',1600);
+}
 function draw(){ctx.clearRect(0,0,1920,1080);background();if($('mode').value==='individuel')solo();else endurance()}
 function modeChanged(){const endurance=$('mode').value!=='individuel';$('soloFields').hidden=endurance;drawDriverInputs();draw()}
 function vcePoseControls(){
