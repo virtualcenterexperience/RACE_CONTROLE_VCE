@@ -22,9 +22,9 @@ const mockFetch=async(url,opts={})=>{
  else throw Error('Unexpected endpoint '+url);
  return {ok:true,status:200,text:async()=>JSON.stringify(value)};
 };
-const window={VCE_SUPABASE:{url:'https://testing.supabase.co',key}};
+const window={VCE_SUPABASE:{url:'https://testing.supabase.co',key},dispatchEvent:()=>{}};
 runInNewContext(readFileSync('vce-supabase.js','utf8'),{
- window,sessionStorage,fetch:mockFetch,AbortSignal,Date,JSON,Map,Promise,Error
+ window,sessionStorage,fetch:mockFetch,AbortSignal,Date,JSON,Map,Promise,Error,Event:class Event{constructor(type){this.type=type}}
 });
 await Promise.all([window.VCESupabase.read('pilotes'),window.VCESupabase.read('pilotes')]);
 assert.equal(calls.length,1,'Concurrent public roster requests must share one fetch');
