@@ -35,9 +35,14 @@
  function disconnect(){
   if(done||!verified)return;
   done=true;verified=false;
-  // Current auth JWT is still valid while the request starts. A timeout naturally
-  // moves the status offline if this request cannot be delivered.
-  call('vce_disconnect_pilot_presence',{keepalive:true}).catch(()=>{});
+  // Capture the JWT synchronously, before logout clears sessionStorage.
+  const c=cfg(),token=window.VCESupabase?.session()?.access_token;
+  if(!c.url||!c.key||!token)return;
+  fetch(c.url+'/rest/v1/rpc/vce_disconnect_pilot_presence',{
+   method:'POST',cache:'no-store',keepalive:true,
+   headers:{apikey:c.key,Authorization:'Bearer '+token,'Content-Type':'application/json'},
+   body:'{}'
+  }).catch(()=>{});
  }
  window.addEventListener('vce-pilot-verified',onVerified);
  window.addEventListener('vce-pilot-presence-logout',disconnect);
