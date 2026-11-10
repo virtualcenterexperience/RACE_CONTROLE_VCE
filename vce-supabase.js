@@ -30,7 +30,7 @@ async function request(path,opts={},auth=false){
  if(r.status===204||r.status===205)return null;const body=await r.text();if(!body.trim())return null;try{return JSON.parse(body)}catch{throw Error('Réponse Supabase invalide (HTTP '+r.status+')')}
 }
 async function login(email,password){const d=await request('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});d.expires_at=Math.floor(Date.now()/1000)+d.expires_in;sessionStorage.setItem(key,JSON.stringify(d));clearStaffCache();return d}
-function logout(){sessionStorage.removeItem(key);clearStaffCache();inFlightReads.clear()}
+function logout(){window.dispatchEvent(new Event('vce-pilot-presence-logout'));sessionStorage.removeItem(key);clearStaffCache();inFlightReads.clear()}
 async function read(kind){
  if(inFlightReads.has(kind))return inFlightReads.get(kind);
  const task=(async()=>{const a=await request('/rest/v1/vce_publications?kind=eq.'+encodeURIComponent(kind)+'&select=payload');return a[0]?.payload||{version:1,presets:[]}})().finally(()=>inFlightReads.delete(kind));
