@@ -30,6 +30,8 @@ jobs:
           node-version: '22'
       - name: Validate HTML paths and all JSON
         run: python tools/validate_site.py
+      - name: Audit all CSS and embedded styles with asset reference checks
+        run: python tools/audit_css.py
       - name: Validate JavaScript syntax
         shell: bash
         run: |
