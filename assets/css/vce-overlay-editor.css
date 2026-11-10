@@ -26,3 +26,16 @@ body.vce-graphic-editing .stage,body.vce-graphic-editing #stage{user-select:none
 body.vce-graphic-editing .vce-editor-panel textarea{display:block;width:100%;min-height:74px;resize:vertical;background:#0f2a45;border:1px solid #436889;color:#eef8ff;border-radius:7px;margin-top:6px;padding:9px;font:12px/1.45 "Segoe UI",Arial,sans-serif}
 body.vce-graphic-editing .vce-editor-panel label:has(textarea){margin-top:16px}
 body.vce-graphic-editing .vce-editor-panel button:focus-visible{outline:2px solid #7bd0ff;outline-offset:3px}
+
+/* Overlay background studio — standalone controls, no export dimensions changed. */
+body.vce-graphic-editing .vce-editor-background{margin:15px 0;padding:13px 12px 15px;background:#071321;border:1px solid #3e6488;border-left:3px solid #ff4969;border-radius:10px}
+body.vce-graphic-editing .vce-editor-background h3{font-size:13px!important;letter-spacing:1.4px;color:#fff;margin:0 0 7px!important}
+body.vce-graphic-editing .vce-editor-background label{margin-top:10px}
+body.vce-graphic-editing .vce-editor-background input[type=file]{font-size:11px}
+body.vce-graphic-editing .vce-editor-background output{float:right;font-variant-numeric:tabular-nums;color:#82caff}
+body[data-vce-bg-mode=image].vce-overlay-calendar #stage .photo{display:none!important}
+body[data-vce-bg-mode=image].vce-overlay-calendar #stage .veil{background:transparent!important}
+body[data-vce-bg-mode=preset].vce-overlay-calendar #stage .photo{display:none!important}
+body[data-vce-bg-mode=preset].vce-overlay-calendar #stage .veil{background:transparent!important}
+body[data-vce-bg-mode=image] #stage:before,body[data-vce-bg-mode=image] #stage:after,
+body[data-vce-bg-mode=image] .stage:before,body[data-vce-bg-mode=image] .stage:after{opacity:.16!important}
