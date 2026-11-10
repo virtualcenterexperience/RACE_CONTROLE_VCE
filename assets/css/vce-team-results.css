@@ -1,0 +1,42 @@
+/* TEAM VCE — clean racing-report forms and review dashboard */
+.vce-race-page{background:radial-gradient(circle at 85% -10%,#1b3659,transparent 40%),radial-gradient(circle at 0 2%,#37172c,transparent 36%),#07121e;color:#eef6ff;font:14px/1.6 system-ui,Arial;min-height:100vh}
+.vce-race-page *{box-sizing:border-box}
+.vce-race-page a{color:#91cdff}
+.vce-race-page header{max-width:1330px;margin:auto;padding:20px 24px;border-bottom:1px solid #2e486a;display:flex;gap:15px;align-items:center;justify-content:space-between}
+.vce-race-page main{max-width:1160px;margin:auto;padding:35px 22px}
+.vce-race-kicker{font:900 11px system-ui;letter-spacing:2px;color:#7bc3ff}
+.vce-race-page h1{font-size:clamp(30px,4.4vw,52px);line-height:1.08;margin:10px 0;color:#fff}
+.vce-race-page .vce-race-lead{max-width:820px;color:#b4cce3;margin:5px 0 26px;font-size:14px}
+.vce-race-page .vce-race-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.85fr);gap:20px}
+.vce-race-page .vce-race-panel{border:1px solid #365577;border-top:3px solid #e83d63;background:linear-gradient(140deg,#152b46,#0d1c30);border-radius:12px;padding:23px;min-width:0;margin:0 0 16px}
+.vce-race-page .vce-race-panel:nth-child(even){border-top-color:#419de9}
+.vce-race-page h2{font-size:20px;margin:0 0 14px;color:#f3f8ff}
+.vce-race-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.vce-race-form-grid label{font:750 12px/1.4 system-ui;color:#c6dcf2;display:block}
+.vce-race-form-grid input,.vce-race-form-grid select,.vce-race-form-grid textarea,
+.vce-race-entry textarea{display:block;width:100%;background:#09182a;color:#fff;border:1px solid #395d80;border-radius:7px;font:13px system-ui;padding:11px;margin-top:6px;min-width:0}
+.vce-race-form-grid label.full{grid-column:1/-1}
+.vce-race-page button,.vce-race-publish{border:1px solid #4e9bd5;border-radius:8px;padding:12px 16px;background:#1b5485;color:#fff;font:850 12px system-ui;cursor:pointer;text-decoration:none;display:inline-block}
+.vce-race-page button:hover,.vce-race-publish:hover{background:#3474ac}
+.vce-race-page button:disabled{opacity:.6;cursor:wait}
+#vce-race-state{padding:12px;border-left:3px solid #59b8f7;color:#c8e9ff;background:#102a44;border-radius:4px;min-height:45px}
+#vce-race-state[data-error=true]{border-left-color:#fb5a74;color:#ffb8c3}
+#vce-race-list{display:grid;gap:13px}
+.vce-race-entry{background:#0c1c30;border:1px solid #335371;border-radius:10px;padding:17px}
+.vce-race-entry-head{display:flex;align-items:flex-start;justify-content:space-between;gap:13px}
+.vce-race-entry h3{font-size:16px;margin:0 0 6px}
+.vce-race-entry p{font-size:12px;color:#b7cbe0;margin:0 0 8px}
+.vce-race-status{white-space:nowrap;font-size:10px;font-weight:900;letter-spacing:.5px;color:#f5bc62;border:1px solid #755a31;background:#382b1b;border-radius:20px;padding:6px 9px}
+.vce-race-entry[data-status=accepted] .vce-race-status{color:#8de7c6;border-color:#307862;background:#103b35}
+.vce-race-entry[data-status=rejected] .vce-race-status{color:#ff9eaf;border-color:#884454;background:#401e2b}
+.vce-race-info{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:13px 0}
+.vce-race-info>div{background:#122a43;border:1px solid #294b6c;border-radius:7px;padding:10px;min-width:0}
+.vce-race-info small{color:#9fbcd9;display:block;font-size:10px}
+.vce-race-info strong{display:block;font-size:12px;overflow-wrap:anywhere;margin:4px 0}
+.vce-race-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.vce-race-page .vce-race-approve{background:#186e60;border-color:#2daf98}
+.vce-race-page .vce-race-reject{background:#883349;border-color:#cf4d71}
+.vce-race-publish-note{padding-top:8px}
+.vce-race-page .vce-race-empty{padding:18px;background:#10263f;border:1px solid #335373;border-radius:9px}
+@media(max-width:860px){.vce-race-page .vce-race-layout{grid-template-columns:1fr}}
+@media(max-width:580px){.vce-race-form-grid,.vce-race-info{grid-template-columns:1fr 1fr}.vce-race-page main{padding:21px 13px}.vce-race-page .vce-race-panel{padding:16px}}
