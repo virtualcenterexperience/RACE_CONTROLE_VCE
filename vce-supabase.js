@@ -23,7 +23,9 @@ async function request(path,opts={},auth=false){
  if(!configured())throw Error('Configurer vce-supabase-config.js');
  const token=auth?(await validSession())?.access_token:null;
  if(auth&&!token)throw Error('Connectez-vous en STAFF.');
- const r=await fetch(cfg.url+path,{...opts,signal:opts.signal||AbortSignal.timeout(requestTimeout),cache:'no-store',headers:{apikey:cfg.key,Authorization:'Bearer '+(token||cfg.key),...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}});
+ // Publishable keys (sb_publishable_*) are NOT JWTs. Only a real Auth session belongs in Authorization.
+ const credentials={apikey:cfg.key,...(token?{Authorization:'Bearer '+token}:/^sb_publishable_/.test(cfg.key)?{}:{Authorization:'Bearer '+cfg.key})};
+ const r=await fetch(cfg.url+path,{...opts,signal:opts.signal||AbortSignal.timeout(requestTimeout),cache:'no-store',headers:{...credentials,...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}});
  if(!r.ok){let t=await r.text();throw Error('Supabase HTTP '+r.status+' : '+t.slice(0,180))}
  if(r.status===204||r.status===205)return null;const body=await r.text();if(!body.trim())return null;try{return JSON.parse(body)}catch{throw Error('Réponse Supabase invalide (HTTP '+r.status+')')}
 }
