@@ -20,7 +20,9 @@ const create=(tag,cls,txt)=>{const el=document.createElement(tag);if(cls)el.clas
 function buildGroup(key,label,summary,asset){
  const section=create('section','vce-staff-hub-group');section.id='staff-'+key;
  const header=create('div','vce-staff-hub-heading');
- const title=create('h2','',label);header.append(title,create('p','',summary));
+ const title=create('h2','',label);
+ const back=create('a','vce-staff-hub-back','← Retour à l’accueil Staff');back.href='#overview';
+ header.append(title,create('p','',summary),back);
  section.append(header);
  const cards=create('div','vce-staff-hub-links');
  for(const [icon,name,description,href] of modules[key]){
@@ -74,7 +76,24 @@ function init(){
   }
   side.querySelector('a')?.after(nav)
  }
- window.addEventListener('hashchange',()=>{for(const tile of selector.querySelectorAll('a'))tile.classList.toggle('selected',tile.getAttribute('href')===location.hash)});
+ const team=$('staff-team'),pilotes=$('staff-pilotes'),dashboard=$('dashboard');
+ const syncRoute=()=>{
+  const key=location.hash==='#staff-team'?'team':location.hash==='#staff-pilotes'?'pilotes':'';
+  dashboard.classList.toggle('vce-staff-team-selected',key==='team');
+  dashboard.classList.toggle('vce-staff-pilotes-selected',key==='pilotes');
+  team.hidden=key!=='team';pilotes.hidden=key!=='pilotes';
+  for(const tile of selector.querySelectorAll('a')){
+   const active=tile.getAttribute('href')==='#staff-'+key;
+   tile.classList.toggle('selected',!!key&&active);
+   if(active&&key)tile.setAttribute('aria-current','page');else tile.removeAttribute('aria-current');
+  }
+  for(const link of dashboard.querySelectorAll('.vce-staff-hub-side-links a'))link.classList.toggle('selected',!!key&&link.hash==='#staff-'+key);
+  // Avoid stale scrolled position when navigating between workspace categories.
+  if(key)requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));
+ };
+ window.addEventListener('hashchange',syncRoute);
+ window.addEventListener('pageshow',syncRoute);
+ syncRoute();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
