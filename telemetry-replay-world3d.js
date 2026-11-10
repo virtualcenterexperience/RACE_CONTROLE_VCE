@@ -39,7 +39,7 @@ function vehicle(color){
  }
  group.add(v);return v
 }
-const primary=vehicle(0xf03d63),other=vehicle(0x3f97ff);
+const primary=vehicle(0xff951d),other=vehicle(0x3f97ff);
 const glow=()=>{
  const material=new THREE.MeshBasicMaterial({color:0xffd99c});
  const dot=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),material);return dot
@@ -178,10 +178,10 @@ function rebuild(){
  }
  center={x:(minX+maxX)/2,z:(minZ+maxZ)/2};
  size=Math.max(75,maxX-minX,maxZ-minZ);
- for(const section of cleaned){road(section);polyline(section,0xff951d)}
- for(const section of refCleaned)polyline(section,0x49a1ff);
+ for(const section of cleaned){road(section);polyline(section,0xff951d,.33)}
+ for(const section of refCleaned)polyline(section,0x49a1ff,.15);
  const message=$('vce-replay-world-note');
- if(message)message.textContent='ORANGE : trajectoire réelle du pilote · BLEU : référence. Largeur totale affichée : '+widthSelect.value+' m (estimation manuelle, pas mesure des bordures). La géométrie réelle exige un modèle de piste.'
+ if(message)message.textContent=refCleaned.length ? '' : 'Référence indisponible dans le replay 3D.'
 }
 function locate(data,time){
  if(!data.length)return null;
@@ -218,13 +218,17 @@ function animate(){
  const distance=(mode==='overview'?Math.max(110,size*.8):mode==='top'?Math.max(55,size*.48):Math.max(9,35/Math.sqrt(zoom)));
  const dir=new THREE.Vector3(Math.sin(angle),0,Math.cos(angle));
  const pos=new THREE.Vector3(p.x-center.x,p.height,p.z-center.z);
- if(mode==='top'){camera.position.set(0,Math.max(90,size*1.5/Math.sqrt(zoom)),.1);camera.lookAt(0,0,0)}
+ if(mode==='top'){
+  const height=size*.6/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect));
+  camera.position.set(0,Math.max(30,height/Math.sqrt(zoom)),.1);
+  camera.lookAt(0,0,0);
+ }
  else if(mode==='overview'){camera.position.set(size*.65,size*.65,size*.65);camera.lookAt(0,0,0)}
  else if(mode==='cockpit'){camera.position.copy(pos).add(new THREE.Vector3(0,1.55,0)).addScaledVector(dir,.65);
    camera.lookAt(pos.clone().addScaledVector(dir,38).add(new THREE.Vector3(0,1.3,0)));primary.visible=false}
- else{camera.position.copy(pos).add(new THREE.Vector3(0,Math.max(4,13/Math.sqrt(zoom)),0))
+ else{camera.position.copy(pos).add(new THREE.Vector3(0,Math.max(6,19/Math.sqrt(zoom)),0))
    .addScaledVector(dir,-distance);
-   camera.lookAt(pos.clone().addScaledVector(dir,20).add(new THREE.Vector3(0,1,0)))}
+   camera.lookAt(pos.clone().addScaledVector(dir,9))}
  renderer.render(scene,camera);
 }
 const note=document.createElement('p');note.id='vce-replay-world-note';note.className='muted';

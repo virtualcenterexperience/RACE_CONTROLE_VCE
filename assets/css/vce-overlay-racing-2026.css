@@ -1,203 +1,110 @@
-/* VCE RACE GRAPHICS 2026
-   Original 1920×1080 graphic system. Existing data bindings, portraits and JSON stay intact.
-   Designed for editable overlays; colors use the site's red/blue palette. */
-:root{--rg-red:#ff3457;--rg-blue:#4cbaff;--rg-ink:#03070e}
-body.vce-overlay-race #stage,
+/* Broadcast graphics for the 1920 × 1080 calendar and line-up exports. */
 body.vce-overlay-lineup .stage,
-body.vce-overlay-calendar #stage{
- background:radial-gradient(ellipse at 50% 65%,#4c0e21 0%,#130710 47%,#05070d 83%,#020407 100%)!important;
- isolation:isolate
+body.vce-overlay-calendar #stage {
+  --broadcast-accent: #ff526d;
+  --broadcast-muted: #adc3de;
+  background: linear-gradient(116deg, #111e32, #0a1322 60%, #17233a) !important;
+  isolation: isolate;
 }
-body.vce-overlay-race #stage:before,
-body.vce-overlay-lineup .stage:before,
-body.vce-overlay-calendar #stage:before{
- content:"";position:absolute;left:160px;top:110px;width:1520px;height:760px;
- border:15px solid #fa3155;border-radius:49% 51% 49% 51%;
- box-shadow:0 0 12px #ff31557d,0 0 46px #e81f509e,inset 0 0 28px #e82a4066;
- transform:rotate(-13deg);opacity:.6;pointer-events:none;z-index:0!important;
- background:none!important
+body[data-vce-overlay-theme="blue"].vce-overlay-lineup .stage,
+body[data-vce-overlay-theme="blue"].vce-overlay-calendar #stage {
+  --broadcast-accent: #63c9ff;
+  background: linear-gradient(116deg, #112643, #0a1526 60%, #182943) !important;
 }
-body.vce-overlay-race #stage:after,
-body.vce-overlay-lineup .stage:after,
-body.vce-overlay-calendar #stage:after{
- content:"";position:absolute;left:210px;top:126px;width:1445px;height:695px;
- border:3px solid #ff5470a8;border-radius:52% 48% 50% 50%;
- transform:rotate(-13deg);filter:drop-shadow(0 0 15px #eb254e88);
- opacity:.72;pointer-events:none;z-index:0!important;background:none!important
+body.vce-overlay-lineup .stage::before,
+body.vce-overlay-calendar #stage::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 55%;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  transform: none;
+  z-index: 0;
+  background: repeating-linear-gradient(130deg, transparent 0 58px, #aecdf217 59px 60px) !important;
+  pointer-events: none;
 }
-body.vce-overlay-race .gridbg,body.vce-overlay-race .ribbon,body.vce-overlay-race .glow{display:none!important}
-body.vce-overlay-race #stage .shell,body.vce-overlay-lineup .stage>.top,
-body.vce-overlay-lineup .stage>.heading,body.vce-overlay-lineup .stage>.drivers,
-body.vce-overlay-lineup .stage>.footer,
-body.vce-overlay-calendar #stage .main,body.vce-overlay-calendar #stage .footer{z-index:2!important}
-body.vce-overlay-race #stage .vce-official-logo,body.vce-overlay-lineup .stage .vce-official-logo{z-index:7!important}
-body[data-vce-overlay-theme=blue].vce-overlay-race #stage,
-body[data-vce-overlay-theme=blue].vce-overlay-lineup .stage,
-body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage{
- background:radial-gradient(ellipse at 55% 60%,#07345b 0%,#08192f 46%,#050b17 85%)!important
-}
-body[data-vce-overlay-theme=blue].vce-overlay-race #stage:before,
-body[data-vce-overlay-theme=blue].vce-overlay-lineup .stage:before,
-body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage:before{
- border-color:#329def;box-shadow:0 0 12px #35a9ed66,0 0 43px #168ae08c,inset 0 0 28px #398fce66
-}
-body[data-vce-overlay-theme=blue].vce-overlay-race #stage:after,
-body[data-vce-overlay-theme=blue].vce-overlay-lineup .stage:after,
-body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage:after{border-color:#6abdf3a8;filter:drop-shadow(0 0 15px #269fd288)}
-/* Solo result: studio photo is large, position/race number has breathing room */
-body.vce-overlay-race #stage.cinematic-solo .header{left:675px!important;right:70px!important;top:55px!important}
-body.vce-overlay-race #stage.cinematic-solo .headline{
- top:124px!important;font-size:109px!important;letter-spacing:-4px!important;font-style:normal!important;
- text-transform:uppercase
-}
-body.vce-overlay-race #stage.cinematic-solo .headline span{color:#ff4563!important}
-body.vce-overlay-race #stage.cinematic-solo .solo-photo{
- left:18px;bottom:96px;width:970px;height:860px;object-fit:contain;object-position:center bottom;
- filter:drop-shadow(7px 14px 22px #000a)
-}
-body.vce-overlay-race #stage.cinematic-solo .solo-position{
- top:355px;left:915px;font-size:322px;letter-spacing:-15px;font-style:normal;
- text-shadow:0 10px 20px #000a
-}
-body.vce-overlay-race #stage.cinematic-solo .solo-name{
- top:775px;left:780px;right:80px;transform:none;background:linear-gradient(95deg,#c70d36,#f22b53);
- border-left:14px solid #fff;text-align:left;font-style:normal;font-size:64px;letter-spacing:-1px;
- padding:14px 24px 18px
-}
-body.vce-overlay-race #stage.cinematic-solo .solo-label{
- top:888px;left:930px;right:125px;letter-spacing:4px;font-style:normal;border:0;border-top:3px solid #f13256;font-size:25px
-}
-/* Multi-driver ranking: big portraits and slim class-leading name/position strips */
-body.vce-overlay-race #stage.group-results .shell{inset:46px 70px 42px!important}
-body.vce-overlay-race #stage.group-results .header{min-height:209px!important}
-body.vce-overlay-race #stage.group-results .headline{font-size:103px!important;margin-top:70px}
-body.vce-overlay-race #stage.group-results .subhead{font-size:16px!important;letter-spacing:3px}
-body.vce-overlay-race #stage.group-results .board{gap:4px!important}
-body.vce-overlay-race #stage.group-results .group-portraits{
- flex:1;min-height:480px!important;max-height:none!important;align-items:end;
- background:linear-gradient(0deg,#08070ecb,#12081712 65%)!important;
- border-bottom:0!important;gap:9px
-}
-body.vce-overlay-race #stage.group-results .group-driver{
- padding:0 5px 9px!important;justify-content:end!important;
- background:linear-gradient(0deg,#080812f0,#0b091000 80%)!important
-}
-body.vce-overlay-race #stage.group-results .group-driver img{max-height:none!important;height:81%!important;width:100%;object-fit:contain;object-position:center bottom}
-body.vce-overlay-race #stage.group-results .group-driver .group-name{
- width:100%;max-width:100%;padding:9px 6px;background:#ad1631d9;
- font-size:27px;text-align:center;white-space:normal
-}
-body.vce-overlay-race #stage.group-results .group-driver .group-rank{font-size:58px;color:#fff}
-body.vce-overlay-race #stage.group-results .group-driver .group-team{margin-top:6px;color:#e8e2ea;font-size:13px}
-body.vce-overlay-race #stage.group-results .group-results-list{
- max-height:200px!important;gap:6px 10px;grid-template-columns:repeat(2,minmax(0,1fr))
-}
-body.vce-overlay-race #stage.group-results .group-row{
- background:#0c101ddd!important;border:1px solid #58233f;
- border-left:7px solid #ef3157;font-size:19px;padding:10px 13px
-}
-body.vce-overlay-race #stage.group-results .group-row b{color:#ff6381}
-body.vce-overlay-race #stage.group-results.many-results .group-driver .group-name{font-size:19px}
-/* Lineup: no boxed business cards; portraits dominate like esports media artwork. */
-body.vce-overlay-lineup .stage>.top{top:69px!important;left:85px!important;right:85px!important}
-body.vce-overlay-lineup .stage>.top .brand{padding-left:224px!important;font-size:22px;letter-spacing:2px}
-body.vce-overlay-lineup .stage>.heading{top:179px!important}
-body.vce-overlay-lineup .stage>.heading .eyebrow{font-size:21px;letter-spacing:5px}
-body.vce-overlay-lineup .stage>.heading h1{
- font-size:139px!important;font-style:normal!important;font-weight:900!important;
- margin:2px 0 0!important;letter-spacing:-6px!important;line-height:.93;text-transform:uppercase
-}
-body.vce-overlay-lineup .stage>.heading p{margin:14px 0 0;font-size:24px;letter-spacing:1px;color:#dfe9f5}
-body.vce-overlay-lineup .stage>.heading .rule{height:5px;width:270px;margin:16px auto}
-body.vce-overlay-lineup .stage>.drivers{
- top:432px!important;bottom:147px!important;left:47px!important;right:47px!important;
- align-items:end!important;gap:5px!important
-}
-body.vce-overlay-lineup .stage>.drivers .driver{
- border:0!important;border-bottom:4px solid #f33857!important;box-shadow:none!important;
- background:linear-gradient(180deg,#1b06111a,#110b19bb)!important;overflow:visible
-}
-body.vce-overlay-lineup .stage>.drivers .driver:nth-child(even){border-bottom-color:#4aabfa!important}
-body.vce-overlay-lineup .stage>.drivers .driver .portrait{
- position:absolute;inset:-35px -12px 0;overflow:hidden
-}
-body.vce-overlay-lineup .stage>.drivers .driver .portrait img{
- object-fit:contain;object-position:center bottom;width:100%;height:100%;
- filter:drop-shadow(0 11px 28px #000b)
-}
-body.vce-overlay-lineup .stage>.drivers .driver .name{
- z-index:5;font-size:39px!important;left:0;right:0;bottom:44px;padding:8px 4px;
- color:#fff;white-space:normal;text-shadow:0 5px 13px #000
-}
-body.vce-overlay-lineup .stage>.drivers.many .driver .name{font-size:25px!important}
-body.vce-overlay-lineup .stage>.drivers .driver .num{top:10px;left:10px;font-size:15px!important;color:#fbd2dd!important;letter-spacing:1px}
-body.vce-overlay-lineup .stage>.drivers .driver .role{font-size:16px;bottom:14px;letter-spacing:1.6px;color:#ff92a5!important}
-body.vce-overlay-lineup .stage>.drivers .driver:before{background:linear-gradient(180deg,transparent 35%,#040711e3 92%)}
-body.vce-overlay-lineup .stage>.footer{bottom:29px!important;left:78px!important;right:78px!important;border-top:3px solid #ec3255!important;padding-top:15px!important}
-body.vce-overlay-lineup .stage>.footer strong{font-size:27px}
-/* Calendar: transparent hierarchy, dates readable, clean slim tiles. */
-body.vce-overlay-calendar #stage .photo{filter:brightness(.18) saturate(.7)!important;opacity:.3!important}
-body.vce-overlay-calendar #stage .veil{background:linear-gradient(180deg,#0508118a,#04091440 55%,#0307109c)!important}
-body.vce-overlay-calendar #stage .main{inset:60px 80px 120px!important}
-body.vce-overlay-calendar #stage .top{align-items:flex-start}
-body.vce-overlay-calendar #stage .title{
- font-style:normal!important;font-size:78px!important;max-width:1120px;
- letter-spacing:-2.8px!important;line-height:.97;color:#fff
-}
-body.vce-overlay-calendar #stage .righttitle strong{font-style:normal;font-size:76px}
-body.vce-overlay-calendar #stage .righttitle span{font-style:normal;font-size:31px;letter-spacing:4px}
-body.vce-overlay-calendar #stage .champ{margin:29px 0 22px;font-size:27px}
-body.vce-overlay-calendar #stage .champname{
- transform:none;border-left:10px solid #fff;background:linear-gradient(95deg,#db2047,#8e1e3e);
- border-radius:3px;padding:11px 25px
-}
-body.vce-overlay-calendar #stage .card{
- border:1px solid #5d4760!important;border-left:9px solid #ed3155!important;
- border-radius:7px!important;box-shadow:0 8px 21px #0009!important;
- background:linear-gradient(115deg,#140b1ee8,#08172adf)!important;
- padding:0 15px;gap:14px
-}
-body.vce-overlay-calendar #stage .number{border-right:2px solid #e94162!important;flex-basis:100px}
-body.vce-overlay-calendar #stage .number small{font-style:normal;font-size:13px;letter-spacing:1px}
-body.vce-overlay-calendar #stage .number b{font-style:normal;font-size:49px;color:#ff5573}
-body.vce-overlay-calendar #stage .circuit{font-style:normal;font-size:31px}
-body.vce-overlay-calendar #stage .country{font-style:normal;font-size:18px;color:#a9c4e1}
-body.vce-overlay-calendar #stage .date{font-style:normal;border-left:2px solid #ee4668;font-size:21px;padding-left:13px}
-body.vce-overlay-calendar #stage .flagwrap{width:82px;height:57px;flex-basis:82px;border-radius:6px;border:2px solid #7a8ca9}
-body.vce-overlay-calendar #stage .dense .card{gap:10px;padding:0 11px}
-body.vce-overlay-calendar #stage .dense .number{flex-basis:65px}
-body.vce-overlay-calendar #stage .dense .number b{font-size:35px}
-body.vce-overlay-calendar #stage .dense .circuit{font-size:22px}
-body.vce-overlay-calendar #stage .dense .country{font-size:14px}
-body.vce-overlay-calendar #stage .dense .date{font-size:16px}
-body.vce-overlay-calendar #stage .verydense .circuit{font-size:17px}
-body.vce-overlay-calendar #stage .verydense .date{font-size:13px}
-body.vce-overlay-calendar #stage .microdense .number b{font-size:21px}
-body.vce-overlay-calendar #stage .microdense .circuit{font-size:14px}
-body.vce-overlay-calendar #stage .microdense .date{font-size:10px}
-body.vce-overlay-calendar #stage .footer{bottom:22px;left:80px;right:80px}
-body.vce-overlay-calendar #stage .footer .footline{height:4px;background:linear-gradient(90deg,#f43e61,#a42b47)}
-body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage .champname{background:linear-gradient(95deg,#1879c0,#16366d)}
-body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage .card{border-left-color:#4bb6ff!important}
-body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage .number{border-right-color:#4bb6ff!important}
-body[data-vce-overlay-theme=blue].vce-overlay-calendar #stage .number b{color:#75ceff}
-body[data-vce-overlay-theme=blue].vce-overlay-lineup .stage>.drivers .driver{border-bottom-color:#4fbaff!important}
-body[data-vce-overlay-theme=blue].vce-overlay-race #stage.cinematic-solo .solo-name{background:linear-gradient(95deg,#18669c,#319bc9)}
+body.vce-overlay-lineup .stage::after,
+body.vce-overlay-calendar #stage::after,
+body.vce-overlay-calendar #stage :is(.photo, .veil, .slash) { display: none !important; }
 
-/* VCE graphic refinement: stronger hierarchy, legible people, restrained racing palette. */
-body.vce-overlay-race #stage .header .headline{letter-spacing:-.045em;text-shadow:0 5px 24px #000c}
-body.vce-overlay-race #stage .meta{background:linear-gradient(135deg,#08182ae8,#0b1020df);border:1px solid #406080;padding:20px 26px;border-radius:8px;box-shadow:0 12px 35px #0007}
-body.vce-overlay-race #stage .event{overflow-wrap:anywhere;max-width:100%}
-body.vce-overlay-race #stage .board{min-width:0}
-body.vce-overlay-race #stage .foot{border-top-color:#36618b!important}
-body.vce-overlay-race #stage.group-results .group-driver .group-name{white-space:normal;overflow-wrap:anywhere;line-height:1.08}
-body.vce-overlay-race #stage.group-results .group-row{border-left-color:#4ab8fc;background:#0b2033e8}
-body.vce-overlay-race #stage.group-results .group-row:nth-child(odd){border-left-color:#fb3e62}
-body.vce-overlay-lineup .stage>.drivers .driver .name{overflow-wrap:anywhere;line-height:1.05;text-shadow:0 3px 16px #000,0 1px 5px #000}
-body.vce-overlay-lineup .stage>.drivers .driver .role{color:#dcecff!important}
-body.vce-overlay-lineup .stage>.drivers .driver .num{color:#b8dfff!important}
-body.vce-overlay-lineup .stage>.heading p{max-width:1200px;overflow-wrap:anywhere}
-body.vce-overlay-calendar #stage .card{border-top:1px solid #53728e!important;border-right:1px solid #53728e!important}
-body.vce-overlay-calendar #stage .date{color:#fff;line-height:1.17;text-shadow:0 2px 6px #000}
-body.vce-overlay-calendar #stage .circuit{text-shadow:0 2px 7px #000}
-body.vce-overlay-calendar #stage .country{color:#c4d8ea}
+body.vce-overlay-lineup .stage > .top { left: 80px; right: 80px; top: 60px; align-items: center; }
+body.vce-overlay-lineup .top .brand { padding-left: 190px !important; font-size: 23px; }
+body.vce-overlay-lineup .stage > .heading { left: 80px; right: 80px; top: 168px !important; text-align: left; }
+body.vce-overlay-lineup .heading .eyebrow { color: var(--broadcast-accent); }
+body.vce-overlay-lineup .heading h1 { font-size: 115px !important; letter-spacing: -.05em !important; text-shadow: none; }
+body.vce-overlay-lineup .heading p { max-width: 1450px; color: var(--broadcast-muted); font-size: 24px; overflow-wrap: anywhere; }
+body.vce-overlay-lineup .heading .rule { width: 100%; height: 2px; margin: 24px 0 0; background: #415978 !important; }
+body.vce-overlay-lineup .stage > .drivers {
+  top: 397px !important;
+  bottom: 133px !important;
+  left: 80px;
+  right: 80px;
+  gap: 15px;
+  align-items: stretch;
+}
+body.vce-overlay-lineup .drivers .driver {
+  max-width: 660px;
+  border: 1px solid #405674 !important;
+  border-bottom: 5px solid var(--broadcast-accent) !important;
+  background: linear-gradient(150deg, #213653, #101d31 80%) !important;
+  background-repeat: no-repeat !important;
+  box-shadow: none !important;
+}
+body.vce-overlay-lineup .driver::before { background: #0d182a; top: auto; height: 105px; }
+body.vce-overlay-lineup .driver .portrait { inset: 43px 8px 105px; }
+body.vce-overlay-lineup .driver .num { color: var(--broadcast-accent) !important; letter-spacing: .12em; }
+body.vce-overlay-lineup .driver .name {
+  left: 12px;
+  right: 12px;
+  bottom: 35px;
+  font-size: 31px !important;
+  line-height: 1.05;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+body.vce-overlay-lineup .drivers.many .driver .name { font-size: 23px !important; }
+body.vce-overlay-lineup .driver .role { bottom: 11px; color: var(--broadcast-muted) !important; font-size: 14px; }
+body.vce-overlay-lineup .driver .placeholder { margin: auto; color: #aec7e4; font-size: 90px; }
+body.vce-overlay-lineup .stage > .footer { left: 80px; right: 80px; bottom: 40px; border-color: #415978 !important; }
+
+body.vce-overlay-calendar #stage .main { inset: 54px 80px 115px; }
+body.vce-overlay-calendar .title { font-size: 67px; line-height: .98; letter-spacing: -.045em; }
+body.vce-overlay-calendar .righttitle strong { font-size: 58px; }
+body.vce-overlay-calendar .righttitle span { color: var(--broadcast-muted); font-size: 22px; letter-spacing: .16em; }
+body.vce-overlay-calendar .redline,
+body.vce-overlay-calendar .footline { height: 2px; background: #415978 !important; }
+body.vce-overlay-calendar .champ { margin: 18px 0; }
+body.vce-overlay-calendar .champname {
+  padding: 9px 16px;
+  color: #f5f8ff;
+  background: #1a2d47;
+  border-left: 5px solid var(--broadcast-accent);
+  transform: none;
+}
+body.vce-overlay-calendar #stage .card {
+  border: 1px solid #3c5271;
+  border-left: 5px solid var(--broadcast-accent);
+  border-radius: 4px;
+  background: #111e32;
+  box-shadow: none;
+}
+body.vce-overlay-calendar .number { border-right: 1px solid #415978; }
+body.vce-overlay-calendar .number b { color: var(--broadcast-accent); }
+body.vce-overlay-calendar :is(.circuit, .date, .country, .number b, .number small) { font-style: normal; }
+body.vce-overlay-calendar .country { color: var(--broadcast-muted); }
+body.vce-overlay-calendar .footer { left: 80px; right: 80px; }
+body.vce-overlay-calendar .empty,
+body.vce-overlay-lineup .lineup-empty {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 250px;
+  background: #101d30;
+  border: 1px solid #405674;
+  color: #d8e7f8;
+  text-align: center;
+  font: 800 36px/1.2 Arial, sans-serif;
+}

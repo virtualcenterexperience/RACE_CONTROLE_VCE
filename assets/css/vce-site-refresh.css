@@ -106,3 +106,18 @@ body.vce-page-staff .panel{border-radius:11px}
 @media(max-width:820px){body.vce-page-chooser .vce-choice-visuals{height:155px}body.vce-page-team .grid,body.vce-page-training .grid{grid-template-columns:1fr}body.vce-page-pilot .vce-command{grid-template-columns:1fr}body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){body.vce-page-home .vce-home-brand{top:4%;left:5%;gap:7px}body.vce-page-home .vce-home-brand img{width:80px}body.vce-page-home .vce-home-brand span{font-size:9px}body.vce-page-home .vce-welcome{top:28%;font-size:clamp(16px,5vw,35px)}body.vce-page-home .vce-home-caption{top:41%;font-size:11px}body.vce-page-chooser .vce-choice-visuals{grid-template-columns:1fr;height:145px}body.vce-page-chooser .vce-choice-visuals img:nth-child(2){display:none}body.vce-page-chooser .card{min-height:325px}body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:1fr 1fr}body.vce-page-coach .vce-coach-form{grid-template-columns:1fr}body.vce-page-coach .vce-coach-form textarea{grid-column:1}#vce-language-switch{right:10px;bottom:10px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}body.vce-page-chooser .card .vce-card-photo img,body.vce-page-strategy .vce-strategy-bar i{transition:none!important}}
+
+.vce-hub-heading { margin: 28px 0 10px; font-size: clamp(18px, 2vw, 24px); }
+.vce-hub-shortcut {
+  display: inline-flex;
+  padding: 10px 14px;
+  border: 1px solid #4279a1;
+  border-radius: 7px;
+  background: #153450;
+  color: #d9efff;
+  font-weight: 700;
+}
+.vce-hub-shortcut:focus-visible { outline: 2px solid #8dd4ff; outline-offset: 3px; }
+@media (min-width: 1051px) {
+  body.vce-page-training .grid.vce-training-modes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
