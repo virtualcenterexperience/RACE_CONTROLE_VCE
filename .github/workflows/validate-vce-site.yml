@@ -43,3 +43,5 @@ jobs:
         run: node tools/validate_inline_js.mjs
       - name: Verify Supabase publishable key authentication headers
         run: node tools/test-auth-headers.mjs
+      - name: Verify Supabase session refresh behavior during outage
+        run: node tools/test-auth-refresh.mjs
