@@ -1,0 +1,421 @@
+/* VCE telemetry-staff.html — styles consolidés; cascade historique inchangée. */
+
+/* 1. style inline */
+
+:root{font-family:system-ui,Arial,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;color:#e8f0fa;background:#081321;min-height:100vh}
+main{max-width:1200px;margin:auto;padding:28px 18px}header{display:flex;justify-content:space-between;align-items:center;gap:20px}
+a{color:#82bfff}.brand{font-size:23px;font-weight:900;letter-spacing:.5px}.brand em{color:#fb476b;font-style:normal}
+h1{margin:30px 0 8px;font-size:clamp(25px,4vw,37px)}.muted{color:#9eb6d1;line-height:1.5}
+.panel{background:#111f32;border:1px solid #284664;border-radius:13px;margin:18px 0;padding:18px}
+button,input,select{border-radius:7px;padding:10px 12px;background:#163859;color:white;border:1px solid #41698f;font:inherit}
+button{cursor:pointer;font-weight:700}button:hover{background:#235484}.danger{background:#632239;border-color:#a74159}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.small{font-size:12px}.notice{border-left:3px solid #fdca78;padding:8px 12px;background:#263040}
+#work[hidden]{display:none}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;min-width:860px}
+th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #2e4055;font-size:12px;vertical-align:middle}
+th{color:#8cc5ff}.actions{display:flex;gap:6px}td input{max-width:155px}
+.pill{padding:5px 9px;border-radius:20px;background:#24445f;display:inline-block}
+
+
+/* 2. assets/css/vce-global-background.css */
+/* Shared module backdrop. The interface remains the brightest layer. */
+html { background-color: #080e18; }
+body {
+  background-color: #080e18 !important;
+  background-image:
+    radial-gradient(ellipse at 94% 0%, #1a3558 0%, transparent 48%),
+    radial-gradient(ellipse at 0% 84%, #241521 0%, transparent 38%),
+    linear-gradient(135deg, #0a101c, #101a2a) !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+}
+#dashboard .rc-shell,
+#dashboard .rc-main,
+#dashboard .rc-content { background-color: transparent !important; }
+@media (max-width: 800px) {
+  body { background-attachment: scroll !important; }
+}
+
+
+/* 3. assets/css/vce-staff-provision.css */
+/* STAFF TELEMETRY · Code provisoire (v20261107) */
+.vce-provision-panel .vce-provision-controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.vce-provision-panel .vce-provision-controls select{min-width:220px;flex:1;max-width:370px}
+.vce-provision-panel .vce-provision-controls button{white-space:normal;font-size:12px}
+.vce-provision-panel .vce-provision-controls button:disabled{opacity:.45;cursor:not-allowed}
+#vce-pilot-provision-help{font-size:13px;line-height:1.5;margin:10px 0 5px;color:#b8d2ea}
+#vce-pilot-provision-message{margin:10px 0;min-height:20px;line-height:1.5}
+#vce-pilot-provision-message[data-error="true"]{color:#ffaec0}
+#vce-pilot-provision-credentials{border:2px solid #50d9b1;background:#103027;color:#edfff9;padding:18px 20px;border-radius:9px;margin-top:16px}
+#vce-pilot-provision-credentials[hidden]{display:none}
+#vce-pilot-provision-credentials strong{color:#88f5d2;display:block;margin-bottom:10px;font-size:14px}
+#vce-pilot-provision-result{background:#091c19;border:1px solid #3e8978;padding:15px;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere;color:#f1fff9;font-size:14px;line-height:1.8;user-select:text}
+#vce-pilot-provision-copy{background:#167963;border-color:#43c3a6}
+#vce-pilot-provision-credentials small{display:block;margin-top:10px;color:#a6dcca;line-height:1.5}
+
+
+/* 4. assets/css/vce-staff-history.css */
+/* VCE TELEMETRY STAFF · bounded, filterable session history */
+.vce-staff-history h2{font-size:21px;margin:2px 0 8px}
+.vce-staff-history .small{margin:5px 0}
+#vceHistoryContent[hidden]{display:none!important}
+.vce-history-filters{display:grid;grid-template-columns:repeat(5,minmax(135px,1fr));gap:12px;margin:20px 0 13px}
+.vce-history-filters label{display:flex;flex-direction:column;gap:7px;font-size:12px;color:#b9d7f3;font-weight:800}
+.vce-history-filters select,.vce-history-filters input{max-width:100%;width:100%;min-width:0;height:42px;border:1px solid #446787;background:#101f34;padding:9px 10px;color:white;border-radius:6px}
+.vce-history-actions,.vce-history-pagination{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}
+.vce-history-actions span,.vce-history-pagination span{font-variant-numeric:tabular-nums;color:#b0cee6;font-size:13px}
+.vce-history-pagination{justify-content:center;margin-top:20px}
+.vce-history-pagination button:disabled{opacity:.35;cursor:not-allowed}
+.vce-history-table{max-height:660px;overflow:auto;border:1px solid #35506e;border-radius:8px;background:#101c2c}
+.vce-history-table table{min-width:1020px}
+.vce-history-table th{background:#16283f;position:sticky;top:0;z-index:1}
+.vce-history-table td{font-variant-numeric:tabular-nums}
+.vce-history-table tr:hover td{background:#192a3e}
+.vce-history-link{display:inline-block;padding:6px 8px;margin:3px;border:1px solid #426c91;border-radius:5px;background:#173958;text-decoration:none;font-size:11px;font-weight:800;color:#ddedff}
+.vce-history-link:hover{background:#24618a}
+@media(max-width:1050px){.vce-history-filters{grid-template-columns:repeat(3,minmax(150px,1fr))}}
+@media(max-width:620px){.vce-history-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.vce-history-actions{align-items:stretch}.vce-history-actions span{width:100%}}
+
+
+/* 5. assets/css/vce-telemetry-refresh.css */
+/* VCE RACE CONTROL — Telemetry interface refresh 2026-11-09
+   Pure presentation layer: preserves all IDs, authenticated data and chart engines. */
+:root{--vce-bg:#080e19;--vce-panel:#101c2e;--vce-inner:#0a1425;--vce-line:#29405e;--vce-text:#f2f6ff;--vce-muted:#a6bad3;--vce-blue:#38a1ff;--vce-red:#f34365;--vce-green:#30d49e;--vce-violet:#8b8bf6}
+html{scroll-behavior:smooth;scroll-padding-top:30px}
+body{color:var(--vce-text)!important;font-family:"Segoe UI",Inter,Arial,sans-serif!important}
+a,button,select,input{font-family:inherit}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--vce-blue)!important;outline-offset:3px}
+button,select,.card,.vce-salon-card{touch-action:manipulation}
+button:disabled{opacity:.55;cursor:not-allowed}
+button{transition:background-color .16s,border-color .16s,color .16s}
+button:hover:not(:disabled){filter:brightness(1.09)}
+small,.muted{line-height:1.45}
+body.vce-telemetry-workspace{--tt-orange:#f34365;--tt-blue:#38a1ff;--tt-muted:#a6bad3;--tt-panel:#101c2e;--tt-edge:#29405e;padding-left:232px!important}
+body.vce-telemetry-workspace .tt-nav{position:fixed!important;left:0;top:0;bottom:0;width:232px!important;display:flex;flex-direction:column;flex-wrap:nowrap!important;gap:4px;padding:24px 13px 18px;background:#091424!important;border-right:1px solid #2b4160;overflow-y:auto;scrollbar-width:thin;z-index:50}
+body.vce-telemetry-workspace .tt-brand{margin:0 0 16px;padding:7px 13px 22px;border-bottom:1px solid #263950}
+body.vce-telemetry-workspace .tt-brand span{font-size:30px;color:#f8fbff}
+body.vce-telemetry-workspace .tt-brand small{color:#8caccf;letter-spacing:1.6px}
+body.vce-telemetry-workspace .tt-nav>a{flex:none!important;color:#b7cce4!important;font-size:13px;padding:11px 13px;border:1px solid transparent;border-radius:7px;line-height:1.3;min-height:41px;background:transparent!important}
+body.vce-telemetry-workspace .tt-nav>a:hover,body.vce-telemetry-workspace .tt-nav>a:focus-visible{color:#fff!important;background:#142a45!important;border-color:#315a85}
+body.vce-telemetry-workspace .tt-nav>a.is-active{background:#172d49!important;color:#fff!important;border-color:#376798;border-left:3px solid var(--vce-red);padding-left:11px}
+body.vce-telemetry-workspace .tt-nav>a.vce-general-nav{background:#10213a!important;color:#96caff!important}
+body.vce-telemetry-workspace .tt-nav>a.vce-workspace-link{font-weight:700;border-color:#253d58}
+body.vce-telemetry-workspace .tt-nav>a.vce-workspace-link.is-active{border-color:#f34365;color:white!important}
+body.vce-telemetry-workspace .tt-nav-bottom{margin-top:auto;padding:19px 13px 6px;border-color:#30445b}
+body.vce-telemetry-workspace>header{background:#0a1422!important;border-bottom:1px solid #29405d;padding:17px 34px;min-height:70px}
+body.vce-telemetry-workspace>header strong{font-size:19px;color:#f4f7ff}
+body.vce-telemetry-workspace>header em,body.vce-telemetry-workspace h1 span{color:var(--vce-red)!important}
+body.vce-telemetry-workspace>header a{font-size:12px;font-weight:700;color:#a9d2ff}
+body.vce-telemetry-workspace main{max-width:1640px;width:100%;padding:30px clamp(18px,3vw,42px) 95px;margin:0 auto}
+body.vce-telemetry-workspace .intro{margin:0 0 17px;align-items:flex-start}
+body.vce-telemetry-workspace .intro .eyebrow{color:#7ec4ff!important;letter-spacing:1.8px;font-size:11px}
+body.vce-telemetry-workspace .intro h1{font-size:clamp(32px,3.1vw,50px);line-height:1.05;letter-spacing:-1.3px;font-weight:800;margin:10px 0}
+body.vce-telemetry-workspace .intro p{font-size:14px;color:#bfd1e7}
+body.vce-telemetry-workspace .status{color:#a8d0ff;background:#142640;border:1px solid #355b85;padding:9px 12px;border-radius:8px;font-size:11px}
+body.vce-telemetry-workspace .panel,
+body.vce-telemetry-workspace .kpis article,
+body.vce-telemetry-workspace .vce-hud-meters article,
+body.vce-telemetry-workspace .vce-compare-grid article{background:var(--vce-panel)!important;border:1px solid var(--vce-line)!important;border-radius:10px!important;box-shadow:0 9px 24px rgba(0,0,0,.16)!important}
+body.vce-telemetry-workspace .panel{padding:20px 22px!important;margin:0 0 16px!important;border-top:2px solid #32629b!important;min-width:0}
+body.vce-telemetry-workspace .panel .head{margin-bottom:12px}
+body.vce-telemetry-workspace .panel h2{font-size:15px;color:#f5f8ff!important;letter-spacing:.25px}
+body.vce-telemetry-workspace .panel .head span{color:#9cb7d4;font-size:12px}
+body.vce-telemetry-workspace .vce-cloud-connect{padding:14px 18px!important;margin:0 0 14px!important;background:#0d1d31!important;border:1px solid #325376!important;border-radius:10px!important;display:grid;grid-template-columns:1fr auto;gap:7px 20px;align-items:center}
+body.vce-telemetry-workspace .vce-cloud-connect>.vce-cloud-top{display:flex;gap:15px;align-items:center;flex-wrap:wrap;grid-column:1/-1}
+body.vce-telemetry-workspace .vce-cloud-connect>.vce-cloud-top strong{font-size:12px;letter-spacing:.6px}
+body.vce-telemetry-workspace .vce-cloud-connect>.muted{margin:0;color:#a2bdd9;font-size:12px}
+body.vce-telemetry-workspace #vce-cloud-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+body.vce-telemetry-workspace #vce-cloud-actions button{background:#172d47!important;border:1px solid #386188!important;border-radius:6px!important;color:#dfecfb!important;padding:9px 12px!important;font-size:11px!important;letter-spacing:0!important;font-weight:750;white-space:nowrap}
+body.vce-telemetry-workspace #vce-cloud-status{color:#9cd5ff;font-size:11px;font-weight:800}
+body.vce-telemetry-workspace #vce-cloud-status[data-kind=error]{color:#ff9da8}
+body.vce-telemetry-workspace #vce-cloud-status[data-kind=ok]{color:#70e6ba}
+body.vce-telemetry-workspace #vce-archive-state{font-size:11px;grid-column:1/-1;margin:2px 0 0}
+body.vce-telemetry-workspace .vce-other-driver{grid-column:1/-1;background:#09182b;border:1px solid #2b4565;border-radius:8px;padding:15px!important;margin:9px 0 0!important}
+body.vce-telemetry-workspace .vce-other-driver strong{display:block;margin-bottom:6px;color:#eaf4ff}
+body.vce-telemetry-workspace .vce-other-driver select{width:100%;min-width:190px;flex:1 1 230px}
+body.vce-telemetry-workspace .vce-other-driver button{margin:6px 5px 0 0}
+body.vce-telemetry-workspace #tt-compare .vce-other-driver{margin-top:16px!important}
+body.vce-telemetry-workspace .vce-hud-banner{background:linear-gradient(105deg,#0d2845,#101b2c 70%)!important;border:1px solid #33587c!important;border-left:3px solid var(--vce-red)!important;border-radius:10px!important;padding:17px 22px!important;margin:0 0 12px!important}
+body.vce-telemetry-workspace .vce-hud-banner h2{font-size:21px}
+body.vce-telemetry-workspace .vce-hud-banner h2 span{color:var(--vce-red)!important}
+body.vce-telemetry-workspace .vce-hud-kicker{color:#81c6ff!important}
+body.vce-telemetry-workspace .vce-hud-meters{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 12px}
+body.vce-telemetry-workspace .vce-hud-meters article{padding:15px!important;border-top:2px solid #388bd8!important}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(1){border-top-color:#22c55e!important}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(2){border-top-color:#ef4444!important}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(3){border-top-color:#8b8bf6!important}
+body.vce-telemetry-workspace .vce-hud-meters article b{font-size:clamp(18px,2vw,28px);color:white}
+body.vce-telemetry-workspace .vce-hud-meters article span{color:#a9c3df}
+body.vce-telemetry-workspace .vce-cloud-extra{margin:0 0 14px!important;background:#102037!important;border-color:#29496e}
+body.vce-telemetry-workspace .toolbar{background:#0f1e32!important;border:1px solid #355372!important;border-radius:10px!important;margin:0 0 12px!important;padding:17px!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+body.vce-telemetry-workspace .toolbar .import{min-height:45px}
+body.vce-telemetry-workspace .toolbar label{font-size:12px;color:#c1d5eb}
+body.vce-telemetry-workspace .toolbar input,
+body.vce-telemetry-workspace .toolbar select,
+body.vce-telemetry-workspace .vce-compare-toolbar select,
+body.vce-telemetry-workspace .vce-other-driver select{min-height:43px;width:100%;padding:10px 12px;border-radius:7px!important;border:1px solid #3a5a7c!important;background:#0b1b2f!important;color:#f1f6ff!important;font-size:12px}
+body.vce-telemetry-workspace .kpis{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 17px}
+body.vce-telemetry-workspace .kpis article{min-width:0;padding:17px!important;border-top:2px solid #376da8!important}
+body.vce-telemetry-workspace .kpis strong{font-size:clamp(20px,2vw,30px);color:#fff}
+body.vce-telemetry-workspace .kpis b{line-height:1.5;overflow-wrap:anywhere}
+body.vce-telemetry-workspace .layout{grid-template-columns:minmax(0,1.45fr) minmax(300px,.9fr);gap:16px;margin-bottom:0}
+body.vce-telemetry-workspace #map{display:block;max-width:100%;background:#071423!important;border:1px solid #294967!important;min-height:0;border-radius:8px}
+body.vce-telemetry-workspace #vce-stream{margin:0 0 15px!important}
+body.vce-telemetry-workspace #vce-stream .head{align-items:center}
+body.vce-telemetry-workspace #vce-live-hud{gap:9px}
+body.vce-telemetry-workspace #vce-stream-plot,body.vce-telemetry-workspace #vce-stream-track{display:block;width:100%;height:auto!important;border:1px solid #24466d;border-radius:7px;background:#071728}
+body.vce-telemetry-workspace #vce-stream-track{max-height:390px}
+body.vce-telemetry-workspace #vce-live-toggle{background:#142a42;border:1px solid #376ba2;border-radius:7px;color:#bde5ff;padding:9px 13px}
+body.vce-telemetry-workspace #tt-curves canvas,body.vce-telemetry-workspace #plots canvas{width:100%;height:auto!important;min-height:160px;background:#0a1728!important}
+body.vce-telemetry-workspace #tt-compare .vce-compare-grid{gap:10px}
+body.vce-telemetry-workspace .vce-history-list{gap:9px}
+body.vce-telemetry-workspace .vce-history-item{background:#0c1a2d!important;border-color:#304c6d!important;padding:13px 16px;border-radius:8px!important}
+body.vce-telemetry-workspace .vce-history-item button{background:#164778;border:1px solid #386e9e;border-radius:6px}
+body.vce-telemetry-workspace .vce-setup-category{background:#0d1c30!important;border-color:#304968!important;border-top-color:#368eeb!important}
+body.vce-telemetry-workspace .vce-setup-category:nth-child(even){border-top-color:#f34365!important}
+body.vce-telemetry-workspace .vce-setup-metric{background:#081729!important;border-color:#2b496b!important}
+body.vce-telemetry-workspace .vce-setup-title{background:#0c1d32!important;border-color:#2b486c!important}
+body.vce-telemetry-workspace #vce-input-canvas,body.vce-telemetry-workspace #vce-replay-canvas{background:#071728!important}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-stream,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-cloud-extra,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-other-driver{display:none!important}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace .intro{margin-bottom:20px}
+body.vce-telemetry-workspace .vce-salon-back{margin-left:auto;color:#a4cbf5!important}
+body.vce-telemetry-workspace .vce-tour-nav[hidden]{display:none!important}
+/* Keep graph containers measurable while they are off-screen. */
+/* Salon selection */
+body.vce-telemetry-salon{background-color:#081221!important}
+body.vce-telemetry-salon .vce-salon{max-width:1120px;margin:0 auto;min-height:100vh;padding:clamp(35px,7vh,80px) 25px}
+body.vce-telemetry-salon .vce-salon-logo{max-height:115px;width:auto;max-width:210px}
+body.vce-telemetry-salon .vce-salon h1{font-size:clamp(34px,4vw,56px);letter-spacing:-1.25px;line-height:1.04}
+body.vce-telemetry-salon .vce-salon>p{font-size:15px;max-width:650px}
+body.vce-telemetry-salon .vce-salon-grid{gap:18px;margin-top:30px}
+body.vce-telemetry-salon .vce-salon-card{background:linear-gradient(145deg,rgba(15,30,49,.97),rgba(9,19,33,.97));border:1px solid #325477;border-top:3px solid #3798eb;border-radius:11px;padding:32px;min-height:260px;transition:transform .18s,border-color .18s}
+body.vce-telemetry-salon .vce-salon-card:nth-child(2){border-top-color:#ee4565}
+body.vce-telemetry-salon .vce-salon-card:hover{transform:translateY(-3px);border-color:#66b5ff}
+body.vce-telemetry-salon .vce-salon-card h2{font-size:29px}
+body.vce-telemetry-salon .vce-salon-card strong{color:#88c8ff;letter-spacing:.4px}
+/* Staff dashboards */
+body.vce-staff-telemetry{font-family:"Segoe UI",Arial,sans-serif!important;color:#edf4ff;background:#071423!important}
+body.vce-staff-telemetry main{max-width:1330px;padding:27px clamp(16px,4vw,42px) 85px}
+body.vce-staff-telemetry header{display:flex;align-items:center;justify-content:space-between;background:transparent;border:0;padding:0}
+body.vce-staff-telemetry h1{font-size:clamp(27px,3vw,40px);letter-spacing:-.7px}
+body.vce-staff-telemetry .panel{border:1px solid #2c4c70;background:#101f34;padding:22px;border-radius:11px;box-shadow:0 10px 32px rgba(0,0,0,.13)}
+body.vce-staff-telemetry .panel h2{font-size:17px;letter-spacing:.3px}
+body.vce-staff-telemetry .row{gap:13px}
+body.vce-staff-telemetry table{min-width:830px}
+body.vce-staff-telemetry th{color:#9fd1ff;white-space:nowrap}
+body.vce-staff-telemetry td{font-size:12px}
+body.vce-staff-telemetry button,body.vce-staff-telemetry select,body.vce-staff-telemetry input{min-height:38px;border-radius:7px;background:#173554;border:1px solid #3d6691;color:#eef7ff;padding:9px 12px}
+body.vce-staff-telemetry button:hover{background:#21476d}
+body.vce-staff-telemetry .vce-provision-panel{border-top:3px solid #3a9beb}
+body.vce-staff-telemetry .vce-provision-controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+body.vce-staff-telemetry #vce-pilot-provision-select{min-width:240px;flex:1}
+body.vce-staff-telemetry #vce-pilot-provision-credentials{margin-top:14px;padding:16px;background:#0b2433;border:1px solid #3b6c86;border-radius:8px}
+body.vce-staff-telemetry #vce-pilot-provision-result{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:1220px){
+ body.vce-telemetry-workspace .vce-hud-meters{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body.vce-telemetry-workspace .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body.vce-telemetry-workspace .layout{grid-template-columns:minmax(0,1fr)}
+ body.vce-telemetry-workspace .toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:1050px){
+ body.vce-telemetry-workspace{padding-left:0!important}
+ body.vce-telemetry-workspace .tt-nav{position:sticky!important;top:0;bottom:auto;width:100%!important;max-width:100vw;flex-direction:row!important;gap:7px;align-items:center;overflow-x:auto;overflow-y:hidden;padding:8px 12px;background:#071422!important;white-space:nowrap;box-shadow:0 5px 16px #0005}
+ body.vce-telemetry-workspace .tt-nav .tt-brand{display:none}
+ body.vce-telemetry-workspace .tt-nav>a{padding:9px 12px!important;min-height:36px;font-size:12px;white-space:nowrap}
+ body.vce-telemetry-workspace .tt-nav-bottom{display:none}
+ body.vce-telemetry-workspace>header{padding:13px 18px}
+ body.vce-telemetry-workspace main{padding:22px 16px 75px}
+}
+@media(max-width:650px){
+ body.vce-telemetry-workspace .vce-cloud-connect{grid-template-columns:1fr}
+ body.vce-telemetry-workspace #vce-cloud-actions{justify-content:flex-start}
+ body.vce-telemetry-workspace .vce-hud-meters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.vce-telemetry-workspace .toolbar{grid-template-columns:1fr}
+ body.vce-telemetry-workspace .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.vce-telemetry-workspace .panel{padding:15px!important}
+ body.vce-telemetry-workspace .intro{flex-direction:column}
+ body.vce-telemetry-workspace .intro h1{font-size:33px}
+ body.vce-telemetry-workspace .vce-hud-meters article b{font-size:22px}
+ body.vce-telemetry-salon .vce-salon-grid{grid-template-columns:1fr}
+ body.vce-staff-telemetry main{padding:18px 14px 65px}
+ body.vce-staff-telemetry .panel{padding:15px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button,.vce-salon-card{transition:none!important}}
+
+/* Strict separation: Lap telemetry never displays mechanical Setup channels. */
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #tt-setup,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-setup-overview,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-mechanical,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-engineering-studio{display:none!important}
+/* Setup mode never duplicates lap maps, comparisons or racing replays. */
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-compare,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-curves,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-delta,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-history,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-replay,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-engineering-v33,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-interop{display:none!important}
+
+/* Driving-input colors: accelerator green, brake red, steering violet, speed blue. */
+body.vce-telemetry-workspace .vce-inputs-lab{border-top-color:#378de4!important}
+body.vce-telemetry-workspace .vce-inputs-lab .head h2{color:#a6d4ff!important}
+body.vce-telemetry-workspace #vce-input-status{color:#a9d2ff!important}
+body.vce-telemetry-workspace #vce-hud-throttle-bar{background:#22c55e!important}
+body.vce-telemetry-workspace #vce-hud-brake-bar{background:#ef4444!important}
+body.vce-telemetry-workspace #vce-hud-steering-bar{background:#8b8bf6!important}
+body.vce-telemetry-workspace .vce-replay{border-top-color:#398fe7!important}
+body.vce-telemetry-workspace .vce-replay .head h2{color:#c9e7ff!important}
+
+
+/* 6. assets/css/vce-site-refresh.css */
+/* RACE CONTROLE VCE — 2026 Design System Refresh.
+   Non-destructive: selectors scoped to VCE page families, JS data IDs untouched. */
+:root{--vce-navy:#080f1d;--vce-surface:#111f34;--vce-surface2:#172a44;--vce-red:#ff3155;--vce-blue:#43a4ff;--vce-line:#31506f;--vce-text:#f3f7ff;--vce-sub:#afc5df}
+html{scroll-behavior:smooth;scroll-padding-top:95px}
+body{accent-color:#43a4ff}
+body :is(button,select,a,input,textarea):focus-visible{outline:2px solid #79c8ff;outline-offset:3px}
+#vce-language-switch{position:fixed;right:18px;bottom:15px;display:inline-flex;gap:3px;padding:5px;border-radius:30px;border:1px solid #476182;background:#071528ee;box-shadow:0 8px 24px #0009;z-index:30000;backdrop-filter:blur(8px);font:800 11px/1.2 "Segoe UI",Arial,sans-serif}
+#vce-language-switch button{font:inherit;min-width:39px;min-height:30px;border:0;border-radius:18px;background:transparent;color:#b4cde6;cursor:pointer;letter-spacing:.7px;transition:background-color .16s}
+#vce-language-switch button[aria-pressed=true]{background:#2365a6;color:#fff}
+#vce-language-switch button:hover{color:white;background:#315477}
+body.vce-page-home{background:#040a16}
+body.vce-page-home main{position:relative;overflow:hidden}
+body.vce-page-home .scene{width:min(100vw,177.68dvh);background:#071322}
+body.vce-page-home .scene img{filter:contrast(1.05) brightness(.7)}
+body.vce-page-home .scene::after{background:linear-gradient(180deg,#040815b8 0%,transparent 30%,transparent 65%,#040715bd 100%)}
+body.vce-page-home .vce-home-brand{position:absolute;z-index:4;left:4.4%;top:4.9%;display:flex;align-items:center;gap:17px;max-width:55%}
+body.vce-page-home .vce-home-brand img{width:clamp(85px,12.5vw,205px);height:auto;max-height:110px;object-fit:contain;filter:drop-shadow(0 6px 13px #0009)}
+body.vce-page-home .vce-home-brand span{display:block;color:#d9e8f9;text-shadow:0 2px 12px black;font-weight:800;font-size:clamp(11px,1.5vw,23px);letter-spacing:.14em;line-height:1.3}
+body.vce-page-home .vce-welcome{left:5%;right:5%;top:26.5%;font-size:clamp(26px,4.25vw,68px);line-height:1.05;letter-spacing:-1px;max-width:100%;text-align:center;text-shadow:0 3px 23px #000}
+body.vce-page-home .vce-welcome .vce-red{color:#ff3b63}
+body.vce-page-home .vce-home-caption{position:absolute;z-index:4;left:8%;right:8%;top:39%;color:#d5e4f7;text-align:center;font-size:clamp(12px,1.43vw,23px);font-weight:650;text-shadow:0 3px 13px #000}
+body.vce-page-home .entry{top:65.5%;left:34%;width:32%;height:11%;font-style:normal;letter-spacing:1.3px;font-size:clamp(14px,2.35vw,37px)}
+body.vce-page-home .vce-ownership{bottom:2%;letter-spacing:.095em;color:#d1ddea}
+body.vce-page-chooser .wrap{max-width:1320px;padding:30px clamp(18px,3vw,42px) 65px}
+body.vce-page-chooser .top{background:#071526aa;border:1px solid #253e5a;border-radius:11px;padding:12px 18px;backdrop-filter:blur(6px)}
+body.vce-page-chooser .brand{display:flex;align-items:center;gap:10px}
+body.vce-page-chooser .brand img{width:112px;height:59px;object-fit:contain;filter:drop-shadow(0 3px 8px #0007)}
+body.vce-page-chooser .brand .brand-text{font-size:14px;font-style:normal;letter-spacing:1px}
+body.vce-page-chooser .brand .brand-text small{font-size:9px;margin-top:4px;letter-spacing:1.7px}
+body.vce-page-chooser header{margin:54px auto 31px}
+body.vce-page-chooser header h1{font-size:clamp(39px,5vw,69px);letter-spacing:-1.5px}
+body.vce-page-chooser .vce-choice-visuals{position:relative;display:grid;grid-template-columns:1.35fr .65fr;gap:12px;width:100%;height:215px;margin:0 0 22px}
+body.vce-page-chooser .vce-choice-visuals img{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px;border:1px solid #2c4c71;filter:brightness(.77) saturate(.9)}
+body.vce-page-chooser .vce-choice-visuals:after{content:"RACE CONTROL · VCE ESPORT";position:absolute;left:18px;bottom:18px;color:#fff;font-weight:850;letter-spacing:2px;text-shadow:0 2px 10px #000}
+body.vce-page-chooser .cards{gap:17px}
+body.vce-page-chooser .card{min-height:380px;padding:0 0 25px!important;display:flex;flex-direction:column;background:linear-gradient(145deg,#13253c,#071222)}
+body.vce-page-chooser .card .vce-card-photo{position:relative;height:143px;overflow:hidden;border-bottom:1px solid #2e4d6e;margin-bottom:19px;background:#0e2037}
+body.vce-page-chooser .card .vce-card-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.65) saturate(.85);transition:transform .3s ease}
+body.vce-page-chooser .card:hover .vce-card-photo img{transform:scale(1.035)}
+body.vce-page-chooser .card .icon{position:absolute;left:20px;top:112px;z-index:2;width:48px;height:48px;background:#0d2138;border-radius:10px;margin:0}
+body.vce-page-chooser .card h2{margin:14px 22px 10px;font-size:25px}
+body.vce-page-chooser .card p{margin:0 22px 19px;line-height:1.6;font-size:13px}
+body.vce-page-chooser .card .go{margin: auto 22px 0;font-size:11px}
+body.vce-page-chooser .card:before{display:none}
+body.vce-page-chooser .back{border-radius:8px}
+body.vce-page-pilot{background:radial-gradient(circle at 100% 0%,#18395880,transparent 41%),#07121f}
+body.vce-page-pilot main.wrap{max-width:1510px!important}
+body.vce-page-pilot .top{background:#0a1727e8;border-bottom:1px solid #294762}
+body.vce-page-pilot .hero{padding:25px 0 23px!important}
+body.vce-page-pilot .hero h1{font-size:clamp(31px,4.5vw,58px)!important;letter-spacing:-1px}
+body.vce-page-pilot .selection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px!important}
+body.vce-page-pilot .pilot-select{min-height:100px;padding:16px!important;border-radius:10px!important;background:linear-gradient(130deg,#14263d,#0e1d32);border:1px solid #305173!important;transition:transform .15s,border-color .15s}
+body.vce-page-pilot .pilot-select:hover{transform:translateY(-2px);border-color:#71b7f1!important}
+body.vce-page-pilot .pilot-select b{font-size:clamp(14px,1.3vw,17px);letter-spacing:.3px}
+body.vce-page-pilot .pilot-select small{font-size:10px;color:#a1bdda}
+body.vce-page-pilot .avatar{box-shadow:0 0 0 2px #183958;background:#153154!important}
+body.vce-page-pilot .vce-dashboard-intro{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border:1px solid #366089;border-radius:13px;padding:24px 26px;margin:0 0 17px;background:linear-gradient(110deg,#143554,#0e1b2c)}
+body.vce-page-pilot .vce-dashboard-intro h2{font-size:clamp(19px,2.4vw,29px);margin:0 0 5px}
+body.vce-page-pilot .vce-dashboard-intro p{margin:0;color:#b3cbe4;font-size:13px;max-width:690px}
+body.vce-page-pilot .vce-dashboard-shortcuts{display:flex;flex-wrap:wrap;gap:9px}
+body.vce-page-pilot .vce-dashboard-shortcuts a{display:inline-block;color:#e7f5ff;background:#1a3c5c;border:1px solid #356b9a;border-radius:7px;padding:11px 14px;font-size:12px;font-weight:800;text-decoration:none}
+body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px!important}
+body.vce-page-pilot .panel{background:linear-gradient(145deg,#142438,#0e1b2e);border:1px solid #2d4967!important;border-radius:11px!important}
+body.vce-page-pilot .stat{min-width:0;padding:18px!important;box-shadow:0 7px 19px #0002}
+body.vce-page-pilot .stat strong{font-size:clamp(22px,3vw,37px)!important;overflow-wrap:anywhere}
+body.vce-page-pilot .stat small{color:#a6c3df}
+body.vce-page-pilot .vce-command{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.vce-page-pilot .vce-module{min-width:0;background:#14263d;border:1px solid #335477;border-radius:11px;padding:20px}
+body.vce-page-pilot .vce-module h3{font-size:15px;letter-spacing:.4px;margin:0 0 12px}
+body.vce-page-pilot .vce-explain{margin-top:15px;background:#0d2138;border:1px solid #315476;border-radius:11px}
+body.vce-page-pilot .section{margin-top:17px!important}
+body.vce-page-pilot :is(#ratingChart,#xpChart){max-width:100%;height:auto}
+body.vce-page-team .wrap,body.vce-page-training .wrap{max-width:1320px}
+body.vce-page-team .hero-note,body.vce-page-training .hero-note{border-color:#326384;color:#d4e7fa;background:#10263d}
+body.vce-page-team .grid,body.vce-page-training .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:23px}
+body.vce-page-team .card,body.vce-page-training .card{min-height:232px;background:linear-gradient(130deg,#182f4b,#0d1d32);border-radius:12px;padding:26px 29px}
+body.vce-page-team .card h2,body.vce-page-training .card h2{font-size:26px}
+body.vce-page-team .card .arrow,body.vce-page-training .card .arrow{display:inline-flex;align-items:center;background:#1b405d;padding:8px 11px;border-radius:6px;margin-top:17px;color:#b8e0ff}
+body.vce-page-team .vce-contextbar{padding:17px 20px;border-left:3px solid #ff3155;border-radius:8px;background:#142c46;color:#d5e6f8;margin-top:20px;line-height:1.6}
+body.vce-page-strategy .app{max-width:1590px}
+body.vce-page-strategy .v19-tool,body.vce-page-strategy .panel{border-color:#30516f!important}
+body.vce-page-strategy .vce-strategy-help{margin:18px 0;background:#10233b;border:1px solid #325776;border-left:4px solid #44a9f8;border-radius:12px;padding:20px}
+body.vce-page-strategy .vce-strategy-help h2{font-size:19px;color:#f3f9ff;margin:0 0 9px}
+body.vce-page-strategy .vce-strategy-help .vce-strategy-bars{display:grid;gap:13px;margin-top:14px}
+body.vce-page-strategy .vce-strategy-bar label{display:flex;justify-content:space-between;align-items:center;color:#c4d9f0;font-size:12px;margin:0 0 5px}
+body.vce-page-strategy .vce-strategy-bar i{display:block;height:9px;border-radius:8px;background:#3189ce;max-width:100%;transition:width .22s ease}
+body.vce-page-strategy .vce-strategy-bar:nth-child(2) i{background:#ef466b}
+body.vce-page-strategy .vce-strategy-bar:nth-child(3) i{background:#31caa6}
+body.vce-page-strategy .vce-strategy-track{height:9px;border-radius:6px;background:#071426;overflow:hidden}
+body.vce-page-strategy .vce-strategy-help p{color:#acc6df;font-size:12px;line-height:1.5}
+body.vce-page-coach .vce-coach-conversation{max-width:1200px;margin:24px auto;padding:24px;background:linear-gradient(120deg,#162e48,#101c2f);border:1px solid #385f81;border-radius:13px}
+body.vce-page-coach .vce-coach-conversation h2{margin:5px 0 11px;color:#f4f8ff;font-size:24px}
+body.vce-page-coach .vce-coach-conversation p{color:#b6cee8;font-size:13px}
+body.vce-page-coach .vce-coach-form{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+body.vce-page-coach .vce-coach-form label{display:block;font-size:12px;color:#bed5eb}
+body.vce-page-coach .vce-coach-form select,body.vce-page-coach .vce-coach-form textarea{width:100%;background:#091729;color:#f0f6ff;border:1px solid #345675;border-radius:8px;padding:12px;margin-top:5px;font:13px system-ui}
+body.vce-page-coach .vce-coach-form textarea{grid-column:1/-1;min-height:88px;resize:vertical}
+body.vce-page-coach .vce-coach-form button{background:#d7274b;color:#fff;border:1px solid #f44c6e;border-radius:8px;padding:12px 19px;font-size:12px;font-weight:900;cursor:pointer}
+body.vce-page-coach .vce-coach-replies{margin-top:16px;display:grid;gap:10px}
+body.vce-page-coach .vce-coach-reply{padding:16px;background:#0c1c31;border:1px solid #315173;border-radius:8px}
+body.vce-page-coach .vce-coach-reply h3{font-size:16px;color:#75c8ff;margin:0 0 7px}
+body.vce-page-coach .vce-coach-reply p{margin:7px 0}
+body.vce-page-coach .vce-coach-reply small{color:#83badb}
+body.vce-page-staff .panel{border-radius:11px}
+@media(max-width:1150px){body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){body.vce-page-chooser .vce-choice-visuals{height:155px}body.vce-page-team .grid,body.vce-page-training .grid{grid-template-columns:1fr}body.vce-page-pilot .vce-command{grid-template-columns:1fr}body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){body.vce-page-home .vce-home-brand{top:4%;left:5%;gap:7px}body.vce-page-home .vce-home-brand img{width:80px}body.vce-page-home .vce-home-brand span{font-size:9px}body.vce-page-home .vce-welcome{top:28%;font-size:clamp(16px,5vw,35px)}body.vce-page-home .vce-home-caption{top:41%;font-size:11px}body.vce-page-chooser .vce-choice-visuals{grid-template-columns:1fr;height:145px}body.vce-page-chooser .vce-choice-visuals img:nth-child(2){display:none}body.vce-page-chooser .card{min-height:325px}body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:1fr 1fr}body.vce-page-coach .vce-coach-form{grid-template-columns:1fr}body.vce-page-coach .vce-coach-form textarea{grid-column:1}#vce-language-switch{right:10px;bottom:10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}body.vce-page-chooser .card .vce-card-photo img,body.vce-page-strategy .vce-strategy-bar i{transition:none!important}}
+
+.vce-hub-heading { margin: 28px 0 10px; font-size: clamp(18px, 2vw, 24px); }
+.vce-hub-shortcut {
+  display: inline-flex;
+  padding: 10px 14px;
+  border: 1px solid #4279a1;
+  border-radius: 7px;
+  background: #153450;
+  color: #d9efff;
+  font-weight: 700;
+}
+.vce-hub-shortcut:focus-visible { outline: 2px solid #8dd4ff; outline-offset: 3px; }
+@media (min-width: 1051px) {
+  body.vce-page-training .grid.vce-training-modes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+
+/* 7. assets/css/vce-tool-guide.css */
+/* VCE tool guidance: accessible, compact and optional. */
+.vce-tool-guide{position:relative;max-width:1100px;margin:13px 0 22px;border:1px solid #345573;border-left:4px solid #368fc8;border-radius:9px;background:linear-gradient(110deg,#10253e,#0a1b2f);color:#e7f4ff;box-shadow:0 6px 20px #0002}
+.vce-tool-guide>summary{padding:12px 16px;cursor:pointer;font:850 11px/1.5 system-ui,Arial;letter-spacing:1.1px;list-style:revert;color:#bfe4ff}
+.vce-tool-guide>summary:hover{color:#fff;background:#163956}
+.vce-tool-guide>summary:focus-visible{outline:2px solid #8cd7fa;outline-offset:3px}
+.vce-tool-guide[open]>summary{border-bottom:1px solid #2d4e70}
+.vce-tool-guide-title{font:900 14px system-ui,Arial;margin:17px 18px 8px;color:#fff}
+.vce-tool-guide ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;padding:8px 17px 12px;margin:0;list-style:none}
+.vce-tool-guide li{display:flex;gap:11px;background:#132d48;border:1px solid #315373;border-radius:7px;padding:13px 11px;min-width:0}
+.vce-tool-guide-num{flex:0 0 auto;color:#fa617d;font:900 italic 24px Arial;letter-spacing:-1px}
+.vce-tool-guide li strong{display:block;color:#f1faff;font-size:12px;line-height:1.3}
+.vce-tool-guide li p{margin:6px 0 0!important;color:#b1cce6!important;font:400 11px/1.6 system-ui,Arial!important}
+.vce-tool-guide-note{margin:5px 17px 15px!important;color:#e7c1a4!important;font-size:11px!important;line-height:1.5!important;border-top:1px solid #365473;padding-top:13px}
+@media(max-width:780px){.vce-tool-guide ol{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.vce-tool-guide *{scroll-behavior:auto!important}}
+
+/* Animation des vignettes VCE — uniquement éléments UI (pas les courbes) */
+@keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) both;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}

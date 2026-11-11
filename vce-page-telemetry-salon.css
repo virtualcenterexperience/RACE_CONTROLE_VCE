@@ -1,0 +1,516 @@
+/* VCE telemetry-salon.html — styles consolidés; cascade historique inchangée. */
+
+/* 1. telemetry.css */
+:root{color-scheme:dark;font-family:Inter,Segoe UI,Arial,sans-serif;background:#0a1019;color:#edf5ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#182841,#0a1019 55%)}header{background:#101a27;border-bottom:1px solid #29405b;padding:18px max(24px,calc((100vw - 1500px)/2));display:flex;justify-content:space-between;align-items:center}header strong{font-size:21px}em,h1 span{font-style:normal;color:#ff3c61}header small{display:block;color:#7da5cb;letter-spacing:2px;font-size:10px;margin-top:5px}a{color:#9acaff;text-decoration:none}main{max-width:1540px;margin:auto;padding:26px 20px 80px}.intro,.head{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.eyebrow{font-size:11px;color:#59bfff;letter-spacing:2px;font-weight:900}h1{font-size:clamp(30px,4vw,50px);margin:8px 0}h2{font-size:15px;letter-spacing:1px;margin:0 0 16px}h3{font-size:13px;margin-top:26px}p,.muted{color:#9cb0c7;line-height:1.6;font-size:13px}.status{color:#ffbf6a;font-size:12px;font-weight:800}.toolbar,.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:22px 0}.toolbar label{font-size:11px;color:#9ab8d8;font-weight:800}.toolbar input,.toolbar select,.import{display:block;width:100%;margin-top:8px;border:1px solid #36506d;background:#142338;border-radius:8px;color:white;padding:11px}.import{cursor:pointer;text-align:center;align-self:end;font-size:12px!important;color:white!important}.import input{display:none}.kpis article,.panel{background:#141e2b;border:1px solid #30445d;border-radius:12px;padding:19px}.kpis article{border-top:3px solid #3199e5}.kpis small{display:block;color:#8daac7;font-size:10px;letter-spacing:1px;margin-bottom:10px}.kpis strong{font-size:28px}.kpis b{font-size:13px}.layout{display:grid;grid-template-columns:1.45fr 1fr;gap:15px;margin-bottom:16px}.panel{margin-bottom:16px}.head span{font-size:12px;color:#8ba9c7}#map{width:100%;height:auto;min-height:300px;background:#0c141e;border-radius:8px}.legend{display:flex;gap:16px;flex-wrap:wrap;color:#a4bad0;font-size:12px;margin-top:12px}.sectors{max-height:440px;overflow:auto}.sector{display:grid;grid-template-columns:1fr 85px 85px 75px;gap:10px;padding:12px 0;border-bottom:1px solid #2a3d54;font-size:12px}.gain{color:#62e6a7}.loss{color:#ff7d71}.live{display:flex;gap:15px;flex-wrap:wrap;background:#0b1624;padding:16px;border-radius:8px}.live span{font-size:13px}.channels{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.channels button{border:1px solid #3d5672;background:#20354d;color:white;padding:10px 13px;border-radius:7px;cursor:pointer}.channels button.active{background:#2673b8}canvas{width:100%;height:250px;background:#0c141e;border-radius:8px}#plots{position:relative}@media(max-width:1000px){.toolbar,.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}}@media(max-width:580px){.toolbar,.kpis{grid-template-columns:1fr}.sector{grid-template-columns:1fr 60px 60px 55px}header{padding:15px}}
+/* VCE telemetry HUD v2 - isolated visual layer */
+.vce-hud-banner{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding:24px 28px;margin:18px 0;background:linear-gradient(115deg,#162a43,#0e1827 65%,#291826);border:1px solid #35516e;border-left:4px solid #258fe8;border-radius:13px}
+.vce-hud-kicker{color:#4cdbb3;font-size:10px;font-weight:900;letter-spacing:2px}.vce-hud-banner h2{font-size:clamp(21px,3vw,32px);margin:8px 0;color:#fff}.vce-hud-banner h2 span{color:#ff4966}.vce-hud-banner p{margin:0}.vce-hud-state{padding:10px 14px;border:1px solid #44617d;background:#0d1b2b;border-radius:8px;color:#9dc7f0;font-weight:800;font-size:11px;letter-spacing:1px}
+.vce-hud-meters{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:18px 0}.vce-hud-meters article{background:#121f30;border:1px solid #324a64;border-top:3px solid #268ee2;border-radius:10px;padding:15px;min-width:0}.vce-hud-meters article:nth-child(2){border-top-color:#ff5369}.vce-hud-meters article:nth-child(3){border-top-color:#f5ad4d}.vce-hud-meters article>span{display:block;color:#9ab4d0;font-size:10px;letter-spacing:1px;font-weight:800}.vce-hud-meters article>b{display:inline-block;color:#fff;font-size:clamp(21px,2.2vw,31px);margin:8px 0 5px}.vce-hud-meters article>small{color:#8ca5c0;margin-left:4px}.vce-hud-track{height:5px;border-radius:9px;background:#27384b;overflow:hidden}.vce-hud-track i{display:block;width:0;height:100%;background:#2ee1a8;transition:width .2s}.vce-hud-meters article:nth-child(2) i{background:#ff5369}.vce-hud-meters article:nth-child(3) i{background:#f5ad4d}.vce-staff-meters{grid-template-columns:repeat(4,minmax(0,1fr))}.vce-history-list{display:grid;gap:8px}.vce-history-item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 14px;background:#0c1725;border:1px solid #2b4059;border-radius:8px}.vce-history-item button{background:#205b95;color:#fff;border:0;border-radius:6px;padding:8px 12px;cursor:pointer}.vce-history-item small{color:#91a8c0}
+@media(max-width:950px){.vce-hud-meters{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:540px){.vce-hud-meters,.vce-staff-meters{grid-template-columns:repeat(2,minmax(0,1fr))}.vce-hud-banner{padding:18px}.vce-history-item{flex-wrap:wrap}}
+
+/* VCE Performance Lab — isolated comparison UI */
+.vce-compare-studio{border-color:#3c5b7d;background:linear-gradient(125deg,#16283c,#111a29 68%,#221824)}.vce-compare-studio h2{font-size:21px;margin:7px 0}.vce-compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}.vce-compare-grid article{padding:20px;background:#0b1625;border:1px solid #344c67;border-top:3px solid #3299e9;border-radius:10px;display:flex;flex-direction:column;gap:10px;min-width:0}.vce-compare-grid article:nth-child(2){border-top-color:#4389df}.vce-compare-grid article:nth-child(3){border-top-color:#f38b30}.vce-compare-grid small{color:#95b3d4;font-size:10px;font-weight:800;letter-spacing:1.4px}.vce-compare-grid strong{font-size:clamp(22px,2.8vw,38px);font-variant-numeric:tabular-nums}.vce-compare-grid span{color:#9ab2cc;font-size:12px}.vce-compare-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.vce-compare-toolbar button,.vce-compare-toolbar select{border:1px solid #446384;background:#1b3552;color:white;border-radius:8px;padding:11px 14px;cursor:pointer;font-weight:700}.vce-compare-toolbar label{color:#9bb6d1;font-size:11px;display:flex;flex-direction:column;gap:6px}.vce-compare-studio .muted{margin-bottom:0}@media(max-width:650px){.vce-compare-grid{grid-template-columns:1fr}}
+
+
+/* Live Supabase connector / protected access */
+.vce-cloud-connect{margin:15px 0 24px;border:1px solid #396088;border-left:4px solid #349feb;border-radius:12px;background:#102138;padding:18px}
+.vce-cloud-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between}
+.vce-cloud-state{font-size:12px;border:1px solid #32577a;background:#162b43;color:#b8d9f8;border-radius:20px;padding:7px 11px}
+.vce-cloud-state[data-kind=ok]{color:#74e4b6;border-color:#338b6b}
+.vce-cloud-state[data-kind=warn]{color:#f9c17d;border-color:#927147}
+.vce-cloud-state[data-kind=error]{color:#ff9f9f;border-color:#9e4b56}
+.vce-cloud-login,.vce-cloud-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:12px}
+.vce-cloud-login[hidden]{display:none}
+.vce-cloud-login input{flex:1;min-width:170px;background:#0d1b2d;border:1px solid #3a5878;border-radius:8px;padding:12px;color:white}
+.vce-cloud-login button,.vce-cloud-actions button{padding:12px 14px;border-radius:8px;color:white;border:1px solid #46769e;background:#226ca5;cursor:pointer;font-weight:800}
+.vce-cloud-actions button{background:#183955}
+.vce-cloud-login button:hover,.vce-cloud-actions button:hover{filter:brightness(1.15)}
+@media(max-width:680px){.vce-cloud-login{flex-direction:column;align-items:stretch}.vce-cloud-login input,.vce-cloud-login button{width:100%}}
+
+
+.vce-cloud-extra{background:#111f32;border:1px solid #294b6b;border-radius:12px;padding:16px 18px;margin:8px 0 20px}
+.vce-cloud-extra>strong{display:block;color:#a7d1f6;font-size:11px;letter-spacing:1px;margin-bottom:14px}
+.vce-cloud-extra-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.vce-cloud-extra-grid article{background:#0b1829;border:1px solid #2a4766;border-radius:8px;padding:12px;min-width:0}
+.vce-cloud-extra-grid small{display:block;color:#86a6c3;font-size:10px;margin-bottom:7px}
+.vce-cloud-extra-grid b{font-size:18px;word-break:break-word}
+@media(max-width:940px){.vce-cloud-extra-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:510px){.vce-cloud-extra-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* VCE live at 60 FPS, while samples arrive at their measured rate. */
+.vce-stream{border-color:#2d6796;box-shadow:0 0 40px #1686ce13}
+.vce-stream .head h2{color:#71e5bf}
+#vce-stream-state{font-size:12px;font-weight:800;border:1px solid #5b6775;border-radius:30px;padding:7px 12px;color:#ffd48c}
+#vce-stream-state[data-ok=yes]{color:#6de3b6;border-color:#278867}
+#vce-live-hud{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:15px 0}
+.vce-live-value{background:#0d1a2b;border:1px solid #35506c;border-radius:8px;padding:11px;min-width:0}
+.vce-live-value small{display:block;color:#8faccc;font-size:10px;font-weight:800;margin-bottom:8px}
+.vce-live-value strong{font-size:clamp(13px,1.7vw,20px);color:#f4f8ff;word-break:break-word}
+#vce-stream-plot{width:100%;height:250px;display:block;background:#0a1523;border-radius:9px}
+#vce-stream-track{width:100%;height:270px;display:block;background:#0b1828;border-radius:9px}
+.vce-other-driver{border-top:1px solid #314962;padding-top:16px;margin-top:15px;display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.vce-other-driver strong,.vce-other-driver p{flex-basis:100%}
+.vce-other-driver select{min-width:220px;flex:1;padding:11px;background:#12243a;color:white;border:1px solid #3a6189;border-radius:8px}
+.vce-other-driver button{color:#fff;background:#205d91;border:1px solid #4978a7;border-radius:8px;padding:11px;cursor:pointer;font-weight:800}
+.vce-other-driver button:hover{filter:brightness(1.2)}
+@media(max-width:870px){#vce-live-hud{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){#vce-live-hud{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+.vce-recap{border-color:#375878}
+.vce-recap-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.vce-recap-metric,.vce-recap-scrub-stat{min-width:0;padding:12px;background:#0b1b2e;border:1px solid #36516e;border-radius:8px}
+.vce-recap-metric small,.vce-recap-scrub-stat small{display:block;color:#8aadc9;font-size:10px;font-weight:800;margin-bottom:7px}
+.vce-recap-metric strong,.vce-recap-scrub-stat strong{display:block;font-size:18px;overflow-wrap:break-word}
+.vce-recap-scroll{overflow:auto;max-height:430px}
+.vce-recap-table{width:100%;min-width:650px;border-collapse:collapse;font-size:12px}
+.vce-recap-table th,.vce-recap-table td{padding:13px 9px;text-align:left;border-bottom:1px solid #2c4259}
+.vce-recap-table th{color:#7db9eb}
+.vce-recap-table button{background:#2161a0;color:white;border:1px solid #4f83b0;border-radius:6px;padding:8px 11px;cursor:pointer}
+#vce-recap-slider{display:block;width:100%;accent-color:#ff8f4f;margin:17px 0 11px}
+.vce-recap-scrub-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+@media(max-width:900px){.vce-recap-scrub-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.vce-recap-metrics,.vce-recap-scrub-values{grid-template-columns:1fr 1fr}}
+
+
+/* VCE RACING LAB · palette TrackTitan-style orange / blue */
+:root{--tt-orange:#ff8b16;--tt-blue:#4d9dff;--tt-dark:#17191c;--tt-panel:#202225;--tt-line:#3c4045;--tt-muted:#b5b8bd}
+body{background:#17191c!important;color:#f4f4f5}
+header,.tt-nav{background:#1b1d20!important;border-color:#36383c!important}
+.panel,.vce-cloud-connect,.kpis article,.vce-recap,.vce-stream{background:#212326!important;border:1px solid #3b3e43!important;border-radius:7px!important;box-shadow:none!important}
+.vce-hud-banner{background:#202225!important;border-color:#ff8b16!important}
+h1 span,.eyebrow,.tt-brand span,.vce-stream .head h2,.vce-recap h2{color:var(--tt-orange)!important}
+.vce-cloud-top strong,.head h2{color:#f1f2f3}
+.vce-cloud-state,.vce-live-value small,.vce-recap-metric small{color:#aeb3bc}
+.vce-live-value,.vce-recap-metric,.vce-recap-scrub-stat,.vce-cloud-extra-grid article{background:#191b1e!important;border-color:#3b4046!important}
+.vce-live-value strong,.vce-recap-metric strong{color:#f4f4f5!important}
+.vce-stream{border-top:3px solid var(--tt-orange)!important}
+#vce-stream-plot,#vce-stream-track{background:#191b1e!important;border:1px solid #33373c}
+#vce-stream-state[data-ok=yes]{border-color:#ff8b16!important;color:#ff8b16!important}
+.vce-other-driver select,.toolbar select,.toolbar input{background:#191b1e!important;border:1px solid #454a50!important;color:#fff!important}
+.vce-other-driver button,.vce-cloud-actions button,.vce-recap-table button{background:#f08b17!important;color:#16181b!important;border:1px solid #f08b17!important;font-weight:800}
+.vce-other-driver button:hover,.vce-cloud-actions button:hover{background:#ffab44!important}
+.vce-recap-table th{color:#ff9b30!important}
+.vce-recap-table th,.vce-recap-table td{border-bottom:1px solid #41444a!important}
+#vce-recap-slider{accent-color:#ff8b16!important}
+.vce-hud-meters article{background:#202225!important;border-color:#3c4045!important}
+.vce-hud-track{background:#393c41!important}
+#vce-hud-throttle-bar{background:#ff8b16!important}
+#vce-hud-brake-bar{background:#4d9dff!important}
+
+
+/* Native driver input telemetry: orange throttle, blue brake, violet steering */
+.vce-inputs-lab{border-top:3px solid #ff911d!important}
+.vce-inputs-lab .head h2{color:#ff9a29!important}
+.vce-input-values{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:16px 0}
+.vce-input-values article{background:#17191c;border:1px solid #404348;border-radius:8px;padding:13px;min-width:0}
+.vce-input-values small{display:block;font-size:10px;color:#b4b7bc;font-weight:800;margin-bottom:8px}
+.vce-input-values strong{display:block;font-size:20px;color:white;font-variant-numeric:tabular-nums;margin-bottom:9px}
+.vce-input-meter{height:8px;background:#393b40;border-radius:8px;overflow:hidden}
+.vce-input-meter i{display:block;width:0;height:100%;border-radius:8px;transition:width 100ms linear}
+#vce-input-canvas{width:100%;height:auto;max-height:560px;display:block;background:#17191c;border:1px solid #414349}
+#vce-input-status{color:#ff9a29;font-size:12px;font-weight:800}
+@media(max-width:900px){.vce-input-values{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:550px){.vce-input-values{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+.vce-mechanical{border-top:3px solid #ff911d!important;background:#202225!important}
+.vce-mechanical .head h2{color:#ff9a29!important}
+.vce-mechanical-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:15px 0}
+.vce-mechanical-grid article{background:#17191c;border:1px solid #41454b;border-radius:7px;padding:14px}
+.vce-mechanical-grid small{display:block;font-size:10px;font-weight:800;color:#adb2bb;margin-bottom:8px}
+.vce-mechanical-grid strong{font-size:20px;font-variant-numeric:tabular-nums}
+.vce-contact{border:1px solid #474b51;border-radius:7px;padding:13px;margin:12px 0;background:#191b1f}
+.vce-contact[data-contact=yes]{border-color:#ef4444;color:#ff8181}
+#vce-mechanical-plot{display:block;width:100%;height:auto;background:#17191c;border:1px solid #41454b}
+@media(max-width:750px){.vce-mechanical-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* General telemetry salon: keep data modules loaded, separate visual workspaces */
+.vce-salon-back{margin-left:18px;color:#ff9a29!important;font-weight:700;text-decoration:none}
+html[data-telemetry-view=tour] #vce-mechanical{display:none!important}
+html[data-telemetry-view=setup] .tt-nav .vce-tour-nav,
+html[data-telemetry-view=setup] .vce-hud-banner,
+html[data-telemetry-view=setup] .vce-hud-meters,
+html[data-telemetry-view=setup] .toolbar,
+html[data-telemetry-view=setup] .kpis,
+html[data-telemetry-view=setup] #tt-circuit,
+html[data-telemetry-view=setup] #tt-compare,
+html[data-telemetry-view=setup] #tt-curves,
+html[data-telemetry-view=setup] #tt-history,
+html[data-telemetry-view=setup] #vce-inputs-lab,
+html[data-telemetry-view=setup] #vce-stream,
+html[data-telemetry-view=setup] #vce-analysis{display:none!important}
+html[data-telemetry-view=setup] #vce-mechanical{display:block!important}
+html[data-telemetry-view=setup] .vce-mechanical{margin-top:18px}
+
+
+/* VCE native trajectory replay */
+.vce-replay{border-top:3px solid #ff951d!important;background:#202225!important}
+.vce-replay .head h2{color:#ff951d!important}
+.vce-replay-tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.vce-replay-tools button,.vce-replay-tools select{background:#2c3036;color:white;border:1px solid #555b64;border-radius:6px;padding:10px;cursor:pointer}
+.vce-replay-tools button:disabled{opacity:.5;cursor:not-allowed}
+.vce-replay-tools label{display:flex;gap:8px;align-items:center}
+#vce-replay-canvas{width:100%;height:auto;display:block;background:#17191c;border:1px solid #464a51;border-radius:8px}
+#vce-replay-slider{width:100%;accent-color:#ff951d;margin:15px 0}
+.vce-replay-stats{display:flex;gap:20px;flex-wrap:wrap;color:#c8ccd2;font-variant-numeric:tabular-nums}
+.vce-replay-stats b{color:#fff}
+html[data-telemetry-view=setup] #vce-replay{display:none!important}
+
+/* The setup workspace contains no pilot-tour graphs or recap panels. */
+html[data-telemetry-view=setup] #tt-delta,
+html[data-telemetry-view=setup] #tt-interop,
+html[data-telemetry-view=setup] #vce-recap{display:none!important}
+
+
+/* 2. style inline */
+
+.vce-salon-logo{width:min(220px,65vw);height:auto;display:block;margin:0 0 10px;object-fit:contain}
+body{background:radial-gradient(ellipse at 80% 0%,#142a49 0%,#08101d 65%);color:#f5f8ff}.vce-salon{max-width:1080px;margin:10vh auto;padding:24px}.vce-salon h1{font-size:clamp(26px,5vw,48px);margin:8px 0 14px}.vce-salon h1 span{color:#f32d56}.vce-salon p{color:#aeb5be}.vce-salon-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:35px}.vce-salon-card{display:block;padding:32px;border:1px solid #2e4b71;border-top:4px solid #2e9cff;border-radius:12px;background:#101d32;color:#fff;text-decoration:none;min-height:230px}.vce-salon-card:nth-child(2){border-top-color:#f32d56}.vce-salon-card h2{font-size:27px;margin:12px 0}.vce-salon-card p{line-height:1.6}.vce-salon-card:hover{border-color:#2e9cff;background:#182d4b}.vce-salon-card:nth-child(2):hover{border-color:#f32d56}.vce-back{color:#a8b5c5;text-decoration:none}@media(max-width:700px){.vce-salon-grid{grid-template-columns:1fr}}
+
+
+/* 3. assets/css/vce-global-background.css */
+/* Shared module backdrop. The interface remains the brightest layer. */
+html { background-color: #080e18; }
+body {
+  background-color: #080e18 !important;
+  background-image:
+    radial-gradient(ellipse at 94% 0%, #1a3558 0%, transparent 48%),
+    radial-gradient(ellipse at 0% 84%, #241521 0%, transparent 38%),
+    linear-gradient(135deg, #0a101c, #101a2a) !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+}
+#dashboard .rc-shell,
+#dashboard .rc-main,
+#dashboard .rc-content { background-color: transparent !important; }
+@media (max-width: 800px) {
+  body { background-attachment: scroll !important; }
+}
+
+
+/* 4. assets/css/vce-telemetry-refresh.css */
+/* VCE RACE CONTROL — Telemetry interface refresh 2026-11-09
+   Pure presentation layer: preserves all IDs, authenticated data and chart engines. */
+:root{--vce-bg:#080e19;--vce-panel:#101c2e;--vce-inner:#0a1425;--vce-line:#29405e;--vce-text:#f2f6ff;--vce-muted:#a6bad3;--vce-blue:#38a1ff;--vce-red:#f34365;--vce-green:#30d49e;--vce-violet:#8b8bf6}
+html{scroll-behavior:smooth;scroll-padding-top:30px}
+body{color:var(--vce-text)!important;font-family:"Segoe UI",Inter,Arial,sans-serif!important}
+a,button,select,input{font-family:inherit}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--vce-blue)!important;outline-offset:3px}
+button,select,.card,.vce-salon-card{touch-action:manipulation}
+button:disabled{opacity:.55;cursor:not-allowed}
+button{transition:background-color .16s,border-color .16s,color .16s}
+button:hover:not(:disabled){filter:brightness(1.09)}
+small,.muted{line-height:1.45}
+body.vce-telemetry-workspace{--tt-orange:#f34365;--tt-blue:#38a1ff;--tt-muted:#a6bad3;--tt-panel:#101c2e;--tt-edge:#29405e;padding-left:232px!important}
+body.vce-telemetry-workspace .tt-nav{position:fixed!important;left:0;top:0;bottom:0;width:232px!important;display:flex;flex-direction:column;flex-wrap:nowrap!important;gap:4px;padding:24px 13px 18px;background:#091424!important;border-right:1px solid #2b4160;overflow-y:auto;scrollbar-width:thin;z-index:50}
+body.vce-telemetry-workspace .tt-brand{margin:0 0 16px;padding:7px 13px 22px;border-bottom:1px solid #263950}
+body.vce-telemetry-workspace .tt-brand span{font-size:30px;color:#f8fbff}
+body.vce-telemetry-workspace .tt-brand small{color:#8caccf;letter-spacing:1.6px}
+body.vce-telemetry-workspace .tt-nav>a{flex:none!important;color:#b7cce4!important;font-size:13px;padding:11px 13px;border:1px solid transparent;border-radius:7px;line-height:1.3;min-height:41px;background:transparent!important}
+body.vce-telemetry-workspace .tt-nav>a:hover,body.vce-telemetry-workspace .tt-nav>a:focus-visible{color:#fff!important;background:#142a45!important;border-color:#315a85}
+body.vce-telemetry-workspace .tt-nav>a.is-active{background:#172d49!important;color:#fff!important;border-color:#376798;border-left:3px solid var(--vce-red);padding-left:11px}
+body.vce-telemetry-workspace .tt-nav>a.vce-general-nav{background:#10213a!important;color:#96caff!important}
+body.vce-telemetry-workspace .tt-nav>a.vce-workspace-link{font-weight:700;border-color:#253d58}
+body.vce-telemetry-workspace .tt-nav>a.vce-workspace-link.is-active{border-color:#f34365;color:white!important}
+body.vce-telemetry-workspace .tt-nav-bottom{margin-top:auto;padding:19px 13px 6px;border-color:#30445b}
+body.vce-telemetry-workspace>header{background:#0a1422!important;border-bottom:1px solid #29405d;padding:17px 34px;min-height:70px}
+body.vce-telemetry-workspace>header strong{font-size:19px;color:#f4f7ff}
+body.vce-telemetry-workspace>header em,body.vce-telemetry-workspace h1 span{color:var(--vce-red)!important}
+body.vce-telemetry-workspace>header a{font-size:12px;font-weight:700;color:#a9d2ff}
+body.vce-telemetry-workspace main{max-width:1640px;width:100%;padding:30px clamp(18px,3vw,42px) 95px;margin:0 auto}
+body.vce-telemetry-workspace .intro{margin:0 0 17px;align-items:flex-start}
+body.vce-telemetry-workspace .intro .eyebrow{color:#7ec4ff!important;letter-spacing:1.8px;font-size:11px}
+body.vce-telemetry-workspace .intro h1{font-size:clamp(32px,3.1vw,50px);line-height:1.05;letter-spacing:-1.3px;font-weight:800;margin:10px 0}
+body.vce-telemetry-workspace .intro p{font-size:14px;color:#bfd1e7}
+body.vce-telemetry-workspace .status{color:#a8d0ff;background:#142640;border:1px solid #355b85;padding:9px 12px;border-radius:8px;font-size:11px}
+body.vce-telemetry-workspace .panel,
+body.vce-telemetry-workspace .kpis article,
+body.vce-telemetry-workspace .vce-hud-meters article,
+body.vce-telemetry-workspace .vce-compare-grid article{background:var(--vce-panel)!important;border:1px solid var(--vce-line)!important;border-radius:10px!important;box-shadow:0 9px 24px rgba(0,0,0,.16)!important}
+body.vce-telemetry-workspace .panel{padding:20px 22px!important;margin:0 0 16px!important;border-top:2px solid #32629b!important;min-width:0}
+body.vce-telemetry-workspace .panel .head{margin-bottom:12px}
+body.vce-telemetry-workspace .panel h2{font-size:15px;color:#f5f8ff!important;letter-spacing:.25px}
+body.vce-telemetry-workspace .panel .head span{color:#9cb7d4;font-size:12px}
+body.vce-telemetry-workspace .vce-cloud-connect{padding:14px 18px!important;margin:0 0 14px!important;background:#0d1d31!important;border:1px solid #325376!important;border-radius:10px!important;display:grid;grid-template-columns:1fr auto;gap:7px 20px;align-items:center}
+body.vce-telemetry-workspace .vce-cloud-connect>.vce-cloud-top{display:flex;gap:15px;align-items:center;flex-wrap:wrap;grid-column:1/-1}
+body.vce-telemetry-workspace .vce-cloud-connect>.vce-cloud-top strong{font-size:12px;letter-spacing:.6px}
+body.vce-telemetry-workspace .vce-cloud-connect>.muted{margin:0;color:#a2bdd9;font-size:12px}
+body.vce-telemetry-workspace #vce-cloud-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+body.vce-telemetry-workspace #vce-cloud-actions button{background:#172d47!important;border:1px solid #386188!important;border-radius:6px!important;color:#dfecfb!important;padding:9px 12px!important;font-size:11px!important;letter-spacing:0!important;font-weight:750;white-space:nowrap}
+body.vce-telemetry-workspace #vce-cloud-status{color:#9cd5ff;font-size:11px;font-weight:800}
+body.vce-telemetry-workspace #vce-cloud-status[data-kind=error]{color:#ff9da8}
+body.vce-telemetry-workspace #vce-cloud-status[data-kind=ok]{color:#70e6ba}
+body.vce-telemetry-workspace #vce-archive-state{font-size:11px;grid-column:1/-1;margin:2px 0 0}
+body.vce-telemetry-workspace .vce-other-driver{grid-column:1/-1;background:#09182b;border:1px solid #2b4565;border-radius:8px;padding:15px!important;margin:9px 0 0!important}
+body.vce-telemetry-workspace .vce-other-driver strong{display:block;margin-bottom:6px;color:#eaf4ff}
+body.vce-telemetry-workspace .vce-other-driver select{width:100%;min-width:190px;flex:1 1 230px}
+body.vce-telemetry-workspace .vce-other-driver button{margin:6px 5px 0 0}
+body.vce-telemetry-workspace #tt-compare .vce-other-driver{margin-top:16px!important}
+body.vce-telemetry-workspace .vce-hud-banner{background:linear-gradient(105deg,#0d2845,#101b2c 70%)!important;border:1px solid #33587c!important;border-left:3px solid var(--vce-red)!important;border-radius:10px!important;padding:17px 22px!important;margin:0 0 12px!important}
+body.vce-telemetry-workspace .vce-hud-banner h2{font-size:21px}
+body.vce-telemetry-workspace .vce-hud-banner h2 span{color:var(--vce-red)!important}
+body.vce-telemetry-workspace .vce-hud-kicker{color:#81c6ff!important}
+body.vce-telemetry-workspace .vce-hud-meters{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 12px}
+body.vce-telemetry-workspace .vce-hud-meters article{padding:15px!important;border-top:2px solid #388bd8!important}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(1){border-top-color:#22c55e!important}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(2){border-top-color:#ef4444!important}
+body.vce-telemetry-workspace .vce-hud-meters article:nth-child(3){border-top-color:#8b8bf6!important}
+body.vce-telemetry-workspace .vce-hud-meters article b{font-size:clamp(18px,2vw,28px);color:white}
+body.vce-telemetry-workspace .vce-hud-meters article span{color:#a9c3df}
+body.vce-telemetry-workspace .vce-cloud-extra{margin:0 0 14px!important;background:#102037!important;border-color:#29496e}
+body.vce-telemetry-workspace .toolbar{background:#0f1e32!important;border:1px solid #355372!important;border-radius:10px!important;margin:0 0 12px!important;padding:17px!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+body.vce-telemetry-workspace .toolbar .import{min-height:45px}
+body.vce-telemetry-workspace .toolbar label{font-size:12px;color:#c1d5eb}
+body.vce-telemetry-workspace .toolbar input,
+body.vce-telemetry-workspace .toolbar select,
+body.vce-telemetry-workspace .vce-compare-toolbar select,
+body.vce-telemetry-workspace .vce-other-driver select{min-height:43px;width:100%;padding:10px 12px;border-radius:7px!important;border:1px solid #3a5a7c!important;background:#0b1b2f!important;color:#f1f6ff!important;font-size:12px}
+body.vce-telemetry-workspace .kpis{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 17px}
+body.vce-telemetry-workspace .kpis article{min-width:0;padding:17px!important;border-top:2px solid #376da8!important}
+body.vce-telemetry-workspace .kpis strong{font-size:clamp(20px,2vw,30px);color:#fff}
+body.vce-telemetry-workspace .kpis b{line-height:1.5;overflow-wrap:anywhere}
+body.vce-telemetry-workspace .layout{grid-template-columns:minmax(0,1.45fr) minmax(300px,.9fr);gap:16px;margin-bottom:0}
+body.vce-telemetry-workspace #map{display:block;max-width:100%;background:#071423!important;border:1px solid #294967!important;min-height:0;border-radius:8px}
+body.vce-telemetry-workspace #vce-stream{margin:0 0 15px!important}
+body.vce-telemetry-workspace #vce-stream .head{align-items:center}
+body.vce-telemetry-workspace #vce-live-hud{gap:9px}
+body.vce-telemetry-workspace #vce-stream-plot,body.vce-telemetry-workspace #vce-stream-track{display:block;width:100%;height:auto!important;border:1px solid #24466d;border-radius:7px;background:#071728}
+body.vce-telemetry-workspace #vce-stream-track{max-height:390px}
+body.vce-telemetry-workspace #vce-live-toggle{background:#142a42;border:1px solid #376ba2;border-radius:7px;color:#bde5ff;padding:9px 13px}
+body.vce-telemetry-workspace #tt-curves canvas,body.vce-telemetry-workspace #plots canvas{width:100%;height:auto!important;min-height:160px;background:#0a1728!important}
+body.vce-telemetry-workspace #tt-compare .vce-compare-grid{gap:10px}
+body.vce-telemetry-workspace .vce-history-list{gap:9px}
+body.vce-telemetry-workspace .vce-history-item{background:#0c1a2d!important;border-color:#304c6d!important;padding:13px 16px;border-radius:8px!important}
+body.vce-telemetry-workspace .vce-history-item button{background:#164778;border:1px solid #386e9e;border-radius:6px}
+body.vce-telemetry-workspace .vce-setup-category{background:#0d1c30!important;border-color:#304968!important;border-top-color:#368eeb!important}
+body.vce-telemetry-workspace .vce-setup-category:nth-child(even){border-top-color:#f34365!important}
+body.vce-telemetry-workspace .vce-setup-metric{background:#081729!important;border-color:#2b496b!important}
+body.vce-telemetry-workspace .vce-setup-title{background:#0c1d32!important;border-color:#2b486c!important}
+body.vce-telemetry-workspace #vce-input-canvas,body.vce-telemetry-workspace #vce-replay-canvas{background:#071728!important}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-stream,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-cloud-extra,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-other-driver{display:none!important}
+html[data-telemetry-view=setup] body.vce-telemetry-workspace .intro{margin-bottom:20px}
+body.vce-telemetry-workspace .vce-salon-back{margin-left:auto;color:#a4cbf5!important}
+body.vce-telemetry-workspace .vce-tour-nav[hidden]{display:none!important}
+/* Keep graph containers measurable while they are off-screen. */
+/* Salon selection */
+body.vce-telemetry-salon{background-color:#081221!important}
+body.vce-telemetry-salon .vce-salon{max-width:1120px;margin:0 auto;min-height:100vh;padding:clamp(35px,7vh,80px) 25px}
+body.vce-telemetry-salon .vce-salon-logo{max-height:115px;width:auto;max-width:210px}
+body.vce-telemetry-salon .vce-salon h1{font-size:clamp(34px,4vw,56px);letter-spacing:-1.25px;line-height:1.04}
+body.vce-telemetry-salon .vce-salon>p{font-size:15px;max-width:650px}
+body.vce-telemetry-salon .vce-salon-grid{gap:18px;margin-top:30px}
+body.vce-telemetry-salon .vce-salon-card{background:linear-gradient(145deg,rgba(15,30,49,.97),rgba(9,19,33,.97));border:1px solid #325477;border-top:3px solid #3798eb;border-radius:11px;padding:32px;min-height:260px;transition:transform .18s,border-color .18s}
+body.vce-telemetry-salon .vce-salon-card:nth-child(2){border-top-color:#ee4565}
+body.vce-telemetry-salon .vce-salon-card:hover{transform:translateY(-3px);border-color:#66b5ff}
+body.vce-telemetry-salon .vce-salon-card h2{font-size:29px}
+body.vce-telemetry-salon .vce-salon-card strong{color:#88c8ff;letter-spacing:.4px}
+/* Staff dashboards */
+body.vce-staff-telemetry{font-family:"Segoe UI",Arial,sans-serif!important;color:#edf4ff;background:#071423!important}
+body.vce-staff-telemetry main{max-width:1330px;padding:27px clamp(16px,4vw,42px) 85px}
+body.vce-staff-telemetry header{display:flex;align-items:center;justify-content:space-between;background:transparent;border:0;padding:0}
+body.vce-staff-telemetry h1{font-size:clamp(27px,3vw,40px);letter-spacing:-.7px}
+body.vce-staff-telemetry .panel{border:1px solid #2c4c70;background:#101f34;padding:22px;border-radius:11px;box-shadow:0 10px 32px rgba(0,0,0,.13)}
+body.vce-staff-telemetry .panel h2{font-size:17px;letter-spacing:.3px}
+body.vce-staff-telemetry .row{gap:13px}
+body.vce-staff-telemetry table{min-width:830px}
+body.vce-staff-telemetry th{color:#9fd1ff;white-space:nowrap}
+body.vce-staff-telemetry td{font-size:12px}
+body.vce-staff-telemetry button,body.vce-staff-telemetry select,body.vce-staff-telemetry input{min-height:38px;border-radius:7px;background:#173554;border:1px solid #3d6691;color:#eef7ff;padding:9px 12px}
+body.vce-staff-telemetry button:hover{background:#21476d}
+body.vce-staff-telemetry .vce-provision-panel{border-top:3px solid #3a9beb}
+body.vce-staff-telemetry .vce-provision-controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+body.vce-staff-telemetry #vce-pilot-provision-select{min-width:240px;flex:1}
+body.vce-staff-telemetry #vce-pilot-provision-credentials{margin-top:14px;padding:16px;background:#0b2433;border:1px solid #3b6c86;border-radius:8px}
+body.vce-staff-telemetry #vce-pilot-provision-result{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:1220px){
+ body.vce-telemetry-workspace .vce-hud-meters{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body.vce-telemetry-workspace .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body.vce-telemetry-workspace .layout{grid-template-columns:minmax(0,1fr)}
+ body.vce-telemetry-workspace .toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:1050px){
+ body.vce-telemetry-workspace{padding-left:0!important}
+ body.vce-telemetry-workspace .tt-nav{position:sticky!important;top:0;bottom:auto;width:100%!important;max-width:100vw;flex-direction:row!important;gap:7px;align-items:center;overflow-x:auto;overflow-y:hidden;padding:8px 12px;background:#071422!important;white-space:nowrap;box-shadow:0 5px 16px #0005}
+ body.vce-telemetry-workspace .tt-nav .tt-brand{display:none}
+ body.vce-telemetry-workspace .tt-nav>a{padding:9px 12px!important;min-height:36px;font-size:12px;white-space:nowrap}
+ body.vce-telemetry-workspace .tt-nav-bottom{display:none}
+ body.vce-telemetry-workspace>header{padding:13px 18px}
+ body.vce-telemetry-workspace main{padding:22px 16px 75px}
+}
+@media(max-width:650px){
+ body.vce-telemetry-workspace .vce-cloud-connect{grid-template-columns:1fr}
+ body.vce-telemetry-workspace #vce-cloud-actions{justify-content:flex-start}
+ body.vce-telemetry-workspace .vce-hud-meters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.vce-telemetry-workspace .toolbar{grid-template-columns:1fr}
+ body.vce-telemetry-workspace .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.vce-telemetry-workspace .panel{padding:15px!important}
+ body.vce-telemetry-workspace .intro{flex-direction:column}
+ body.vce-telemetry-workspace .intro h1{font-size:33px}
+ body.vce-telemetry-workspace .vce-hud-meters article b{font-size:22px}
+ body.vce-telemetry-salon .vce-salon-grid{grid-template-columns:1fr}
+ body.vce-staff-telemetry main{padding:18px 14px 65px}
+ body.vce-staff-telemetry .panel{padding:15px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button,.vce-salon-card{transition:none!important}}
+
+/* Strict separation: Lap telemetry never displays mechanical Setup channels. */
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #tt-setup,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-setup-overview,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-mechanical,
+html[data-telemetry-view=tour] body.vce-telemetry-workspace #vce-engineering-studio{display:none!important}
+/* Setup mode never duplicates lap maps, comparisons or racing replays. */
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-compare,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-curves,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-delta,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-history,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-replay,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #vce-engineering-v33,
+html[data-telemetry-view=setup] body.vce-telemetry-workspace #tt-interop{display:none!important}
+
+/* Driving-input colors: accelerator green, brake red, steering violet, speed blue. */
+body.vce-telemetry-workspace .vce-inputs-lab{border-top-color:#378de4!important}
+body.vce-telemetry-workspace .vce-inputs-lab .head h2{color:#a6d4ff!important}
+body.vce-telemetry-workspace #vce-input-status{color:#a9d2ff!important}
+body.vce-telemetry-workspace #vce-hud-throttle-bar{background:#22c55e!important}
+body.vce-telemetry-workspace #vce-hud-brake-bar{background:#ef4444!important}
+body.vce-telemetry-workspace #vce-hud-steering-bar{background:#8b8bf6!important}
+body.vce-telemetry-workspace .vce-replay{border-top-color:#398fe7!important}
+body.vce-telemetry-workspace .vce-replay .head h2{color:#c9e7ff!important}
+
+
+/* 5. assets/css/vce-site-refresh.css */
+/* RACE CONTROLE VCE — 2026 Design System Refresh.
+   Non-destructive: selectors scoped to VCE page families, JS data IDs untouched. */
+:root{--vce-navy:#080f1d;--vce-surface:#111f34;--vce-surface2:#172a44;--vce-red:#ff3155;--vce-blue:#43a4ff;--vce-line:#31506f;--vce-text:#f3f7ff;--vce-sub:#afc5df}
+html{scroll-behavior:smooth;scroll-padding-top:95px}
+body{accent-color:#43a4ff}
+body :is(button,select,a,input,textarea):focus-visible{outline:2px solid #79c8ff;outline-offset:3px}
+#vce-language-switch{position:fixed;right:18px;bottom:15px;display:inline-flex;gap:3px;padding:5px;border-radius:30px;border:1px solid #476182;background:#071528ee;box-shadow:0 8px 24px #0009;z-index:30000;backdrop-filter:blur(8px);font:800 11px/1.2 "Segoe UI",Arial,sans-serif}
+#vce-language-switch button{font:inherit;min-width:39px;min-height:30px;border:0;border-radius:18px;background:transparent;color:#b4cde6;cursor:pointer;letter-spacing:.7px;transition:background-color .16s}
+#vce-language-switch button[aria-pressed=true]{background:#2365a6;color:#fff}
+#vce-language-switch button:hover{color:white;background:#315477}
+body.vce-page-home{background:#040a16}
+body.vce-page-home main{position:relative;overflow:hidden}
+body.vce-page-home .scene{width:min(100vw,177.68dvh);background:#071322}
+body.vce-page-home .scene img{filter:contrast(1.05) brightness(.7)}
+body.vce-page-home .scene::after{background:linear-gradient(180deg,#040815b8 0%,transparent 30%,transparent 65%,#040715bd 100%)}
+body.vce-page-home .vce-home-brand{position:absolute;z-index:4;left:4.4%;top:4.9%;display:flex;align-items:center;gap:17px;max-width:55%}
+body.vce-page-home .vce-home-brand img{width:clamp(85px,12.5vw,205px);height:auto;max-height:110px;object-fit:contain;filter:drop-shadow(0 6px 13px #0009)}
+body.vce-page-home .vce-home-brand span{display:block;color:#d9e8f9;text-shadow:0 2px 12px black;font-weight:800;font-size:clamp(11px,1.5vw,23px);letter-spacing:.14em;line-height:1.3}
+body.vce-page-home .vce-welcome{left:5%;right:5%;top:26.5%;font-size:clamp(26px,4.25vw,68px);line-height:1.05;letter-spacing:-1px;max-width:100%;text-align:center;text-shadow:0 3px 23px #000}
+body.vce-page-home .vce-welcome .vce-red{color:#ff3b63}
+body.vce-page-home .vce-home-caption{position:absolute;z-index:4;left:8%;right:8%;top:39%;color:#d5e4f7;text-align:center;font-size:clamp(12px,1.43vw,23px);font-weight:650;text-shadow:0 3px 13px #000}
+body.vce-page-home .entry{top:65.5%;left:34%;width:32%;height:11%;font-style:normal;letter-spacing:1.3px;font-size:clamp(14px,2.35vw,37px)}
+body.vce-page-home .vce-ownership{bottom:2%;letter-spacing:.095em;color:#d1ddea}
+body.vce-page-chooser .wrap{max-width:1320px;padding:30px clamp(18px,3vw,42px) 65px}
+body.vce-page-chooser .top{background:#071526aa;border:1px solid #253e5a;border-radius:11px;padding:12px 18px;backdrop-filter:blur(6px)}
+body.vce-page-chooser .brand{display:flex;align-items:center;gap:10px}
+body.vce-page-chooser .brand img{width:112px;height:59px;object-fit:contain;filter:drop-shadow(0 3px 8px #0007)}
+body.vce-page-chooser .brand .brand-text{font-size:14px;font-style:normal;letter-spacing:1px}
+body.vce-page-chooser .brand .brand-text small{font-size:9px;margin-top:4px;letter-spacing:1.7px}
+body.vce-page-chooser header{margin:54px auto 31px}
+body.vce-page-chooser header h1{font-size:clamp(39px,5vw,69px);letter-spacing:-1.5px}
+body.vce-page-chooser .vce-choice-visuals{position:relative;display:grid;grid-template-columns:1.35fr .65fr;gap:12px;width:100%;height:215px;margin:0 0 22px}
+body.vce-page-chooser .vce-choice-visuals img{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px;border:1px solid #2c4c71;filter:brightness(.77) saturate(.9)}
+body.vce-page-chooser .vce-choice-visuals:after{content:"RACE CONTROL · VCE ESPORT";position:absolute;left:18px;bottom:18px;color:#fff;font-weight:850;letter-spacing:2px;text-shadow:0 2px 10px #000}
+body.vce-page-chooser .cards{gap:17px}
+body.vce-page-chooser .card{min-height:380px;padding:0 0 25px!important;display:flex;flex-direction:column;background:linear-gradient(145deg,#13253c,#071222)}
+body.vce-page-chooser .card .vce-card-photo{position:relative;height:143px;overflow:hidden;border-bottom:1px solid #2e4d6e;margin-bottom:19px;background:#0e2037}
+body.vce-page-chooser .card .vce-card-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.65) saturate(.85);transition:transform .3s ease}
+body.vce-page-chooser .card:hover .vce-card-photo img{transform:scale(1.035)}
+body.vce-page-chooser .card .icon{position:absolute;left:20px;top:112px;z-index:2;width:48px;height:48px;background:#0d2138;border-radius:10px;margin:0}
+body.vce-page-chooser .card h2{margin:14px 22px 10px;font-size:25px}
+body.vce-page-chooser .card p{margin:0 22px 19px;line-height:1.6;font-size:13px}
+body.vce-page-chooser .card .go{margin: auto 22px 0;font-size:11px}
+body.vce-page-chooser .card:before{display:none}
+body.vce-page-chooser .back{border-radius:8px}
+body.vce-page-pilot{background:radial-gradient(circle at 100% 0%,#18395880,transparent 41%),#07121f}
+body.vce-page-pilot main.wrap{max-width:1510px!important}
+body.vce-page-pilot .top{background:#0a1727e8;border-bottom:1px solid #294762}
+body.vce-page-pilot .hero{padding:25px 0 23px!important}
+body.vce-page-pilot .hero h1{font-size:clamp(31px,4.5vw,58px)!important;letter-spacing:-1px}
+body.vce-page-pilot .selection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px!important}
+body.vce-page-pilot .pilot-select{min-height:100px;padding:16px!important;border-radius:10px!important;background:linear-gradient(130deg,#14263d,#0e1d32);border:1px solid #305173!important;transition:transform .15s,border-color .15s}
+body.vce-page-pilot .pilot-select:hover{transform:translateY(-2px);border-color:#71b7f1!important}
+body.vce-page-pilot .pilot-select b{font-size:clamp(14px,1.3vw,17px);letter-spacing:.3px}
+body.vce-page-pilot .pilot-select small{font-size:10px;color:#a1bdda}
+body.vce-page-pilot .avatar{box-shadow:0 0 0 2px #183958;background:#153154!important}
+body.vce-page-pilot .vce-dashboard-intro{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border:1px solid #366089;border-radius:13px;padding:24px 26px;margin:0 0 17px;background:linear-gradient(110deg,#143554,#0e1b2c)}
+body.vce-page-pilot .vce-dashboard-intro h2{font-size:clamp(19px,2.4vw,29px);margin:0 0 5px}
+body.vce-page-pilot .vce-dashboard-intro p{margin:0;color:#b3cbe4;font-size:13px;max-width:690px}
+body.vce-page-pilot .vce-dashboard-shortcuts{display:flex;flex-wrap:wrap;gap:9px}
+body.vce-page-pilot .vce-dashboard-shortcuts a{display:inline-block;color:#e7f5ff;background:#1a3c5c;border:1px solid #356b9a;border-radius:7px;padding:11px 14px;font-size:12px;font-weight:800;text-decoration:none}
+body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px!important}
+body.vce-page-pilot .panel{background:linear-gradient(145deg,#142438,#0e1b2e);border:1px solid #2d4967!important;border-radius:11px!important}
+body.vce-page-pilot .stat{min-width:0;padding:18px!important;box-shadow:0 7px 19px #0002}
+body.vce-page-pilot .stat strong{font-size:clamp(22px,3vw,37px)!important;overflow-wrap:anywhere}
+body.vce-page-pilot .stat small{color:#a6c3df}
+body.vce-page-pilot .vce-command{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.vce-page-pilot .vce-module{min-width:0;background:#14263d;border:1px solid #335477;border-radius:11px;padding:20px}
+body.vce-page-pilot .vce-module h3{font-size:15px;letter-spacing:.4px;margin:0 0 12px}
+body.vce-page-pilot .vce-explain{margin-top:15px;background:#0d2138;border:1px solid #315476;border-radius:11px}
+body.vce-page-pilot .section{margin-top:17px!important}
+body.vce-page-pilot :is(#ratingChart,#xpChart){max-width:100%;height:auto}
+body.vce-page-team .wrap,body.vce-page-training .wrap{max-width:1320px}
+body.vce-page-team .hero-note,body.vce-page-training .hero-note{border-color:#326384;color:#d4e7fa;background:#10263d}
+body.vce-page-team .grid,body.vce-page-training .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:23px}
+body.vce-page-team .card,body.vce-page-training .card{min-height:232px;background:linear-gradient(130deg,#182f4b,#0d1d32);border-radius:12px;padding:26px 29px}
+body.vce-page-team .card h2,body.vce-page-training .card h2{font-size:26px}
+body.vce-page-team .card .arrow,body.vce-page-training .card .arrow{display:inline-flex;align-items:center;background:#1b405d;padding:8px 11px;border-radius:6px;margin-top:17px;color:#b8e0ff}
+body.vce-page-team .vce-contextbar{padding:17px 20px;border-left:3px solid #ff3155;border-radius:8px;background:#142c46;color:#d5e6f8;margin-top:20px;line-height:1.6}
+body.vce-page-strategy .app{max-width:1590px}
+body.vce-page-strategy .v19-tool,body.vce-page-strategy .panel{border-color:#30516f!important}
+body.vce-page-strategy .vce-strategy-help{margin:18px 0;background:#10233b;border:1px solid #325776;border-left:4px solid #44a9f8;border-radius:12px;padding:20px}
+body.vce-page-strategy .vce-strategy-help h2{font-size:19px;color:#f3f9ff;margin:0 0 9px}
+body.vce-page-strategy .vce-strategy-help .vce-strategy-bars{display:grid;gap:13px;margin-top:14px}
+body.vce-page-strategy .vce-strategy-bar label{display:flex;justify-content:space-between;align-items:center;color:#c4d9f0;font-size:12px;margin:0 0 5px}
+body.vce-page-strategy .vce-strategy-bar i{display:block;height:9px;border-radius:8px;background:#3189ce;max-width:100%;transition:width .22s ease}
+body.vce-page-strategy .vce-strategy-bar:nth-child(2) i{background:#ef466b}
+body.vce-page-strategy .vce-strategy-bar:nth-child(3) i{background:#31caa6}
+body.vce-page-strategy .vce-strategy-track{height:9px;border-radius:6px;background:#071426;overflow:hidden}
+body.vce-page-strategy .vce-strategy-help p{color:#acc6df;font-size:12px;line-height:1.5}
+body.vce-page-coach .vce-coach-conversation{max-width:1200px;margin:24px auto;padding:24px;background:linear-gradient(120deg,#162e48,#101c2f);border:1px solid #385f81;border-radius:13px}
+body.vce-page-coach .vce-coach-conversation h2{margin:5px 0 11px;color:#f4f8ff;font-size:24px}
+body.vce-page-coach .vce-coach-conversation p{color:#b6cee8;font-size:13px}
+body.vce-page-coach .vce-coach-form{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+body.vce-page-coach .vce-coach-form label{display:block;font-size:12px;color:#bed5eb}
+body.vce-page-coach .vce-coach-form select,body.vce-page-coach .vce-coach-form textarea{width:100%;background:#091729;color:#f0f6ff;border:1px solid #345675;border-radius:8px;padding:12px;margin-top:5px;font:13px system-ui}
+body.vce-page-coach .vce-coach-form textarea{grid-column:1/-1;min-height:88px;resize:vertical}
+body.vce-page-coach .vce-coach-form button{background:#d7274b;color:#fff;border:1px solid #f44c6e;border-radius:8px;padding:12px 19px;font-size:12px;font-weight:900;cursor:pointer}
+body.vce-page-coach .vce-coach-replies{margin-top:16px;display:grid;gap:10px}
+body.vce-page-coach .vce-coach-reply{padding:16px;background:#0c1c31;border:1px solid #315173;border-radius:8px}
+body.vce-page-coach .vce-coach-reply h3{font-size:16px;color:#75c8ff;margin:0 0 7px}
+body.vce-page-coach .vce-coach-reply p{margin:7px 0}
+body.vce-page-coach .vce-coach-reply small{color:#83badb}
+body.vce-page-staff .panel{border-radius:11px}
+@media(max-width:1150px){body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){body.vce-page-chooser .vce-choice-visuals{height:155px}body.vce-page-team .grid,body.vce-page-training .grid{grid-template-columns:1fr}body.vce-page-pilot .vce-command{grid-template-columns:1fr}body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){body.vce-page-home .vce-home-brand{top:4%;left:5%;gap:7px}body.vce-page-home .vce-home-brand img{width:80px}body.vce-page-home .vce-home-brand span{font-size:9px}body.vce-page-home .vce-welcome{top:28%;font-size:clamp(16px,5vw,35px)}body.vce-page-home .vce-home-caption{top:41%;font-size:11px}body.vce-page-chooser .vce-choice-visuals{grid-template-columns:1fr;height:145px}body.vce-page-chooser .vce-choice-visuals img:nth-child(2){display:none}body.vce-page-chooser .card{min-height:325px}body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:1fr 1fr}body.vce-page-coach .vce-coach-form{grid-template-columns:1fr}body.vce-page-coach .vce-coach-form textarea{grid-column:1}#vce-language-switch{right:10px;bottom:10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}body.vce-page-chooser .card .vce-card-photo img,body.vce-page-strategy .vce-strategy-bar i{transition:none!important}}
+
+.vce-hub-heading { margin: 28px 0 10px; font-size: clamp(18px, 2vw, 24px); }
+.vce-hub-shortcut {
+  display: inline-flex;
+  padding: 10px 14px;
+  border: 1px solid #4279a1;
+  border-radius: 7px;
+  background: #153450;
+  color: #d9efff;
+  font-weight: 700;
+}
+.vce-hub-shortcut:focus-visible { outline: 2px solid #8dd4ff; outline-offset: 3px; }
+@media (min-width: 1051px) {
+  body.vce-page-training .grid.vce-training-modes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Animation des vignettes VCE — uniquement éléments UI (pas les courbes) */
+@keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) both;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
