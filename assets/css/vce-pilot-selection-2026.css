@@ -1,0 +1,40 @@
+/* VCE ESPORT — Sélection pilotes · refonte desktop/mobile 2026-11-11.
+   Purement visuel : aucun changement de session, d'identifiant ou de route. */
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)){min-height:100svh;display:flex;flex-direction:column;background:radial-gradient(ellipse 65% 60% at 96% 0%,#183451 0%,transparent 65%),radial-gradient(ellipse 50% 55% at 0% 90%,#251526 0%,transparent 65%),#070e1a!important}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) >main.wrap{width:100%;max-width:1620px!important;flex:1;padding:20px clamp(20px,3vw,46px) 65px!important}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) >footer{margin-top:auto;background:rgba(6,14,26,.7);border-top:1px solid #2a3d56}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) >footer .wrap{max-width:1528px!important;padding-block:22px!important}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top{background:rgba(7,15,29,.91)!important;border-bottom:1px solid #273b54!important}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top .wrap{max-width:1528px!important;padding:12px 24px!important;min-height:88px}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top .logo{display:flex;align-items:center;gap:10px;font-size:19px;letter-spacing:.085em;font-style:normal}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top .logo img{width:82px!important;max-height:60px!important;margin-right:7px!important}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top .logo .eyebrow{font-size:9px;letter-spacing:.16em;margin-left:5px}
+body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .nav a{padding:12px 18px!important;border-radius:8px;background:#142238;font-size:11px;letter-spacing:.05em}
+body.vce-page-pilot #pilotSelection:not(.hidden){width:100%;margin:0 auto}
+body.vce-page-pilot #pilotSelection:not(.hidden) >.hero{text-align:left!important;padding:51px 0 26px!important;margin:0!important}
+body.vce-page-pilot #pilotSelection:not(.hidden) >.hero .eyebrow{font-size:12px;letter-spacing:.21em;color:#fa4765}
+body.vce-page-pilot #pilotSelection:not(.hidden) >.hero h1{font-size:clamp(39px,4.5vw,74px)!important;margin:13px 0 18px;line-height:1.05;letter-spacing:-.045em;font-weight:900;font-style:normal}
+body.vce-page-pilot #pilotSelection:not(.hidden) >.hero p{font-size:16px;line-height:1.6;color:#b4c8df;max-width:720px}
+body.vce-page-pilot #pilotSelection:not(.hidden) >.hero .stripe{margin:23px 0 0;width:185px;height:4px}
+body.vce-page-pilot #pilotSelection:not(.hidden) >.row{margin:24px 0 18px!important;gap:20px}
+body.vce-page-pilot #pilotSelection:not(.hidden) #pilotSearch{width:min(100%,510px);min-height:54px;padding:15px 20px;border:1px solid #456586;border-radius:10px;background:#101f32;color:#fff;font-size:15px;outline-offset:3px}
+body.vce-page-pilot #pilotSelection:not(.hidden) #pilotSearch:focus{border-color:#6eb8f6;box-shadow:0 0 0 3px #4c9be724}
+body.vce-page-pilot #pilotSelection:not(.hidden) #pilotCount{font-size:12px;font-weight:850;letter-spacing:.11em;text-transform:uppercase;color:#c1d9f3}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel{margin:0 0 30px;border:1px solid #304963;border-radius:16px;background:linear-gradient(135deg,#101e31,#081522);box-shadow:0 24px 65px #0006}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-toolbar{padding:22px 27px;background:linear-gradient(105deg,#172942,#101c31);border-bottom:1px solid #355270}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-heading small{font-size:10px;letter-spacing:.22em;color:#8ebee9}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-heading h2{font-size:clamp(22px,2vw,30px)!important;margin-top:8px!important;letter-spacing:-.015em!important}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-index{font-size:13px;color:#b9d8f5}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-arrow{width:45px!important;height:45px!important;border-radius:8px!important}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-viewport{padding:22px 23px 24px}
+body.vce-page-pilot #pilotSelection:not(.hidden) #pilotGrid{gap:17px!important;padding-bottom:15px}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select{height:350px!important;min-height:350px!important;flex:0 0 calc((100% - 51px)/4)!important;width:calc((100% - 51px)/4)!important;border-radius:11px!important;padding:0 20px 23px!important;border:1px solid #3b5878!important;border-top:3px solid #337db7!important;box-shadow:0 9px 25px #0005!important;background:#0c1d30!important}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select:nth-child(even){border-top-color:#ef4766!important}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select:hover{transform:translateY(-4px)!important;border-color:#8ac9ef!important;box-shadow:0 16px 35px #0009!important}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-pilot-art{inset:0 0 85px;filter:saturate(.98)}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select .avatar{width:80px!important;height:80px!important;margin-bottom:14px!important;border-width:2px!important;font-size:28px!important}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select b{font-size:clamp(17px,1.5vw,23px)!important;letter-spacing:.015em;line-height:1.18}
+body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select small{font-size:11px!important;letter-spacing:.045em;margin-top:10px;color:#a3cdec!important}
+@media(max-width:1200px){body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select{flex-basis:calc((100% - 34px)/3)!important;width:calc((100% - 34px)/3)!important}}
+@media(max-width:800px){body.vce-page-pilot:has(#pilotSelection:not(.hidden)) >main.wrap{padding:10px 19px 35px!important}body.vce-page-pilot #pilotSelection:not(.hidden) >.hero{padding:39px 0 19px!important}body.vce-page-pilot #pilotSelection:not(.hidden) >.hero h1{font-size:clamp(37px,7vw,57px)!important}body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select{flex-basis:calc((100% - 17px)/2)!important;width:calc((100% - 17px)/2)!important}body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-toolbar{padding:18px}}
+@media(max-width:550px){body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top .wrap{padding:10px 15px!important;min-height:70px}body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top .logo{font-size:14px;gap:5px}body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top .logo img{width:51px!important;margin-right:3px!important}body.vce-page-pilot:has(#pilotSelection:not(.hidden)) .top .logo .eyebrow{font-size:7px}body.vce-page-pilot #pilotSelection:not(.hidden) >.hero h1{font-size:clamp(34px,9vw,47px)!important}body.vce-page-pilot #pilotSelection:not(.hidden) >.hero p{font-size:13px}body.vce-page-pilot #pilotSelection:not(.hidden) >.row{flex-direction:column;align-items:stretch}body.vce-page-pilot #pilotSelection:not(.hidden) #pilotSearch{width:100%}body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-toolbar{gap:8px}body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-heading h2{font-size:20px!important}body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-index{font-size:10px}body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-viewport{padding:13px}body.vce-page-pilot #pilotSelection:not(.hidden) #pilotGrid{gap:12px!important}body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-select{flex-basis:83%!important;width:83%!important;height:320px!important;min-height:320px!important}}
