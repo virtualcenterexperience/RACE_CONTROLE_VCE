@@ -1,0 +1,39 @@
+/* VCE Race Control — accueil 2026.11.11 | home-only layout */
+body.vce-page-home{margin:0;background:#050b16;color:#f5f8ff;font-family:Inter,"Segoe UI",Arial,sans-serif}
+body.vce-page-home main{display:block;min-height:100svh;overflow:visible;background:#050b16}
+body.vce-page-home .scene{width:100%;max-width:none;min-height:100svh;aspect-ratio:auto;display:flex;flex-direction:column;overflow:hidden;background:#050b16}
+body.vce-page-home .scene>img[data-vce-hero]{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;filter:brightness(.8) saturate(.9) contrast(1.06);z-index:-2}
+body.vce-page-home .scene:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(3,9,20,.92) 0%,rgba(4,10,23,.65) 46%,rgba(3,9,20,.3) 100%),linear-gradient(180deg,rgba(3,8,18,.48) 0%,transparent 38%,rgba(2,7,16,.86) 100%)}
+body.vce-page-home .scene:after{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(circle at 70% 49%,rgba(13,73,128,.11),transparent 43%),linear-gradient(180deg,transparent 80%,#050b16)}
+body.vce-page-home .home-shell{position:relative;z-index:3;width:min(100% - 92px,1460px);margin:0 auto;min-height:100svh;display:flex;flex-direction:column}
+body.vce-page-home .home-header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:34px 0 24px;border-bottom:1px solid rgba(202,220,246,.13)}
+body.vce-page-home .vce-home-brand{position:static;display:flex;align-items:center;gap:18px;max-width:none}
+body.vce-page-home .vce-home-brand img{width:78px;height:59px;max-height:none;object-fit:contain;filter:drop-shadow(0 5px 14px #0008)}
+body.vce-page-home .vce-home-brand span{font-size:12px;font-weight:850;letter-spacing:.17em;line-height:1.55;text-shadow:none;color:#f5f7fd}
+body.vce-page-home .home-header-note{display:flex;align-items:center;gap:10px;color:#d2e1f1;letter-spacing:.16em;font-size:11px;font-weight:800}
+body.vce-page-home .home-header-note:before{content:"";width:7px;height:7px;border-radius:50%;background:#ff315c;box-shadow:0 0 11px #ff315ca0}
+body.vce-page-home .home-main{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;flex:1;min-height:550px;padding:80px 0 95px;max-width:980px}
+body.vce-page-home .home-overline{display:flex;align-items:center;gap:12px;color:#95bde8;font-size:12px;font-weight:900;letter-spacing:.23em;text-transform:uppercase;margin:0 0 27px}
+body.vce-page-home .home-overline:before{content:"";width:34px;height:2px;background:#ff315c}
+body.vce-page-home .vce-welcome{position:static;max-width:1020px;pointer-events:auto;text-align:left;text-shadow:0 6px 24px #0006;font-size:clamp(46px,5.2vw,91px);font-weight:900;line-height:.99;letter-spacing:-.055em;margin:0;display:flex;flex-direction:column;gap:9px}
+body.vce-page-home .vce-welcome span:first-child{color:#f8faff}
+body.vce-page-home .vce-welcome .vce-red{color:#ff3d62}
+body.vce-page-home .vce-home-caption{position:static;text-align:left;color:#c3d2e5;line-height:1.6;font-size:clamp(15px,1.2vw,19px);letter-spacing:.015em;font-weight:500;margin:27px 0 0;max-width:630px;text-shadow:0 3px 14px #0009}
+body.vce-page-home .home-divider{height:1px;width:165px;margin:30px 0;background:linear-gradient(90deg,#ff365c,#417aaf,transparent)}
+body.vce-page-home .entry{position:relative;left:auto;top:auto;width:auto;height:auto;min-width:286px;min-height:64px;display:inline-flex;align-items:center;justify-content:space-between;gap:35px;transform:none;scale:1;overflow:hidden;border:1px solid #ff4065;border-radius:7px;padding:17px 24px 17px 30px;font-family:inherit;font-style:normal;font-size:14px;letter-spacing:.16em;box-shadow:0 10px 30px #0006,0 0 0 1px #ff40651c;background:linear-gradient(108deg,#ed2450,#a91338);animation:none;transition:background .2s,transform .2s,box-shadow .2s}
+body.vce-page-home .entry .entry-label{transform:none;display:flex;align-items:center;justify-content:space-between;width:100%;text-shadow:none}
+body.vce-page-home .entry .entry-arrows{font-size:23px;line-height:1;animation:none;font-weight:600}
+body.vce-page-home .entry:before{display:none}
+body.vce-page-home .entry:hover{transform:translateY(-3px);scale:1.0;background:linear-gradient(108deg,#ff3d65,#c21a47);box-shadow:0 18px 35px #0008,0 0 22px #f52d5366}
+body.vce-page-home .entry:active{transform:translateY(0)}
+body.vce-page-home .entry:focus-visible{outline:3px solid #9cceff;outline-offset:4px}
+body.vce-page-home .home-meta{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:27px;color:#b7cbe1;font-size:11px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}
+body.vce-page-home .home-meta span{display:inline-flex;align-items:center;gap:8px}
+body.vce-page-home .home-meta span:before{content:"";height:4px;width:4px;background:#67abef;border-radius:50%}
+body.vce-page-home .home-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:22px 0 30px;border-top:1px solid rgba(202,220,246,.13)}
+body.vce-page-home .vce-ownership{position:static;pointer-events:auto;text-align:left;font-size:10px;font-weight:700;letter-spacing:.14em;color:#9caec7;text-shadow:none}
+body.vce-page-home .home-footer-right{color:#9caec7;font-size:10px;font-weight:800;letter-spacing:.15em}
+body.vce-page-home .scene.is-entering{animation:sceneExit .45s ease-in forwards}
+@media(max-width:900px){body.vce-page-home .home-shell{width:min(100% - 48px,760px)}body.vce-page-home .home-main{min-height:540px;padding:70px 0 75px}body.vce-page-home .vce-welcome{font-size:clamp(43px,7.5vw,71px)}body.vce-page-home .scene>img[data-vce-hero]{object-position:58% center}body.vce-page-home .scene:before{background:linear-gradient(90deg,#040a19e8,#040a19b3 70%,#040a194d),linear-gradient(180deg,#040a195c,transparent 50%,#040a19ea)}}
+@media(max-width:600px){body.vce-page-home .home-shell{width:calc(100% - 36px)}body.vce-page-home .home-header{padding:19px 0;align-items:center}body.vce-page-home .vce-home-brand{gap:9px}body.vce-page-home .vce-home-brand img{width:59px;height:43px}body.vce-page-home .vce-home-brand span{font-size:8.5px;letter-spacing:.12em}body.vce-page-home .home-header-note{font-size:9px;letter-spacing:.08em}body.vce-page-home .home-main{min-height:610px;padding:90px 0 80px}body.vce-page-home .home-overline{font-size:10px;letter-spacing:.17em;margin-bottom:20px}body.vce-page-home .home-overline:before{width:23px}body.vce-page-home .vce-welcome{font-size:clamp(39px,11vw,64px);letter-spacing:-.055em;line-height:1.03;gap:9px}body.vce-page-home .vce-home-caption{font-size:14px;line-height:1.7;margin-top:22px}body.vce-page-home .home-divider{margin:23px 0}body.vce-page-home .entry{min-width:0;width:min(100%,340px);font-size:13px;min-height:60px}body.vce-page-home .home-meta{font-size:10px;gap:9px 15px}body.vce-page-home .home-footer{padding:18px 0 23px}body.vce-page-home .vce-ownership{font-size:8px;line-height:1.5;max-width:250px}body.vce-page-home .home-footer-right{display:none}}
+@media(prefers-reduced-motion:reduce){body.vce-page-home .entry,body.vce-page-home .scene.is-entering{animation:none!important;transition:none!important}}
