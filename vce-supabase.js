@@ -14,7 +14,7 @@ async function validSession(){
  if(!d.refresh_token){logout();throw Error('Session expirée. Reconnecte-toi.')}
  if(!refreshPromise)refreshPromise=(async()=>{
   const r=await fetch(cfg.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',signal:AbortSignal.timeout(requestTimeout),headers:{apikey:cfg.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:d.refresh_token})});
-  if(!r.ok){logout();throw Error('Session expirée. Reconnecte-toi.')}
+  if(!r.ok){if([400,401,403].includes(r.status)){logout();throw Error('Session expirée ou révoquée. Reconnecte-toi.')}throw Error('Renouvellement de session indisponible (Supabase HTTP '+r.status+'). La session locale a été conservée.')}
   const next=await r.json();next.expires_at=Math.floor(Date.now()/1000)+next.expires_in;sessionStorage.setItem(key,JSON.stringify(next));return next;
  })().finally(()=>{refreshPromise=null});
  return refreshPromise;
