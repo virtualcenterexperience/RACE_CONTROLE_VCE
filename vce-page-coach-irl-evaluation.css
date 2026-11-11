@@ -1,0 +1,230 @@
+/* VCE coach-irl-evaluation.html — styles consolidés; cascade historique inchangée. */
+
+/* 1. assets/css/vce-coach-irl-evaluation.css */
+:root{color-scheme:dark;--bg:#090f19;--panel:#121c2b;--edge:#31435b;--soft:#96abc5;--accent:#ff4769;--green:#39daa4;--blue:#5aaff6}
+*{box-sizing:border-box}
+body{margin:0;background:#080e17;color:#edf4ff;font:14px system-ui,Segoe UI,Arial}
+a{color:#9bd6ff;text-decoration:none}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;border-radius:7px;border:1px solid #3c5a76;background:#19314b;color:#e6f5ff;padding:10px 13px;font-weight:700}
+button:hover{border-color:#80b7e9}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,textarea,select{width:100%;background:#0c1625;border:1px solid #37516e;border-radius:6px;padding:10px;color:#fff}
+textarea{min-height:85px;resize:vertical}
+label{display:block;font-size:12px;color:#acc9e9;font-weight:700;margin:7px 0}
+h1{font-size:clamp(25px,3.5vw,39px);margin:7px 0 13px}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:16px;margin:0 0 7px}
+p{line-height:1.6}
+.muted{color:#9cb4d0}
+.mini{font-size:12px}
+.shell{max-width:1360px;margin:auto;padding:28px 22px 60px}
+.brandrow{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;border-bottom:1px solid #2d425a;padding-bottom:15px}
+.brand{font-size:14px;font-weight:900;letter-spacing:.08em}.brand em{color:#ff486b;font-style:normal}
+.eyebrow{color:#ff607e;letter-spacing:.13em;font-size:12px;font-weight:800}
+.panel{background:#121d2c;border:1px solid var(--edge);border-radius:10px;padding:21px;margin:16px 0}
+.intro{border-left:4px solid #ff4d70;background:#192233;padding:14px 20px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.test{border:1px solid #34485f;border-left:4px solid #5aaff6;background:#0d1826;border-radius:8px;padding:17px;margin:12px 0}
+.test h3{color:#f6fbff}
+.test .combo{color:#91c7ff;font-weight:800;font-size:13px}
+.test .block{padding:12px;background:#101f30;border:1px solid #2c4360;border-radius:6px;margin:10px 0}
+.test .block h4{margin:0 0 6px;font-size:13px}
+.test textarea{font-family:ui-monospace,Consolas,monospace;min-height:105px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin:10px 0}
+.stats div{background:#18273a;border:1px solid #314961;border-radius:5px;padding:9px}
+.stats small{display:block;color:#96b1cd;font-size:11px}.stats strong{font-size:17px;display:block;margin-top:3px}
+.table{width:100%;border-collapse:collapse}
+.table td,.table th{padding:10px;text-align:left;border-bottom:1px solid #34465a}
+.table th{font-size:12px;color:#91d0ff}
+.condition{margin:12px 0;background:#101b2a;padding:12px;border-radius:5px;border:1px solid #32465f}
+.warn{border-left:3px solid #e6b45d;background:#30271c;padding:12px;color:#ffe5b0}
+.success{border-left:3px solid #54d4a3;background:#113329;padding:12px;color:#c9ffe9}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+button.primary{background:#b82745;border-color:#fd5574}
+button.secondary{background:#1c344d}
+button.ghost{background:transparent}
+#vce-irl-staff[hidden],#vce-irl-protocol[hidden]{display:none}
+.notegrid{display:grid;grid-template-columns:200px 1fr;gap:10px;align-items:start}
+#vce-irl-metrics .stats{margin-top:14px}
+#vce-irl-notes{display:grid;gap:12px}
+#vce-irl-notes .note{padding:12px;border:1px solid #30475f;border-radius:6px;background:#0d1826}
+#vce-irl-notes textarea{min-height:75px}
+.program{padding:15px;border:1px solid #405674;border-radius:8px}
+#vce-irl-list button{margin:5px 5px 5px 0;text-align:left;max-width:100%}
+.banner{padding:14px;background:#112e37;border-left:4px solid #48c1d8;margin:12px 0}
+#vce-irl-authstatus{font-size:12px}
+@media(max-width:850px){.two,.three,.notegrid{grid-template-columns:1fr}.shell{padding:14px}.panel{padding:15px}.table{font-size:12px}}
+
+/* VCE 2026 — restored official five-stage coach IRL review. */
+#vce-irl-schedule .vce-irl-table{width:100%;border-collapse:collapse;background:#0b192b;border:1px solid #324e6e;border-radius:8px;overflow:hidden}
+.vce-irl-table th,.vce-irl-table td{text-align:left;padding:12px 15px;border-bottom:1px solid #29435f;color:#dbeaff}
+.vce-irl-table td{text-align:right;font-variant-numeric:tabular-nums;color:#8fc8fa;font-weight:850}
+.vce-irl-test{padding:19px 21px;border:1px solid #345a7a;border-left:4px solid #e63a62;background:linear-gradient(120deg,#162b44,#101b2c);margin:12px 0;border-radius:10px}
+.vce-irl-test h3{font-size:17px!important;color:#f5faff;margin:0 0 9px}
+.vce-irl-test p{font-size:13px;color:#c0d4e9;margin:7px 0}
+.vce-irl-segment{display:inline-flex;margin:4px 6px 4px 0;padding:6px 10px;border:1px solid #315b7e;border-radius:6px;background:#102e4c;color:#b8d9fa;font-size:11px}
+.vce-irl-week{padding:16px 19px;border:1px solid #355170;background:#102238;border-radius:9px;margin:0 0 12px}
+.vce-irl-week h3{margin:0 0 7px;color:#eaf6ff}
+.vce-irl-week p,.vce-irl-week small{color:#b5d0eb;font-size:12px}
+.vce-irl-entry{border:1px solid #33526f;border-radius:9px;padding:15px;margin:13px 0;background:#0b1b30}
+.vce-irl-entry legend{color:#89c6fa;font-weight:900;font-size:12px;letter-spacing:.35px;padding:0 8px}
+.vce-irl-entry label{margin:12px 0}
+.vce-irl-entry textarea{font-family:Consolas,monospace;min-height:110px}
+.vce-irl-stats{display:grid;gap:8px}
+.vce-irl-stats>strong{display:block;padding:13px;border:1px solid #346a72;background:#103735;color:#c9fff0;border-radius:7px}
+.vce-irl-stats>p{border:1px solid #2f5072;background:#0e243b;padding:10px 12px;border-radius:7px;margin:0}
+
+
+/* 2. assets/css/vce-global-background.css */
+/* Shared module backdrop. The interface remains the brightest layer. */
+html { background-color: #080e18; }
+body {
+  background-color: #080e18 !important;
+  background-image:
+    radial-gradient(ellipse at 94% 0%, #1a3558 0%, transparent 48%),
+    radial-gradient(ellipse at 0% 84%, #241521 0%, transparent 38%),
+    linear-gradient(135deg, #0a101c, #101a2a) !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+}
+#dashboard .rc-shell,
+#dashboard .rc-main,
+#dashboard .rc-content { background-color: transparent !important; }
+@media (max-width: 800px) {
+  body { background-attachment: scroll !important; }
+}
+
+
+/* 3. assets/css/vce-site-refresh.css */
+/* RACE CONTROLE VCE — 2026 Design System Refresh.
+   Non-destructive: selectors scoped to VCE page families, JS data IDs untouched. */
+:root{--vce-navy:#080f1d;--vce-surface:#111f34;--vce-surface2:#172a44;--vce-red:#ff3155;--vce-blue:#43a4ff;--vce-line:#31506f;--vce-text:#f3f7ff;--vce-sub:#afc5df}
+html{scroll-behavior:smooth;scroll-padding-top:95px}
+body{accent-color:#43a4ff}
+body :is(button,select,a,input,textarea):focus-visible{outline:2px solid #79c8ff;outline-offset:3px}
+#vce-language-switch{position:fixed;right:18px;bottom:15px;display:inline-flex;gap:3px;padding:5px;border-radius:30px;border:1px solid #476182;background:#071528ee;box-shadow:0 8px 24px #0009;z-index:30000;backdrop-filter:blur(8px);font:800 11px/1.2 "Segoe UI",Arial,sans-serif}
+#vce-language-switch button{font:inherit;min-width:39px;min-height:30px;border:0;border-radius:18px;background:transparent;color:#b4cde6;cursor:pointer;letter-spacing:.7px;transition:background-color .16s}
+#vce-language-switch button[aria-pressed=true]{background:#2365a6;color:#fff}
+#vce-language-switch button:hover{color:white;background:#315477}
+body.vce-page-home{background:#040a16}
+body.vce-page-home main{position:relative;overflow:hidden}
+body.vce-page-home .scene{width:min(100vw,177.68dvh);background:#071322}
+body.vce-page-home .scene img{filter:contrast(1.05) brightness(.7)}
+body.vce-page-home .scene::after{background:linear-gradient(180deg,#040815b8 0%,transparent 30%,transparent 65%,#040715bd 100%)}
+body.vce-page-home .vce-home-brand{position:absolute;z-index:4;left:4.4%;top:4.9%;display:flex;align-items:center;gap:17px;max-width:55%}
+body.vce-page-home .vce-home-brand img{width:clamp(85px,12.5vw,205px);height:auto;max-height:110px;object-fit:contain;filter:drop-shadow(0 6px 13px #0009)}
+body.vce-page-home .vce-home-brand span{display:block;color:#d9e8f9;text-shadow:0 2px 12px black;font-weight:800;font-size:clamp(11px,1.5vw,23px);letter-spacing:.14em;line-height:1.3}
+body.vce-page-home .vce-welcome{left:5%;right:5%;top:26.5%;font-size:clamp(26px,4.25vw,68px);line-height:1.05;letter-spacing:-1px;max-width:100%;text-align:center;text-shadow:0 3px 23px #000}
+body.vce-page-home .vce-welcome .vce-red{color:#ff3b63}
+body.vce-page-home .vce-home-caption{position:absolute;z-index:4;left:8%;right:8%;top:39%;color:#d5e4f7;text-align:center;font-size:clamp(12px,1.43vw,23px);font-weight:650;text-shadow:0 3px 13px #000}
+body.vce-page-home .entry{top:65.5%;left:34%;width:32%;height:11%;font-style:normal;letter-spacing:1.3px;font-size:clamp(14px,2.35vw,37px)}
+body.vce-page-home .vce-ownership{bottom:2%;letter-spacing:.095em;color:#d1ddea}
+body.vce-page-chooser .wrap{max-width:1320px;padding:30px clamp(18px,3vw,42px) 65px}
+body.vce-page-chooser .top{background:#071526aa;border:1px solid #253e5a;border-radius:11px;padding:12px 18px;backdrop-filter:blur(6px)}
+body.vce-page-chooser .brand{display:flex;align-items:center;gap:10px}
+body.vce-page-chooser .brand img{width:112px;height:59px;object-fit:contain;filter:drop-shadow(0 3px 8px #0007)}
+body.vce-page-chooser .brand .brand-text{font-size:14px;font-style:normal;letter-spacing:1px}
+body.vce-page-chooser .brand .brand-text small{font-size:9px;margin-top:4px;letter-spacing:1.7px}
+body.vce-page-chooser header{margin:54px auto 31px}
+body.vce-page-chooser header h1{font-size:clamp(39px,5vw,69px);letter-spacing:-1.5px}
+body.vce-page-chooser .vce-choice-visuals{position:relative;display:grid;grid-template-columns:1.35fr .65fr;gap:12px;width:100%;height:215px;margin:0 0 22px}
+body.vce-page-chooser .vce-choice-visuals img{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px;border:1px solid #2c4c71;filter:brightness(.77) saturate(.9)}
+body.vce-page-chooser .vce-choice-visuals:after{content:"RACE CONTROL · VCE ESPORT";position:absolute;left:18px;bottom:18px;color:#fff;font-weight:850;letter-spacing:2px;text-shadow:0 2px 10px #000}
+body.vce-page-chooser .cards{gap:17px}
+body.vce-page-chooser .card{min-height:380px;padding:0 0 25px!important;display:flex;flex-direction:column;background:linear-gradient(145deg,#13253c,#071222)}
+body.vce-page-chooser .card .vce-card-photo{position:relative;height:143px;overflow:hidden;border-bottom:1px solid #2e4d6e;margin-bottom:19px;background:#0e2037}
+body.vce-page-chooser .card .vce-card-photo img{width:100%;height:100%;object-fit:cover;filter:brightness(.65) saturate(.85);transition:transform .3s ease}
+body.vce-page-chooser .card:hover .vce-card-photo img{transform:scale(1.035)}
+body.vce-page-chooser .card .icon{position:absolute;left:20px;top:112px;z-index:2;width:48px;height:48px;background:#0d2138;border-radius:10px;margin:0}
+body.vce-page-chooser .card h2{margin:14px 22px 10px;font-size:25px}
+body.vce-page-chooser .card p{margin:0 22px 19px;line-height:1.6;font-size:13px}
+body.vce-page-chooser .card .go{margin: auto 22px 0;font-size:11px}
+body.vce-page-chooser .card:before{display:none}
+body.vce-page-chooser .back{border-radius:8px}
+body.vce-page-pilot{background:radial-gradient(circle at 100% 0%,#18395880,transparent 41%),#07121f}
+body.vce-page-pilot main.wrap{max-width:1510px!important}
+body.vce-page-pilot .top{background:#0a1727e8;border-bottom:1px solid #294762}
+body.vce-page-pilot .hero{padding:25px 0 23px!important}
+body.vce-page-pilot .hero h1{font-size:clamp(31px,4.5vw,58px)!important;letter-spacing:-1px}
+body.vce-page-pilot .selection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px!important}
+body.vce-page-pilot .pilot-select{min-height:100px;padding:16px!important;border-radius:10px!important;background:linear-gradient(130deg,#14263d,#0e1d32);border:1px solid #305173!important;transition:transform .15s,border-color .15s}
+body.vce-page-pilot .pilot-select:hover{transform:translateY(-2px);border-color:#71b7f1!important}
+body.vce-page-pilot .pilot-select b{font-size:clamp(14px,1.3vw,17px);letter-spacing:.3px}
+body.vce-page-pilot .pilot-select small{font-size:10px;color:#a1bdda}
+body.vce-page-pilot .avatar{box-shadow:0 0 0 2px #183958;background:#153154!important}
+body.vce-page-pilot .vce-dashboard-intro{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border:1px solid #366089;border-radius:13px;padding:24px 26px;margin:0 0 17px;background:linear-gradient(110deg,#143554,#0e1b2c)}
+body.vce-page-pilot .vce-dashboard-intro h2{font-size:clamp(19px,2.4vw,29px);margin:0 0 5px}
+body.vce-page-pilot .vce-dashboard-intro p{margin:0;color:#b3cbe4;font-size:13px;max-width:690px}
+body.vce-page-pilot .vce-dashboard-shortcuts{display:flex;flex-wrap:wrap;gap:9px}
+body.vce-page-pilot .vce-dashboard-shortcuts a{display:inline-block;color:#e7f5ff;background:#1a3c5c;border:1px solid #356b9a;border-radius:7px;padding:11px 14px;font-size:12px;font-weight:800;text-decoration:none}
+body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px!important}
+body.vce-page-pilot .panel{background:linear-gradient(145deg,#142438,#0e1b2e);border:1px solid #2d4967!important;border-radius:11px!important}
+body.vce-page-pilot .stat{min-width:0;padding:18px!important;box-shadow:0 7px 19px #0002}
+body.vce-page-pilot .stat strong{font-size:clamp(22px,3vw,37px)!important;overflow-wrap:anywhere}
+body.vce-page-pilot .stat small{color:#a6c3df}
+body.vce-page-pilot .vce-command{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.vce-page-pilot .vce-module{min-width:0;background:#14263d;border:1px solid #335477;border-radius:11px;padding:20px}
+body.vce-page-pilot .vce-module h3{font-size:15px;letter-spacing:.4px;margin:0 0 12px}
+body.vce-page-pilot .vce-explain{margin-top:15px;background:#0d2138;border:1px solid #315476;border-radius:11px}
+body.vce-page-pilot .section{margin-top:17px!important}
+body.vce-page-pilot :is(#ratingChart,#xpChart){max-width:100%;height:auto}
+body.vce-page-team .wrap,body.vce-page-training .wrap{max-width:1320px}
+body.vce-page-team .hero-note,body.vce-page-training .hero-note{border-color:#326384;color:#d4e7fa;background:#10263d}
+body.vce-page-team .grid,body.vce-page-training .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:23px}
+body.vce-page-team .card,body.vce-page-training .card{min-height:232px;background:linear-gradient(130deg,#182f4b,#0d1d32);border-radius:12px;padding:26px 29px}
+body.vce-page-team .card h2,body.vce-page-training .card h2{font-size:26px}
+body.vce-page-team .card .arrow,body.vce-page-training .card .arrow{display:inline-flex;align-items:center;background:#1b405d;padding:8px 11px;border-radius:6px;margin-top:17px;color:#b8e0ff}
+body.vce-page-team .vce-contextbar{padding:17px 20px;border-left:3px solid #ff3155;border-radius:8px;background:#142c46;color:#d5e6f8;margin-top:20px;line-height:1.6}
+body.vce-page-strategy .app{max-width:1590px}
+body.vce-page-strategy .v19-tool,body.vce-page-strategy .panel{border-color:#30516f!important}
+body.vce-page-strategy .vce-strategy-help{margin:18px 0;background:#10233b;border:1px solid #325776;border-left:4px solid #44a9f8;border-radius:12px;padding:20px}
+body.vce-page-strategy .vce-strategy-help h2{font-size:19px;color:#f3f9ff;margin:0 0 9px}
+body.vce-page-strategy .vce-strategy-help .vce-strategy-bars{display:grid;gap:13px;margin-top:14px}
+body.vce-page-strategy .vce-strategy-bar label{display:flex;justify-content:space-between;align-items:center;color:#c4d9f0;font-size:12px;margin:0 0 5px}
+body.vce-page-strategy .vce-strategy-bar i{display:block;height:9px;border-radius:8px;background:#3189ce;max-width:100%;transition:width .22s ease}
+body.vce-page-strategy .vce-strategy-bar:nth-child(2) i{background:#ef466b}
+body.vce-page-strategy .vce-strategy-bar:nth-child(3) i{background:#31caa6}
+body.vce-page-strategy .vce-strategy-track{height:9px;border-radius:6px;background:#071426;overflow:hidden}
+body.vce-page-strategy .vce-strategy-help p{color:#acc6df;font-size:12px;line-height:1.5}
+body.vce-page-coach .vce-coach-conversation{max-width:1200px;margin:24px auto;padding:24px;background:linear-gradient(120deg,#162e48,#101c2f);border:1px solid #385f81;border-radius:13px}
+body.vce-page-coach .vce-coach-conversation h2{margin:5px 0 11px;color:#f4f8ff;font-size:24px}
+body.vce-page-coach .vce-coach-conversation p{color:#b6cee8;font-size:13px}
+body.vce-page-coach .vce-coach-form{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+body.vce-page-coach .vce-coach-form label{display:block;font-size:12px;color:#bed5eb}
+body.vce-page-coach .vce-coach-form select,body.vce-page-coach .vce-coach-form textarea{width:100%;background:#091729;color:#f0f6ff;border:1px solid #345675;border-radius:8px;padding:12px;margin-top:5px;font:13px system-ui}
+body.vce-page-coach .vce-coach-form textarea{grid-column:1/-1;min-height:88px;resize:vertical}
+body.vce-page-coach .vce-coach-form button{background:#d7274b;color:#fff;border:1px solid #f44c6e;border-radius:8px;padding:12px 19px;font-size:12px;font-weight:900;cursor:pointer}
+body.vce-page-coach .vce-coach-replies{margin-top:16px;display:grid;gap:10px}
+body.vce-page-coach .vce-coach-reply{padding:16px;background:#0c1c31;border:1px solid #315173;border-radius:8px}
+body.vce-page-coach .vce-coach-reply h3{font-size:16px;color:#75c8ff;margin:0 0 7px}
+body.vce-page-coach .vce-coach-reply p{margin:7px 0}
+body.vce-page-coach .vce-coach-reply small{color:#83badb}
+body.vce-page-staff .panel{border-radius:11px}
+@media(max-width:1150px){body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){body.vce-page-chooser .vce-choice-visuals{height:155px}body.vce-page-team .grid,body.vce-page-training .grid{grid-template-columns:1fr}body.vce-page-pilot .vce-command{grid-template-columns:1fr}body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){body.vce-page-home .vce-home-brand{top:4%;left:5%;gap:7px}body.vce-page-home .vce-home-brand img{width:80px}body.vce-page-home .vce-home-brand span{font-size:9px}body.vce-page-home .vce-welcome{top:28%;font-size:clamp(16px,5vw,35px)}body.vce-page-home .vce-home-caption{top:41%;font-size:11px}body.vce-page-chooser .vce-choice-visuals{grid-template-columns:1fr;height:145px}body.vce-page-chooser .vce-choice-visuals img:nth-child(2){display:none}body.vce-page-chooser .card{min-height:325px}body.vce-page-pilot #pilotDashboard>.stats,body.vce-page-pilot #pilotDashboard>.section.stats{grid-template-columns:1fr 1fr}body.vce-page-coach .vce-coach-form{grid-template-columns:1fr}body.vce-page-coach .vce-coach-form textarea{grid-column:1}#vce-language-switch{right:10px;bottom:10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}body.vce-page-chooser .card .vce-card-photo img,body.vce-page-strategy .vce-strategy-bar i{transition:none!important}}
+
+.vce-hub-heading { margin: 28px 0 10px; font-size: clamp(18px, 2vw, 24px); }
+.vce-hub-shortcut {
+  display: inline-flex;
+  padding: 10px 14px;
+  border: 1px solid #4279a1;
+  border-radius: 7px;
+  background: #153450;
+  color: #d9efff;
+  font-weight: 700;
+}
+.vce-hub-shortcut:focus-visible { outline: 2px solid #8dd4ff; outline-offset: 3px; }
+@media (min-width: 1051px) {
+  body.vce-page-training .grid.vce-training-modes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Animation des vignettes VCE */
+@keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) both;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
