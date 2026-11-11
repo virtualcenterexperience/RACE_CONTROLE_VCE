@@ -31,7 +31,21 @@ async function request(path,opts={},auth=false){
  if(!r.ok){let t=await r.text().catch(()=>''),endpoint=path.startsWith('/auth/v1/');if(endpoint&&r.status>=500)throw Error('Service de connexion Supabase indisponible (HTTP '+r.status+'). Les comptes ne sont pas en cause.');throw Error('Supabase HTTP '+r.status+' : '+t.slice(0,180))}
  if(r.status===204||r.status===205)return null;const body=await r.text();if(!body.trim())return null;try{return JSON.parse(body)}catch{throw Error('Réponse Supabase invalide (HTTP '+r.status+')')}
 }
-async function login(email,password){const d=await request('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});d.expires_at=Math.floor(Date.now()/1000)+d.expires_in;sessionStorage.setItem(key,JSON.stringify(d));clearStaffCache();return d}
+async function login(email,password){
+ let d;
+ for(let attempt=0;attempt<2;attempt++){
+  try{d=await request('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});break}
+  catch(err){
+   const msg=String(err?.message||'');
+   const transient=/Service de connexion Supabase indisponible|Délai dépassé|Serveur Supabase injoignable|signal timed out|HTTP 50[034]/i.test(msg);
+   if(attempt===1||!transient)throw err;
+  }
+ }
+ if(!d?.access_token||!d?.refresh_token)throw Error('Réponse de connexion incomplète de Supabase.');
+ d.expires_at=Math.floor(Date.now()/1000)+d.expires_in;
+ sessionStorage.setItem(key,JSON.stringify(d));
+ clearStaffCache();return d
+}
 function logout(){window.dispatchEvent(new Event('vce-pilot-presence-logout'));sessionStorage.removeItem(key);clearStaffCache();inFlightReads.clear()}
 async function read(kind){
  if(inFlightReads.has(kind))return inFlightReads.get(kind);
