@@ -2,9 +2,9 @@
 body.vce-page-home{margin:0;background:#050b16;color:#f5f8ff;font-family:Inter,"Segoe UI",Arial,sans-serif}
 body.vce-page-home main{display:block;min-height:100svh;overflow:visible;background:#050b16}
 body.vce-page-home .scene{width:100%;max-width:none;min-height:100svh;aspect-ratio:auto;display:flex;flex-direction:column;overflow:hidden;background:#050b16}
-body.vce-page-home .scene>img[data-vce-hero]{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;filter:brightness(.8) saturate(.9) contrast(1.06);z-index:-2}
-body.vce-page-home .scene:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(3,9,20,.92) 0%,rgba(4,10,23,.65) 46%,rgba(3,9,20,.3) 100%),linear-gradient(180deg,rgba(3,8,18,.48) 0%,transparent 38%,rgba(2,7,16,.86) 100%)}
-body.vce-page-home .scene:after{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(circle at 70% 49%,rgba(13,73,128,.11),transparent 43%),linear-gradient(180deg,transparent 80%,#050b16)}
+body.vce-page-home .scene>img[data-vce-hero]{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;filter:brightness(.8) saturate(.9) contrast(1.06);z-index:0}
+body.vce-page-home .scene:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(3,9,20,.92) 0%,rgba(4,10,23,.65) 46%,rgba(3,9,20,.3) 100%),linear-gradient(180deg,rgba(3,8,18,.48) 0%,transparent 38%,rgba(2,7,16,.86) 100%)}
+body.vce-page-home .scene:after{content:"";position:absolute;z-index:1;inset:0;pointer-events:none;background:radial-gradient(circle at 70% 49%,rgba(13,73,128,.11),transparent 43%),linear-gradient(180deg,transparent 80%,#050b16)}
 body.vce-page-home .home-shell{position:relative;z-index:3;width:min(100% - 92px,1460px);margin:0 auto;min-height:100svh;display:flex;flex-direction:column}
 body.vce-page-home .home-header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:34px 0 24px;border-bottom:1px solid rgba(202,220,246,.13)}
 body.vce-page-home .vce-home-brand{position:static;display:flex;align-items:center;gap:18px;max-width:none}
