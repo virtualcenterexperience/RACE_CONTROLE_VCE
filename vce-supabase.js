@@ -25,8 +25,10 @@ async function request(path,opts={},auth=false){
  if(auth&&!token)throw Error('Connectez-vous en STAFF.');
  // Publishable keys (sb_publishable_*) are NOT JWTs. Only a real Auth session belongs in Authorization.
  const credentials={apikey:cfg.key,...(token?{Authorization:'Bearer '+token}:/^sb_publishable_/.test(cfg.key)?{}:{Authorization:'Bearer '+cfg.key})};
- const r=await fetch(cfg.url+path,{...opts,signal:opts.signal||AbortSignal.timeout(requestTimeout),cache:'no-store',headers:{...credentials,...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}});
- if(!r.ok){let t=await r.text();throw Error('Supabase HTTP '+r.status+' : '+t.slice(0,180))}
+ let r;
+ try{r=await fetch(cfg.url+path,{...opts,signal:opts.signal||AbortSignal.timeout(requestTimeout),cache:'no-store',headers:{...credentials,...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}})}
+ catch(e){if(e?.name==='TimeoutError'||e?.name==='AbortError'||/timed out|timeout/i.test(String(e?.message||'')))throw Error('Délai dépassé : le serveur Supabase ne répond pas. Réessaie après rétablissement du service.');throw Error('Serveur Supabase injoignable : '+String(e?.message||'erreur réseau'))}
+ if(!r.ok){let t=await r.text().catch(()=>''),endpoint=path.startsWith('/auth/v1/');if(endpoint&&r.status>=500)throw Error('Service de connexion Supabase indisponible (HTTP '+r.status+'). Les comptes ne sont pas en cause.');throw Error('Supabase HTTP '+r.status+' : '+t.slice(0,180))}
  if(r.status===204||r.status===205)return null;const body=await r.text();if(!body.trim())return null;try{return JSON.parse(body)}catch{throw Error('Réponse Supabase invalide (HTTP '+r.status+')')}
 }
 async function login(email,password){const d=await request('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});d.expires_at=Math.floor(Date.now()/1000)+d.expires_in;sessionStorage.setItem(key,JSON.stringify(d));clearStaffCache();return d}
@@ -54,5 +56,9 @@ async function review(session_id,pilot,decision){
 }
 async function submitTraining(item){if(!item?.id||!item?.driver)throw Error('Séance invalide');return request('/rest/v1/vce_training_submissions',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({session_id:String(item.id),pilot:String(item.driver),payload:item})})}
 async function trainingSubmissions(){return request('/rest/v1/vce_training_submissions?select=session_id,pilot,payload,submitted_at&order=submitted_at.desc',{},true)}
-window.VCESupabase={configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions};
+// New endpoints are deliberately read-only: no automatic writes or account migrations.
+const services=new Set(['vce-pilot-accounts','vce-roster-sync','vce-training','vce-team','vce-telemetry-history','vce-pilot-presence']);
+async function serviceRead(name){if(!services.has(name))throw Error('Service inconnu');return request('/functions/v1/'+name,{method:'GET'},true)}
+async function healthCheck(){return request('/functions/v1/vce-system-health',{method:'GET'})}
+window.VCESupabase={configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck};
 })();
