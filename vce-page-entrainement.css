@@ -152,5 +152,8 @@ body.vce-page-staff .panel{border-radius:11px}
 
 /* Animation des vignettes VCE */
 @keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) both;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) backwards;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
+
+/* Animation légèrement décalée entre les vignettes et survol doux */
+@media(prefers-reduced-motion:no-preference){:is(.selection-grid,.vce-race-track,.cards,.grid)>:nth-child(2){animation-delay:65ms}:is(.selection-grid,.vce-race-track,.cards,.grid)>:nth-child(3){animation-delay:110ms}:is(.selection-grid,.vce-race-track,.cards,.grid)>:nth-child(4){animation-delay:155ms}:is(.selection-grid,.vce-race-track,.cards,.grid)>:nth-child(n+5){animation-delay:190ms}.pilot-select .avatar{transition:transform .25s ease,box-shadow .25s ease}.pilot-select:hover .avatar{transform:scale(1.055)}}
