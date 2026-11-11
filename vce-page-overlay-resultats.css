@@ -1,0 +1,196 @@
+/* VCE overlay-resultats.html — styles consolidés; cascade historique inchangée. */
+
+/* 1. overlay-resultats.css */
+:root {
+  color-scheme: dark;
+  font-family: "Arial Black", Arial, sans-serif;
+  color: #f3f7ff;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; overflow: hidden; background: #070c16; }
+
+#stage {
+  --accent: #ff4965;
+  --accent-soft: #ff496527;
+  position: absolute;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  transform-origin: top left;
+  background: linear-gradient(115deg, #0c1627 0%, #08111f 60%, #111b2c 100%);
+}
+
+body[data-vce-overlay-theme="blue"] #stage {
+  --accent: #5dc8ff;
+  --accent-soft: #5dc8ff29;
+}
+
+#stage::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 45%;
+  background: repeating-linear-gradient(127deg, transparent 0 48px, #aac9f214 49px 50px);
+  mask-image: linear-gradient(90deg, transparent, #000);
+  pointer-events: none;
+}
+
+.vce-official-logo {
+  position: absolute;
+  z-index: 2;
+  left: 72px;
+  top: 40px;
+  width: 156px;
+  height: 82px;
+  object-fit: contain;
+}
+
+.shell {
+  position: absolute;
+  inset: 45px 72px 37px;
+  display: grid;
+  grid-template-rows: 218px minmax(0, 1fr) 44px;
+  gap: 25px;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 510px;
+  align-items: end;
+  gap: 36px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid #344c6b;
+}
+
+.brand, .subhead, .chip, .foot {
+  font: 800 18px/1.2 Arial, sans-serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.brand { padding-left: 180px; margin-bottom: 22px; }
+.brand b, .headline span, .chip { color: var(--accent); }
+.headline { font: italic 900 103px/.95 Arial, sans-serif; letter-spacing: -.065em; }
+.subhead { margin-top: 14px; color: #a9c0dc; }
+.meta {
+  align-self: end;
+  padding: 19px 23px;
+  border-left: 5px solid var(--accent);
+  background: #14243a;
+}
+.event { font: 900 29px/1.1 Arial, sans-serif; overflow-wrap: anywhere; }
+.date { margin-top: 9px; font: 700 21px/1.25 Arial, sans-serif; color: #b8cce4; }
+.chip { margin-top: 12px; font-size: 14px; }
+
+.board { display: grid; align-content: center; gap: 12px; min-height: 0; }
+.board.is-dense { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.result {
+  display: grid;
+  grid-template-columns: 115px 112px minmax(0, 1fr) minmax(100px, auto);
+  align-items: center;
+  min-width: 0;
+  min-height: 106px;
+  gap: 20px;
+  padding: 8px 22px 8px 0;
+  background: #111f33;
+  border: 1px solid #334962;
+  border-left: 5px solid #526984;
+}
+.result.is-first { border-left-color: var(--accent); background: linear-gradient(90deg, var(--accent-soft), #111f33 52%); }
+.rank { font: italic 900 46px/1 Arial, sans-serif; text-align: center; }
+.is-first .rank { color: var(--accent); }
+.portrait { height: 86px; display: grid; place-items: center; overflow: hidden; background: #1b304a; }
+.portrait img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; object-position: center bottom; }
+.initials { font-size: 27px; color: #a9c0dc; }
+.result-name { font: 900 30px/1.12 Arial, sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.result-detail, .result-car { color: #b1c6df; font: 700 19px/1.2 Arial, sans-serif; overflow-wrap: anywhere; }
+.result-detail:not(:empty) { margin-top: 5px; }
+.result-meta { text-align: right; max-width: 190px; }
+.result-score { margin-top: 5px; font: 800 23px/1.2 Arial, sans-serif; }
+.is-dense .result { grid-template-columns: 80px 82px minmax(0, 1fr) minmax(54px, auto); gap: 13px; }
+.is-dense .result-name { font-size: 24px; }
+.is-dense .result-detail, .is-dense .result-car { font-size: 16px; }
+.is-dense .result-meta { max-width: 125px; }
+
+.board.is-solo .result {
+  grid-template: minmax(0, 1fr) auto / 44% minmax(0, 1fr);
+  gap: 12px 55px;
+  height: 626px;
+  padding: 0 65px 30px 0;
+}
+.is-solo .portrait { grid-area: 1 / 1 / 3 / 2; height: 100%; background: linear-gradient(145deg, #2a4462, #111f33); }
+.is-solo .initials { font-size: 138px; }
+.is-solo .rank { grid-area: 1 / 2; align-self: end; text-align: left; font-size: 230px; }
+.is-solo .result-content { grid-area: 2 / 2; align-self: end; }
+.is-solo .result-name { font-size: 66px; }
+.is-solo .result-meta { grid-area: 2 / 2; justify-self: end; align-self: start; text-align: left; }
+.is-solo .result-content { padding-right: 205px; }
+
+.empty {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-height: 530px;
+  padding: 55px;
+  border: 1px solid #334962;
+  background: linear-gradient(135deg, #101d30, #0b1525);
+  text-align: center;
+}
+.empty-mark { width: 90px; padding-bottom: 10px; border-bottom: 3px solid var(--accent); font: 800 60px/1 Arial, sans-serif; color: var(--accent); }
+.empty-title { margin-top: 32px; font: 900 52px/1.1 Arial, sans-serif; }
+.empty-copy { margin-top: 12px; font: 400 24px/1.4 Arial, sans-serif; color: #b1c6df; }
+
+.foot { display: flex; justify-content: space-between; align-items: end; border-top: 1px solid #344c6b; color: #a9c0dc; }
+
+#board, #board .result { background-repeat: no-repeat; background-position: center; background-size: contain; }
+#board:has(.empty) { background-image: none !important; }
+
+
+/* 2. assets/css/vce-overlay-editor.css */
+/* VCE graphic overlay editor — only active with ?edit=1 */
+body.vce-graphic-editing .vce-editor-panel{position:fixed;right:13px;top:13px;bottom:13px;width:310px;overflow:auto;z-index:200000;background:#09182af4;color:#e9f5ff;border:1px solid #54789f;border-radius:14px;padding:17px;box-shadow:0 14px 48px #000a;font:13px/1.45 "Segoe UI",Arial,sans-serif;backdrop-filter:blur(12px)}
+.vce-editor-panel h2{font-size:19px!important;color:#fff;margin:0 0 7px!important}
+.vce-editor-panel .vce-editor-muted{font-size:11px;color:#a4c2e3;line-height:1.45;margin:4px 0 13px}
+.vce-editor-panel label{display:block;font-size:11px;font-weight:800;letter-spacing:.5px;color:#bad5ef;margin-top:12px}
+.vce-editor-panel select,.vce-editor-panel input{display:block;width:100%;margin-top:5px;padding:9px;background:#0f2a45;border:1px solid #436889;color:#fff;border-radius:7px;font:inherit}
+.vce-editor-panel input[type=range]{padding:0;accent-color:#f0466c}
+.vce-editor-panel .vce-editor-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}
+.vce-editor-panel button{padding:9px 11px;border:1px solid #4b7fac;border-radius:7px;color:#fff;background:#204b74;font:800 11px "Segoe UI",Arial,sans-serif;cursor:pointer}
+.vce-editor-panel button:hover{background:#30618a}
+.vce-editor-panel button[data-theme=red]{background:#9a2340;border-color:#f34b68}
+.vce-editor-panel button[data-theme=blue]{background:#174f87;border-color:#4cacef}
+.vce-editor-panel .vce-editor-status{margin-top:13px;white-space:pre-wrap;color:#9adebd;font-size:11px}
+body.vce-graphic-editing .vce-graphic-target{cursor:grab!important}
+body.vce-graphic-editing .vce-graphic-target[data-vce-selected=yes]{outline:3px dashed #83daff!important;outline-offset:6px;cursor:grabbing!important}
+body.vce-graphic-editing .stage,body.vce-graphic-editing #stage{user-select:none}
+[data-vce-overlay-theme=red] #stage,[data-vce-overlay-theme=red] .stage{background:linear-gradient(128deg,#260c20,#0f1a34 60%,#0b0c17)!important}
+[data-vce-overlay-theme=blue] #stage,[data-vce-overlay-theme=blue] .stage{background:linear-gradient(128deg,#08182b,#102e52 62%,#050d1a)!important}
+[data-vce-overlay-theme=red] .headline span,[data-vce-overlay-theme=red] .heading h1,[data-vce-overlay-theme=red] .rule{color:#ff526e!important}
+[data-vce-overlay-theme=blue] .headline span,[data-vce-overlay-theme=blue] .heading h1{color:#68c2ff!important}
+[data-vce-overlay-theme=red] .rule{background:#f14566!important}
+[data-vce-overlay-theme=blue] .rule{background:#398be0!important}
+@media(max-width:760px){body.vce-graphic-editing .vce-editor-panel{width:min(275px,78vw);top:8px;bottom:8px;right:8px;padding:11px}}
+
+/* Text editing controls, all overlays, no change to export dimensions. */
+body.vce-graphic-editing .vce-editor-panel textarea{display:block;width:100%;min-height:74px;resize:vertical;background:#0f2a45;border:1px solid #436889;color:#eef8ff;border-radius:7px;margin-top:6px;padding:9px;font:12px/1.45 "Segoe UI",Arial,sans-serif}
+body.vce-graphic-editing .vce-editor-panel label:has(textarea){margin-top:16px}
+body.vce-graphic-editing .vce-editor-panel button:focus-visible{outline:2px solid #7bd0ff;outline-offset:3px}
+
+/* Overlay background studio — standalone controls, no export dimensions changed. */
+body.vce-graphic-editing .vce-editor-background{margin:15px 0;padding:13px 12px 15px;background:#071321;border:1px solid #3e6488;border-left:3px solid #ff4969;border-radius:10px}
+body.vce-graphic-editing .vce-editor-background h3{font-size:13px!important;letter-spacing:1.4px;color:#fff;margin:0 0 7px!important}
+body.vce-graphic-editing .vce-editor-background label{margin-top:10px}
+body.vce-graphic-editing .vce-editor-background input[type=file]{font-size:11px}
+body.vce-graphic-editing .vce-editor-background output{float:right;font-variant-numeric:tabular-nums;color:#82caff}
+body[data-vce-bg-mode=image].vce-overlay-calendar #stage .photo{display:none!important}
+body[data-vce-bg-mode=image].vce-overlay-calendar #stage .veil{background:transparent!important}
+body[data-vce-bg-mode=preset].vce-overlay-calendar #stage .photo{display:none!important}
+body[data-vce-bg-mode=preset].vce-overlay-calendar #stage .veil{background:transparent!important}
+body[data-vce-bg-mode=image] #stage:before,body[data-vce-bg-mode=image] #stage:after,
+body[data-vce-bg-mode=image] .stage:before,body[data-vce-bg-mode=image] .stage:after{opacity:.16!important}
+
+/* Animation des vignettes VCE */
+@keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) both;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
