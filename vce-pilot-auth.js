@@ -54,11 +54,12 @@ function mount(){
  '<label>Nouveau mot de passe (12 caractères minimum)<input type="password" id="vce-pilot-new" minlength="12" autocomplete="new-password" required></label>'+
  '<label>Confirmer le mot de passe<input type="password" id="vce-pilot-confirm" minlength="12" autocomplete="new-password" required></label>'+
  '<button type="submit">VALIDER MON NOUVEAU MOT DE PASSE</button></form>'+
- '<div class="vce-login-actions"><button type="button" id="vce-pilot-reconnect" hidden>Déconnecter ce compte</button>'+
+ '<div class="vce-login-actions"><button type="button" id="vce-pilot-retry" hidden>Réessayer ma session</button><button type="button" id="vce-pilot-reconnect" hidden>Déconnecter ce compte</button>'+
  '<a href="pilote.html" id="vce-pilot-auth-back">← Retour à la liste des pilotes</a></div></section>';
  document.body.append(card);
  $('vce-pilot-login-form').addEventListener('submit',signIn);
  $('vce-pilot-change-form').addEventListener('submit',changePassword);
+ $('vce-pilot-retry').onclick=()=>route();
  $('vce-pilot-reconnect').onclick=()=>{window.VCESupabase?.logout();state.identity=null;showForm('Compte déconnecté. Connecte-toi avec les identifiants de ce pilote.')};
 }
 function show(message=''){
@@ -71,6 +72,7 @@ function showForm(message=''){
  show(message||'Saisis le code provisoire fourni par le STAFF ou ton mot de passe personnel.');
  $('vce-pilot-login-form').hidden=false;$('vce-pilot-change-form').hidden=true;
  $('vce-pilot-reconnect').hidden=!window.VCESupabase?.session();
+ $('vce-pilot-retry').hidden=!window.VCESupabase?.session();
 }
 function showChange(){
  show('Pour protéger ta télémétrie, choisis un mot de passe personnel à la première connexion.');
@@ -91,9 +93,11 @@ async function route(){
  showForm('Saisis ton code ou ton mot de passe. Vérification du profil en arrière-plan…');
  const accessPromise=accountStatus(id).then(value=>({value}),error=>({error}));
  try{
-  const session=await window.VCESupabase?.validSession().catch(err=>{if(err?.message)showForm('Connexion au serveur perturbée : '+err.message);return null});
+  let sessionError=null;
+  const session=await window.VCESupabase?.validSession().catch(err=>{sessionError=err;return null});
   if(request!==state.seq)return;
   if(!session?.access_token){
+   if(sessionError){showForm('Connexion au serveur perturbée : '+sessionError.message+' Tu peux réessayer ta session sans mot de passe dès que Supabase répond.');return}
    accessPromise.then(result=>{
     if(request!==state.seq||state.verified)return;
     if(result.value?.listed===false)showForm('Ce pilote ne figure plus dans l’effectif actif. Contacte le STAFF.');
