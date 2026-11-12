@@ -100,8 +100,8 @@ function detectPhase(text){
 }
 function detectIssue(text){
  const n=N(text);
- if(/\b(?:sous vir|sousvir|understeer|tire tout droit|ne tourne pas|train avant glisse|avant glisse|avant qui glisse|elargit|pousse de l avant)\b/.test(n))return 'front';
- if(/\b(?:survir|oversteer|arriere decroch|arriere chasse|arriere glisse|perds l arriere|perte du train arriere|part en tete a queue|tete a queue)\b/.test(n))return 'rear';
+ if(/\b(?:sous[ -]?vir\w*|understeer|tire tout droit|ne tourne pas|train avant gliss\w*|avant gliss\w*|avant qui gliss\w*|elargi\w*|pousse de l avant)\b/.test(n))return 'front';
+ if(/\b(?:survir\w*|oversteer|arriere decroch\w*|arriere chass\w*|arriere gliss\w*|perds l arriere|perte du train arriere|part en tete a queue|tete a queue)\b/.test(n))return 'rear';
  if(/\b(?:bloqu|lockup|roues bloquees|abs en permanence)\b/.test(n))return 'lock';
  if(/\b(?:patin|motricite|traction|trop de gaz|reacceleration)\b/.test(n))return 'traction';
  if(/\b(?:vibreur|kerb|bordure|bosse|saute)\b/.test(n))return 'curb';
