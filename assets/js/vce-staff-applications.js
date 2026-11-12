@@ -121,6 +121,7 @@ function section(){
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
  setInterval(()=>{if(!document.hidden)refresh()},30000);
  showByRoute();
+ if(currentStaff())refresh();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',section,{once:true});else section();
 })();
