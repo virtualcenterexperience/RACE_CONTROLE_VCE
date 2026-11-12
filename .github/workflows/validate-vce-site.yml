@@ -45,5 +45,7 @@ jobs:
         run: node tools/test-auth-headers.mjs
       - name: Verify Supabase session refresh behavior during outage
         run: node tools/test-auth-refresh.mjs
+      - name: Verify next-day login persistence and auth outage recovery
+        run: node tools/test-auth-continuity.mjs
       - name: Verify contextual GT3 coaching for Monza
         run: node tools/test-coach-engine.mjs
