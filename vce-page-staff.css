@@ -374,3 +374,38 @@ body.vce-page-staff .panel{border-radius:11px}
 @keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) backwards;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
+
+/* VCE STAFF — candidature notification inbox */
+.rc-navlink[data-unread="true"]{border-left:3px solid #ff345b!important;color:#fff!important}
+.vce-app-navbadge{display:inline-flex;min-width:23px;height:22px;align-items:center;justify-content:center;border-radius:99px;background:#e62950;color:white;font-weight:900;font-size:12px;margin-left:auto;box-shadow:0 0 0 2px #e6295040}
+.vce-app-navbadge[hidden],.vce-app-panel[hidden]{display:none!important}
+.vce-app-panel{margin:8px 0 26px;padding:clamp(18px,2.6vw,31px);border:1px solid #3c6386;border-radius:14px;background:linear-gradient(145deg,#101e32,#071526);color:#e9f2ff}
+.vce-app-header{display:flex;justify-content:space-between;gap:22px;align-items:center;flex-wrap:wrap}
+.vce-app-eyebrow{font-size:11px;color:#8cbee9;font-weight:900;letter-spacing:.17em}
+.vce-app-header h2{font-size:clamp(23px,2.3vw,32px);letter-spacing:-.02em;margin:9px 0}
+.vce-app-header p{font-size:13px;color:#b5cce5;line-height:1.5;max-width:700px}
+.vce-app-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.vce-app-button{display:inline-block;padding:11px 13px;background:#152d47;color:#ecf5ff;border:1px solid #41688b;border-radius:9px;font-size:11px;font-weight:850;text-decoration:none;cursor:pointer}
+.vce-app-button:hover{background:#20476c}
+.vce-app-primary{background:#d8294f;border-color:#fb5876;color:white}
+.vce-app-primary:hover{background:#ef3860}
+.vce-app-button:disabled{opacity:.5;cursor:wait}
+.vce-app-callout{font-size:clamp(17px,1.45vw,23px);font-weight:800;color:#fff;padding:17px 19px;border-left:4px solid #ff3159;margin:24px 0;background:#401a2c;border-radius:5px}
+.vce-app-status{font-size:12px;color:#a4c6e4;margin:15px 0}
+.vce-app-list{display:grid;gap:12px;margin:15px 0}
+.vce-app-item{display:flex;gap:14px;align-items:flex-start;border:1px solid #35516d;background:#0c1d2f;border-radius:10px;padding:16px}
+.vce-app-item.is-new{border-color:#ef4163;background:#2a1c32}
+.vce-app-alert{font-size:23px;font-weight:950;color:#ff5472;width:38px;height:38px;display:grid;place-items:center;border:1px solid #ff547280;border-radius:10px;flex-shrink:0}
+.vce-app-text{display:grid;gap:7px;min-width:0}.vce-app-text b{font-size:14px;line-height:1.45}.vce-app-text small{font-size:11px;color:#a1c3e0}
+.vce-app-empty{padding:18px;border:1px dashed #3d5972;border-radius:9px;color:#a9c2df}
+.vce-app-setup{margin-top:22px;border:1px solid #334f6d;border-radius:10px;padding:16px;background:#09182b}
+.vce-app-setup>summary{cursor:pointer;font-weight:850;color:#9cd0ff;font-size:12px;letter-spacing:.08em}
+.vce-app-setup p,.vce-app-setup li{color:#c0d1e5;font-size:12px;line-height:1.7;margin-block:10px}
+.vce-app-setup ol{padding-left:20px}.vce-app-setup .vce-app-button{margin:7px 7px 7px 0}
+.vce-app-secret{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.vce-app-secret[hidden]{display:none!important}
+.vce-app-secret input{flex:1;min-width:min(100%,250px);padding:11px;border:1px solid #406486;border-radius:7px;background:#08192a;color:#d3ebff;max-width:660px}
+.vce-app-toast{position:fixed;z-index:99999;right:22px;bottom:25px;max-width:min(450px,calc(100vw - 44px));border:1px solid #ff5b78;border-left:5px solid #f43a60;border-radius:12px;background:#231729;padding:17px 21px;color:#fff;box-shadow:0 18px 50px #0009;font-size:15px;font-weight:850;animation:vce-app-toast-in .28s ease-out}
+@keyframes vce-app-toast-in{from{transform:translateY(14px);opacity:.25}to{transform:translateY(0);opacity:1}}
+@media(max-width:650px){.vce-app-header{align-items:flex-start}.vce-app-actions{width:100%}.vce-app-actions>*{flex:1}.vce-app-panel{padding:15px}}
+@media(prefers-reduced-motion:reduce){.vce-app-toast{animation:none}}
