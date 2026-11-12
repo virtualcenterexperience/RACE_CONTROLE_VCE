@@ -409,3 +409,7 @@ body.vce-page-staff .panel{border-radius:11px}
 @keyframes vce-app-toast-in{from{transform:translateY(14px);opacity:.25}to{transform:translateY(0);opacity:1}}
 @media(max-width:650px){.vce-app-header{align-items:flex-start}.vce-app-actions{width:100%}.vce-app-actions>*{flex:1}.vce-app-panel{padding:15px}}
 @media(prefers-reduced-motion:reduce){.vce-app-toast{animation:none}}
+
+/* Staff -> pilot dashboard: staff JWT is checked again by vce-pilot-auth.js. */
+.vce-roster-profile{display:inline-flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid #3e89bb;background:#102d45;color:#addefa;padding:10px 12px;font-size:11px;letter-spacing:.03em;font-weight:900;text-decoration:none;white-space:nowrap}
+.vce-roster-profile:hover,.vce-roster-profile:focus-visible{background:#1c537b;color:#fff;outline-color:#8acffc}
