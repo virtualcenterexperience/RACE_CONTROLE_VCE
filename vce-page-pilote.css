@@ -495,3 +495,8 @@ body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-selec
 /* Connexion pilote — option privée sur appareil personnel uniquement */
 #vce-pilot-auth-gate .vce-remember-pilot{display:flex;align-items:center;gap:10px;font-size:12px;line-height:1.5;color:#b7cde5;cursor:pointer;margin:8px 0 12px}
 #vce-pilot-auth-gate .vce-remember-pilot input[type=checkbox]{display:inline-block;width:18px;height:18px;min-width:18px;margin:0;accent-color:#e83253;flex-shrink:0;padding:0}
+
+/* Réessai protégé après panne Supabase Auth. */
+#vce-pilot-retry{border:1px solid #477fa8;background:#1c4a6d;color:#e6f4ff;font-size:12px;font-weight:850;border-radius:7px;padding:11px 12px}
+#vce-pilot-retry:hover{background:#29658d}
+#vce-pilot-retry[hidden]{display:none!important}
