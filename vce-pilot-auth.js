@@ -48,6 +48,7 @@ function mount(){
  '<p id="vce-pilot-auth-name"></p><p id="vce-pilot-auth-message" role="status" aria-live="polite"></p>'+
  '<form id="vce-pilot-login-form"><label>Identifiant<input readonly autocomplete="username" value="virtualcenterexperience"></label>'+
  '<label>Mot de passe personnel ou code provisoire<input id="vce-pilot-secret" type="password" autocomplete="current-password" required></label>'+
+ '<label class="vce-remember-pilot"><input id="vce-pilot-remember" type="checkbox"> Rester connecté (ordinateur personnel uniquement)</label>'+
  '<button type="submit">ACCÉDER À MON PROFIL</button></form>'+
  '<form id="vce-pilot-change-form" hidden><p>Première connexion : remplace le code provisoire par un mot de passe personnel.</p>'+
  '<label>Nouveau mot de passe (12 caractères minimum)<input type="password" id="vce-pilot-new" minlength="12" autocomplete="new-password" required></label>'+
@@ -90,7 +91,7 @@ async function route(){
  showForm('Saisis ton code ou ton mot de passe. Vérification du profil en arrière-plan…');
  const accessPromise=accountStatus(id).then(value=>({value}),error=>({error}));
  try{
-  const session=await window.VCESupabase?.validSession().catch(()=>null);
+  const session=await window.VCESupabase?.validSession().catch(err=>{if(err?.message)showForm('Connexion au serveur perturbée : '+err.message);return null});
   if(request!==state.seq)return;
   if(!session?.access_token){
    accessPromise.then(result=>{
@@ -137,7 +138,7 @@ async function signIn(e){
  show('Vérification des identifiants…');
  try{
   if(!id)throw Error('Sélectionne ton profil pilote.');
-  await window.VCESupabase.login(internalEmail(id),secret);
+  await window.VCESupabase.login(internalEmail(id),secret,{remember:$('vce-pilot-remember')?.checked===true});
   input.value='';
   await route();
  }catch(err){showForm('Connexion impossible : '+err.message)}
