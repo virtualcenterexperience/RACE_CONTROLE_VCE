@@ -422,3 +422,8 @@ body.vce-page-staff .panel{border-radius:11px}
 #gate form#login{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 #gate .vce-remember-login{display:flex;align-items:center;gap:10px;flex-basis:100%;font-size:12px;color:#b8d3e9;line-height:1.4;cursor:pointer;margin:4px 0 2px}
 #gate .vce-remember-login input[type=checkbox]{display:inline-block;width:18px;height:18px;min-width:18px;padding:0;accent-color:#e83253;flex-shrink:0}
+
+/* Retenter l'identité Staff avec le JWT existant, sans mot de passe. */
+#vce-staff-retry{margin:10px 0 4px;border:1px solid #497b9d;border-radius:8px;background:#153750;color:#cfebff;font-size:12px;font-weight:900;padding:12px 17px}
+#vce-staff-retry:hover{background:#205170}
+#vce-staff-retry[hidden]{display:none!important}
