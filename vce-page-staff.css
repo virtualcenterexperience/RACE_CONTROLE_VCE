@@ -417,3 +417,8 @@ body.vce-page-staff .panel{border-radius:11px}
 /* Staff candidature panel uses its own route, rather than stacking over overview widgets. */
 #dashboard.rc-applications-selected .rc-content > :not(#vceApplicationsPanel){display:none!important}
 #dashboard.rc-applications-selected .rc-content > #vceApplicationsPanel{display:block!important}
+
+/* Connexion VCE — session persistante uniquement sur demande explicite */
+#gate form#login{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#gate .vce-remember-login{display:flex;align-items:center;gap:10px;flex-basis:100%;font-size:12px;color:#b8d3e9;line-height:1.4;cursor:pointer;margin:4px 0 2px}
+#gate .vce-remember-login input[type=checkbox]{display:inline-block;width:18px;height:18px;min-width:18px;padding:0;accent-color:#e83253;flex-shrink:0}
