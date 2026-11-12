@@ -214,3 +214,54 @@ body.vce-page-staff .panel{border-radius:11px}
 @keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) backwards;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
+
+/* 2026-11-12 — Sans coach : catalogue d'exercices, photos triées et filtres */
+body.vce-page-exercises{min-height:100vh;background:radial-gradient(ellipse at 100% 0%,#1b3453,transparent 60%),#08111f;color:#edf5ff}
+body.vce-page-exercises main{max-width:1510px;margin:0 auto;padding:24px clamp(18px,3.5vw,52px) 80px}
+body.vce-page-exercises .vce-exercises-header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin:30px 0;flex-wrap:wrap}
+body.vce-page-exercises .vce-exercises-header h1{font-size:clamp(35px,4.4vw,70px);letter-spacing:-.05em;line-height:1.07}
+body.vce-page-exercises .vce-exercises-header h1 em{font-style:normal;color:#ff3d62}
+body.vce-page-exercises .vce-exercises-header p{max-width:730px;font-size:15px;color:#b6cce4}
+body.vce-page-exercises .vce-back{color:#d8ebff;padding:13px 16px;border:1px solid #486587;border-radius:8px;font-size:12px;font-weight:850}
+body.vce-page-exercises .vce-back:hover{background:#19344c}
+body.vce-page-exercises .vce-catalogue-panel{padding:clamp(16px,2.5vw,30px);background:linear-gradient(150deg,#14253d,#0a1829);border-color:#405b7a}
+body.vce-page-exercises .vce-catalogue-top{margin-bottom:17px}
+body.vce-page-exercises .vce-catalogue-top h2{font-size:clamp(25px,2.5vw,36px);margin:5px 0}
+body.vce-page-exercises .vce-catalogue-top .stat{display:block;font-size:41px;color:#60b7fb}
+body.vce-page-exercises .vce-count{text-align:right;min-width:130px}
+body.vce-page-exercises .vce-catalogue-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:18px 0}
+body.vce-page-exercises .vce-catalogue-filters label{font-size:11px;letter-spacing:.045em}
+body.vce-page-exercises .vce-catalogue-filters select{height:49px;margin-top:7px;font-size:13px;border-color:#46698d;background:#0a1a2c}
+body.vce-page-exercises #levels{margin:22px 0 15px}
+body.vce-page-exercises #levels button{min-width:130px}
+body.vce-page-exercises #levels button[data-level="PERFORMANCE"]{color:#b9e3ff;border-color:#3975ae;background:#132c45}
+body.vce-page-exercises #levels button[data-level="PERFORMANCE"].active{background:#246da9;border-color:#80c9ff;color:#fff}
+body.vce-page-exercises #levels button[data-level="ESPORT_PRO"]{color:#ebc5ff;border-color:#8850ab;background:#33213e}
+body.vce-page-exercises #levels button[data-level="ESPORT_PRO"].active{background:#713c90;border-color:#e5abff;color:#fff}
+body.vce-page-exercises #cards .card[data-level="PERFORMANCE"],body.vce-page-exercises #modalBody[data-level="PERFORMANCE"]{--level-color:var(--vce-academy);--level-bg:#142f4a;--level-button:#2676b1;--level-tag:#d5eeff}
+body.vce-page-exercises #cards .card[data-level="ESPORT_PRO"],body.vce-page-exercises #modalBody[data-level="ESPORT_PRO"]{--level-color:var(--vce-esport);--level-bg:#2b1f3e;--level-button:#7643a0;--level-tag:#f2ddff}
+body.vce-page-exercises .vce-search-label{display:block;margin:18px 0 12px}
+body.vce-page-exercises #search{max-width:750px;margin-top:7px;height:52px}
+body.vce-page-exercises .vce-exercise-context{border:1px solid #426381;border-radius:11px;background:#0b1d32;padding:15px;margin:20px 0}
+body.vce-page-exercises .vce-exercise-context summary{color:#badfff;font-weight:850;cursor:pointer}
+body.vce-page-exercises .vce-exercise-context .formgrid{margin:18px 0}
+body.vce-page-exercises .vce-catalogue-result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:24px}
+body.vce-page-exercises #cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+body.vce-page-exercises #cards .card{padding:0 0 17px;min-height:410px;border-radius:13px;overflow:hidden;background:#0b1829;box-shadow:0 14px 26px #0004}
+body.vce-page-exercises #cards .card h3{font-size:19px;margin:0 18px;line-height:1.24}
+body.vce-page-exercises #cards .card>p{margin:0 18px;flex:1;color:#b9d3e7;font-size:13px}
+body.vce-page-exercises #cards .card-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 18px 0;flex-wrap:wrap}
+body.vce-page-exercises #cards .card-meta small{font-size:10px;color:#92b8db}
+body.vce-page-exercises #cards .card-footer{display:flex;flex-direction:column;gap:12px;margin:7px 18px 0}
+body.vce-page-exercises #cards .card-footer small{font-size:11px;color:#9bb8d1}
+body.vce-page-exercises #cards .card-footer button{margin:0;padding:13px;font-size:12px;letter-spacing:.07em}
+body.vce-page-exercises #cards .exercise-photo{height:207px;object-fit:cover;border:0;border-radius:0;margin:0 0 13px;filter:saturate(.95);transition:transform .3s ease}
+body.vce-page-exercises #cards .card:hover .exercise-photo{transform:scale(1.035)}
+body.vce-page-exercises .vce-pagination{margin:27px 0 10px}
+body.vce-page-exercises .dialog{width:min(920px,100%)}
+body.vce-page-exercises .dialog #modalBody .exercise-photo.large{height:min(290px,35vh);border-radius:10px}
+body.vce-page-exercises .dialog #modalBody h2{font-size:clamp(24px,2.4vw,32px)}
+body.vce-page-exercises .dialog #modalBody p{line-height:1.6;font-size:14px}
+@media(max-width:1100px){body.vce-page-exercises .vce-catalogue-filters{grid-template-columns:repeat(2,minmax(0,1fr))}body.vce-page-exercises #cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:660px){body.vce-page-exercises .vce-catalogue-filters{grid-template-columns:1fr}body.vce-page-exercises #cards{grid-template-columns:1fr}body.vce-page-exercises #cards .card{min-height:0}body.vce-page-exercises #levels button{min-width:0}body.vce-page-exercises .vce-catalogue-result-head{display:block}body.vce-page-exercises .vce-count{text-align:left}body.vce-page-exercises .vce-gallery img{height:115px}}
+@media(prefers-reduced-motion:reduce){body.vce-page-exercises #cards .exercise-photo{transition:none}}
