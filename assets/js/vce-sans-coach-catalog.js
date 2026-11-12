@@ -61,7 +61,7 @@ function normalizeStructured(r,source){
  x.group=categorize(x);return x;
 }
 function normalizeComplementary(r){
- const x={...r,id:r.id,level:'ROOKIE',source:'complementary',sourceLabel:'Bibliothèque VCE',title:r.probleme||'Technique',module:r.contexte||'Général',carClass:r.contexte||'Général',duration:null,validation:'À valider selon le programme défini par le Staff',preparation:'Choisis un circuit, une voiture et des conditions reproductibles.',notes:r.verification||''};
+ const x={...r,id:r.id,level:'ROOKIE',source:'complementary',sourceLabel:'Bibliothèque VCE',title:r.probleme||'Technique',module:r.contexte||'Général',carClass:r.contexte||'Général',duration:null,validation:'À valider selon le programme défini par le Staff',preparation:'Choisis un circuit, une voiture et des conditions reproductibles.',notes:r.verification||'',procedure:[]};
  const t=normalize([r.probleme,r.exercice,r.solution].join(' '));
  x.level=/depassement|defense|attaque|qualification|trail.brak|survirage|sous.virage|telemetrie|contre.braquage|freinage degressif/.test(t)?'ESPORT_PRO':/regularit|rythme|freinage|trajectoire|motricite|vibreur|acceler/.test(t)?'PERFORMANCE':'ROOKIE';
  x.group=categorize(x);return x;
@@ -100,7 +100,7 @@ function modal(x){
  const cx=setupContext();
  $('modalBody').dataset.level=x.level;
  $('modalBody').innerHTML='<span class="tag">'+(x.level==='ESPORT_PRO'?'ESPORT PRO':esc(x.level))+'</span><h2>'+esc(x.title)+'</h2>'+photo(x,true)+'<p><b>Compétence :</b> '+esc(imageLabel[x.group])+' · '+esc(x.carClass)+'</p><p><b>Objectif :</b> '+esc(x.solution||'Réaliser la technique proprement et de façon reproductible.')+'</p><p><b>Consignes :</b> '+esc(x.exercice)+'</p>'+(x.duration?'<p><b>Volume conseillé :</b> '+esc(x.duration)+' passages / tours (à adapter)</p>':'')+'<p><b>Validation :</b> '+esc(x.validation)+'</p>'+(x.variable_a_analyser?'<p><b>Mesures :</b> '+esc(x.variable_a_analyser)+'</p>':'')+(x.notes?'<p><b>Précautions :</b> '+esc(x.notes)+'</p>':'')+'<div class="notice"><b>Contexte sélectionné :</b> '+esc(Object.values(cx).filter(Boolean).join(' · '))+'<p>Exercice autonome : aucune attribution de points automatique. Toute validation officielle dépend du Staff.</p></div>';
- if(x.procedure.length){let list=document.createElement('ol');for(const step of x.procedure){const li=document.createElement('li');li.textContent=step;list.append(li)}$('modalBody').append(list)}
+ if(Array.isArray(x.procedure)&&x.procedure.length){let list=document.createElement('ol');for(const step of x.procedure){const li=document.createElement('li');li.textContent=step;list.append(li)}$('modalBody').append(list)}
  $('modal').classList.remove('hidden');$('modal').setAttribute('aria-hidden','false');
 }
 function selectedCorner(){
