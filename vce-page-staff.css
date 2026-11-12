@@ -413,3 +413,7 @@ body.vce-page-staff .panel{border-radius:11px}
 /* Staff -> pilot dashboard: staff JWT is checked again by vce-pilot-auth.js. */
 .vce-roster-profile{display:inline-flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid #3e89bb;background:#102d45;color:#addefa;padding:10px 12px;font-size:11px;letter-spacing:.03em;font-weight:900;text-decoration:none;white-space:nowrap}
 .vce-roster-profile:hover,.vce-roster-profile:focus-visible{background:#1c537b;color:#fff;outline-color:#8acffc}
+
+/* Staff candidature panel uses its own route, rather than stacking over overview widgets. */
+#dashboard.rc-applications-selected .rc-content > :not(#vceApplicationsPanel){display:none!important}
+#dashboard.rc-applications-selected .rc-content > #vceApplicationsPanel{display:block!important}
