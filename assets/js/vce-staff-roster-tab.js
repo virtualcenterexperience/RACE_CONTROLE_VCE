@@ -65,6 +65,12 @@ function render(){
    restore.addEventListener('click',()=>reactivate(p));
    actions.append(restore)
   }
+  // Staff may open the real pilot dashboard under their existing verified
+  // Supabase session. No pilot password and no impersonation token is used.
+  const openProfile=element('a','vce-roster-profile','OUVRIR LE PROFIL');
+  openProfile.href='pilote.html#'+encodeURIComponent(p.id);
+  openProfile.setAttribute('aria-label','Consulter le tableau de bord de '+p.name);
+  actions.append(openProfile);
   const remove=element('button','vce-roster-danger','Retirer');
   remove.type='button';remove.disabled=busy;
   remove.setAttribute('aria-label','Retirer '+p.name);
