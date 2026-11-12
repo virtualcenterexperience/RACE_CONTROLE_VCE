@@ -60,7 +60,14 @@ async function validSession(){
   if(latest?.refresh_token&&latest.refresh_token!==d.refresh_token)return latest;
   saveSession(next,keep);return next;
  })().finally(()=>{refreshPromise=null});
- return refreshPromise;
+ try{return await refreshPromise}
+ catch(error){
+  // An access JWT remains usable until its real expiry even if its refresh
+  // endpoint is temporarily down. Server-side JWT and RLS still authorize it.
+  if(d.expires_at&&d.expires_at*1000>Date.now()+5000&&
+     /momentanément indisponible|Renouvellement de session indisponible|Réponse de renouvellement Supabase incomplète/.test(String(error?.message||'')))return d;
+  throw error;
+ }
 }
 async function request(path,opts={},auth=false){
  if(!configured())throw Error('Configurer vce-supabase-config.js');
