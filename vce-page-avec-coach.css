@@ -163,3 +163,48 @@ body.vce-page-staff .panel{border-radius:11px}
 @keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) backwards;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
+
+/* Driver Academy v2 — contextual, phase-by-phase analysis */
+body.vce-page-coach main.wrap{max-width:1460px!important;margin-inline:auto;padding:25px clamp(17px,3vw,48px) 65px}
+body.vce-page-coach .vce-coach-conversation{max-width:none;margin:26px 0;border-radius:15px;padding:clamp(18px,2.8vw,32px);border:1px solid #3d6285;background:linear-gradient(140deg,#162a46,#0a1b2f)}
+body.vce-page-coach .vce-coach-conversation>h2{font-size:clamp(26px,3vw,43px);margin:9px 0 8px;line-height:1.15;letter-spacing:-.035em}
+body.vce-page-coach .vce-coach-eyebrow{color:#fc4a71;font-size:11px;font-weight:900;letter-spacing:.17em}
+body.vce-page-coach .vce-coach-conversation>p{font-size:14px;max-width:850px;line-height:1.6}
+body.vce-page-coach .vce-coach-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:25px 0 17px}
+body.vce-page-coach .vce-coach-form label{font-size:11px;font-weight:850;color:#b7d9f5;display:flex;flex-direction:column;gap:7px}
+body.vce-page-coach .vce-coach-form :is(input,select,textarea){display:block;width:100%;height:48px;border:1px solid #456e91;border-radius:8px;padding:10px 12px;background:#091c2e;color:#fff;font:13px system-ui;min-width:0}
+body.vce-page-coach .vce-coach-form label:has(textarea){grid-column:1/-1}
+body.vce-page-coach .vce-coach-form textarea{height:auto;min-height:108px;grid-column:auto;resize:vertical}
+body.vce-page-coach .vce-coach-form .vce-coach-submit{grid-column:1/-1;border-radius:8px;padding:17px;background:#de294d;color:white;border:1px solid #ff4f6d;font-weight:900;font-size:13px}
+body.vce-page-coach .vce-coach-quick{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:13px 0}
+body.vce-page-coach .vce-coach-quick>span{font-size:11px;font-weight:900;color:#81bbe6}
+body.vce-page-coach .vce-coach-chip{border:1px solid #395f81;background:#102a44;color:#cceaff;font-size:11px;border-radius:7px;padding:9px 12px;cursor:pointer}
+body.vce-page-coach .vce-coach-status{font-size:12px;color:#a9cae5;margin:15px 0}
+body.vce-page-coach .vce-coach-replies{display:grid;gap:19px;margin:25px 0}
+body.vce-page-coach .vce-coach-overview,body.vce-page-coach .vce-coach-evidence,body.vce-page-coach .vce-coach-follow{padding:23px;border:1px solid #406486;background:#0d2238;border-radius:12px}
+body.vce-page-coach .vce-coach-overview>small{color:#65c5ff;font-weight:900;font-size:10px;letter-spacing:.12em}
+body.vce-page-coach .vce-coach-overview>h3{font-size:clamp(22px,2.5vw,30px);margin:10px 0}
+body.vce-page-coach .vce-coach-tags{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+body.vce-page-coach .vce-coach-tags span{border:1px solid #3f739c;background:#102b46;color:#d1eaff;font-size:11px;padding:7px 10px;border-radius:30px}
+body.vce-page-coach .vce-coach-profile{border-top:1px solid #315677;margin-top:19px;padding-top:15px}
+body.vce-page-coach .vce-coach-profile h4{font-size:13px;color:#9ddcff}
+body.vce-page-coach .vce-coach-profile p{color:#c0d5ea}
+body.vce-page-coach .vce-coach-section-head h3{font-size:clamp(19px,2vw,29px);margin:0 0 6px}
+body.vce-page-coach .vce-coach-phase-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+body.vce-page-coach .vce-coach-phase-card{background:#0e2136;border:1px solid #3b5e7d;border-top:3px solid #3f91d6;border-radius:12px;padding:20px}
+body.vce-page-coach .vce-coach-phase-card.is-selected{border-top-color:#ff3c62;background:#1a2138}
+body.vce-page-coach .vce-coach-phase-title{font-size:14px;color:#ecf5ff;font-weight:900;letter-spacing:.06em;margin-bottom:13px}
+body.vce-page-coach .vce-coach-detail{padding:13px 0;border-bottom:1px solid #274561}
+body.vce-page-coach .vce-coach-detail:last-child{border:0}
+body.vce-page-coach .vce-coach-detail-label{display:block;color:#68b9ef;font-size:10px;letter-spacing:.12em;font-weight:900}
+body.vce-page-coach .vce-coach-detail p{margin:7px 0;color:#c4d6e9;font-size:12px;line-height:1.6}
+body.vce-page-coach .vce-coach-bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+body.vce-page-coach .vce-coach-bottom-grid h3{font-size:19px;margin:0 0 13px}
+body.vce-page-coach .vce-coach-reference{margin-top:18px;padding-top:10px;border-top:1px solid #335575}
+body.vce-page-coach .vce-coach-source{padding:12px;margin:10px 0;border:1px solid #345777;border-radius:8px}
+body.vce-page-coach .vce-coach-source b{color:#9ad6ff}
+body.vce-page-coach .vce-coach-follow p{font-size:13px;line-height:1.6}
+body.vce-page-coach .vce-coach-tip{color:#97bcd8;border-top:1px solid #2d516c;padding-top:12px}
+body.vce-page-coach .vce-coach-debrief{background:#d42d51;color:#fff;border:1px solid #fa5371;padding:13px 18px;font-weight:900;border-radius:8px;cursor:pointer}
+@media(max-width:960px){body.vce-page-coach .vce-coach-phase-grid{grid-template-columns:1fr}body.vce-page-coach .vce-coach-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){body.vce-page-coach .vce-coach-bottom-grid{grid-template-columns:1fr}body.vce-page-coach .vce-coach-form{grid-template-columns:1fr}body.vce-page-coach .vce-coach-phase-card{padding:15px}}
