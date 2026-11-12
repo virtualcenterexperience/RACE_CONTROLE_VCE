@@ -91,12 +91,30 @@ async function approvedTrainingData(){
   }))};
  }catch(e){console.warn('Validations STAFF non disponibles',e);return {seances:[],error:e.message}}
 }
+/* Page-scoped data cache: heavy static resources are shared by the current
+ * verified dashboard only; nothing is copied into a public per-pilot JSON.
+ * Invalid/outage results are retried, not cached forever.
+ */
+const __vcePageCache=new Map();
+async function __vceCached(name,ttl,load){
+ const now=Date.now(),hit=__vcePageCache.get(name);
+ if(hit&&hit.until>now)return hit.promise;
+ const promise=Promise.resolve().then(load);
+ __vcePageCache.set(name,{promise,until:now+ttl});
+ try{return await promise}
+ catch(e){if(__vcePageCache.get(name)?.promise===promise)__vcePageCache.delete(name);throw e}
+}
+window.addEventListener('vce-training-updated',()=>__vcePageCache.clear());
+window.addEventListener('vce-team-updated',()=>__vcePageCache.clear());
 async function render(){
  let d={},remote=false;
  // Independent datasets run together instead of forming a 4–5 request waterfall.
  const [shared, , cfg, approvedData, publishedResults]=await Promise.all([
-  VCE.read().then(value=>({value}),error=>({error})),
-  VCE.loadCircuits(),Rating.config(),approvedTrainingData(),publishedRaceEntries()
+  __vceCached('sessions',90_000,()=>VCE.read()).then(value=>({value}),error=>({error})),
+  __vceCached('circuits',1_800_000,()=>VCE.loadCircuits()),
+  __vceCached('rating-config',1_800_000,()=>Rating.config()),
+  __vceCached('approved-training',30_000,()=>approvedTrainingData()),
+  __vceCached('race-results',30_000,()=>publishedRaceEntries())
  ]);
  if(shared.value){d=shared.value.data;remote=true;VCE.$('source').textContent='Données synchronisées depuis : '+shared.value.source}
  else VCE.$('source').textContent='Attention : JSON partagé indisponible. Classement et rating non synchronisés. '+(shared.error?.message||'Erreur réseau');
