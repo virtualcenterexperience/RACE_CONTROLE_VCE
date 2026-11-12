@@ -11,6 +11,9 @@ on:
       - 'data/**'
       - 'entrainements/**'
       - 'tools/**'
+      - 'supabase/**'
+      - 'integrations/**'
+      - 'race-controle-windows/**'
       - '.github/workflows/validate-vce-site.yml'
 jobs:
   validate:
@@ -32,6 +35,10 @@ jobs:
         run: python tools/validate_site.py
       - name: Audit all CSS and embedded styles with asset reference checks
         run: python tools/audit_css.py
+      - name: Check Python syntax without executing patch scripts
+        run: python -m compileall -q tools race-controle-windows
+      - name: Validate Google Apps Script syntax
+        run: node --check < integrations/google-forms/onFormSubmit.gs
       - name: Validate JavaScript syntax
         shell: bash
         run: |
@@ -49,3 +56,5 @@ jobs:
         run: node tools/test-auth-continuity.mjs
       - name: Verify contextual GT3 coaching for Monza
         run: node tools/test-coach-engine.mjs
+      - name: Check module-specific scripts and GitHub/Supabase routing
+        run: node tools/test-page-routing.mjs
