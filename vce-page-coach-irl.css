@@ -159,3 +159,39 @@ body.vce-page-staff .panel{border-radius:11px}
 @keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) backwards;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
+
+/* Coach IRL — attributions Staff uniquement */
+body.vce-page-coach-irl{min-height:100vh;background:radial-gradient(ellipse at 100% 0%,#193958,transparent 50%),#080f1e;color:#edf5ff}
+body.vce-page-coach-irl .vce-irl-main{max-width:1380px;margin:0 auto;padding:26px clamp(18px,3vw,44px) 75px}
+body.vce-page-coach-irl .vce-irl-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:35px 0 30px}
+body.vce-page-coach-irl .vce-irl-header .eyebrow{font-size:11px;color:#ff5671;font-weight:900;letter-spacing:.2em}
+body.vce-page-coach-irl .vce-irl-header h1{font-size:clamp(43px,5vw,75px);line-height:1;letter-spacing:-.045em;margin:12px 0}
+body.vce-page-coach-irl .vce-irl-header h1 em{font-style:normal;color:#ff365d}
+body.vce-page-coach-irl .vce-irl-header p{font-size:15px;color:#b4cae0;max-width:650px}
+body.vce-page-coach-irl .vce-irl-header>a{border:1px solid #416c8d;border-radius:8px;padding:12px 15px;color:#d0ecff;text-decoration:none;font-size:12px;font-weight:850}
+body.vce-page-coach-irl .vce-irl-header>a:hover{background:#1a3b58}
+body.vce-page-coach-irl .vce-irl-summary{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;border:1px solid #41607b;background:linear-gradient(112deg,#1a3250,#0c1e31);padding:clamp(19px,3vw,35px);border-radius:14px}
+body.vce-page-coach-irl .vce-irl-summary small{font-size:10px;color:#83c8f5;font-weight:900;letter-spacing:.15em}
+body.vce-page-coach-irl .vce-irl-summary h2{font-size:clamp(24px,3vw,43px);margin:6px 0;font-weight:900}
+body.vce-page-coach-irl .vce-irl-summary p{font-size:15px;margin:7px 0 0}
+body.vce-page-coach-irl .vce-irl-summary-icon{font-size:11px;letter-spacing:.16em;border-radius:9px;background:#273a53;padding:17px;color:#e2f5ff}
+body.vce-page-coach-irl .vce-irl-section-title{margin:35px 0 12px;font-size:clamp(22px,2.4vw,30px)}
+body.vce-page-coach-irl .vce-irl-status{font-size:12px;color:#a6d0ee;margin:10px 0 20px}
+body.vce-page-coach-irl .vce-irl-status[data-error="true"]{color:#ffb4c1}
+body.vce-page-coach-irl .vce-irl-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+body.vce-page-coach-irl .vce-irl-card{padding:25px;border:1px solid #36597b;border-top:3px solid #3c96d5;border-radius:13px;background:linear-gradient(145deg,#13253b,#0b1829);box-shadow:0 10px 22px #0003}
+body.vce-page-coach-irl .vce-irl-card:nth-child(even){border-top-color:#fc4264}
+body.vce-page-coach-irl .vce-irl-card-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:15px}
+body.vce-page-coach-irl .vce-irl-type{font-size:10px;letter-spacing:.13em;font-weight:900;color:#7ccafa}
+body.vce-page-coach-irl .vce-irl-state{font-size:10px;color:#ffbcc8;font-weight:850}
+body.vce-page-coach-irl .vce-irl-card h3{font-size:22px;margin:6px 0 16px;line-height:1.25}
+body.vce-page-coach-irl .vce-irl-info{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr));padding-bottom:15px;border-bottom:1px solid #33516d}
+body.vce-page-coach-irl .vce-irl-info span{font-size:12px;color:#bcd5ee}
+body.vce-page-coach-irl .vce-irl-message{font-size:13px;line-height:1.6;color:#e9f4ff;margin-top:18px}
+body.vce-page-coach-irl .vce-irl-foot{display:block;color:#879db8;line-height:1.5;margin-top:17px}
+body.vce-page-coach-irl .vce-irl-debrief{border:1px solid #334e68;border-radius:8px;padding:11px;margin-top:14px;color:#c2d8ed}
+body.vce-page-coach-irl .vce-irl-debrief summary{cursor:pointer;font-weight:800}
+body.vce-page-coach-irl .vce-irl-empty{grid-column:1/-1;border:1px dashed #44627f;background:#0c1d2e;border-radius:11px;padding:32px;color:#c7dcf1}
+body.vce-page-coach-irl .vce-irl-note{margin-top:40px;border-top:1px solid #324a64;padding-top:20px;font-size:12px;line-height:1.5;color:#91aeca}
+@media(max-width:760px){body.vce-page-coach-irl .vce-irl-list{grid-template-columns:1fr}body.vce-page-coach-irl .vce-irl-info{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){body.vce-page-coach-irl .vce-irl-card{transition:transform .22s ease,border-color .22s ease}body.vce-page-coach-irl .vce-irl-card:hover{transform:translateY(-3px);border-color:#5f9ac7}}
