@@ -26,6 +26,9 @@ for(const page of ["calendrier.html","calendrier-staff.html","lineup.html","line
 const pilot=load("assets/js/vce-page-pilote-data.js");
 assert.ok(pilot.includes("VCEPilotAuthCanAccess"),"Never render another pilot without access check");
 assert.ok(pilot.includes("__vceCached"),"Pilot datasets should use scoped in-memory cache");
+assert.ok(load("pilote.html").includes("assets/js/vce-pilot-presence.js"),"Keep authenticated pilot presence.");
+assert.ok(!load("pilote.html").includes('vce-pilot-presence-20261105'),"Remove obsolete anonymous Realtime presence.");
+assert.ok(!load("pilote.html").includes('cdn.jsdelivr.net/npm/@supabase/supabase-js'),"Do not load redundant CDN client on pilot dashboard.");
 assert.ok(!load("pilote.html").includes("const VCE=(()=>"),"Pilot data script must not be duplicated inline");
 assert.ok(!load("strategie.html").includes("const inputIds=['liveLaps'"),"Strategy must load shared controller");
 assert.ok(!load("endurances.html").includes("const inputIds=['liveLaps'"),"Endurance must load shared controller");
