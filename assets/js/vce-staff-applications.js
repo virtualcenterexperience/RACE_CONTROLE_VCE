@@ -67,6 +67,7 @@ function showByRoute(){
  if(!panel)return;
  const visible=location.hash==='#candidatures';
  panel.hidden=!visible;
+ $('dashboard')?.classList.toggle('rc-applications-selected',visible);
  nav.classList.toggle('selected',visible);
  if(visible){refresh();if(currentStaff())requestAnimationFrame(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}));}
 }
@@ -83,7 +84,7 @@ function section(){
  const head=make('div','vce-app-header');
  const left=make('div');left.append(make('small','vce-app-eyebrow','STAFF CONTROL / RECRUTEMENT'),make('h2','', 'CANDIDATURES · NOTIFICATIONS'),make('p','', 'Un ! apparaît à chaque nouvelle réponse au formulaire VCE. Les réponses et les coordonnées ne sont pas copiées sur ce site.'));
  const tools=make('div','vce-app-actions');
- const open=make('a','vce-app-button','OUVRIR LE FORMULAIRE');open.href=FORM_URL;open.target='_blank';open.rel='noopener noreferrer';open.title='Ouvre le formulaire public, pas les réponses réservées au propriétaire.';
+ const open=make('a','vce-app-button','FORMULAIRE PUBLIC');open.href=FORM_URL;open.target='_blank';open.rel='noopener noreferrer';open.title='Ouvre le formulaire public, pas les réponses réservées au propriétaire.';
  const reload=make('button','vce-app-button','ACTUALISER');reload.type='button';reload.onclick=refresh;
  const mark=make('button','vce-app-button vce-app-primary','TOUT MARQUER COMME LU');mark.type='button';mark.onclick=async()=>{mark.disabled=true;try{await api('POST','read');await refresh()}catch(e){setText(e.message)}finally{mark.disabled=false}};
  tools.append(open,reload,mark);head.append(left,tools);panel.append(head);
