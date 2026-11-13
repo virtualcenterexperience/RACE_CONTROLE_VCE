@@ -197,7 +197,7 @@ async function refreshVceEvery10Seconds(){
  __vceRefreshBusy=true;
  try{await render();}catch(e){console.warn('Actualisation VCE',e)}finally{__vceRefreshBusy=false}
 }
-window.setInterval(refreshVceEvery10Seconds,10000);
+window.setInterval(refreshVceEvery10Seconds,30000);
 let __vceRosterSignature='',__vceRosterBusy=false;
 const __vceRosterCacheKey='vce_verified_public_roster_v2';
 function applyPilotRoster(rows,{save=false}={}){
