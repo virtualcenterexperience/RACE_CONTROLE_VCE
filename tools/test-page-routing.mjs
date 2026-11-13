@@ -43,4 +43,17 @@ for(const p of ["supabase/functions/vce-pilot-accounts/index.ts","supabase/funct
  assert.match(s,/SUPABASE_SERVICE_ROLE_KEY/,"Server authorization required: "+p);
  assert.ok(!s.includes('Access-Control-Allow-Origin":"*"'),"Open CORS is not accepted on Staff function: "+p);
 }
+// Telemetry ingestion must preserve every lap segment, but must not rewrite
+// whole session metadata for each of the hundreds of chunks in a long stint.
+const telemetrySrc=load("supabase/functions/vce-telemetry/index.ts");
+const segmentStart=telemetrySrc.indexOf('if(action==="upload_segment"){');
+const segmentEnd=telemetrySrc.indexOf('if(action==="live_batch"){',segmentStart);
+assert.ok(segmentStart>0&&segmentEnd>segmentStart,"Upload segment handler missing");
+const segmentHandler=telemetrySrc.slice(segmentStart,segmentEnd);
+assert.match(segmentHandler,/if\(offset!==0&&!previous\.data\)return reply/,"Resumed chunk must require an initialized verified session");
+assert.match(segmentHandler,/if\(offset===0\)\{[\s\S]*?vce_agent_sessions"\)\.upsert\(/,"Only first segment may initialize session metadata");
+assert.equal((segmentHandler.match(/vce_agent_sessions"\)\.upsert\(/g)||[]).length,1,"Only one session upsert path allowed per lap transfer");
+assert.match(segmentHandler,/vce_agent_lap_segments"\)\.upsert\(/,"Full segment data must still be stored");
+assert.ok(!telemetrySrc.includes('db.from("vce_agent_devices").select("*")'),"Don't read unnecessary private device columns on every telemetry chunk");
+
 console.log("PASS: data scripts, cached page loads, correct GitHub repo, Staff-protected read endpoints.");
