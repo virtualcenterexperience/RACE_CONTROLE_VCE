@@ -4,73 +4,81 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
-<meta name="theme-color" content="#0c121d">
-<title>Race Control VCE — VCE ESPORT</title>
-<link rel="stylesheet" href="vce-page-index.css?v=20261113-editorial-1">
-<script defer src="assets/js/vce-i18n.js?v=20261109-2"></script>
+<meta name="theme-color" content="#080d17">
+<title>Race Controle VCE</title>
+<link rel="preload" as="image" href="assets/images/vce-engineering-background.jpg">
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: #080d17;
+    color: #f5f7fc;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  main {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: clamp(24px, 5vw, 64px) 20px clamp(24px, 4vw, 48px);
+    background:
+      linear-gradient(180deg, #080d1740, #080d1752 60%, #080d17e6),
+      url("assets/images/vce-engineering-background.jpg") center / cover no-repeat;
+    text-align: center;
+  }
+
+  h1 {
+    align-self: center;
+    justify-self: center;
+    margin: 0;
+    color: #ff3a60;
+    font-size: clamp(28px, 6.1vw, 88px);
+    font-weight: 900;
+    line-height: 1.04;
+    letter-spacing: -.045em;
+    text-shadow: 0 4px 24px #080d17;
+  }
+
+  h1 a {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h1 a:hover {
+    color: #ff6b86;
+  }
+
+  h1 a:focus-visible {
+    outline: 2px solid #f5f7fc;
+    outline-offset: 7px;
+  }
+
+  footer p {
+    margin: 0;
+    font-size: clamp(11px, 1.3vw, 14px);
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: .11em;
+  }
+
+  footer p + p {
+    margin-top: 5px;
+    color: #bccbe1;
+  }
+</style>
 </head>
-<body class="vce-page-home">
-<main class="home-page">
-  <div class="home-container">
-    <header class="home-header">
-      <a class="home-brand" href="index.html" aria-label="Accueil Race Control VCE">
-        <img src="data/images/Design_sans_titre_2-removebg-preview.png" alt="" width="64" height="54" fetchpriority="high">
-        <span class="home-brand-name"><strong>VIRTUAL CENTER EXPERIENCE</strong><small>VCE ESPORT · RACE CONTROL</small></span>
-      </a>
-      <nav class="home-navigation" aria-label="Navigation principale">
-        <span class="home-navigation-current" aria-current="page" data-en="HOME">ACCUEIL</span>
-        <a href="profile.html" data-en="WORKSPACES">ESPACES <span aria-hidden="true">↗</span></a>
-      </nav>
-    </header>
-
-    <section class="home-hero" aria-labelledby="home-title">
-      <div class="home-copy">
-        <p class="home-eyebrow" data-en="VCE ESPORT / TEAM WORKSPACE">VCE ESPORT / ESPACE ÉQUIPE</p>
-        <h1 id="home-title" class="home-title"><span>RACE CONTROL</span><strong>VCE ESPORT<span class="home-dot">.</span></strong></h1>
-        <p class="home-subtitle" data-en="The team's workspace.">L’espace de travail de l’équipe.</p>
-        <p class="home-description" data-en="Drivers, training, race strategy and telemetry. Find everything you need to follow the season in one place.">Pilotes, entraînements, stratégie de course et télémétrie. Tout le suivi de la saison, au même endroit.</p>
-        <div class="home-actions">
-          <a class="entry" href="profile.html">
-            <span data-en="ENTER RACE CONTROL">ACCÉDER À RACE CONTROL</span>
-            <span class="entry-arrow" aria-hidden="true">↗</span>
-          </a>
-          <span class="home-access" data-en="Reserved for the VCE team">Accès réservé à l’équipe VCE</span>
-        </div>
-      </div>
-
-      <div class="home-visuals" aria-label="Univers Virtual Center Experience">
-        <figure class="home-photo-primary">
-          <img src="data/images/entrainement/simulateurs-vce.webp" alt="Postes de simulation du Virtual Center Experience" fetchpriority="high">
-          <figcaption><span>VIRTUAL CENTER EXPERIENCE</span><strong>RACE CONTROL / 01</strong></figcaption>
-        </figure>
-        <div class="home-visuals-bottom">
-          <figure class="home-photo-secondary">
-            <img src="data/images/entrainement/precision-volant.webp" alt="Travail de précision au volant sur simulateur" loading="lazy">
-          </figure>
-          <div class="home-photo-note">
-            <span class="home-note-rule" aria-hidden="true"></span>
-            <p data-en="From driving to data.">Du pilotage à l’analyse.</p>
-            <small data-en="A single workspace for the whole team.">Un outil pensé pour le travail de l’équipe.</small>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="home-disciplines" aria-label="Outils de la plateforme">
-      <div class="home-disciplines-title"><span data-en="THE WORKSPACE">LES ESPACES</span><small>01 — 04</small></div>
-      <div class="home-disciplines-list">
-        <div class="home-discipline"><span class="home-discipline-number">01</span><div><strong data-en="DRIVERS">PILOTES</strong><small data-en="Profiles and progression">Profils et progression</small></div></div>
-        <div class="home-discipline"><span class="home-discipline-number">02</span><div><strong data-en="TRAINING">ENTRAÎNEMENT</strong><small data-en="Sessions and coaching">Séances et coaching</small></div></div>
-        <div class="home-discipline"><span class="home-discipline-number">03</span><div><strong data-en="TELEMETRY">TÉLÉMÉTRIE</strong><small data-en="Driving analysis">Analyse du pilotage</small></div></div>
-        <div class="home-discipline"><span class="home-discipline-number">04</span><div><strong>TEAM</strong><small data-en="Races and results">Courses et résultats</small></div></div>
-      </div>
-    </section>
-
-    <footer class="home-footer">
-      <span>© 2026 VIRTUAL CENTER EXPERIENCE</span>
-      <span>RACE CONTROL VCE <span class="home-footer-separator">/</span> OUTIL PRIVÉ</span>
-    </footer>
-  </div>
+<body>
+<main>
+  <h1><a href="profile.html" aria-label="RACE CONTROLE VCE — Accéder à la plateforme">RACE CONTROLE VCE</a></h1>
+  <footer>
+    <p>Propriété de VCE ESPORT</p>
+    <p>VIRTUAL CENTER EXPERIENCE</p>
+  </footer>
 </main>
 </body>
 </html>
