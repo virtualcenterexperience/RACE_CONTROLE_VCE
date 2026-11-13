@@ -66,16 +66,6 @@ function init(){
  }
  const tools=content.querySelector('.rc-workmain>.rc-sectionhead>span');
  if(tools)tools.textContent='03 / AUTRES OUTILS STAFF';
- const side=document.querySelector('#dashboard .rc-nav');
- if(side){
-  const hidden=new Set(['pilote.html','telemetry-staff.html','calendrier-staff.html','lineup-staff.html','announcement-staff.html','resultats-staff.html','#gestion-pilotes']);
-  [...side.querySelectorAll('a')].forEach(a=>{if(hidden.has(a.getAttribute('href')))a.remove()});
-  const nav=create('div','vce-staff-hub-side-links');
-  for(const [label,href,icon] of [['TEAM','#staff-team','▤'],['PILOTES','#staff-pilotes','♙']]){
-   const a=create('a','rc-navlink');a.href=href;a.append(create('span','rc-navico',icon),document.createTextNode(label));nav.append(a)
-  }
-  side.querySelector('a')?.after(nav)
- }
  const team=$('staff-team'),pilotes=$('staff-pilotes'),dashboard=$('dashboard');
  const syncRoute=()=>{
   const key=location.hash==='#staff-team'?'team':location.hash==='#staff-pilotes'?'pilotes':'';
@@ -87,7 +77,6 @@ function init(){
    tile.classList.toggle('selected',!!key&&active);
    if(active&&key)tile.setAttribute('aria-current','page');else tile.removeAttribute('aria-current');
   }
-  for(const link of dashboard.querySelectorAll('.vce-staff-hub-side-links a'))link.classList.toggle('selected',!!key&&link.hash==='#staff-'+key);
   // Avoid stale scrolled position when navigating between workspace categories.
   if(key)requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));
  };
