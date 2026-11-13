@@ -3,13 +3,17 @@
 const gate=document.getElementById('gate'),dash=document.getElementById('dashboard'),msg=document.getElementById('message');
 let __staffCheckSeq=0;
 let staffRetryTimer;
+let staffCheckInProgress=false;
 const staffRetry=document.getElementById('vce-staff-retry');
 async function show(){
+ if(staffCheckInProgress)return;
  clearTimeout(staffRetryTimer);
  const token=++__staffCheckSeq;
  gate.style.display='block';dash.style.display='none';
  staffRetry.hidden=!VCESupabase.session();
  if(!VCESupabase.session()){msg.textContent='';return;}
+ staffCheckInProgress=true;
+ staffRetry.disabled=true;
  msg.textContent='Vérification des droits STAFF…';
  try{
   const allowed=await VCESupabase.isStaff();if(token!==__staffCheckSeq)return;
@@ -21,6 +25,8 @@ async function show(){
   staffRetry.hidden=!VCESupabase.session();
   msg.textContent='Vérification indisponible : '+err.message;
   if(!staffRetry.hidden)staffRetryTimer=setTimeout(()=>{if(!document.hidden&&token===__staffCheckSeq)show()},15000);
+ }finally{
+  if(token===__staffCheckSeq){staffCheckInProgress=false;staffRetry.disabled=false}
  }
 }
 function recoverStaff(){
@@ -29,6 +35,8 @@ function recoverStaff(){
 window.addEventListener('online',recoverStaff);
 document.addEventListener('visibilitychange',recoverStaff);
 window.addEventListener('vce-auth-session-ended',()=>{
+ staffCheckInProgress=false;
+ staffRetry.disabled=false;
  window.dispatchEvent(new Event('vce-staff-logged-out'));
  show();
 });

@@ -85,6 +85,22 @@ async function renewSession(previous,force){
  if(!force&&remaining()>5000)return current;
  throw transient;
 }
+async function renewWithLock(locks,id,current,force){
+ const wait=AbortSignal.timeout(4000);
+ let acquired=false;
+ try{
+  return await locks.request('vce-auth-refresh:'+id,{signal:wait},()=>{
+   acquired=true;
+   return renewSession(current,force);
+  });
+ }catch(error){
+  if(acquired||!wait.aborted)throw error;
+  const latest=session();
+  if(!latest||latest.refresh_token!==current.refresh_token)return latest;
+  if(!force&&latest.expires_at*1000>Date.now()+5000)return latest;
+  throw Error('Renouvellement de session en attente dans un autre onglet. Réessaie dans quelques secondes.');
+ }
+}
 async function validSession(force=false){
  const current=session();
  if(!current)return null;
@@ -92,7 +108,7 @@ async function validSession(force=false){
  const id=sessionId(current);
  if(refreshPromise?.token===current.refresh_token)return refreshPromise.task;
  const locks=globalThis.navigator?.locks;
- const task=(id&&locks?locks.request('vce-auth-refresh:'+id,()=>renewSession(current,force)):renewSession(current,force))
+ const task=(id&&locks?renewWithLock(locks,id,current,force):renewSession(current,force))
   .finally(()=>{if(refreshPromise?.task===task)refreshPromise=null});
  refreshPromise={token:current.refresh_token,task};
  return task;
