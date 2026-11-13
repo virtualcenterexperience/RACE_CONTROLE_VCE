@@ -111,7 +111,7 @@ window.addEventListener('load',()=>{if(root.children.length===0)fallbackCards()}
 })();
 </script><script id="vce-compact-telemetry-script">
 (function(){const d=document.getElementById('pilotDashboard'),w=d&&d.querySelector('.vce-workspace');if(!w)return;const chart=w.querySelector('#ratingChart')?.closest('section.panel'),rank=w.querySelector('#leaderboard')?.closest('section.panel'),assigned=w.querySelector('#assignedList')?.closest('section.panel'),sessions=w.querySelector('#sessions')?.closest('section.panel'),stats=w.querySelector(':scope > section.stats');const grid=document.createElement('div'),a=document.createElement('div'),b=document.createElement('div');grid.className='vce-telemetry-grid';a.className=b.className='vce-telemetry-column';grid.append(a,b);if(stats)stats.after(grid);else w.append(grid);[chart,sessions].forEach(x=>x&&a.append(x));[rank,assigned].forEach(x=>x&&b.append(x));})();
-</script><script id="vce-overlay-gallery-script">
+</script><script src="assets/js/vce-result-posters.js?v=1"></script><script id="vce-overlay-gallery-script">
 (function(){
 const dash=document.getElementById('pilotDashboard');if(!dash)return;
 const root=document.createElement('section');root.id='vce-publications';root.className='vce-overlay-gallery';root.innerHTML='<h2>PUBLICATIONS OFFICIELLES</h2><p>Affiches PNG publiées par le STAFF : annonces, résultats et line-ups.</p><div class="vce-overlay-filters"><button type="button" data-filter="all" class="active">Tout</button><button type="button" data-filter="announcement">Announcement</button><button type="button" data-filter="resultats">Résultats</button><button type="button" data-filter="lineup">Line-ups</button></div><p id="vceGalleryStatus" role="status">Chargement des publications…</p><div class="vce-overlay-grid" id="vceGalleryGrid"></div>';
@@ -124,10 +124,55 @@ function scrollToPilotSection(){
 window.addEventListener('vce-pilot-verified',scrollToPilotSection);
 window.addEventListener('load',scrollToPilotSection);
 const side=dash.querySelector('.vce-sidebar');if(side){const link=document.createElement('a');link.className='vce-sideitem';link.href='#vce-publications';link.innerHTML='<span class="sym">▣</span>Publications PNG';const anchor=[...side.querySelectorAll('a')].find(a=>a.textContent.includes('Résultats'));if(anchor)anchor.before(link);else side.append(link);link.addEventListener('click',e=>{e.preventDefault();root.scrollIntoView({behavior:'smooth',block:'start'});dash.classList.remove('menu-open')})}
-let items=[],filter='all';const grid=root.querySelector('#vceGalleryGrid'),status=root.querySelector('#vceGalleryStatus');
-function render(){grid.replaceChildren();const visible=items.filter(x=>filter==='all'||x.kind===filter);status.textContent=visible.length?visible.length+' affiche(s) publiée(s)':'Aucune publication pour cette catégorie.';visible.forEach(x=>{if(!/^https:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\/vce-overlays\//.test(x.url||''))return;const card=document.createElement('article');card.className='vce-overlay-item';const img=document.createElement('img');img.src=x.url;img.alt=x.title||'Affiche VCE';img.loading='lazy';const body=document.createElement('div');body.className='vce-overlay-item-body';const name=document.createElement('strong');name.textContent=x.title||'Affiche officielle';const date=document.createElement('small');date.textContent=(x.kind||'').toUpperCase()+' · '+(x.created_at?new Date(x.created_at).toLocaleDateString('fr-FR'):'');const a=document.createElement('a');a.href=x.url;a.target='_blank';a.rel='noopener noreferrer';a.download='';a.textContent='Voir / télécharger le PNG';body.append(name,date,document.createElement('br'),a);card.append(img,body);grid.append(card)})}
+let items=[],personal=[],filter='all';const grid=root.querySelector('#vceGalleryGrid'),status=root.querySelector('#vceGalleryStatus');
+function render(){grid.replaceChildren();const visible=[...personal,...items].filter(x=>filter==='all'||x.kind===filter);status.textContent=visible.length?visible.length+' affiche(s) publiée(s)':'Aucune publication pour cette catégorie.';visible.forEach(x=>{if(!x.personal&&!/^https:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\/vce-overlays\//.test(x.url||''))return;const card=document.createElement('article');card.className='vce-overlay-item';const img=document.createElement('img');img.src=x.url;img.alt=x.title||'Affiche VCE';img.loading='lazy';const body=document.createElement('div');body.className='vce-overlay-item-body';const name=document.createElement('strong');name.textContent=x.title||'Affiche officielle';const date=document.createElement('small');date.textContent=(x.kind||'').toUpperCase()+' · '+(x.created_at?new Date(x.created_at).toLocaleDateString('fr-FR'):'');const a=document.createElement('a');a.href=x.url;a.target='_blank';a.rel='noopener noreferrer';a.download=x.personal?'VCE-resultat.png':'';a.textContent='Voir / télécharger le PNG';body.append(name,date,document.createElement('br'),a);card.append(img,body);grid.append(card)})}
 root.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;root.querySelectorAll('[data-filter]').forEach(el=>el.classList.toggle('active',el===b));render()});
 async function load(){try{if(!window.VCESupabase?.configured())throw Error('Supabase indisponible');const d=await VCESupabase.read('overlays');items=Array.isArray(d.items)?d.items:[];render()}catch(e){status.textContent='Publications indisponibles : '+e.message}}
-load();document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+let posterRequest=0;
+let posterUrls=[];
+let personalPilot='';
+function selectedPilot(){
+ try{return decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'');}
+ catch{return '';}
+}
+function setPersonal(entries,urls){
+ posterUrls.forEach(url=>URL.revokeObjectURL(url));
+ posterUrls=urls;
+ personal=entries;
+ render();
+}
+async function loadPersonal(){
+ const pilot=selectedPilot();
+ const request=++posterRequest;
+ if(!window.VCEPilotAuthCanAccess?.(pilot)){
+  personalPilot='';
+  setPersonal([],[]);
+  return;
+ }
+ if(personalPilot!==pilot){
+  personalPilot=pilot;
+  setPersonal([],[]);
+ }
+ try{
+  const rows=await window.VCEResultPosters.list(pilot);
+  const results=await Promise.allSettled(rows.map(async row=>({
+   ...row,kind:'resultats',personal:true,url:URL.createObjectURL(await window.VCEResultPosters.image(row.id))
+  })));
+  const entries=results.filter(result=>result.status==='fulfilled').map(result=>result.value);
+  const urls=entries.map(entry=>entry.url);
+  if(request!==posterRequest||pilot!==selectedPilot()||!window.VCEPilotAuthCanAccess?.(pilot)){
+   urls.forEach(url=>URL.revokeObjectURL(url));
+   return;
+  }
+  setPersonal(entries,urls);
+  if(entries.length!==rows.length)status.textContent+=' · Certaines images personnelles sont indisponibles.';
+ }catch{
+  if(request===posterRequest)status.textContent+=' · Résultats personnels indisponibles.';
+ }
+}
+load();
+window.addEventListener('hashchange',loadPersonal);
+window.addEventListener('vce-pilot-verified',loadPersonal);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){load();loadPersonal();}});
 })();
 </script><script id="vce-telemetry-profile-link">(function(){function sync(){const a=document.getElementById('vce-telemetry-link');if(a)a.href='telemetry-salon.html'+(location.hash||'')}window.addEventListener('hashchange',sync);new MutationObserver(sync).observe(document.body,{childList:true,subtree:false});sync()})();</script><script defer src="assets/js/vce-pilot-firstnames.js?v=1"></script><script src="assets/js/vce-pilot-avatars.js?v=20261106b" defer></script><script src="vce-pilot-auth.js?v=20261113-spectateur" defer></script><script defer src="assets/js/vce-training-cycle-cache.js?v=1"></script><script defer src="assets/js/vce-pilot-presence.js?v=20261113-spectateur"></script></body></html>

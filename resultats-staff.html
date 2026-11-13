@@ -1,23 +1,73 @@
-<!doctype html><html lang="fr"><head>
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VCE ESPORT — Résultats STAFF</title><link rel="stylesheet" href="vce-page-resultats-staff.css?v=20261111-1"><script defer src="assets/js/vce-i18n.js?v=20261109-3"></script><script defer src="assets/js/vce-tool-guide.js?v=20261110-1"></script></head><body class="vce-page-staff" data-vce-overlay-kind="resultats"><div class="wrap"><header><div class="eyebrow">VCE ESPORT / RACE CONTROL TEAM</div><a href="staff.html#staff-team">← Retour TEAM Staff</a></header><nav class="vce-team-workflow-nav" aria-label="Navigation TEAM Staff"><a href="staff.html#staff-team">TEAM Staff</a><a href="team-resultats-recus.html">Résultats reçus</a><a href="resultats-staff.html">Résultats</a><a href="calendrier-staff.html">Calendrier</a><a href="announcement-staff.html">Annonces</a><a href="lineup-staff.html">Lineups</a></nav><h1>GESTION DES RÉSULTATS</h1><p>Crée tes résultats, sélectionne un pilote et compose son affiche individuelle Full HD avec photo. Le classement général reste disponible.</p><section class="panel"><div class="grid"><div><label>NOM DU CHAMPIONNAT</label><input id="event" placeholder="Porsche Cup GT3"></div><div><label>DATE</label><input id="date" type="date"></div><div><label>TYPE DE COURSE</label><select id="mode"><option value="individuel">Individuel</option><option value="endurance">Endurance (1 à 5 pilotes)</option><option value="championnat">Championnat par équipe (1 à 5 pilotes)</option></select></div><div><label>CIRCUIT</label><input id="circuit" placeholder="Monza"></div><div><label>SAISON</label><input id="season" placeholder="2026"></div><div><label>CATÉGORIE / VOITURE(S)</label><input id="category" placeholder="GT3 / Porsche Cup / F1 / Proto"></div></div><div class="actions"><button id="add">+ Ajouter un résultat</button><button id="save">Enregistrer</button><button id="generate">Générer l'overlay</button><a class="vce-edit-overlay-link" href="overlay-resultats.html?edit=1" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;padding:10px 14px;background:#16446d;color:#dff1ff;border:1px solid #5198ce;border-radius:8px;font:800 12px system-ui;text-decoration:none">✎ ÉDITER LES PLACEMENTS (ROUGE / BLEU)</a><button class="secondary" id="export">Exporter JSON</button><button class="secondary" id="importBtn">Importer JSON</button><input hidden id="importFile" type="file" accept="application/json,.json"></div><div id="entries"></div><div id="status" class="status"></div></section><section class="panel"><div class="entry-head"><div><div class="eyebrow">OVERLAY / RACE RESULT / 1920 × 1080</div><h2>AFFICHES RÉSULTATS — SOLO & ENDURANCE</h2></div><span style="color:#61d9aa;font-size:11px">● PRESET SANS SPONSORS</span></div><p>Le modèle change automatiquement selon le type de course : solo avec un pilote, ou endurance avec jusqu’à cinq portraits. Le nom de l’équipe, la position et le championnat sont repris des résultats.</p><div class="actions" style="align-items:center"><label for="posterPilot" style="margin:0">PILOTE À AFFICHER</label><select id="posterPilot" style="width:min(100%,300px)"></select><button id="updatePoster" type="button">↻ Mettre à jour l'affiche</button><button id="rankingView" type="button" class="secondary">Afficher le classement général</button></div><iframe id="posterPreview" title="Éditeur d'affiche résultat pilote" src="preset-resultat-pilote.html?v=20261103-roster2" style="width:100%;height:820px;background:#0a1424;border:1px solid #3a5575;border-radius:12px"></iframe><div id="rankingPanel" hidden><h3>CLASSEMENT GÉNÉRAL — 1920 × 1080</h3><iframe id="preview" title="Aperçu du classement général" src="overlay-resultats.html"></iframe></div><p class="muted">Ajoute les portraits directement dans le studio et exporte en PNG Full HD. Les photos restent locales et ne sont pas encore publiées automatiquement sur TEAM.</p></section></div><script>
-'use strict';const KEY='vce_resultats_v2';const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const marques=['','Porsche','Ferrari','Mercedes-AMG','BMW','Audi','Lamborghini','Aston Martin','McLaren','Ford','Chevrolet','Toyota','Alpine','Cadillac','Peugeot','Oreca','Ligier','Dallara','Honda','Nissan','Lexus','Hyundai','Bentley','Maserati','Red Bull Racing','Williams','Haas','Racing Bulls','Sauber','Mercedes F1','Ferrari F1','McLaren F1','Alpine F1','Aston Martin F1'];function add(v={}){const e=document.createElement('div');e.className='entry';const n=$('entries').children.length+1;e.innerHTML=`<div class="entry-head"><strong>RÉSULTAT ${n}</strong><button class="danger" type="button">× Supprimer</button></div><div class="grid"><div><label>POSITION</label><input class="position" type="number" min="1" value="${esc(v.position??n)}"></div><div><label>PRÉNOM</label><input class="firstName" placeholder="Lucas" value="${esc(v.firstName)}"></div><div><label>NOM</label><input class="lastName" placeholder="Galy" value="${esc(v.lastName)}"></div><div><label>TEAM</label><input class="team" placeholder="VCE ESPORT" value="${esc(v.team)}"></div><div><label>NUMÉRO DE VOITURE — OPTIONNEL</label><input class="number" placeholder="24" value="${esc(v.number)}"></div><div><label>MARQUE — OPTIONNEL</label><select class="brand">${marques.map(m=>`<option value="${esc(m)}" ${m===v.brand?'selected':''}>${esc(m||'Aucune')}</option>`).join('')}</select></div><div><label>VOITURE — OPTIONNEL</label><input class="car" placeholder="Porsche 911 GT3 Cup" value="${esc(v.car)}"></div><div><label>POINTS / TEMPS — OPTIONNEL</label><input class="score" placeholder="25 pts" value="${esc(v.score)}"></div><div><label>DATE PARTICULIÈRE — OPTIONNEL</label><input class="resultDate" type="date" value="${esc(v.resultDate)}"></div></div><div class="crew-fields" style="margin-top:13px"><label>ÉQUIPAGE — PRÉNOM ET NOM PAR PILOTE (PILOTE 1 CI-DESSUS)</label><div class="grid">${Array.from({length:4},(_,i)=>{const name=(v.drivers||[])[i+1]||'';const parts=name.trim().split(/\s+/);return `<div><label>PILOTE ${i+2} — PRÉNOM</label><input class="crew-first" placeholder="Prénom" value="${esc(parts.shift()||'')}"></div><div><label>PILOTE ${i+2} — NOM</label><input class="crew-last" placeholder="Nom" value="${esc(parts.join(' '))}"></div>`}).join('')}</div><p class="muted">Importe ensuite chaque portrait dans le studio graphique.</p></div>>`;e.querySelector('.danger').onclick=()=>{e.remove();renumber();updatePosterOptions()};$('entries').append(e);e.querySelector('.crew-fields').hidden=$('mode').value==='individuel'}function renumber(){[...document.querySelectorAll('.entry')].forEach((e,i)=>e.querySelector('strong').textContent='RÉSULTAT '+(i+1))}function collect(){const x={version:3};for(const k of ['event','date','mode','circuit','season','category'])x[k]=$(k).value;x.results=[...document.querySelectorAll('.entry')].map(e=>{const o={};for(const k of ['position','firstName','lastName','team','number','brand','car','score','resultDate'])o[k]=e.querySelector('.'+k).value;o.position=Math.max(1,parseInt(o.position)||1);const firsts=[...e.querySelectorAll('.crew-first')].map(x=>x.value.trim()),lasts=[...e.querySelectorAll('.crew-last')].map(x=>x.value.trim());const others=firsts.map((v,i)=>[v,lasts[i]].filter(Boolean).join(' ')).filter(Boolean);const main=[o.firstName,o.lastName].filter(Boolean).join(' ');o.drivers=x.mode==='individuel'?[main].filter(Boolean):[main,...others].filter(Boolean).slice(0,5);return o});return x}function updatePosterOptions(){const select=$('posterPilot'),chosen=select.value,rows=collect().results;select.replaceChildren();rows.forEach((row,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent='P'+row.position+' — '+([row.firstName,row.lastName].filter(Boolean).join(' ')||'Pilote '+(i+1));select.append(o)});if(rows.length)select.value=rows[Number(chosen)]?chosen:'0';syncPoster()}function syncPoster(){const d=collect(),row=d.results[Number($('posterPilot').value)||0];if(!row)return;const frame=$('posterPreview');if(frame.contentWindow)frame.contentWindow.postMessage({type:'vce-result-preset',payload:{...row,mode:d.mode,event:d.event,circuit:d.circuit,date:d.date}},location.origin)}$('updatePoster').onclick=syncPoster;$('posterPilot').onchange=syncPoster;$('posterPreview').addEventListener('load',syncPoster);$('rankingView').onclick=()=>{const el=$('rankingPanel');el.hidden=!el.hidden;$('rankingView').textContent=el.hidden?'Afficher le classement général':'Masquer le classement général';if(!el.hidden)preview()};$('mode').addEventListener('change',()=>{document.querySelectorAll('.crew-fields').forEach(el=>el.hidden=$('mode').value==='individuel');updatePosterOptions()});$('entries').addEventListener('input',()=>{clearTimeout(window.__posterDelay);window.__posterDelay=setTimeout(updatePosterOptions,300)});for(const id of ['event','date','circuit','mode'])$(id).addEventListener('input',()=>{clearTimeout(window.__posterDelay);window.__posterDelay=setTimeout(syncPoster,250)});function save(){localStorage.setItem(KEY,JSON.stringify(collect()));$('status').textContent='Résultats enregistrés dans ce navigateur.';return true}function preview(){save();$('preview').src='overlay-resultats.html?t='+Date.now();updatePosterOptions()}function apply(x){for(const k of ['event','date','mode','circuit','season','category'])$(k).value=x[k]||'';$('mode').value=x.mode||'individuel';$('entries').replaceChildren();(x.results?.length?x.results:[{}]).forEach(add);renumber();document.querySelectorAll('.crew-fields').forEach(el=>el.hidden=$('mode').value==='individuel');updatePosterOptions()}$('add').onclick=()=>{add();updatePosterOptions()};$('save').onclick=preview;$('generate').onclick=()=>{preview();window.open('overlay-resultats.html','_blank')};$('export').onclick=()=>{const b=new Blob([JSON.stringify(collect(),null,2)],{type:'application/json'}),url=URL.createObjectURL(b),a=document.createElement('a');a.href=url;a.download='vce-resultats.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(!Array.isArray(x.results))throw Error('Classement absent');apply(x);preview()}catch(err){$('status').textContent='Import impossible : '+err.message}};try{apply(JSON.parse(localStorage.getItem(KEY))||{event:'',season:'2026',mode:'individuel',results:[]})}catch{apply({season:'2026',mode:'individuel',results:[]})}updatePosterOptions();
-(function prefillApprovedTeamResult(){
- const requested=new URLSearchParams(location.search).get('draft');
- if(!requested)return;
- try{
-  const item=JSON.parse(sessionStorage.getItem('vce_team_result_draft')||'null');
-  if(!item||item.id!==requested||item.status!=='accepted')return;
-  const pieces=String(item.pilot_slug||'').split('-').filter(Boolean);
-  const firstName=pieces.shift()||'',lastName=pieces.join(' ');
-  const proposed={
-   event:item.event_name, date:item.race_date, circuit:item.track,category:item.car||item.category,
-   season:String(item.race_date||'').slice(0,4),mode:item.category==='endurance'?'endurance':'individuel',
-   results:[{position:item.finishing_position,firstName:firstName[0]?.toUpperCase()+firstName.slice(1),
-    lastName:lastName.replace(/(^|[- ])\w/g,m=>m.toUpperCase()),
-    team:'VCE ESPORT',car:item.car||'',score:'',resultDate:item.race_date}]
-  };
-  apply(proposed);
-  $('status').textContent='✓ Proposition TEAM Staff chargée. Vérifie le nom, la catégorie, le classement et les justificatifs AVANT de publier.';
- }catch(err){console.warn('TEAM: préparation non disponible',err)}
-})();
-</script><script src="vce-github-config.js?v=20261112-final"></script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261112-stability1"></script><script src="vce-roster-select.js?v=20261103-roster"></script><script src="vce-github-sync.js?v=20261112-final"></script><script>VCEGitHub.staff("resultats",()=>collect());</script><script src="vce-overlay-publisher.js?v=1"></script></body></html>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Résultats TEAM | VCE ESPORT</title>
+<link rel="stylesheet" href="assets/css/vce-results-studio.css?v=1">
+<script defer src="vce-supabase-config.js"></script>
+<script defer src="vce-supabase.js?v=20261112-stability1"></script>
+<script defer src="assets/js/vce-result-posters.js?v=1"></script>
+<script type="module" src="assets/js/vce-results-studio.js?v=1"></script>
+</head>
+<body>
+<header class="top"><a href="staff.html#staff-team">← TEAM Staff</a><strong>VCE <span>ESPORT</span></strong><a href="team-resultats-recus.html">Résultats reçus</a></header>
+<main class="wrap">
+  <h1>Résultats <span>TEAM</span></h1>
+  <div class="switch" aria-label="Mode du studio">
+    <button id="history-tab" type="button" aria-pressed="true">Voir ancien</button>
+    <button id="create-tab" type="button" aria-pressed="false">Créer</button>
+  </div>
+  <p id="studio-status" role="status" aria-live="polite">Vérification de la session Staff…</p>
+  <section id="history" hidden aria-labelledby="history-title">
+    <div class="section-head"><h2 id="history-title">Historique des affiches</h2><a href="resultats-classement-staff.html">Classements officiels et rating ↗</a></div>
+    <div id="history-list" class="history-list"></div>
+  </section>
+  <section id="studio" hidden aria-label="Création d’une affiche">
+    <form id="result-form" class="panel">
+      <h2>Données de course</h2>
+      <div class="fields">
+        <label>Type de résultat<select name="mode"><option value="solo">Solo / personnel</option><option value="championnat">Championnat</option><option value="endurance">Endurance</option></select></label>
+        <label>Championnat ou épreuve<input name="event" placeholder="24 Heures du Mans" required maxlength="120"></label>
+        <label>Circuit<input name="circuit" placeholder="Le Mans" maxlength="70"></label>
+        <label>Date<input name="date" type="date"></label>
+        <label>Numéro de voiture<input name="number" placeholder="24" required maxlength="8"></label>
+        <label>Position<input name="position" type="number" min="1" max="999" step="1" required placeholder="1"></label>
+        <label>Nombre de pilotes<select name="count" disabled><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+      </div>
+      <div id="drivers"></div>
+    </form>
+    <div class="editor">
+      <div class="panel stage">
+        <div class="section-head"><h2>Aperçu</h2><span class="dimension">1920 × 1090 px</span></div>
+        <canvas id="poster" width="1920" height="1090" aria-label="Aperçu de l’affiche. Les coordonnées des textes sont aussi modifiables dans les outils."></canvas>
+      </div>
+      <aside class="panel tools" aria-label="Outils graphiques">
+        <h2>Outils graphiques</h2>
+        <label>Preset<select id="palette"><option value="red">Rouge + bleu</option><option value="yellow">Jaune + bleu</option><option value="gray">Rouge + gris + bleu</option></select></label>
+        <label>Image de fond <small>JPEG, PNG ou TGA</small><input type="file" id="background" accept=".jpg,.jpeg,.png,.tga,image/jpeg,image/png"></label>
+        <button id="clear-bg" class="quiet" type="button" hidden>Retirer le fond importé</button>
+        <label>Texte sélectionné<select id="layers"></select></label>
+        <div class="row"><button type="button" id="add-layer">+ Ajouter un texte</button><button type="button" id="remove-layer" class="quiet">Retirer</button></div>
+        <div id="layer-fields" hidden>
+          <label>Contenu<textarea id="layer-text" rows="2" maxlength="180"></textarea></label>
+          <div class="fields coordinates">
+            <label>X<input id="layer-x" type="number" min="0" max="1919"></label>
+            <label>Y<input id="layer-y" type="number" min="0" max="1089"></label>
+            <label>Taille<input id="layer-size" type="number" min="12" max="260"></label>
+            <label>Couleur<input id="layer-color" type="color"></label>
+          </div>
+          <button class="quiet" id="reset-text" type="button" hidden>Reprendre la donnée de course</button>
+        </div>
+      </aside>
+    </div>
+    <div class="publish panel">
+      <span id="audience">Sélectionne les pilotes destinataires.</span>
+      <div class="row"><button type="button" id="download">Télécharger PNG</button><button type="button" id="archive">Archiver</button><button type="button" id="send" class="primary">Envoyer</button></div>
+    </div>
+    <p id="edit-status" role="status" aria-live="polite"></p>
+  </section>
+</main>
+</body>
+</html>
