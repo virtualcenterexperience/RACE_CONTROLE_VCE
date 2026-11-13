@@ -32,8 +32,6 @@
   }
 
   h1 {
-    align-self: center;
-    justify-self: center;
     margin: 0;
     color: #ff3a60;
     font-size: clamp(28px, 6.1vw, 88px);
@@ -43,19 +41,47 @@
     text-shadow: 0 4px 24px #080d17;
   }
 
-  h1 a {
-    display: inline-block;
-    color: inherit;
+  .hero {
+    display: grid;
+    justify-items: center;
+    align-self: center;
+    gap: clamp(22px, 4vw, 36px);
+  }
+
+  .entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 48px;
+    padding: 0 24px;
+    border: 1px solid #ff6480;
+    border-radius: 6px;
+    background: #bd143d;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .12em;
     text-decoration: none;
   }
 
-  h1 a:hover {
-    color: #ff6b86;
+  .entry:hover {
+    background: #d61a46;
   }
 
-  h1 a:focus-visible {
+  .entry:focus-visible {
     outline: 2px solid #f5f7fc;
-    outline-offset: 7px;
+    outline-offset: 5px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .entry {
+      animation: entry-glow 2.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes entry-glow {
+      from { box-shadow: 0 0 8px #ff3a6040; }
+      to { box-shadow: 0 0 24px #ff3a6080; }
+    }
   }
 
   footer p {
@@ -74,7 +100,10 @@
 </head>
 <body>
 <main>
-  <h1><a href="profile.html" aria-label="RACE CONTROLE VCE — Accéder à la plateforme">RACE CONTROLE VCE</a></h1>
+  <div class="hero">
+    <h1>RACE CONTROLE VCE</h1>
+    <a class="entry" href="profile.html">ENTRÉE <span aria-hidden="true">›</span></a>
+  </div>
   <footer>
     <p>Propriété de VCE ESPORT</p>
     <p>VIRTUAL CENTER EXPERIENCE</p>
