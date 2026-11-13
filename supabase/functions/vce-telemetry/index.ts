@@ -29,7 +29,7 @@ function n(v:unknown,min:number,max:number){if(v===null||v===undefined)return nu
 async function digest(secret:string){const h=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(secret));return [...new Uint8Array(h)].map(v=>v.toString(16).padStart(2,"0")).join("")}
 async function device(b:any){
  if(!UUID.test(b.device_id||"")||!SECRET.test(b.device_secret||""))throw Error("Identifiant ou secret appareil invalide");
- const res=await db.from("vce_agent_devices").select("*").eq("device_id",b.device_id).maybeSingle();requireOk(res);
+ const res=await db.from("vce_agent_devices").select("device_id,secret_hash,status,pilot_slug,pilot_auth_user,allow_team_comparison").eq("device_id",b.device_id).maybeSingle();requireOk(res);
  if(!res.data||res.data.secret_hash!==await digest(b.device_secret))throw Error("PC inconnu ou secret incorrect");
  return res.data;
 }
@@ -227,10 +227,17 @@ Deno.serve(async(req)=>{
    const previous=await db.from("vce_agent_sessions").select("device_id,status")
      .eq("session_id",sess.session_id).maybeSingle();requireOk(previous);
    if(previous.data&&previous.data.device_id!==d.device_id)return reply({error:"Session d'un autre PC"},403);
-   const effective=previous.data?.status||"in_progress";
-   const row=normalizedSession(sess,d,effective);
-   if(effective!=="completed")row.ended_at=null;
-   requireOk(await db.from("vce_agent_sessions").upsert(row,{onConflict:"session_id"}));
+   // A 120 Hz lap uploads many small segments; session metadata must not be
+   // rewritten for each chunk. The first chunk establishes the session and
+   // each later chunk verifies that the existing session belongs to this PC.
+   // This avoids ~1 SQL upsert per incoming chunk without dropping samples.
+   if(offset!==0&&!previous.data)return reply({error:"Session non initialisée : premier segment manquant",expected_offset:0},409);
+   if(offset===0){
+     const effective=previous.data?.status||"in_progress";
+     const row=normalizedSession(sess,d,effective);
+     if(effective!=="completed")row.ended_at=null;
+     requireOk(await db.from("vce_agent_sessions").upsert(row,{onConflict:"session_id"}));
+   }
    const points=lap.samples.map((x:any)=>({
      t:n(x.t,0,5000000000),lap_pos:n(x.lap_pos,0,1),speed_kmh:n(x.speed_kmh,0,800),
      brake:n(x.brake,0,1),throttle:n(x.throttle,0,1),steer:n(x.steer,-100,100),
