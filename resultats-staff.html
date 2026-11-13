@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Résultats TEAM | VCE ESPORT</title>
-<link rel="stylesheet" href="assets/css/vce-results-studio.css?v=1">
+<link rel="stylesheet" href="assets/css/vce-results-studio.css?v=2">
 <script defer src="vce-supabase-config.js"></script>
 <script defer src="vce-supabase.js?v=20261112-stability1"></script>
 <script defer src="assets/js/vce-result-posters.js?v=1"></script>
-<script type="module" src="assets/js/vce-results-studio.js?v=1"></script>
+<script type="module" src="assets/js/vce-results-studio.js?v=2"></script>
 </head>
 <body>
 <header class="top"><a href="staff.html#staff-team">← TEAM Staff</a><strong>VCE <span>ESPORT</span></strong><a href="team-resultats-recus.html">Résultats reçus</a></header>
@@ -36,6 +36,7 @@
         <label>Position<input name="position" type="number" min="1" max="999" step="1" required placeholder="1"></label>
         <label>Nombre de pilotes<select name="count" disabled><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
       </div>
+      <label class="portrait-toggle"><input id="show-portraits" type="checkbox"> Afficher les portraits des pilotes</label>
       <div id="drivers"></div>
     </form>
     <div class="editor">
@@ -46,8 +47,13 @@
       <aside class="panel tools" aria-label="Outils graphiques">
         <h2>Outils graphiques</h2>
         <label>Preset<select id="palette"><option value="red">Rouge + bleu</option><option value="yellow">Jaune + bleu</option><option value="gray">Rouge + gris + bleu</option></select></label>
-        <label>Image de fond <small>JPEG, PNG ou TGA</small><input type="file" id="background" accept=".jpg,.jpeg,.png,.tga,image/jpeg,image/png"></label>
-        <button id="clear-bg" class="quiet" type="button" hidden>Retirer le fond importé</button>
+        <label>Photo de course <small>Voiture ou grille de départ · JPEG, PNG ou TGA</small><input type="file" id="background" accept=".jpg,.jpeg,.png,.tga,image/jpeg,image/png"></label>
+        <button id="clear-bg" class="quiet" type="button" hidden>Retirer la photo de course</button>
+        <div class="photo-framing" id="photo-framing" hidden>
+          <label>Zoom de la photo<input id="photo-zoom" type="range" min="100" max="230" value="100"></label>
+          <label>Cadrage horizontal<input id="photo-x" type="range" min="0" max="100" value="50"></label>
+          <label>Cadrage vertical<input id="photo-y" type="range" min="0" max="100" value="50"></label>
+        </div>
         <label>Texte sélectionné<select id="layers"></select></label>
         <div class="row"><button type="button" id="add-layer">+ Ajouter un texte</button><button type="button" id="remove-layer" class="quiet">Retirer</button></div>
         <div id="layer-fields" hidden>
