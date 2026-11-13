@@ -185,28 +185,13 @@ Deno.serve(async(req)=>{
  }
  // Optional AC physics channels, accepted only as finite numbers in safe bounds.
  // The Windows collector must explicitly transmit a channel; missing is never zero.
- const PHYSICS_FIELDS=["g_long","g_lat","clutch","ride_height_front","ride_height_rear",
-   "air_temp","track_temp","suspension_fl","suspension_fr","suspension_rl","suspension_rr",
-   "tyre_temp_fl","tyre_temp_fr","tyre_temp_rl","tyre_temp_rr",
-   "tyre_temp_inner_fl","tyre_temp_inner_fr","tyre_temp_inner_rl","tyre_temp_inner_rr",
-   "tyre_temp_center_fl","tyre_temp_center_fr","tyre_temp_center_rl","tyre_temp_center_rr",
-   "tyre_temp_outer_fl","tyre_temp_outer_fr","tyre_temp_outer_rl","tyre_temp_outer_rr",
-   "brake_temp_fl","brake_temp_fr","brake_temp_rl","brake_temp_rr",
-   "tyre_wear_fl","tyre_wear_fr","tyre_wear_rl","tyre_wear_rr",
-   "camber_fl","camber_fr","camber_rl","camber_rr",
-   // LMU native player inputs and chassis channels (only measured values).
-   "throttle_raw","brake_raw","steer_raw","clutch_raw",
-   "steering_torque_nm","front_downforce","rear_downforce","drag_n",
-   "engine_water_temp","engine_oil_temp"];
+ // Keep driving inputs and motion channels. Mechanical setup capture is paused.
+ const PHYSICS_FIELDS=["g_long","g_lat","clutch","throttle_raw","brake_raw","steer_raw","clutch_raw"];
  function readPhysics(v:any){
    const extra:Record<string,number>={};
    for(const key of PHYSICS_FIELDS){
      if(v?.[key]===null||v?.[key]===undefined)continue;
-     const cap=key.endsWith("_raw")||key==="clutch"?1:
-       key==="steering_torque_nm"?2000:
-       key==="front_downforce"||key==="rear_downforce"||key==="drag_n"?100000:
-       key.startsWith("brake_temp")?1600:
-       key.startsWith("camber")||key.startsWith("g_")?30:2000;
+     const cap=key.startsWith("g_")?30:1;
      const min=key==="steer_raw"?-1:key.endsWith("_raw")||key==="clutch"?0:-cap;
      const value=n(v[key],min,cap);
      if(value!==null)extra[key]=value;
