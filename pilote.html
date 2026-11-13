@@ -65,7 +65,7 @@ window.addEventListener('vce-roster-updated',()=>{
 routeFallback();
 window.addEventListener('load',()=>{if(root.children.length===0)fallbackCards()});
 })();
-</script><script src="assets/js/vce-page-pilote-data.js?v=20261113-spectateur"></script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261112-stability1"></script><script src="vce-pilot-sync.js?v=20261113-spectateur"></script><script id="vce-app-shell-script-20261104">
+</script><script src="assets/js/vce-page-pilote-data.js?v=20261113-spectateur"></script><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261113-session"></script><script src="vce-pilot-sync.js?v=20261113-spectateur"></script><script id="vce-app-shell-script-20261104">
 (function(){
  const dash=document.getElementById('pilotDashboard');if(!dash||dash.dataset.shellReady)return;dash.dataset.shellReady='1';dash.classList.add('vce-shell');
  const workspace=document.createElement('div');workspace.className='vce-workspace';
@@ -175,4 +175,4 @@ window.addEventListener('hashchange',loadPersonal);
 window.addEventListener('vce-pilot-verified',loadPersonal);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){load();loadPersonal();}});
 })();
-</script><script id="vce-telemetry-profile-link">(function(){function sync(){const a=document.getElementById('vce-telemetry-link');if(a)a.href='telemetry-salon.html'+(location.hash||'')}window.addEventListener('hashchange',sync);new MutationObserver(sync).observe(document.body,{childList:true,subtree:false});sync()})();</script><script defer src="assets/js/vce-pilot-firstnames.js?v=1"></script><script src="assets/js/vce-pilot-avatars.js?v=20261106b" defer></script><script src="vce-pilot-auth.js?v=20261113-spectateur" defer></script><script defer src="assets/js/vce-training-cycle-cache.js?v=1"></script><script defer src="assets/js/vce-pilot-presence.js?v=20261113-spectateur"></script></body></html>
+</script><script id="vce-telemetry-profile-link">(function(){function sync(){const a=document.getElementById('vce-telemetry-link');if(a)a.href='telemetry-salon.html'+(location.hash||'')}window.addEventListener('hashchange',sync);new MutationObserver(sync).observe(document.body,{childList:true,subtree:false});sync()})();</script><script defer src="assets/js/vce-pilot-firstnames.js?v=1"></script><script src="assets/js/vce-pilot-avatars.js?v=20261106b" defer></script><script src="vce-pilot-auth.js?v=20261113-session" defer></script><script defer src="assets/js/vce-training-cycle-cache.js?v=1"></script><script defer src="assets/js/vce-pilot-presence.js?v=20261113-spectateur"></script></body></html>
