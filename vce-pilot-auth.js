@@ -37,7 +37,7 @@ function mount(){
  '<div class="vce-login-kicker">VCE ESPORT · ACCÈS PILOTE</div>'+
  '<h2 id="vce-pilot-auth-title">CONNEXION <span>PILOTE</span></h2>'+
  '<p id="vce-pilot-auth-name"></p><p id="vce-pilot-auth-message" role="status" aria-live="polite"></p>'+
- '<form id="vce-pilot-login-form"><label>Identifiant<input readonly autocomplete="username" value="virtualcenterexperience"></label>'+
+ '<form id="vce-pilot-login-form"><label>Identifiant<input readonly autocomplete="username" id="vce-pilot-username" name="username"></label>'+
  '<label>Mot de passe personnel ou code provisoire<input id="vce-pilot-secret" type="password" autocomplete="current-password" required></label>'+
  '<label class="vce-remember-pilot"><input id="vce-pilot-remember" type="checkbox"> Rester connecté (ordinateur personnel uniquement)</label>'+
  '<button type="submit">ACCÉDER À MON PROFIL</button></form>'+
@@ -57,6 +57,7 @@ function show(message=''){
  mount();card.hidden=false;
  const currentName=current().replace(/-/g,' ').toUpperCase();
  $('vce-pilot-auth-name').textContent=currentName;
+ $('vce-pilot-username').value=internalEmail(current());
  $('vce-pilot-auth-message').textContent=message;
 }
 function showForm(message=''){
@@ -143,21 +144,29 @@ async function signIn(e){
   await window.VCESupabase.login(internalEmail(id),secret,{remember:$('vce-pilot-remember')?.checked===true});
   input.value='';
   await route();
- }catch(err){showForm('Connexion impossible : '+err.message)}
+ }catch(err){
+  const rejected=/invalid_credentials|Invalid login credentials/i.test(err.message);
+  showForm(rejected?'Code refusé pour ce pilote. Vérifie le profil sélectionné et utilise le dernier code fourni par le Staff, ou ton mot de passe personnel si tu l’as déjà créé.':'Connexion impossible : '+err.message);
+ }
  finally{button.disabled=false}
 }
 async function changePassword(e){
  e.preventDefault();const password=$('vce-pilot-new').value,confirmation=$('vce-pilot-confirm').value;
  const id=current(),button=e.currentTarget.querySelector('button[type=submit]');button.disabled=true;
+ let updated=false;
  try{
   if(password!==confirmation)throw Error('Les deux mots de passe sont différents.');
   if(password.length<12)throw Error('12 caractères minimum.');
   await api('pilot_change_password',{new_password:password});
+  updated=true;
   $('vce-pilot-new').value='';$('vce-pilot-confirm').value='';
   // Supabase may revoke the previous token on password change: establish a fresh session.
   await window.VCESupabase.login(internalEmail(id),password);
   await route();
- }catch(err){showChange();$('vce-pilot-auth-message').textContent='Modification impossible : '+err.message}
+ }catch(err){
+  if(updated){window.VCESupabase.logout();showForm('Ton nouveau mot de passe est enregistré. Utilise-le maintenant pour te reconnecter.');}
+  else{showChange();$('vce-pilot-auth-message').textContent='Modification impossible : '+err.message}
+ }
  finally{button.disabled=false}
 }
 function start(){
