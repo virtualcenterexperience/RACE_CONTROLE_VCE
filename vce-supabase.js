@@ -204,7 +204,10 @@ async function review(session_id,pilot,decision){
  return rows?.[0]||null;
 }
 async function submitTraining(item){if(!item?.id||!item?.driver)throw Error('Séance invalide');return request('/rest/v1/vce_training_submissions',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({session_id:String(item.id),pilot:String(item.driver),payload:item})})}
-async function trainingSubmissions(){return request('/rest/v1/vce_training_submissions?select=session_id,pilot,payload,submitted_at&order=submitted_at.desc',{},true)}
+async function trainingSubmissions({includePayload=true}={}){
+ const columns=includePayload?'session_id,pilot,payload,submitted_at':'session_id,pilot,submitted_at';
+ return request('/rest/v1/vce_training_submissions?select='+columns+'&order=submitted_at.desc',{},true);
+}
 // New endpoints are deliberately read-only: no automatic writes or account migrations.
 const services=new Set(['vce-pilot-accounts','vce-roster-sync','vce-training','vce-team','vce-telemetry-history','vce-pilot-presence']);
 async function serviceRead(name){if(!services.has(name))throw Error('Service inconnu');return request('/functions/v1/'+name,{method:'GET'},true)}

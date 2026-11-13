@@ -1,7 +1,7 @@
 (()=>{'use strict';const $=id=>document.getElementById(id);const form=$('vceChatForm');if(!form)return;const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();const stop=new Set('avec dans pour cette voiture quand elle sont plus moins avoir ressenti aussi mais alors depuis comme donc cela tout tous toute etre fait peux peut sur les des une aux mon mes ton tes est pas que qui par'.split(' '));const words=s=>norm(s).split(' ').filter(w=>w.length>3&&!stop.has(w));let rows=[],loaded=false,history=[],lastAdvice=[];const field=(r,keys)=>{for(const k of keys){let v=r[k];if(Array.isArray(v))v=v.join(', ');if(typeof v==='string'&&v.trim())return v.trim()}return ''};function bubble(role,message){const box=document.createElement('div');box.className='vce-chat-bubble '+role;const label=document.createElement('strong');label.textContent=role==='user'?'PILOTE':'ASSISTANT VCE';const p=document.createElement('p');p.textContent=message;box.append(label,p);$('vceChatMessages').append(box);$('vceChatMessages').scrollTop=$('vceChatMessages').scrollHeight;return box}async function fetchSolutions(url){
  if(url.endsWith('/solutions_5000.json')&&typeof DecompressionStream==='function'){
   try{
-   const response=await fetch(url+'.gz');
+   const response=await fetch('data/ressources/solutions_5000.json.gz');
    if(response.ok&&response.body){
     return await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).json();
    }

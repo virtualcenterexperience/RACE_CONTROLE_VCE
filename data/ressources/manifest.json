@@ -16,7 +16,8 @@
       "path": "data/solutions_5000.json",
       "kind": "coaching-depth",
       "load": "explicit-deep-diagnostic-only",
-      "note": "Large file: not loaded on page startup."
+      "note": "Large file: not loaded on page startup.",
+      "compressed_path": "data/ressources/solutions_5000.json.gz"
     },
     {
       "id": "exercise-library",
