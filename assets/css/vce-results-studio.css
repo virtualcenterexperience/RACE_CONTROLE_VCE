@@ -61,3 +61,8 @@ canvas:active { cursor: grabbing; }
 @media(max-width:490px) {
   #drivers.with-portraits .driver { grid-template-columns: 1fr 1fr; }
 }
+
+.stage { background: #0c1523; }
+.stage canvas { width: min(100%, var(--preview-width, 608px)); margin-inline: auto; box-shadow: 0 16px 35px #03060b90; }
+.stage .dimension { font-variant-numeric: tabular-nums; }
+.photo-source { margin: 0 0 12px; color: var(--muted); font-size: .8rem; }

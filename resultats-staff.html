@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Résultats TEAM | VCE ESPORT</title>
-<link rel="stylesheet" href="assets/css/vce-results-studio.css?v=2">
+<link rel="stylesheet" href="assets/css/vce-results-studio.css?v=3">
 <script defer src="vce-supabase-config.js"></script>
 <script defer src="vce-supabase.js?v=20261112-stability1"></script>
 <script defer src="assets/js/vce-result-posters.js?v=1"></script>
-<script type="module" src="assets/js/vce-results-studio.js?v=2"></script>
+<script type="module" src="assets/js/vce-results-studio.js?v=3"></script>
 </head>
 <body>
 <header class="top"><a href="staff.html#staff-team">← TEAM Staff</a><strong>VCE <span>ESPORT</span></strong><a href="team-resultats-recus.html">Résultats reçus</a></header>
@@ -41,14 +41,16 @@
     </form>
     <div class="editor">
       <div class="panel stage">
-        <div class="section-head"><h2>Aperçu</h2><span class="dimension">1920 × 1090 px</span></div>
-        <canvas id="poster" width="1920" height="1090" aria-label="Aperçu de l’affiche. Les coordonnées des textes sont aussi modifiables dans les outils."></canvas>
+        <div class="section-head"><h2>Aperçu</h2><span class="dimension" id="poster-dimension">1080 × 1350 px</span></div>
+        <p id="photo-source" class="photo-source">Visuel VCE par défaut · importe ta capture pour le remplacer.</p>
+        <canvas id="poster" width="1080" height="1350" aria-label="Aperçu de l’affiche. Les coordonnées des textes sont aussi modifiables dans les outils."></canvas>
       </div>
       <aside class="panel tools" aria-label="Outils graphiques">
         <h2>Outils graphiques</h2>
+        <label>Format<select id="poster-format"><option value="social">Instagram · vertical 4:5</option><option value="landscape">Paysage · 1920 × 1090</option></select></label>
         <label>Preset<select id="palette"><option value="red">Rouge + bleu</option><option value="yellow">Jaune + bleu</option><option value="gray">Rouge + gris + bleu</option></select></label>
-        <label>Photo de course <small>Voiture ou grille de départ · JPEG, PNG ou TGA</small><input type="file" id="background" accept=".jpg,.jpeg,.png,.tga,image/jpeg,image/png"></label>
-        <button id="clear-bg" class="quiet" type="button" hidden>Retirer la photo de course</button>
+        <label>Photo de course <small>Ajoute la capture de ta course · JPEG, PNG ou TGA</small><input type="file" id="background" accept=".jpg,.jpeg,.png,.tga,image/jpeg,image/png"></label>
+        <button id="clear-bg" class="quiet" type="button" hidden>Rétablir le fond VCE</button>
         <div class="photo-framing" id="photo-framing" hidden>
           <label>Zoom de la photo<input id="photo-zoom" type="range" min="100" max="230" value="100"></label>
           <label>Cadrage horizontal<input id="photo-x" type="range" min="0" max="100" value="50"></label>
@@ -61,7 +63,7 @@
           <div class="fields coordinates">
             <label>X<input id="layer-x" type="number" min="0" max="1919"></label>
             <label>Y<input id="layer-y" type="number" min="0" max="1089"></label>
-            <label>Taille<input id="layer-size" type="number" min="12" max="260"></label>
+            <label>Taille<input id="layer-size" type="number" min="12" max="300"></label>
             <label>Couleur<input id="layer-color" type="color"></label>
           </div>
           <button class="quiet" id="reset-text" type="button" hidden>Reprendre la donnée de course</button>
@@ -70,7 +72,7 @@
     </div>
     <div class="publish panel">
       <span id="audience">Sélectionne les pilotes destinataires.</span>
-      <div class="row"><button type="button" id="download">Télécharger PNG</button><button type="button" id="archive">Archiver</button><button type="button" id="send" class="primary">Envoyer</button></div>
+      <div class="row"><button type="button" id="download">Exporter pour les réseaux</button><button type="button" id="archive">Archiver</button><button type="button" id="send" class="primary">Envoyer aux profils</button></div>
     </div>
     <p id="edit-status" role="status" aria-live="polite"></p>
   </section>

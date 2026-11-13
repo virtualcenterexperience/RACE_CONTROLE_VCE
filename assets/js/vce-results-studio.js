@@ -5,8 +5,20 @@ const form = $('result-form');
 const field = name => form.elements.namedItem(name);
 const canvas = $('poster');
 const ctx = canvas.getContext('2d');
-const W = canvas.width;
-const H = canvas.height;
+let W = canvas.width;
+let H = canvas.height;
+let exampleBackground = null;
+let defaultPhotoReady;
+const formats = {
+  social: { width: 1080, height: 1350, layout: {
+    vce: [66, 55, 26, 400], mode: [67, 129, 29, 950], event: [62, 177, 91, 950],
+    details: [67, 290, 26, 950], position: [56, 344, 232, 580], brand: [67, 1294, 18, 940]
+  }},
+  landscape: { width: 1920, height: 1090, layout: {
+    vce: [80, 57, 30, 500], mode: [80, 143, 30, 980], event: [75, 188, 103, 1180],
+    details: [80, 312, 31, 1200], position: [80, 372, 226, 530], brand: [80, 1034, 20, 800]
+  }}
+};
 const photoFrame = { zoom: 1, x: .5, y: .5 };
 const condensed = 'Impact, "Arial Narrow", "DejaVu Sans Condensed", Arial, sans-serif';
 const palettes = {
@@ -65,7 +77,7 @@ function sourceText(layer, d) {
   }
   const values = {
     event: d.event.toUpperCase() || 'NOM DE L’ÉPREUVE',
-    position: 'P' + (d.position || '—'),
+    position: d.position ? 'P' + d.position : 'P–',
     details: [d.circuit, normalizedDate(d.date), d.number && 'VOITURE #' + d.number].filter(Boolean).join('  /  '),
     mode: modes[d.mode]
   };
@@ -75,14 +87,41 @@ function makeLayer(id, text, x, y, size, weight = 800, color = '#f4f7fb') {
   return { id, text, x, y, size, weight, color, customColor: false };
 }
 state.layers = [
-  makeLayer('vce', 'VCE ESPORT', 80, 62, 33, 900),
-  makeLayer('mode', null, 80, 152, 31),
-  { ...makeLayer('event', null, 75, 199, 108, 900), maxWidth: 1170, display: true },
-  { ...makeLayer('details', null, 80, 328, 30, 700), maxWidth: 1120 },
-  { ...makeLayer('position', null, 1300, 77, 267, 950), maxWidth: 540, display: true },
-  makeLayer('brand', 'VIRTUAL CENTER EXPERIENCE', 80, 1015, 19, 750, '#b6c8dd')
+  makeLayer('vce', 'VCE ESPORT', 0, 0, 0, 900),
+  makeLayer('mode', null, 0, 0, 0),
+  { ...makeLayer('event', null, 0, 0, 0, 900), display: true },
+  makeLayer('details', null, 0, 0, 0, 700),
+  { ...makeLayer('position', null, 0, 0, 0, 950), display: true },
+  makeLayer('brand', 'VIRTUAL CENTER EXPERIENCE', 0, 0, 0, 750, '#b6c8dd')
 ];
-state.selected = 'event';
+state.selected = null;
+
+function syncLayerPlacement(layer, x, y, size, width) {
+  if (layer.autoX === undefined || layer.x === layer.autoX) layer.x = x;
+  if (layer.autoY === undefined || layer.y === layer.autoY) layer.y = y;
+  if (layer.autoSize === undefined || layer.size === layer.autoSize) layer.size = size;
+  Object.assign(layer, { autoX: x, autoY: y, autoSize: size, maxWidth: width });
+}
+
+function setFormat(key) {
+  const { width, height, layout } = formats[key];
+  const scaleX = width / W;
+  const scaleY = height / H;
+  for (const layer of state.layers) {
+    if (layer.x !== layer.autoX) layer.x = Math.round(layer.x * scaleX);
+    if (layer.y !== layer.autoY) layer.y = Math.round(layer.y * scaleY);
+    if (layout[layer.id]) syncLayerPlacement(layer, ...layout[layer.id]);
+  }
+  W = canvas.width = width;
+  H = canvas.height = height;
+  canvas.style.setProperty('--preview-width', Math.round(760 * W / H) + 'px');
+  $('poster-dimension').textContent = W + ' × ' + H + ' px';
+  $('layer-x').max = W - 1;
+  $('layer-y').max = H - 1;
+  syncDriverLayers(state.drivers.length);
+  refreshLayers();
+  changed();
+}
 
 function drawCover(image, x, y, w, h, { x: alignX = .5, y: alignY = .5, zoom = 1 } = {}) {
   const scale = Math.max(w / image.width, h / image.height) * zoom;
@@ -103,9 +142,15 @@ function polygon(points, color) {
   ctx.fill();
 }
 function driverBox(i, n) {
-  const gap = 14;
-  const w = Math.min(340, (1760 - (n - 1) * gap) / n);
-  return { x: 80 + i * (w + gap), y: 864, w, h: 114 };
+  const vertical = W < H;
+  const columns = vertical ? Math.min(n, 3) : n;
+  const gap = 12;
+  const inset = vertical ? 66 : 80;
+  const w = Math.min(440, (W - 2 * inset - (columns - 1) * gap) / columns);
+  const h = vertical ? 82 : 104;
+  const rows = Math.ceil(n / columns);
+  const bottom = vertical ? 1254 : 1002;
+  return { x: inset + (i % columns) * (w + gap), y: bottom - rows * (h + gap) + Math.floor(i / columns) * (h + gap), w, h };
 }
 function portraitsEnabled() {
   return $('show-portraits').checked;
@@ -113,11 +158,11 @@ function portraitsEnabled() {
 function drawDriver(driver, i, n, palette) {
   const { x, y, w, h } = driverBox(i, n);
   const hasPortrait = portraitsEnabled() && Boolean(driver.image);
-  ctx.fillStyle = '#080f1ced';
+  ctx.fillStyle = '#080f1cd9';
   ctx.fillRect(x, y, w, h);
   ctx.fillStyle = palette.accent;
   ctx.fillRect(x, y, w, 3);
-  if (hasPortrait) drawCover(driver.image, x + 4, y + 7, 94, 102, { y: .27 });
+  if (hasPortrait) drawCover(driver.image, x + 4, y + 7, h - 13, h - 13, { y: .27 });
 }
 function draw(editing = true) {
   const d = data();
@@ -125,30 +170,29 @@ function draw(editing = true) {
   ctx.textBaseline = 'top';
   ctx.fillStyle = palette.base;
   ctx.fillRect(0, 0, W, H);
-  if (state.background) drawCover(state.background, 0, 0, W, H, photoFrame);
-  const tone = ctx.createLinearGradient(0, 0, W, 560);
-  tone.addColorStop(0, palette.base + 'ed');
-  tone.addColorStop(.58, palette.base + '22');
-  tone.addColorStop(1, palette.base + '8c');
-  ctx.fillStyle = tone;
-  ctx.fillRect(0, 0, W, H);
+  const vertical = W < H;
+  const background = state.background || exampleBackground;
+  if (background) drawCover(background, 0, 0, W, H, state.background ? photoFrame : { x: .5, y: vertical ? .5 : .64 });
   const edge = ctx.createLinearGradient(0, 0, 0, H);
-  edge.addColorStop(0, '#040911b0');
-  edge.addColorStop(.39, '#04091100');
-  edge.addColorStop(.66, '#04091100');
-  edge.addColorStop(1, '#040911f7');
+  edge.addColorStop(0, '#050913e0');
+  edge.addColorStop(.31, '#05091360');
+  edge.addColorStop(.62, '#05091300');
+  edge.addColorStop(.83, '#05091338');
+  edge.addColorStop(1, '#050913f9');
   ctx.fillStyle = edge;
   ctx.fillRect(0, 0, W, H);
-  const stripe = state.background ? '38' : '88';
-  polygon([[1030,0],[1180,0],[1920,680],[1920,820]], palette.blue + stripe);
-  polygon([[1200,0],[1230,0],[1920,624],[1920,658]], palette.accent + stripe);
-  polygon([[1305,0],[1920,0],[1920,525]], palette.neutral + '55');
-  polygon([[0,710],[230,838],[0,838]], palette.blue + stripe);
-  polygon([[0,772],[117,838],[0,838]], palette.accent + stripe);
+  const side = ctx.createLinearGradient(0, 0, W, 0);
+  side.addColorStop(0, palette.base + (vertical ? '32' : 'd9'));
+  side.addColorStop(.55, palette.base + '14');
+  side.addColorStop(1, palette.base + '00');
+  ctx.fillStyle = side;
+  ctx.fillRect(0, 0, W, H);
+  polygon([[W-220,0],[W,0],[W,187]], palette.blue + '9c');
+  polygon([[W-114,0],[W-89,0],[W,82],[W,108]], palette.accent);
+  polygon([[0,H-179],[150,H],[0,H]], palette.neutral + '88');
   ctx.fillStyle = palette.accent;
-  ctx.fillRect(0, 0, W, 7);
-  ctx.fillRect(80, 120, 90, 6);
-  ctx.fillRect(80, 996, 1760, 2);
+  ctx.fillRect(vertical ? 67 : 80, vertical ? 104 : 112, 71, 5);
+  ctx.fillRect(vertical ? 67 : 80, H - 80, W - (vertical ? 134 : 160), 2);
   state.drivers.forEach((driver, i) => drawDriver(driver, i, state.drivers.length, palette));
   state.layers.forEach(layer => {
     const content = sourceText(layer, d).split('\n');
@@ -221,10 +265,10 @@ function syncDriverLayers(count) {
   state.layers = state.layers.filter(layer => layer.driver === undefined || layer.driver < count);
   for (let i = 0; i < count; i++) {
     const { x, y, w } = driverBox(i, count);
-    const inset = portraitsEnabled() && state.drivers[i].image ? 108 : 17;
+    const inset = portraitsEnabled() && state.drivers[i].image ? (W < H ? 80 : 103) : 16;
     for (const [key, top, size, weight, color] of [
-      ['name', y + 21, count > 3 ? 36 : 43, 850, '#ffffff'],
-      ['nation', y + 75, 20, 650, '#c9daed']
+      ['name', y + 14, W < H ? 29 : 36, 850, '#ffffff'],
+      ['nation', y + (W < H ? 54 : 68), W < H ? 17 : 20, 650, '#c9daed']
     ]) {
       const id = 'driver-' + i + '-' + key;
       if (removedDriverLayers.has(id)) continue;
@@ -233,18 +277,10 @@ function syncDriverLayers(count) {
         layer = { ...makeLayer(id, null, x + inset, top, size, weight, color), driver: i, field: key };
         state.layers.push(layer);
       }
-      if (layer.autoX !== undefined && layer.x === layer.autoX && layer.y === layer.autoY) {
-        layer.x = x + inset;
-        layer.y = top;
-      }
-      layer.autoX = x + inset;
-      layer.autoY = top;
-      if (layer.autoSize !== undefined && layer.size === layer.autoSize) layer.size = size;
-      layer.autoSize = size;
-      layer.maxWidth = w - inset - 14;
+      syncLayerPlacement(layer, x + inset, top, size, w - inset - 14);
     }
   }
-  if (!state.layers.some(layer => layer.id === state.selected)) state.selected = state.layers.at(-1)?.id || null;
+  if (state.selected && !state.layers.some(layer => layer.id === state.selected)) state.selected = null;
 }
 function buildDrivers() {
   const count = Number(field('count').value);
@@ -362,10 +398,10 @@ $('layer-text').oninput = event => {
   $('reset-text').hidden = layer.driver === undefined && !['mode','event','details','position'].includes(layer.id);
   changed();
 };
-for (const [key, min, max] of [['x',0,W-1],['y',0,H-1],['size',12,260]]) {
+for (const [key, min] of [['x',0],['y',0],['size',12]]) {
   $('layer-' + key).oninput = event => {
     const layer = state.layers.find(layer => layer.id === state.selected);
-    if (layer && event.target.value !== '') { layer[key] = clip(Number(event.target.value), min, max); changed(); }
+    if (layer && event.target.value !== '') { layer[key] = clip(Number(event.target.value), min, key === 'x' ? W - 1 : key === 'y' ? H - 1 : 300); changed(); }
   };
   $('layer-' + key).onchange = refreshLayers;
 }
@@ -373,6 +409,7 @@ $('layer-color').oninput = event => {
   const layer = state.layers.find(layer => layer.id === state.selected);
   if (layer) { layer.color = event.target.value; layer.customColor = true; changed(); }
 };
+$('poster-format').onchange = event => setFormat(event.target.value);
 $('palette').onchange = () => { refreshLayers(); changed(); };
 $('show-portraits').onchange = () => { buildDrivers(); refreshLayers(); changed(); };
 for (const key of ['zoom', 'x', 'y']) {
@@ -391,6 +428,7 @@ $('background').onchange = async event => {
     if (request !== backgroundRequest) { image.close?.(); return; }
     state.background?.close?.();
     state.background = image;
+    $('photo-source').textContent = 'Photo de course importée';
     $('clear-bg').hidden = false;
     $('photo-framing').hidden = false;
     status('Fond importé.');
@@ -405,6 +443,7 @@ $('clear-bg').onclick = () => {
   backgroundRequest++;
   state.background?.close?.();
   state.background = null;
+  $('photo-source').textContent = 'Visuel VCE par défaut · importe ta capture pour le remplacer.';
   $('clear-bg').hidden = true;
   $('photo-framing').hidden = true;
   changed();
@@ -475,10 +514,15 @@ async function act(action) {
   }
 }
 $('download').onclick = () => act(async () => {
-  downloadBlob(await exportBlob(), 'VCE-resultat-1920x1090.png');
-  status('PNG exporté en 1920 × 1090.');
+  await defaultPhotoReady;
+  if (!validData()) return;
+  if (!data().event || !data().position) throw new Error('Renseigne le nom de l’épreuve et la position.');
+  const dimensions = W + 'x' + H;
+  downloadBlob(await exportBlob(), 'VCE-resultat-' + dimensions + '.png');
+  status('PNG exporté en ' + dimensions + '.');
 });
 async function save(published) {
+  await defaultPhotoReady;
   const d = validData();
   if (!d) return;
   if (!d.event || !d.number || state.drivers.some(driver => !driver.nation)) throw new Error('Renseigne les champs obligatoires.');
@@ -603,8 +647,10 @@ async function init() {
     state.roster = Array.isArray(roster.items) ? roster.items.filter(p => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.id) && typeof p.name === 'string') : [];
     state.manifest = await fetch('data/images/pilotes/index.json').then(r => r.ok ? r.json() : {}).catch(() => ({})) || {};
     const draft = prefill();
+    setFormat($('poster-format').value);
     modeChanged();
     refreshLayers();
+    defaultPhotoReady = fromPath('data/images/vce-results-gt3.webp').then(image => { exampleBackground = image; draw(); }).catch(() => {});
     $('history-tab').onclick = () => switchTo('history');
     $('create-tab').onclick = () => switchTo('create');
     $('history-tab').disabled = false;
