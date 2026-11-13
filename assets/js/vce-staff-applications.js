@@ -75,11 +75,14 @@ function section(){
  if(panel)return;
  const dashboard=$('dashboard'),sidebar=dashboard?.querySelector('.rc-nav'),content=dashboard?.querySelector('.rc-content');
  if(!dashboard||!sidebar||!content)return;
- nav=make('a','rc-navlink','');
- nav.href='#candidatures';
- nav.append(make('span','rc-navico','!'),document.createTextNode(' Candidatures '));
+ nav=sidebar.querySelector('a[href="#candidatures"]');
+ if(!nav){
+  nav=make('a','rc-navlink','');
+  nav.href='#candidatures';
+  nav.append(make('span','rc-navico','!'),document.createTextNode(' Candidatures '));
+  sidebar.append(nav);
+ }
  badge=make('span','vce-app-navbadge','0');badge.id='vceApplicationsBadge';badge.hidden=true;nav.append(badge);
- sidebar.append(nav);
  panel=make('section','vce-app-panel');panel.id='vceApplicationsPanel';panel.hidden=true;
  const head=make('div','vce-app-header');
  const left=make('div');left.append(make('small','vce-app-eyebrow','STAFF CONTROL / RECRUTEMENT'),make('h2','', 'CANDIDATURES · NOTIFICATIONS'),make('p','', 'Un ! apparaît à chaque nouvelle réponse au formulaire VCE. Les réponses et les coordonnées ne sont pas copiées sur ce site.'));

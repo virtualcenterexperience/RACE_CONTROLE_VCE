@@ -41,7 +41,7 @@ async function sync(){
  let dash=document.getElementById('pilotDashboard');if(!dash)return;
  let bell=document.getElementById('vceBell');if(!bell){bell=document.createElement('button');bell.id='vceBell';bell.className='vce-notify-bell';(dash.querySelector('.actions')||dash).prepend(bell)}
  const key='vce_read_'+p.id,seen=JSON.parse(localStorage.getItem(key)||'[]'),unread=myN.filter(n=>!seen.includes(n.id));
- bell.textContent='🔔';bell.classList.toggle('has-new',unread.length>0);bell.setAttribute('data-count',unread.length>99?'99+':String(unread.length));bell.setAttribute('aria-label',unread.length+' notifications non lues');bell.onclick=()=>{localStorage.setItem(key,JSON.stringify(myN.map(n=>n.id)));bell.classList.remove('has-new');bell.setAttribute('data-count','0');document.getElementById('vceNotices').scrollIntoView({behavior:'smooth'})};
+ bell.textContent='🔔';bell.classList.toggle('has-new',unread.length>0);bell.setAttribute('data-count',unread.length>99?'99+':String(unread.length));bell.setAttribute('aria-label',unread.length+' notifications non lues');bell.onclick=()=>{if(document.documentElement.classList.contains('vce-pilot-spectator')){document.getElementById('vceNotices')?.scrollIntoView();return}localStorage.setItem(key,JSON.stringify(myN.map(n=>n.id)));bell.classList.remove('has-new');bell.setAttribute('data-count','0');document.getElementById('vceNotices').scrollIntoView({behavior:'smooth'})};
  let block=document.getElementById('vceNotices');if(!block){block=document.createElement('section');block.id='vceNotices';block.className='panel section';dash.append(block)}
  block.innerHTML='<h2>NOTIFICATIONS</h2>'+ (myN.length?myN.slice().reverse().map(n=>`<div class="item">${esc(n.text)} · <a href="coach-irl.html?assignment=${encodeURIComponent(n.assignment)}&pilot=${encodeURIComponent(p.name)}">Voir l’entraînement</a></div>`).join(''):'<p>Aucune notification</p>');
  const races=await resultsFor(p);
@@ -60,5 +60,5 @@ async function coach(){
  else div.textContent='Exercice non publié dans data/vce/attributions.json ou pilote incorrect.';
  main.append(div);
 }
-document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('hashchange',sync);setInterval(()=>{if(!document.hidden)sync()},30000)}coach()});
+document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('vce-pilot-verified',sync);setInterval(()=>{if(!document.hidden)sync()},30000)}coach()});
 })();

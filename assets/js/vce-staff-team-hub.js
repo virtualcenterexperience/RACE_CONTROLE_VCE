@@ -1,31 +1,132 @@
-/* VCE Staff Control — focused TEAM / PILOTES areas, other workstreams unchanged. */
+/* VCE Staff Control — workspace categories and dashboard routes. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-const modules={
- team:[
-  ['🏆','Résultats','Valider les propositions et publier les classements officiels.','resultats-staff.html'],
-  ['📥','Résultats reçus','Examiner les courses envoyées par les pilotes.','team-resultats-recus.html'],
-  ['📅','Calendrier','Créer les manches, circuits, dates et championnats.','calendrier-staff.html'],
-  ['📣','Annonces & overlays','Créer les annonces, affiches et communications.','announcement-staff.html'],
-  ['🏎','Lineups','Composer les équipages et leurs affiches.','lineup-staff.html']
+const categories=[
+ [
+  "administratif",
+  "ADMINISTRATIF",
+  "Gestion des pilotes · données · sauvegardes · candidatures",
+  "coaching-sur-piste.webp",
+  [
+   [
+    "⚙",
+    "Gestion des pilotes",
+    "Ajouter, retirer, réactiver et gérer les accès.",
+    "#gestion-pilotes"
+   ],
+   [
+    "♙",
+    "Voir les profils",
+    "Choisir un pilote et ouvrir son tableau de bord en vue spectateur.",
+    "pilote.html?view=spectateur"
+   ],
+   [
+    "▤",
+    "Données pilotes",
+    "Gérer les données individuelles et les validations.",
+    "gestion-donnees-pilotes.html"
+   ],
+   [
+    "▣",
+    "Cache, sauvegardes et réinitialisation",
+    "Sauvegarder et réinitialiser les données d’entraînement.",
+    "cache-staff.html"
+   ],
+   [
+    "!",
+    "Candidatures",
+    "Consulter les notifications de recrutement.",
+    "#candidatures"
+   ],
+   [
+    "⌁",
+    "Télémétrie et appareils",
+    "Consulter les flux et gérer les associations.",
+    "telemetry-staff.html"
+   ]
+  ]
  ],
- pilotes:[
-  ['⚙','Gestion des pilotes','Ajouter, retirer, réactiver et gérer les accès.','#gestion-pilotes'],
-  ['♙','Profils pilotes','Consulter les profils et les performances.','pilote.html'],
-  ['📡','Télémétrie pilote','Associations des appareils, flux live et historique.','telemetry-staff.html'],
-  ['▤','Données pilotes','Sauvegarder et gérer les données individuelles.','gestion-donnees-pilotes.html']
+ [
+  "entrainement",
+  "ENTRAÎNEMENT",
+  "Attributions · validations · suivi · évaluations",
+  "pilotage-coache.webp",
+  [
+   [
+    "◈",
+    "Attributions et entraînements",
+    "Créer un exercice et l’attribuer à un pilote.",
+    "entrainement-staff.html"
+   ],
+   [
+    "✓",
+    "Validation des entraînements",
+    "Examiner les séances envoyées.",
+    "validation-seances.html"
+   ],
+   [
+    "⌁",
+    "Suivi des entraînements",
+    "Consulter l’évolution des séances.",
+    "evolution-entrainements-staff.html"
+   ],
+   [
+    "◎",
+    "Évaluer les pilotes",
+    "Consulter les grilles et les chronos.",
+    "evaluations-staff.html"
+   ]
+  ]
+ ],
+ [
+  "team",
+  "TEAM",
+  "Résultats · lineups · calendrier · annonces",
+  "simulateurs-vce.webp",
+  [
+   [
+    "🏆",
+    "Résultats",
+    "Publier les classements officiels.",
+    "resultats-staff.html"
+   ],
+   [
+    "📥",
+    "Résultats reçus",
+    "Examiner les courses envoyées par les pilotes.",
+    "team-resultats-recus.html"
+   ],
+   [
+    "🏎",
+    "Lineups",
+    "Composer les équipages et leurs affiches.",
+    "lineup-staff.html"
+   ],
+   [
+    "📅",
+    "Calendrier",
+    "Créer les manches, circuits et dates.",
+    "calendrier-staff.html"
+   ],
+   [
+    "📣",
+    "Annonces et overlays",
+    "Créer les annonces, affiches et communications.",
+    "announcement-staff.html"
+   ]
+  ]
  ]
-};
+];
 const create=(tag,cls,txt)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(txt)el.textContent=txt;return el};
-function buildGroup(key,label,summary,asset){
+function buildGroup(key,label,links){
  const section=create('section','vce-staff-hub-group');section.id='staff-'+key;
  const header=create('div','vce-staff-hub-heading');
  const title=create('h2','',label);
  const back=create('a','vce-staff-hub-back','← Retour à l’accueil Staff');back.href='#overview';
- header.append(title,create('p','',summary),back);
+ header.append(title,back);
  section.append(header);
  const cards=create('div','vce-staff-hub-links');
- for(const [icon,name,description,href] of modules[key]){
+ for(const [icon,name,description,href] of links){
   const card=create('a','vce-staff-hub-action');card.href=href;
   card.append(create('span','vce-staff-hub-action-icon',icon));
   const body=create('div','');body.append(create('strong','',name),create('small','',description));
@@ -39,39 +140,30 @@ function init(){
  const hero=content?.querySelector('.rc-hero');
  if(!hero||$('vce-staff-hub'))return;
  const shell=create('section','vce-staff-hub');shell.id='vce-staff-hub';
- const intro=create('div','vce-staff-hub-intro');intro.append(create('small','','VCE ESPORT / CENTRE DE CONTRÔLE'),
-  create('h2','','CHOISIS TON ESPACE DE TRAVAIL'),
-  create('p','','Deux espaces dédiés pour retrouver rapidement les publications et la gestion des pilotes. Les autres outils restent disponibles.'));
+ const intro=create('div','vce-staff-hub-intro');
+ intro.append(create('h2','','ESPACES DE TRAVAIL'));
  shell.append(intro);
  const selector=create('div','vce-staff-hub-choice');
- for(const [key,headline,caption,image] of [
-  ['team','TEAM','Résultats · calendrier · annonces · lineups','data/images/simulateurs-vce.webp'],
-  ['pilotes','PILOTES','Télémétrie · gestion · profils','data/images/coaching-sur-piste.webp']
- ]){
+ for(const [key,headline,caption,image] of categories){
   const a=create('a','vce-staff-hub-tile');a.href='#staff-'+key;
-  const photo=create('div','vce-staff-hub-photo');photo.style.backgroundImage='linear-gradient(0deg,#071321f0,#07132129),url("'+image+'")';
+  const photo=create('div','vce-staff-hub-photo');photo.style.backgroundImage='linear-gradient(0deg,#071321f0,#07132129),url("data/images/'+image+'")';
   const label=create('div','vce-staff-hub-tile-label');
-  label.append(create('small','',key==='team'?'01 / COMPÉTITION':'02 / EFFECTIF'),
-    create('strong','',headline),create('span','',caption));
+  label.append(create('strong','',headline),create('span','',caption));
   photo.append(label);a.append(photo);
   a.setAttribute('aria-label','Ouvrir '+headline);selector.append(a);
  }
- shell.append(selector,buildGroup('team','TEAM / COMPÉTITION','Tous les outils et les résultats envoyés par les pilotes.'),buildGroup('pilotes','PILOTES / PERFORMANCE','Profils, télémétrie, effectif et données.'));hero.after(shell);
- // The original quick-access cards still exist but duplicate group links are hidden.
- const duplicates=new Set(['#gestion-pilotes','pilote.html','telemetry-staff.html','gestion-donnees-pilotes.html',
- 'resultats-staff.html','calendrier-staff.html','announcement-staff.html','lineup-staff.html']);
- for(const card of document.querySelectorAll('#dashboard .rc-cards > a')){
-  const url=card.getAttribute('href')||'';
-  if(duplicates.has(url.split('?')[0]))card.remove()
- }
- const tools=content.querySelector('.rc-workmain>.rc-sectionhead>span');
- if(tools)tools.textContent='03 / AUTRES OUTILS STAFF';
- const team=$('staff-team'),pilotes=$('staff-pilotes'),dashboard=$('dashboard');
+ const groups=categories.map(([key,title,,,links])=>buildGroup(key,title,links));
+ shell.append(selector,...groups);
+ hero.after(shell);
+ const dashboard=$('dashboard');
  const syncRoute=()=>{
-  const key=location.hash==='#staff-team'?'team':location.hash==='#staff-pilotes'?'pilotes':'';
-  dashboard.classList.toggle('vce-staff-team-selected',key==='team');
-  dashboard.classList.toggle('vce-staff-pilotes-selected',key==='pilotes');
-  team.hidden=key!=='team';pilotes.hidden=key!=='pilotes';
+  const hash=location.hash;
+  const key=hash==='#staff-pilotes'?'administratif':categories.find(([name])=>hash==='#staff-'+name)?.[0];
+  if(key)dashboard.dataset.staffSection=key;
+  else delete dashboard.dataset.staffSection;
+  for(const group of groups)group.hidden=group.id!=='staff-'+key;
+  const section=key||((hash==='#gestion-pilotes'||hash==='#candidatures')?'administratif':'');
+  if(section)dashboard.querySelector('.rc-navsection[data-section="'+section+'"]')?.setAttribute('open','');
   for(const tile of selector.querySelectorAll('a')){
    const active=tile.getAttribute('href')==='#staff-'+key;
    tile.classList.toggle('selected',!!key&&active);

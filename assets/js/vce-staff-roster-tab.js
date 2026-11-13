@@ -67,8 +67,8 @@ function render(){
   }
   // Staff may open the real pilot dashboard under their existing verified
   // Supabase session. No pilot password and no impersonation token is used.
-  const openProfile=element('a','vce-roster-profile','OUVRIR LE PROFIL');
-  openProfile.href='pilote.html#'+encodeURIComponent(p.id);
+  const openProfile=element('a','vce-roster-profile','VOIR EN SPECTATEUR');
+  openProfile.href='pilote.html?view=spectateur#'+encodeURIComponent(p.id);
   openProfile.setAttribute('aria-label','Consulter le tableau de bord de '+p.name);
   actions.append(openProfile);
   const remove=element('button','vce-roster-danger','Retirer');
@@ -148,7 +148,7 @@ function route(){
  dashboard.classList.toggle('rc-pilot-tab',active);
  tab.hidden=!active;
  for(const link of dashboard.querySelectorAll('.rc-navlink[href="#overview"],.rc-navlink[data-vce-roster-tab]')){
-  link.classList.toggle('selected',link.getAttribute('href')===(active?'#gestion-pilotes':'#overview'))
+  link.classList.toggle('selected',link.getAttribute('href')===(active?'#gestion-pilotes':(!location.hash||location.hash==='#overview'?'#overview':null)))
  }
  if(active){
   if(dashboard.style.display==='block'&&window.VCESupabase?.session()){

@@ -3,7 +3,11 @@
 const VCE=(()=>{
 const names=['LUCAS GALY','ALEX LEHOUX','NICOLAS LEFRANCOIS','DYLAN DUBOIS','ANTHONY MANGIERACINA','ANTONIN COLIN','THEO FRANCOIS','MATHYS GOYAT','MATHIS OCQUIDENT','NOE FERNANDEZ','WILLIAM ORLINZOO','MALDONADO MARIUS','VICTOR AUGER','SAMUEL MENDEZ'];
 const $=id=>document.getElementById(id),arr=x=>Array.isArray(x)?x:[],norm=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase(),safe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])),get=(key,def)=>{try{return JSON.parse(localStorage.getItem(key))??def}catch{return def}},set=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
-const pilot=()=>sessionStorage.getItem('vce_pilot')||localStorage.getItem('vce_pilot')||'',selectPilot=name=>{sessionStorage.setItem('vce_pilot',name);localStorage.setItem('vce_pilot',name)};
+let spectatorPilot='';
+const pilot=()=>spectatorPilot||sessionStorage.getItem('vce_pilot')||localStorage.getItem('vce_pilot')||'',selectPilot=name=>{
+ if(document.documentElement.classList.contains('vce-pilot-spectator')){spectatorPilot=name;return}
+ spectatorPilot='';
+ sessionStorage.setItem('vce_pilot',name);localStorage.setItem('vce_pilot',name)};
 function repo(){const parts=location.hostname.split('.');if(parts.length>=3&&parts[1]==='github'&&parts[2]==='io')return {owner:parts[0],repo:location.pathname.split('/').filter(Boolean)[0]||parts[0]};return null}
 const paths=['data/vce/seances.json'];let currentPath='';
 async function read(){

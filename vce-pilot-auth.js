@@ -6,6 +6,7 @@ const internalEmail=id=>'vce-pilote+'+id+'@virtual-center-experience.fr';
 const state={checked:'',seq:0,identity:null,verified:'',verification:null,verificationId:'',inFlightStatus:new Map()};
 window.VCEPilotAuthCanAccess=id=>state.verified===slug(id)&&Boolean(id);
 let card=null;
+const spectatorRequested=location.pathname.endsWith('/pilote.html')&&new URLSearchParams(location.search).get('view')==='spectateur';
 const current=()=>slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''));
 const cfg=()=>window.VCE_SUPABASE||{};
 function lock(value){document.documentElement.classList.toggle('vce-pilot-auth-locked',value);const el=$('pilotDashboard');if(el)el.style.setProperty('display',value?'none':'block','important')}
@@ -74,29 +75,42 @@ function showForm(message=''){
  $('vce-pilot-reconnect').hidden=!window.VCESupabase?.session();
  $('vce-pilot-retry').hidden=!window.VCESupabase?.session();
 }
+function showSpectatorStatus(message){
+ show(message);
+ $('vce-pilot-login-form').hidden=true;
+ $('vce-pilot-change-form').hidden=true;
+ $('vce-pilot-reconnect').hidden=true;
+ $('vce-pilot-retry').hidden=!window.VCESupabase?.session();
+ $('vce-pilot-auth-back').href='staff.html#staff-administratif';
+ $('vce-pilot-auth-back').textContent='← Retour au Staff';
+}
 function showChange(){
  show('Pour protéger ta télémétrie, choisis un mot de passe personnel à la première connexion.');
  $('vce-pilot-login-form').hidden=true;$('vce-pilot-change-form').hidden=false;
  $('vce-pilot-reconnect').hidden=false;
 }
-function openDashboard(){
+function openDashboard(spectator=false){
+ document.documentElement.classList.toggle('vce-pilot-spectator',spectator);
  state.verified=current();card.hidden=true;lock(false);
  // The existing profile router handles visible data and navigation.
  window.dispatchEvent(new Event('vce-pilot-verified'));
 }
 async function route(){
  const id=current(),request=++state.seq;state.verified='';
+ document.documentElement.classList.remove('vce-pilot-spectator');
  if(!id){lock(true);if(card)card.hidden=true;return}
  lock(true);
  // Open the credential form immediately, without waiting for Edge cold starts.
  // Server checks still gate all access to the dashboard.
- showForm('Saisis ton code ou ton mot de passe. Vérification du profil en arrière-plan…');
+ if(spectatorRequested)showSpectatorStatus('Vérification de la session Staff…');
+ else showForm('Saisis ton code ou ton mot de passe. Vérification du profil en arrière-plan…');
  const accessPromise=accountStatus(id).then(value=>({value}),error=>({error}));
  try{
   let sessionError=null;
   const session=await window.VCESupabase?.validSession().catch(err=>{sessionError=err;return null});
   if(request!==state.seq)return;
   if(!session?.access_token){
+   if(spectatorRequested){showSpectatorStatus('Connecte-toi au Staff pour ouvrir ce profil en vue spectateur.');return}
    if(sessionError){showForm('Connexion au serveur perturbée : '+sessionError.message+' Tu peux réessayer ta session sans mot de passe dès que Supabase répond.');return}
    accessPromise.then(result=>{
     if(request!==state.seq||state.verified)return;
@@ -114,13 +128,18 @@ async function route(){
    api('pilot_whoami').then(value=>({value}),error=>({error}))
   ]);
   if(request!==state.seq)return;
+  if(spectatorRequested&&staffResult.value!==true){
+   if(staffResult.error)throw staffResult.error;
+   showSpectatorStatus('La vue spectateur est réservée au Staff.');return;
+  }
   if(accessResult.error)throw accessResult.error;
   const access=accessResult.value;
   if(access?.listed!==true){
-   showForm('Ce pilote a été retiré de l’équipe ou la liste active est indisponible. Contacte le STAFF.');
+   const message='Ce pilote ne figure plus dans l’effectif actif ou la liste est indisponible.';
+   if(spectatorRequested)showSpectatorStatus(message);else showForm(message);
    return;
   }
-  if(staffResult.value===true){openDashboard();return}
+  if(staffResult.value===true){openDashboard(spectatorRequested);return}
   if(!access.ready){
    showForm('Ce compte pilote doit être activé par le STAFF avant la connexion.');
    return;
@@ -134,7 +153,11 @@ async function route(){
   }
   if(identity.password_change_required){showChange();return}
   openDashboard();
- }catch(e){if(request===state.seq)showForm('Vérification impossible : '+e.message)}
+ }catch(e){
+  if(request!==state.seq)return;
+  const message='Vérification impossible : '+e.message;
+  if(spectatorRequested)showSpectatorStatus(message);else showForm(message);
+ }
 }
 async function signIn(e){
  e.preventDefault();const id=current(),input=$('vce-pilot-secret'),secret=input.value;

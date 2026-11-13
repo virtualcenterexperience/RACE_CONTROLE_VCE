@@ -29,6 +29,7 @@
  }
  function currentPilot(){try{return decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'').trim().toLowerCase()}catch{return ''}}
  function onVerified(){
+  if(document.documentElement.classList.contains('vce-pilot-spectator')){verified=false;return}
   verified=true;done=false;
   heartbeat(true);
  }
