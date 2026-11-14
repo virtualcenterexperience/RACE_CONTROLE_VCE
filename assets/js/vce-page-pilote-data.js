@@ -110,19 +110,25 @@ async function __vceCached(name,ttl,load){
 }
 window.addEventListener('vce-training-updated',()=>__vcePageCache.clear());
 window.addEventListener('vce-team-updated',()=>__vcePageCache.clear());
+const PILOT_REFRESH_MS=120_000;
+const DASHBOARD_CACHE_MS=PILOT_REFRESH_MS-1000;
+let renderVersion=0;
 async function render(){
+ const version=++renderVersion;
  let d={},remote=false;
  // Independent datasets run together instead of forming a 4–5 request waterfall.
  const [shared, , cfg, approvedData, publishedResults]=await Promise.all([
-  __vceCached('sessions',90_000,()=>VCE.read()).then(value=>({value}),error=>({error})),
+  __vceCached('sessions',DASHBOARD_CACHE_MS,()=>VCE.read()).then(value=>({value}),error=>({error})),
   __vceCached('circuits',1_800_000,()=>VCE.loadCircuits()),
   __vceCached('rating-config',1_800_000,()=>Rating.config()),
-  __vceCached('approved-training',30_000,()=>approvedTrainingData()),
-  __vceCached('race-results',30_000,()=>publishedRaceEntries())
+  __vceCached('approved-training',DASHBOARD_CACHE_MS,()=>approvedTrainingData()),
+  __vceCached('race-results',DASHBOARD_CACHE_MS,()=>publishedRaceEntries())
  ]);
+ if(version!==renderVersion)return;
  if(shared.value){d=shared.value.data;remote=true;VCE.$('source').textContent='Données synchronisées depuis : '+shared.value.source}
  else VCE.$('source').textContent='Attention : JSON partagé indisponible. Classement et rating non synchronisés. '+(shared.error?.message||'Erreur réseau');
  const now=new Date(),ranks=Rating.ranking(approvedData||{seances:[]},cfg,now),raceData=await raceRatings(publishedResults),raceScores=raceData.scores;
+ if(version!==renderVersion)return;
  showMyRaceResults(publishedResults,VCE.pilot());
  ranks.forEach(x=>{
   x.racePoints=raceScores.get(VCE.norm(x.name))||0;
@@ -181,7 +187,13 @@ function drawChart(trainingRows,raceEvents,currentRating){
  series.forEach((v,i)=>{if(i===0||i===series.length-1||i%Math.max(1,Math.ceil(series.length/5))===0)add('text',{x:x(i),y:H-11,fill:'#a6bdd6','font-size':11,'text-anchor':'middle'},v.day.slice(5))});
  VCE.$('chartCaption').textContent=series.length+' dates · Rating : '+series[series.length-1].rating+' · XP : '+series[series.length-1].xp;
 }
-VCE.$('refresh').onclick=render;
+VCE.$('refresh').onclick=async()=>{
+ const button=VCE.$('refresh');
+ button.disabled=true;
+ for(const key of ['sessions','approved-training','race-results'])__vcePageCache.delete(key);
+ window.dispatchEvent(new Event('vce-pilot-manual-refresh'));
+ try{await refreshPilotDashboard()}finally{button.disabled=false}
+};
 const PILOTS=[];
 // All pilots start at class R; actual promotions are computed from shared sessions.
 VCE.names.splice(0,VCE.names.length,...PILOTS);
@@ -191,13 +203,12 @@ function showPilotList(){const q=VCE.norm(document.getElementById('pilotSearch')
 function showAssignments(name){const root=document.getElementById('assignedList');root.replaceChildren();let items=[];try{items=JSON.parse(localStorage.getItem('vce_training_assignments_v1')||'[]')}catch{}const selected=(Array.isArray(items)?items:[]).filter(x=>VCE.norm(x.driver||'')===VCE.norm(name));if(!selected.length){root.textContent='Aucun entraînement attribué pour le moment.';return}for(const x of selected.slice().reverse()){const article=document.createElement('article');article.className='item';const title=document.createElement('h3');title.textContent=x.mode==='rhythm'?'ENTRAÎNEMENT DE RYTHME':'EXERCICE SPÉCIFIQUE';const info=document.createElement('p');info.textContent=[x.circuit,x.car,x.laps+' tour(s)',x.target?'Chrono objectif : '+x.target:''].filter(Boolean).join(' · ');const task=document.createElement('p');task.textContent='EXERCICE : '+(x.exercise||'');const status=document.createElement('small');status.textContent='STATUT : '+({assigned:'À EFFECTUER',in_progress:'EN COURS',submitted:'EN ATTENTE STAFF',approved:'VALIDÉ',rejected:'REFUSÉ'}[x.status]||'À EFFECTUER');const link=document.createElement('a');link.href='coach-irl.html?assignment='+encodeURIComponent(x.id)+'&pilot='+encodeURIComponent(name);link.textContent='CONSULTER LA SÉANCE →';article.append(title,info,task,status,document.createElement('br'),link);root.append(article)}}
 function routePilot(){let id='';try{id=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')}catch{}let p=allPilots.find(x=>x.id===id);const selection=document.getElementById('pilotSelection'),dashboard=document.getElementById('pilotDashboard');const verified=!!p&&window.VCEPilotAuthCanAccess?.(id)===true;selection.classList.toggle('hidden',!!p);dashboard.classList.toggle('hidden',!verified);selection.style.setProperty('display',p?'none':'block','important');dashboard.style.setProperty('display',verified?'block':'none','important');dashboard.setAttribute('aria-hidden',String(!verified));if(verified){VCE.selectPilot(p.name);showAssignments(p.name);VCE.$('name').textContent=p.name;render();document.title=p.name+' | VCE ESPORT'}else if(!p){document.title='Profils pilotes | VCE ESPORT'}window.scrollTo(0,0)}
 document.getElementById('pilotSearch').oninput=showPilotList;document.getElementById('backToPilots')?.addEventListener('click',()=>location.hash='');window.addEventListener('hashchange',routePilot);window.addEventListener('vce-pilot-verified',routePilot);showPilotList();routePilot();
-let __vceRefreshBusy=false;
-async function refreshVceEvery10Seconds(){
- if(__vceRefreshBusy||document.hidden||!VCE.pilot()||document.getElementById('pilotDashboard').classList.contains('hidden'))return;
- __vceRefreshBusy=true;
- try{await render();}catch(e){console.warn('Actualisation VCE',e)}finally{__vceRefreshBusy=false}
+
+async function refreshPilotDashboard(){
+ if(document.hidden||!VCE.pilot()||document.getElementById('pilotDashboard').classList.contains('hidden'))return;
+ try{await render()}catch(e){console.warn('Actualisation VCE',e)}
 }
-window.setInterval(refreshVceEvery10Seconds,30000);
+window.setInterval(refreshPilotDashboard,PILOT_REFRESH_MS);
 let __vceRosterSignature='',__vceRosterBusy=false;
 const __vceRosterCacheKey='vce_verified_public_roster_v2';
 function applyPilotRoster(rows,{save=false}={}){
@@ -265,5 +276,5 @@ async function syncPilotRoster(){
  }finally{__vceRosterBusy=false}
 }
 setTimeout(syncPilotRoster,0);
-window.addEventListener('pageshow',()=>syncPilotRoster());
-setInterval(()=>{if(!document.hidden)syncPilotRoster()},30000);
+window.addEventListener('pageshow',e=>{if(e.persisted)syncPilotRoster()});
+setInterval(()=>{if(!document.hidden)syncPilotRoster()},PILOT_REFRESH_MS);

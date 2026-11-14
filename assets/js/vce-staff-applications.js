@@ -6,7 +6,7 @@
 const FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLSfdDPpEsIyQHoyAVT43dIzWgvbwdX1Z4Kw_7Gr8_u5rEGr7pg/viewform?usp=sharing';
 const $=id=>document.getElementById(id);
 const make=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
-let panel,nav,badge,list,status,setupStatus,first=true,lastIds=new Set(),loading=false,configured=false,notifiedByBrowser=false;
+let panel,nav,badge,list,status,setupStatus,first=true,lastIds=new Set(),loading=false,manualPending=false,configured=false,notifiedByBrowser=false;
 function setText(value){if(status)status.textContent=value}
 function currentStaff(){const d=$('dashboard');return d&&getComputedStyle(d).display!=='none'&&!d.hidden&&Boolean(window.VCESupabase?.session())}
 async function api(method,action){
@@ -48,8 +48,9 @@ function draw(rows,unread){
   article.append(content);list.append(article);
  }
 }
-async function refresh(){
- if(loading||!currentStaff())return;
+async function refresh(force=false){
+ if(loading){manualPending ||= force;return}
+ if(!currentStaff())return;
  loading=true;try{
   const result=await api('GET');
   const rows=Array.isArray(result.items)?result.items:[];
@@ -61,7 +62,7 @@ async function refresh(){
   draw(rows,Number(result.unread)||0);
   setText('Dernière vérification : '+new Date().toLocaleTimeString('fr-FR'));
  }catch(e){setText('Notifications indisponibles : '+String(e.message||e));}
- finally{loading=false}
+ finally{loading=false;if(manualPending){manualPending=false;queueMicrotask(()=>refresh(true))}}
 }
 function showByRoute(){
  if(!panel)return;
@@ -88,8 +89,8 @@ function section(){
  const left=make('div');left.append(make('small','vce-app-eyebrow','STAFF CONTROL / RECRUTEMENT'),make('h2','', 'CANDIDATURES · NOTIFICATIONS'),make('p','', 'Un ! apparaît à chaque nouvelle réponse au formulaire VCE. Les réponses et les coordonnées ne sont pas copiées sur ce site.'));
  const tools=make('div','vce-app-actions');
  const open=make('a','vce-app-button','FORMULAIRE PUBLIC');open.href=FORM_URL;open.target='_blank';open.rel='noopener noreferrer';open.title='Ouvre le formulaire public, pas les réponses réservées au propriétaire.';
- const reload=make('button','vce-app-button','ACTUALISER');reload.type='button';reload.onclick=refresh;
- const mark=make('button','vce-app-button vce-app-primary','TOUT MARQUER COMME LU');mark.type='button';mark.onclick=async()=>{mark.disabled=true;try{await api('POST','read');await refresh()}catch(e){setText(e.message)}finally{mark.disabled=false}};
+ const reload=make('button','vce-app-button','ACTUALISER');reload.type='button';reload.onclick=()=>refresh(true);
+ const mark=make('button','vce-app-button vce-app-primary','TOUT MARQUER COMME LU');mark.type='button';mark.onclick=async()=>{mark.disabled=true;try{await api('POST','read');await refresh(true)}catch(e){setText(e.message)}finally{mark.disabled=false}};
  tools.append(open,reload,mark);head.append(left,tools);panel.append(head);
  const intro=make('p','vce-app-callout','❗ Tiens, tiens, tiens… On dirait que quelqu’un vient de postuler !');panel.append(intro);
  status=make('p','vce-app-status','Vérification des candidatures…');status.setAttribute('role','status');panel.append(status);
@@ -121,9 +122,8 @@ function section(){
  window.addEventListener('hashchange',showByRoute);
  window.addEventListener('vce-staff-authenticated',()=>{first=true;lastIds.clear();refresh();showByRoute()});
  window.addEventListener('vce-staff-logged-out',()=>{first=true;lastIds.clear();badgeCount(0);panel.hidden=true;list.replaceChildren()});
- window.addEventListener('pageshow',refresh);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
- setInterval(()=>{if(!document.hidden)refresh()},30000);
+ window.addEventListener('pageshow',e=>{if(e.persisted)refresh()});
+ setInterval(()=>{if(!document.hidden)refresh()},120_000);
  showByRoute();
  if(currentStaff())refresh();
 }

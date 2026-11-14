@@ -60,5 +60,5 @@ async function coach(){
  else div.textContent='Exercice non publié dans data/vce/attributions.json ou pilote incorrect.';
  main.append(div);
 }
-document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('vce-pilot-verified',sync);setInterval(()=>{if(!document.hidden)sync()},30000)}coach()});
+document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('vce-pilot-verified',sync);window.addEventListener('vce-pilot-manual-refresh',sync);setInterval(()=>{if(!document.hidden)sync()},120_000)}coach()});
 })();

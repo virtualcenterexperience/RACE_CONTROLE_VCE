@@ -7,8 +7,8 @@
  const generationKey='vce_training_cache_generation_v1';
  const keys=['vce_training_assignments_v1','vce_staff_training_drafts_v1'];
  let inProgress=false,checkedAt=0;
- async function sync(){
-  if(inProgress||Date.now()-checkedAt<10000)return;
+ async function sync(scheduled=false){
+  if(inProgress||(!scheduled&&Date.now()-checkedAt<120_000))return;
   const c=cfg();if(!c.url||!c.key)return;
   inProgress=true;checkedAt=Date.now();
   try{
@@ -48,6 +48,6 @@
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>sync(),{once:true});else sync();
  window.addEventListener('pageshow',()=>sync());
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
- setInterval(()=>{if(!document.hidden)sync()},30000);
+ setInterval(()=>{if(!document.hidden)sync(true)},120_000);
  window.VCETrainingCache={sync}
 })();

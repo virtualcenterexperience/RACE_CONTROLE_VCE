@@ -132,11 +132,10 @@ async function init(){try{
  $('gate').hidden=true;$('work').hidden=false;
  window.dispatchEvent(new Event('vce-telemetry-staff-authenticated'));
  await refresh();
- setInterval(()=>{if(!document.hidden)refresh()},30000);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+ setInterval(()=>{if(!document.hidden)refresh()},120_000);
  }catch(e){$('gateMessage').textContent=e.message}}
  $('refresh').addEventListener('click',()=>refresh(true));
  $('vceIdentityRefresh')?.addEventListener('click',()=>refreshIdentity(true));
  init();
 })();
-</script><script src="vce-staff-pilot-accounts.js?v=20261109-1" defer></script><script src="assets/js/vce-staff-history.js?v=20261107-1" defer></script></body></html>
+</script><script src="vce-staff-pilot-accounts.js?v=20261109-1" defer></script><script src="assets/js/vce-staff-history.js?v=20261114-refresh120" defer></script></body></html>

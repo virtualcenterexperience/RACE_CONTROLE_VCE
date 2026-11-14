@@ -3,8 +3,9 @@
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
  const c=()=>window.VCE_SUPABASE||{};
- const ONLINE_MS=105000;
- let active=false,loading=false,cache=new Map(),roster=[],history=[],loadAt=0,filter='all',search='',selected='';
+ // Allow for both the pilot heartbeat and the STAFF list's two-minute polling interval.
+ const REFRESH_MS=120_000, ONLINE_MS=2*REFRESH_MS+30_000;
+ let active=false,loading=false,cache=new Map(),roster=[],history=[],loadAt=0,manualPending=false,filter='all',search='',selected='';
  const clock=()=>Date.now();
  const validDate=value=>{const ms=Date.parse(value||'');return Number.isFinite(ms)?ms:0};
  function label(d){
@@ -108,9 +109,10 @@
   window.dispatchEvent(new Event('vce-site-presence-updated'));
  }
  async function update(force=false){
-  if(loading||document.hidden||!window.VCESupabase?.session())return;
-  if(!force&&Date.now()-loadAt<25000){render();return}
-  loading=true;
+  if(loading){manualPending ||= force;return}
+  if(document.hidden||!window.VCESupabase?.session())return;
+  if(!force&&Date.now()-loadAt<REFRESH_MS){render();return}
+  loading=true;loadAt=Date.now();
   try{
    if(!await window.VCESupabase.isStaff())return;
    const session=await window.VCESupabase.validSession(),cfg=c();
@@ -136,9 +138,9 @@
     value.online=value.online||sessionState(h);
     next.set(h.pilot_slug,value);
    }
-   cache=next;loadAt=Date.now();render()
+   cache=next;render()
   }catch(e){const meta=$('vce-site-presence-meta');if(meta)meta.textContent='Présence temporairement indisponible : '+e.message}
-  finally{loading=false}
+  finally{loading=false;if(manualPending){manualPending=false;queueMicrotask(()=>update(true))}}
  }
  function start(){
   mount();
@@ -149,9 +151,9 @@
   window.addEventListener('hashchange',onRoute);
   window.addEventListener('vce-staff-authenticated',onRoute);
   window.addEventListener('vce-staff-logged-out',()=>{roster=[];history=[];cache.clear();loadAt=0;render()});
-  window.addEventListener('pageshow',onRoute);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&active)update(true)});
-  setInterval(()=>{if(active&&window.VCESupabase?.session())update()},30000);
+  window.addEventListener('pageshow',e=>{if(e.persisted&&active)update()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&active)update()});
+  setInterval(()=>{if(active&&window.VCESupabase?.session())update()},REFRESH_MS);
   setInterval(()=>{if(active)render()},30000);
   onRoute()
  }

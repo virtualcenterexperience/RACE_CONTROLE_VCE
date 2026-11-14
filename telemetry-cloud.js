@@ -3,7 +3,8 @@
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id);
-const app={poll:null,busy:false,lastKey:'',loginOpen:false,lapCache:new Map(),identity:null,identityAt:0,catalogKey:''};
+const REFRESH_MS=120_000;
+const app={poll:null,busy:false,manualPending:false,lastKey:'',loginOpen:false,lapCache:new Map(),identity:null,identityAt:0,catalogKey:''};
 const cfg=()=>window.VCE_SUPABASE||{};
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const requested=()=>slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''));
@@ -147,7 +148,7 @@ async function fetchSessionLaps(sessionId,maxLaps=40){
  return [...byNumber.values()].sort((a,b)=>a.lap_number-b.lap_number).slice(-maxLaps);
 }
 async function refreshData(forced=false){
- if(app.busy)return;
+ if(app.busy){app.manualPending ||= forced;return}
  app.busy=true;
  try{
    if(!window.VCESupabase?.configured())throw Error('Configuration Supabase absente');
@@ -186,7 +187,7 @@ async function refreshData(forced=false){
      // Preserve historical samples in memory. Refetch only after new laps arrive.
      const cached=app.lapCache.get(s.session_id),count=Number(s.laps_count||0);
      const fresh=cached&&cached.count===count&&
-       (s.status!=='in_progress'||Date.now()-cached.at<30000);
+       (s.status!=='in_progress'||(!forced && Date.now()-cached.at<REFRESH_MS));
      if(fresh)return normalizeSession(s,cached.rows);
      if(i>3)return normalizeSession(s,cached?.rows||[]);
      try{
@@ -212,7 +213,10 @@ async function refreshData(forced=false){
    document.dispatchEvent(new Event('vce-cloud-update'));
    if(!app.catalogKey||app.catalogKey!==window.vceSession?.id){app.catalogKey=window.vceSession?.id;updateComparisonCatalog()}
  }catch(e){banner('FLUX SUPABASE : '+e.message,'error')}
- finally{app.busy=false}
+ finally{
+   app.busy=false;
+   if(app.manualPending){app.manualPending=false;queueMicrotask(()=>refreshData(true))}
+ }
 }
 async function updateComparisonCatalog(){
  const source=window.vceSession;
@@ -319,8 +323,7 @@ async function fetchOlderLaps(){
 function start(){
  makeUI();if(!window.VCESupabase){banner('Scripts Supabase introuvables','error');return}
  refreshData(true);
- app.poll=setInterval(()=>{if(!document.hidden)refreshData()},10000);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshData(true)});
+ app.poll=setInterval(()=>{if(!document.hidden)refreshData()},REFRESH_MS);
  document.getElementById('session')?.addEventListener('change',()=>setTimeout(updateComparisonCatalog,80));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();

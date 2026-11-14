@@ -58,7 +58,7 @@ function drawProfile(){
 }
 async function refresh(force=false){
  const c=cfg();if(!/^https:\/\/[^/]+\.supabase\.co$/.test(c.url||'')||!c.key||refreshing)return;
- if(!force&&Date.now()-lastRefresh<12000)return;
+ if(!force&&Date.now()-lastRefresh<120_000)return;
  refreshing=true;lastRefresh=Date.now();
  try{
   const res=await fetch(c.url+'/rest/v1/vce_pilot_avatars?select=pilot_slug,storage_path,updated_at',{
@@ -163,12 +163,12 @@ function mount(){
   }).observe(root,{childList:true,subtree:true});
  }
  refresh(true);route();
- window.addEventListener('vce-roster-updated',()=>{drawSelection();refresh(true)});
+ window.addEventListener('vce-roster-updated',()=>{drawSelection();refresh()});
  window.addEventListener('vce-pilot-verified',route);
  window.addEventListener('hashchange',route);
- window.addEventListener('pageshow',()=>refresh(true));
+ window.addEventListener('pageshow',e=>{if(e.persisted)refresh()});
  window.addEventListener('vce-avatar-updated',()=>refresh(true));
- setInterval(()=>{if(!document.hidden)refresh()},30000)
+ setInterval(()=>{if(!document.hidden)refresh(true)},120_000)
 }
 function route(){
  ++checking;drawProfile();verifyEdit()

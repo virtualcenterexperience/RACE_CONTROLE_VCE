@@ -34,9 +34,9 @@ async function send(action,extra={}){
 function cell(tr,text){const td=document.createElement('td');td.textContent=text??'—';tr.append(td);return td}
 function date(v){return v?new Date(v).toLocaleString('fr-FR'):'Jamais'}
 function slug(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
-let refreshing=false,lastSnapshot='';
-async function refresh(){
- if(refreshing)return;
+let refreshing=false,refreshQueued=false,lastSnapshot='';
+async function refresh(force=false){
+ if(refreshing){refreshQueued ||= force;return}
  refreshing=true;
  if(!lastSnapshot)$('status').textContent='Chargement initial…';
  try{
@@ -56,12 +56,12 @@ async function refresh(){
  approve.onclick=async()=>{
  if(!field.value.trim())return alert('Choisis un profil pilote');
  if(!confirm('Associer ce PC au profil '+field.value+' ?'))return;
- try{await send('staff_approve',{target_device_id:d.device_id,decision:'approved',pilot_slug:field.value.trim()});await refresh()}
+ try{await send('staff_approve',{target_device_id:d.device_id,decision:'approved',pilot_slug:field.value.trim()});await refresh(true)}
  catch(e){alert(e.message)}
  };
  const reject=document.createElement('button');reject.textContent='Refuser';reject.className='danger';
  reject.onclick=async()=>{if(!confirm('Refuser cette association ?'))return;
- try{await send('staff_approve',{target_device_id:d.device_id,decision:'rejected'});await refresh()}catch(e){alert(e.message)}};
+ try{await send('staff_approve',{target_device_id:d.device_id,decision:'rejected'});await refresh(true)}catch(e){alert(e.message)}};
  wrap.append(field,approve,reject);td.append(wrap);tbody.append(tr);
  }
  if(!tbody.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune demande reçue');td.colSpan=8;tbody.append(tr)}
@@ -72,15 +72,14 @@ async function refresh(){
  if(!ts.children.length){const tr=document.createElement('tr');const td=cell(tr,'Aucune session reçue');td.colSpan=7;ts.append(tr)}
  $('status').textContent='Connecté : '+(devices.devices||[]).length+' appareil(s), '+(sessions.sessions||[]).length+' session(s).';
  }catch(e){$('status').textContent='FLUX INDISPONIBLE : '+e.message}
- finally{refreshing=false}
+ finally{refreshing=false;if(refreshQueued){refreshQueued=false;queueMicrotask(()=>refresh(true))}}
 }
 async function init(){try{
  if(!window.VCESupabase?.configured()||!await window.VCESupabase.isStaff())throw Error('Accès réservé au STAFF. Connecte-toi depuis staff.html.');
  $('gate').hidden=true;$('work').hidden=false;window.dispatchEvent(new Event('vce-telemetry-staff-authenticated'));await refresh();
- setInterval(()=>{if(!document.hidden)refresh()},30000);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+ setInterval(()=>{if(!document.hidden)refresh()},120_000);
  }catch(e){$('gateMessage').textContent=e.message}}
- $('refresh').addEventListener('click',refresh);
+ $('refresh').addEventListener('click',()=>refresh(true));
  init();
 })();
 </script></body></html>

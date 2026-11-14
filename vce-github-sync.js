@@ -44,10 +44,20 @@ async function update(hide,remove=false){
 }
 $('.ps-publish').onclick=()=>update(false);$('.ps-hide').onclick=()=>update(true);$('.ps-delete').onclick=()=>{if(confirm('Supprimer définitivement le contenu de ce preset pour tous les pilotes ?'))update(false,true)};
 }
-async function viewer(k){const host=document.getElementById('vce-live-content'),state=document.getElementById('vce-live-state');if(!host)return;const section=host.parentElement;const menu=document.createElement('div');menu.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin:16px 0';section.insertBefore(menu,host);let selected=1;
-async function reload(){try{const db=await readPresets(k);const available=db.presets.filter(q=>q.published&&q.data);menu.replaceChildren();if(!available.length){host.innerHTML='<p>📭 Aucun preset publié par le STAFF pour le moment.</p>';state.textContent='En attente de publication.';return}if(!available.some(q=>q.id===selected))selected=available[0].id;available.forEach(q=>{const b=document.createElement('button');b.textContent='📁 '+q.title;b.style.cssText='padding:12px;border-radius:9px;border:1px solid #3380c1;background:'+(q.id===selected?'#1779c9':'#102640')+';color:white;cursor:pointer';b.onclick=()=>{selected=q.id;reload()};menu.append(b)});const q=available.find(q=>q.id===selected);host.innerHTML='<h2>📌 '+escape(q.title)+'</h2>'+render(k,q.data);state.textContent='🌐 Données publiées par le STAFF · actualisation toutes les 10 secondes';if(k==='calendrier'){const f=document.createElement('iframe');f.title='Calendrier graphique VCE';f.style.cssText='width:100%;aspect-ratio:16/9;border:1px solid #385775;border-radius:12px;margin:16px 0;background:#070f1c';f.src='overlay-calendrier.html';host.prepend(f);f.addEventListener('load',()=>f.contentWindow.postMessage({type:'VCE_CALENDAR_PRESET',data:q.data},location.origin))}}
-catch(e){state.textContent='⚠️ '+e.message;host.innerHTML='<p>Impossible de charger les presets.</p>'}}
-await reload();setInterval(()=>{if(!document.hidden)reload()},10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)reload()})}
+async function viewer(k){const host=document.getElementById('vce-live-content'),state=document.getElementById('vce-live-state');if(!host)return;const section=host.parentElement;const menu=document.createElement('div');menu.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin:16px 0';section.insertBefore(menu,host);let selected=1,db,inFlight;
+const refresh=document.createElement('button');refresh.type='button';refresh.textContent='Actualiser les publications';menu.before(refresh);
+refresh.onclick=()=>reload();
+function draw(){const available=db.presets.filter(q=>q.published&&q.data);menu.replaceChildren();if(!available.length){host.innerHTML='<p>📭 Aucun preset publié par le STAFF pour le moment.</p>';state.textContent='En attente de publication.';return}if(!available.some(q=>q.id===selected))selected=available[0].id;available.forEach(q=>{const b=document.createElement('button');b.textContent='📁 '+q.title;b.style.cssText='padding:12px;border-radius:9px;border:1px solid #3380c1;background:'+(q.id===selected?'#1779c9':'#102640')+';color:white;cursor:pointer';b.onclick=()=>{selected=q.id;draw()};menu.append(b)});const q=available.find(q=>q.id===selected);host.innerHTML='<h2>📌 '+escape(q.title)+'</h2>'+render(k,q.data);state.textContent='🌐 Données publiées par le STAFF · actualisation automatique toutes les 2 minutes';if(k==='calendrier'){const f=document.createElement('iframe');f.title='Calendrier graphique VCE';f.style.cssText='width:100%;aspect-ratio:16/9;border:1px solid #385775;border-radius:12px;margin:16px 0;background:#070f1c';f.src='overlay-calendrier.html';host.prepend(f);f.addEventListener('load',()=>f.contentWindow.postMessage({type:'VCE_CALENDAR_PRESET',data:q.data},location.origin))}}
+function reload(){
+ if(inFlight)return inFlight;
+ refresh.disabled=true;state.textContent='Actualisation…';
+ inFlight=readPresets(k).then(result=>{db=result;draw()}).catch(e=>{
+  state.textContent='⚠️ '+e.message;
+  if(!db)host.innerHTML='<p>Impossible de charger les presets.</p>';
+ }).finally(()=>{refresh.disabled=false;inFlight=null});
+ return inFlight;
+}
+await reload();setInterval(()=>{if(!document.hidden)reload()},120_000);}
 function staff(k,getData){
  editor(k,getData);
  const saveBtn=document.getElementById('save');

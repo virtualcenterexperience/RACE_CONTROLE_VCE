@@ -1,8 +1,8 @@
 /* VCE — authenticated driver website presence.
    Server timestamps and RLS; per-auth-session, no telemetry-agent conflation. */
 (()=>{'use strict';
- const INTERVAL=45000, cfg=()=>window.VCE_SUPABASE||{};
- let verified=false,active=false,busy=false,done=false,loop=null,lastSent=0;
+ const INTERVAL=120_000, cfg=()=>window.VCE_SUPABASE||{};
+ let verified=false,busy=false,done=false,loop=null;
  async function call(method,{keepalive=false}={}){
   const supa=window.VCESupabase;
   if(!supa?.configured())return false;
@@ -21,11 +21,15 @@
  }
  async function heartbeat(force=false){
   if(!verified||document.hidden||busy||done||!window.VCEPilotAuthCanAccess?.(currentPilot()))return;
-  if(!force&&Date.now()-lastSent<30000)return;
+  if(!force&&loop)return;
+  clearTimeout(loop);
   busy=true;
-  try{if(await call('vce_touch_pilot_presence'))lastSent=Date.now()}
+  try{await call('vce_touch_pilot_presence')}
   catch(e){console.warn('Présence pilote indisponible',e.message)}
-  finally{busy=false}
+  finally{
+   busy=false;
+   if(verified&&!done)loop=setTimeout(()=>{loop=null;heartbeat()},INTERVAL)
+  }
  }
  function currentPilot(){try{return decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'').trim().toLowerCase()}catch{return ''}}
  function onVerified(){
@@ -35,7 +39,7 @@
  }
  function disconnect(){
   if(done||!verified)return;
-  done=true;verified=false;
+  done=true;verified=false;clearTimeout(loop);loop=null;
   // Capture the JWT synchronously, before logout clears sessionStorage.
   const c=cfg(),token=window.VCESupabase?.session()?.access_token;
   if(!c.url||!c.key||!token)return;
@@ -48,8 +52,7 @@
  window.addEventListener('vce-pilot-verified',onVerified);
  window.addEventListener('vce-pilot-presence-logout',disconnect);
  window.addEventListener('pagehide',disconnect);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)heartbeat(true)});
- loop=setInterval(()=>heartbeat(false),INTERVAL);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)heartbeat()});
  // If this script is loaded after auth has already unlocked, catch the state.
  if(window.VCEPilotAuthCanAccess?.(currentPilot()))onVerified();
 })();

@@ -111,5 +111,5 @@ setInterval(()=>{
  if(!state.opened||document.hidden||state.busy||state.page!==0)return;
  if(controls.some(id=>Boolean($(id).value)))return;
  load(0);
-},60000);
+},120_000);
 })();
