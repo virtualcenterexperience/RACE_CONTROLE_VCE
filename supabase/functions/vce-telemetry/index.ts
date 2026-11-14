@@ -209,19 +209,16 @@ Deno.serve(async(req)=>{
      !Number.isInteger(offset)||offset<0||!Number.isInteger(total)||total<10||total>100000||
      !Array.isArray(lap.samples)||lap.samples.length<1||lap.samples.length>160||
      offset+lap.samples.length>total)return reply({error:"Segment de tour invalide"},400);
-   const previous=await db.from("vce_agent_sessions").select("device_id,status")
-     .eq("session_id",sess.session_id).maybeSingle();requireOk(previous);
-   if(previous.data&&previous.data.device_id!==d.device_id)return reply({error:"Session d'un autre PC"},403);
-   // A 120 Hz lap uploads many small segments; session metadata must not be
-   // rewritten for each chunk. The first chunk establishes the session and
-   // each later chunk verifies that the existing session belongs to this PC.
-   // This avoids ~1 SQL upsert per incoming chunk without dropping samples.
-   if(offset!==0&&!previous.data)return reply({error:"Session non initialisée : premier segment manquant",expected_offset:0},409);
    if(offset===0){
+     const previous=await db.from("vce_agent_sessions").select("device_id,status")
+       .eq("session_id",sess.session_id).maybeSingle();requireOk(previous);
+     if(previous.data&&previous.data.device_id!==d.device_id)return reply({error:"Session d'un autre PC"},403);
      const effective=previous.data?.status||"in_progress";
      const row=normalizedSession(sess,d,effective);
      if(effective!=="completed")row.ended_at=null;
-     requireOk(await db.from("vce_agent_sessions").upsert(row,{onConflict:"session_id"}));
+     requireOk(await db.from("vce_agent_sessions").upsert(row,{
+       onConflict:"session_id",ignoreDuplicates:!previous.data
+     }));
    }
    const points=lap.samples.map((x:any)=>({
      t:n(x.t,0,5000000000),lap_pos:n(x.lap_pos,0,1),speed_kmh:n(x.speed_kmh,0,800),
@@ -232,41 +229,17 @@ Deno.serve(async(req)=>{
      sector_index:n(x.sector_index,0,50),...readPhysics(x)
    }));
    if(points.some((p:any)=>p.t===null))return reply({error:"Horodatage de segment invalide"},400);
-   // The first segment starts a fresh idempotent upload; never alter a completed
-   // archived lap until every chunk has arrived and passed the ordering check.
-   if(offset===0){
-     requireOk(await db.from("vce_agent_lap_segments").delete()
-       .eq("session_id",sess.session_id).eq("lap_number",number));
+   const result=await db.rpc("vce_ingest_telemetry_segment",{
+     p_device:d.device_id,p_session:sess.session_id,p_lap:number,p_offset:offset,p_total:total,
+     p_samples:points,p_lap_time:n(lap.lap_time_ms,10000,3600000),
+     p_valid:typeof lap.valid==="boolean"?lap.valid:null
+   });
+   if(result.error?.code==="57014"){
+     return reply({error:"Archivage temporairement indisponible, réessaie."},503);
    }
-   requireOk(await db.from("vce_agent_lap_segments").upsert({
-     session_id:sess.session_id,lap_number:number,sample_offset:offset,
-     total_samples:total,samples:points
-   },{onConflict:"session_id,lap_number,sample_offset"}));
-   const next=offset+points.length;
-   if(next!==total)return reply({ok:true,offset:next,complete:false});
-   const collected=await db.from("vce_agent_lap_segments")
-     .select("sample_offset,total_samples,samples")
-     .eq("session_id",sess.session_id).eq("lap_number",number)
-     .order("sample_offset",{ascending:true}).limit(1000);
-   requireOk(collected);
-   const combined:any[]=[];let expected=0;
-   for(const part of collected.data||[]){
-     if(part.sample_offset!==expected||part.total_samples!==total||
-        !Array.isArray(part.samples))return reply({error:"Segment manquant ou incohérent",expected_offset:expected},409);
-     combined.push(...part.samples);expected=combined.length;
-   }
-   if(expected!==total)return reply({error:"Enregistrement incomplet",expected_offset:expected},409);
-   requireOk(await db.from("vce_agent_laps").upsert({
-     session_id:sess.session_id,lap_number:number,
-     lap_time_ms:n(lap.lap_time_ms,10000,3600000),
-     valid:typeof lap.valid==="boolean"?lap.valid:null,
-     sample_count:combined.length,samples:combined
-   },{onConflict:"session_id,lap_number"}));
-   // All samples are now safely archived as a full lap; discard transfer staging.
-   requireOk(await db.from("vce_agent_lap_segments").delete()
-     .eq("session_id",sess.session_id).eq("lap_number",number));
-   requireOk(await db.from("vce_agent_devices").update({last_seen_at:new Date().toISOString()}).eq("device_id",d.device_id));
-   return reply({ok:true,offset:total,complete:true});
+   requireOk(result);
+   const {status,...body}=result.data;
+   return reply(body,status||200);
  }
  if(action==="live_batch"){
    const d=await device(b);
