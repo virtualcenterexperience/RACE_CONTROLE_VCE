@@ -20,7 +20,7 @@
 <div class="vce-ranking-grid">
 <div class="vce-rank-metric"><small>NOTE DES COACHS</small><strong id="vce-rank-coach">— / 50</strong><small id="vce-rank-coach100" class="vce-grade-total">— / 100</small><small id="vce-rank-coach-level" hidden></small><small id="vce-rank-completion">0 / 10 critères</small></div>
 <div class="vce-rank-metric"><small>PERFORMANCE LMU</small><strong id="vce-rank-percent">— %</strong><small id="vce-rank-chrono-level">Référence manquante</small></div>
-<div class="vce-rank-metric"><small>CLASSE SELON LA NOTE</small><strong id="vce-rank-category">EN ATTENTE</strong><small>ESPORT · ACADÉMIE · ROOKIE · OBSERVATION · REFUSÉ À CE STADE</small></div>
+<div class="vce-rank-metric"><small>CLASSE SELON LA NOTE</small><strong id="vce-rank-category">EN ATTENTE</strong><small>ESPORT · ACADÉMIE · ROOKIE · RETENTER · REFUSÉ À CE STADE</small></div>
 </div>
 <div id="rankingResult" role="status" aria-live="polite"><h3 id="vce-rank-heading">Évaluation incomplète</h3><p id="vce-rank-reason">Note au moins un critère pour calculer une note.</p></div>
 <div class="vce-evaluation-lmu"><h3>Chrono pilote et référence</h3><div class="grid">
@@ -33,7 +33,7 @@
 </div>
 <label class="vce-rank-check"><input type="checkbox" id="lmuConfirmed"><span>Le STAFF confirme que les temps LMU comparent la même voiture, la même catégorie, le même circuit et des conditions compatibles, sur un tour propre.</span></label>
 </div>
-<p class="vce-rank-note">Barème coach · REFUSÉ À CE STADE sous 10/50 · dès 10/50 (20 %) OBSERVATION · dès 15/50 (30 %) ROOKIE · dès 20/50 (40 %) ACADÉMIE · dès 25/50 (50 %) ESPORT. En observation, fixe des objectifs prioritaires pour un deuxième passage. Après un refus, le pilote peut être réévalué.</p>
+<p class="vce-rank-note">Barème sur 50 · REFUSÉ À CE STADE de 0 à moins de 18 · RETENTER de 18 à moins de 22 · ROOKIE de 22 à moins de 35 · ACADÉMIE de 35 à moins de 45 · ESPORT de 45 à 50. Pour retenter, fixe des objectifs prioritaires pour la prochaine évaluation. Après un refus, le pilote peut être réévalué.</p>
 <p class="vce-rank-sub"><strong>Repères chrono LMU</strong> · jusqu’à 101 % ESPORT · au-dessus de 101 % et jusqu’à 103 % ACADÉMIE · au-dessus de 103 % et sous 105 % ROOKIE · dès 105 % hors seuil chrono. Compare les tours sur le même combo et dans des conditions compatibles.</p>
 </section><section id="decision-finale" class="panel"><h2>Orientation et décision finale</h2><div class="grid"><div><label for="decision">Proposition de décision</label><select id="decision"><option value="en_cours">Évaluation en cours</option><option value="tests">Tests complémentaires nécessaires</option><option value="observation">Observation · deuxième chance</option><option value="programme">Programme de développement</option><option value="team_b">Orientation Team B</option><option value="integration">Proposition d'intégration</option><option value="maintien">Maintien dans la structure</option><option value="extension">Prolongation du programme / nouveau bilan</option><option value="reaffectation">Réaffectation sportive</option><option value="fin_collaboration">Fin de collaboration (proposition)</option><option value="promotion">Proposition de montée de catégorie</option><option value="refus">Non retenu à ce stade</option></select></div><div><label for="reviewDate">Date de réévaluation</label><input id="reviewDate" type="date"></div></div><label for="reviewers">Autres évaluateurs / avis collégial</label><input id="reviewers" placeholder="Responsables consultés et avis divergents"><label for="reason">Motivation de la décision</label><textarea id="reason" placeholder="Justification factuelle et points à revoir"></textarea><label for="approver">Responsable sportif (si décision officielle)</label><input id="approver" placeholder="Nom du responsable"><div class="vce-evaluation-lmu">
 <h3>Publication officielle sur le profil</h3>
@@ -41,7 +41,7 @@
 <p class="vce-official-grade"><span>Statut à publier</span> <strong id="officialStatus">En attente de la note</strong></p>
 <div class="actions"><button id="publishEvaluation" type="button" disabled>Publier le statut sur le profil</button></div>
 <p id="publicationStatus" class="muted" role="status"></p>
-</div></section><div class="actions vce-evaluation-actions"><button id="save" type="button">Enregistrer le dossier localement</button><button id="new" type="button" class="secondary">Nouveau dossier</button><button id="export" type="button" class="ghost">Exporter le dossier JSON</button></div><p id="status" class="muted" role="status"></p><section id="historique" class="panel"><h2>Historique des dossiers</h2><div id="history"></div></section></div></div><footer>© VCE ESPORT · Pôle Performance — espace réservé aux membres STAFF habilités.</footer></main><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261115-evaluation"></script><script src="assets/js/vce-evaluation-ranking.js?v=20261115-6"></script><script>
+</div></section><div class="actions vce-evaluation-actions"><button id="save" type="button">Enregistrer le dossier localement</button><button id="new" type="button" class="secondary">Nouveau dossier</button><button id="export" type="button" class="ghost">Exporter le dossier JSON</button></div><p id="status" class="muted" role="status"></p><section id="historique" class="panel"><h2>Historique des dossiers</h2><div id="history"></div></section></div></div><footer>© VCE ESPORT · Pôle Performance — espace réservé aux membres STAFF habilités.</footer></main><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261115-evaluation"></script><script src="assets/js/vce-evaluation-ranking.js?v=20261115-thresholds"></script><script>
 'use strict';
 const $=id=>document.getElementById(id),KEY='vce_performance_coach_dossiers_v1';
 const criteriaScale='vce-10x10';
@@ -71,7 +71,7 @@ const scale=[
  ['Remarquable','Travail très approfondi, précis et parfaitement structuré.'],
  ['Excellent','Maîtrise totale du sujet, réflexion aboutie et qualité irréprochable.']
 ];
-const categoryLabel=value=>value==='REFUSÉ'?'REFUSÉ À CE STADE':value;
+const categoryLabel=value=>({OBSERVATION:'RETENTER',REFUSÉ:'REFUSÉ À CE STADE'}[value]||value);
 function updateAnnotation(index){
  const select=$('score'+index),hint=$('annotation'+index);
  const grade=select.value===''?null:scale[Number(select.value)];

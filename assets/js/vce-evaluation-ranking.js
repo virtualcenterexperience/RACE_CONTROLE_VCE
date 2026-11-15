@@ -1,23 +1,22 @@
-/* VCE ESPORT — combined coach evaluation / verified chrono ranking, advisory v1.
+/* VCE ESPORT — coach evaluation and comparable LMU reference.
  * Ten coach criteria (0–10) are weighted equally on the /100 scale.
- * Unconfirmed weighting thresholds are provisional and must be approved by STAFF.
  */
 (()=>{'use strict';
  const POLICY=Object.freeze({
-  version:'vce-evaluation-ranking-10x10-2026-11',
-  status:'PROPOSED_NOT_APPROVED',
+  version:'vce-evaluation-ranking-10x10-thresholds-2026-11',
+  status:'APPROVED',
   totalCriteria:10,
   maxPerCriterion:10,
   pointsBands:[
-   {min:25,name:'ESPORT',rank:3},
-   {min:20,name:'ACADÉMIE',rank:2},
-   {min:15,name:'ROOKIE',rank:1},
-   {min:10,name:'OBSERVATION',rank:1},
+   {min:45,name:'ESPORT',rank:3},
+   {min:35,name:'ACADÉMIE',rank:2},
+   {min:22,name:'ROOKIE',rank:1},
+   {min:18,name:'OBSERVATION',rank:1},
    {min:0,name:'REFUSÉ',rank:0}
   ],
   percentBands:[{max:101,name:'ESPORT',rank:3},{max:103,name:'ACADÉMIE',rank:2},{max:105,name:'ROOKIE',rank:1},{max:Infinity,name:'REFUSÉ',rank:0}],
   refusalPercent:105,
-  versionStatus:'Barème de points proposé, validation STAFF requise'
+  versionStatus:'Barème STAFF sur 50'
  });
  function coachBand(points){
   if(!Number.isFinite(points)||points<0||points>50)return null;
@@ -46,7 +45,7 @@
  }
  function combine({scores,percent,referenceConfirmed=false,finalized=false}={}){
   const coach=score(scores,{finalized}),chrono=referenceConfirmed?percentage(percent):null;
-  const result={version:POLICY.version,provisional:true,coach,chrono,
+  const result={version:POLICY.version,provisional:false,coach,chrono,
    category:null,ready:false,reason:'',pointsStatus:POLICY.versionStatus};
   if(!coach?.complete){
    result.reason=coach?.rated
