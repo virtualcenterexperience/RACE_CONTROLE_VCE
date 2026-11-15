@@ -1,10 +1,10 @@
 /* VCE ESPORT — combined coach evaluation / verified chrono ranking, advisory v1.
- * 20 coach criteria (1-5) => points /50; percentage of comparable LMU reference.
+ * Rated coach criteria (1–5) are weighted equally and normalized to /50.
  * Unconfirmed weighting thresholds are provisional and must be approved by STAFF.
  */
 (()=>{'use strict';
  const POLICY=Object.freeze({
-  version:'vce-evaluation-ranking-proposal-2026-11',
+  version:'vce-evaluation-ranking-proposal-2026-11-optional-criteria',
   status:'PROPOSED_NOT_APPROVED',
   totalCriteria:20,
   maxPerCriterion:5,
@@ -14,14 +14,17 @@
   versionStatus:'Barème de points proposé, validation STAFF requise'
  });
  const names=['REFUSÉ','ROOKIE','ACADÉMIE','ESPORT'];
- function score(scores){
+ function score(scores,{finalized=false}={}){
   if(!Array.isArray(scores)||scores.length!==POLICY.totalCriteria)return null;
-  const clean=scores.map(x=>x==null||x===''?null:Number(x));
-  const count=clean.filter(Number.isInteger).length;
-  if(count!==POLICY.totalCriteria||clean.some(x=>!Number.isInteger(x)||x<1||x>5))
-   return {complete:false,rated:count,total:clean.reduce((a,b)=>a+(Number.isInteger(b)&&b>=1&&b<=5?b:0),0),points50:null,name:null};
-  const total=clean.reduce((a,b)=>a+b,0),points50=total/2;
-  return {complete:true,rated:20,total,points50,name:POLICY.pointsBands.find(x=>points50>=x.min).name};
+  const clean=scores.filter(value=>value!=null&&value!=='').map(Number);
+  const ratedScores=clean.filter(value=>Number.isInteger(value)&&value>=1&&value<=POLICY.maxPerCriterion);
+  const rated=ratedScores.length;
+  const total=ratedScores.reduce((sum,value)=>sum+value,0);
+  const maxTotal=rated*POLICY.maxPerCriterion;
+  const complete=finalized&&rated>0&&rated===clean.length;
+  const points50=complete?50*total/maxTotal:null;
+  const name=complete?POLICY.pointsBands.find(band=>points50>=band.min).name:null;
+  return {complete,rated,total,maxTotal,points50,name};
  }
  function percentage(pct){
   const n=Number(pct);
@@ -31,12 +34,15 @@
   const band=POLICY.percentBands.find(x=>n<=x.max);
   return {percent:n,name:band.name,rank:band.rank};
  }
- function combine({scores,percent,referenceConfirmed=false}={}){
-  const coach=score(scores),chrono=referenceConfirmed?percentage(percent):null;
+ function combine({scores,percent,referenceConfirmed=false,finalized=false}={}){
+  const coach=score(scores,{finalized}),chrono=referenceConfirmed?percentage(percent):null;
   const result={version:POLICY.version,provisional:true,coach,chrono,
    category:null,ready:false,reason:'',pointsStatus:POLICY.versionStatus};
   if(!coach?.complete){
-   result.reason='Notes coach incomplètes : 20 critères évalués nécessaires.';return result;
+   result.reason=coach?.rated
+    ?'Calcule la note finale à partir des critères évalués.'
+    :'Note au moins un critère pour calculer une note.';
+   return result;
   }
   if(!chrono){
    result.reason='Pourcentage LMU absent ou non confirmé : référence voiture/circuit/catégorie et conditions requise.';return result;
