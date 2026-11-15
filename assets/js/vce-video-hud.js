@@ -1,15 +1,15 @@
-/* Local MP4 preview and sampled OCR of regions selected by the pilot. */
+/* Local MP4 preview with automatic LMU zones and adjustable HUD analysis. */
 (() => {
   'use strict';
 
   const root = document.querySelector('[data-vce-video-hud]');
   if (!root || document.documentElement.dataset.telemetryView === 'setup') return;
   const fields = [
-    ['track', 'Circuit'], ['chrono', 'Chrono'], ['speed', 'Vitesse (km/h)'],
+    ['track', 'Circuit'], ['chrono', 'Chrono'], ['lap', 'Tour'], ['speed', 'Vitesse (km/h)'],
     ['gear', 'Rapport'], ['throttle', 'Accélérateur (%)'], ['brake', 'Frein (%)']
   ];
   const regions = [...fields, ['minimap', 'Mini-carte']];
-  const colors = ['#66c9ff', '#e9d888', '#dcaeff', '#acc6f0', '#45e2aa', '#ff7e9a', '#f2a266'];
+  const colors = ['#66c9ff', '#e9d888', '#84e0fb', '#dcaeff', '#acc6f0', '#45e2aa', '#ff7e9a', '#f2a266'];
   root.innerHTML = `
     <div class="vce-lap-heading">
       <div><h2>Analyser une vidéo MP4</h2><p>Analyse les valeurs visibles du HUD ou synchronise le MP4 avec un tour VCE, notamment sur Le Mans Ultimate. Les fichiers restent dans ce navigateur.</p></div>
@@ -17,11 +17,16 @@
     </div>
     <p data-video="status" role="status" hidden></p>
     <div data-video="details" hidden>
-      <video data-video="video" controls playsinline preload="metadata" aria-label="Vidéo du tour"></video>
+      <div class="vce-video-stage" data-video="stage">
+        <video data-video="video" controls playsinline preload="auto" aria-label="Vidéo du tour"></video>
+        <div class="vce-hud-overlay" data-video="overlay" aria-hidden="true"></div>
+      </div>
       <div class="vce-video-controls">
+        <label class="vce-hud-switch"><input type="checkbox" data-video="show-zones" checked> Afficher les zones HUD</label>
+        <button type="button" data-video="preset">Rétablir les zones LMU</button>
         <label>Donnée à repérer<select data-video="field"></select></label>
         <label data-video="mode-label" hidden>Affichage<select data-video="mode">
-          <option value="text">Chiffres à l’écran</option><option value="horizontal">Barre horizontale</option><option value="vertical">Barre verticale</option>
+          <option value="text">Chiffres à l’écran</option><option value="lmu-arc">Arc LMU</option><option value="horizontal">Barre horizontale</option><option value="vertical">Barre verticale</option>
         </select></label>
         <button type="button" data-video="mark">Délimiter la zone</button>
         <button type="button" data-video="remove">Retirer la zone</button>
@@ -38,12 +43,13 @@
       <div class="vce-video-controls">
         <button type="button" data-video="read" disabled>Lire cette image</button>
         <label>Analyse dans la vidéo<select data-video="length">
-          <option value="10">10 secondes</option><option value="30">30 secondes</option><option value="60">60 secondes</option><option value="all">Jusqu’à la fin de la vidéo</option>
+          <option value="10">10 secondes</option><option value="30">30 secondes</option><option value="60">60 secondes</option><option value="all" selected>Jusqu’à la fin de la vidéo</option>
         </select></label>
+        <button type="button" data-video="full-scan" disabled>Analyser toute la vidéo</button>
         <button type="button" data-video="scan" disabled>Scanner à partir de la position actuelle</button>
         <button type="button" data-video="stop" hidden>Arrêter</button>
       </div>
-      <p class="vce-video-note">Le scan lit jusqu’à 180 images, espacées d’au moins une seconde. Les barres vertes d’accélérateur et rouges de frein donnent un pourcentage estimé.</p>
+      <p class="vce-video-note">L’analyse automatique parcourt toute la vidéo, à raison d’une image par seconde. Les pédales lues dans le HUD sont des estimations. Pour un HUD déplacé, ajuste les cadres puis relance l’analyse.</p>
       <section class="vce-video-coach" aria-label="Diagnostic du pilotage">
         <h3>Passages à revoir</h3>
         <p data-video="archive">Pour une analyse précise dans LMU, importe aussi le JSON du même tour dans « Importer un tour ».</p>
@@ -72,13 +78,37 @@
   const zones = new Map();
   const raw = document.createElement('canvas');
   const crop = document.createElement('canvas');
-  let fileUrl, startPoint, endPoint, task, engine, telemetry, videoStart=null, hudRows=[];
+  let fileUrl, startPoint, endPoint, task, engine, telemetry, autoScanPending=false, videoStart=null, hudRows=[];
   picker.append(...regions.map(([key, label]) => new Option(label, key)));
   function message(text) {
     const status = get('status');
     status.hidden = !text;
     status.textContent = text;
   }
+  function showZones() {
+    const overlay=get('overlay');
+    overlay.hidden=!get('show-zones').checked;
+    overlay.replaceChildren();
+    for(const [index,[field,label]] of regions.entries()) {
+      const zone=zones.get(field);
+      if(!zone) continue;
+      const box=document.createElement('div');
+      box.style.cssText='left:'+zone.x*100+'%;top:'+zone.y*100+'%;width:'+zone.w*100+'%;height:'+zone.h*100+'%;--zone-color:'+colors[index];
+      const tag=document.createElement('span');
+      tag.textContent=label.replace(' (%)','').replace(' (km/h)','');
+      box.append(tag);overlay.append(box);
+    }
+  }
+  function applyPreset() {
+    zones.clear();
+    for(const [field,zone] of window.VCEVideoHUDData.lmuZones()) zones.set(field,zone);
+    if(!get('marking').hidden) repaint();
+    showMinimap();
+    controls();
+    showZones();
+  }
+  get('show-zones').addEventListener('change',showZones);
+  get('preset').addEventListener('click',applyPreset);
   function controls() {
     const field = picker.value;
     const pedal = field === 'brake' || field === 'throttle';
@@ -86,8 +116,8 @@
     mode.value = zones.get(field)?.mode || 'text';
     get('zones').textContent = zones.size ? regions.filter(([key]) => zones.has(key)).map(([, label]) => label).join(' · ') : 'Aucune zone définie.';
     get('remove').disabled = !!task || !zones.has(field);
-    for (const name of ['read', 'scan']) get(name).disabled = !!task || !fields.some(([key]) => zones.has(key));
-    for (const name of ['mark', 'field', 'mode', 'length', 'file']) get(name).disabled = !!task;
+    for (const name of ['read', 'scan', 'full-scan']) get(name).disabled = !!task || !fields.some(([key]) => zones.has(key));
+    for (const name of ['mark', 'field', 'mode', 'length', 'file', 'preset']) get(name).disabled = !!task;
     get('stop').hidden = !task;
     get('align').disabled = !!task;
     get('auto-align').disabled = !!task || !telemetry || hudRows.length < 3;
@@ -101,6 +131,7 @@
     if (fileUrl) URL.revokeObjectURL(fileUrl);
     fileUrl = URL.createObjectURL(file);
     zones.clear();
+    autoScanPending=true;
     hudRows=[];
     videoStart=null;
     alignmentMessage('');
@@ -119,8 +150,15 @@
       message('Ce fichier ne contient pas de piste vidéo exploitable.');
       return;
     }
+    get('stage').style.maxWidth='min(100%, '+(65*video.videoWidth/video.videoHeight)+'vh)';
     get('details').hidden = false;
-    message('');
+    applyPreset();
+    message('Zones HUD LMU prépositionnées.');
+  });
+  video.addEventListener('loadeddata',()=>{
+    if(!autoScanPending||get('details').hidden) return;
+    autoScanPending=false;
+    analyze({scan:true,full:true,automatic:true});
   });
   video.addEventListener('error', () => {
     get('details').hidden = true;
@@ -183,6 +221,7 @@
     }
     repaint();
     controls();
+    showZones();
   });
   frame.addEventListener('pointercancel', () => { startPoint = endPoint = null; repaint(); });
   picker.addEventListener('change', controls);
@@ -195,6 +234,7 @@
     showMinimap();
     if (!get('marking').hidden) repaint();
     controls();
+    showZones();
   });
 
   function showMinimap() {
@@ -305,19 +345,22 @@
       return;
     }
     const source=archive?'Télémétrie VCE synchronisée':'HUD vidéo · estimation';
-    const points=archive?telemetry.points.filter(p=>p.t+videoStart>=0&&p.t+videoStart<=video.duration):coach.hudSamples(hudRows);
-    const result=coach.diagnose(points,{archive});
-    get('coach-status').textContent=source+' · '+(!result.sufficient
+    const segments=archive
+      ? [{number:telemetry.lap.number,points:telemetry.points.filter(p=>p.t+videoStart>=0&&p.t+videoStart<=video.duration)}]
+      : coach.splitHudLaps(hudRows).map(segment=>({number:segment.number,points:coach.hudSamples(segment.rows)}));
+    const results=segments.map(({number,points})=>({number,...coach.diagnose(points,{archive})}));
+    const observations=results.flatMap(({number,events})=>events.map(event=>({...event,number})));
+    get('coach-status').textContent=source+' · '+(!results.some(result=>result.sufficient)
       ? 'Données insuffisantes. Il faut des relevés exploitables de vitesse, de frein et d’accélérateur.'
-      : result.events.length?'Passages à vérifier dans le replay.':'Aucun passage n’a atteint les seuils du diagnostic sur la portion analysée.');
-    for(const item of result.events){
+      : observations.length?'Passages à vérifier dans le replay.':'Aucun passage n’a atteint les seuils du diagnostic sur la portion analysée.');
+    for(const item of observations){
       const time=item.start+(archive?videoStart:0);
       const line=document.createElement('li');
       const jump=document.createElement('button');jump.type='button';jump.textContent=format(time);
       jump.addEventListener('click',()=>{if(!task){video.pause();video.currentTime=Math.max(0,time-.3)}});
       const detail=document.createElement('span');
       const duration=item.end-item.start;
-      detail.textContent=coach.titles[item.kind]+' · '+Math.round(item.speed)+' km/h'+
+      detail.textContent=(item.number==null?'':'Tour '+item.number+' · ')+coach.titles[item.kind]+' · '+Math.round(item.speed)+' km/h'+
         (duration>=.1?' · '+duration.toFixed(1)+' s':'')+
         (archive&&Number.isFinite(item.progress)?' · '+Math.round(item.progress*100)+' % du tour':'')+
         '. '+coach.tips[item.kind];
@@ -401,7 +444,7 @@
     get('results').hidden = false;
   }
 
-  async function analyze(scan) {
+  async function analyze({scan=false,full=false,automatic=false}={}) {
     if (task || !zones.size) return;
     const job = {stopped: false};
     task = job;
@@ -409,11 +452,12 @@
     video.pause();
     video.controls = false;
     get('marking').hidden = true;
-    const start = Math.min(video.currentTime, Math.max(0, video.duration - .04));
-    const length = get('length').value;
-    const duration = Math.min(video.duration - start, length === 'all' ? Infinity : Number(length));
-    const step = Math.max(1, duration / 180);
-    const count = scan ? Math.max(1, Math.min(180, Math.ceil(duration / step))) : 1;
+    const initialTime=video.currentTime;
+    const start=full?0:Math.min(initialTime,Math.max(0,video.duration-.04));
+    const length=get('length').value;
+    const duration=Math.min(video.duration-start,full||length==='all'?Infinity:Number(length));
+    const count=scan?window.VCEVideoHUDData.sampleCount(duration):1;
+    const previewStride=Math.max(1,Math.ceil(count/240));
     const selected = [...zones].filter(([key]) => key !== 'minimap');
     let worker;
     get('rows').replaceChildren();
@@ -433,15 +477,18 @@
       }
       let reads = 0;
       for (let index = 0; index < count && !job.stopped; index++) {
-        const time = Math.min(start + index * step, Math.max(0, video.duration - .04));
-        message('Lecture du HUD · image ' + (index + 1) + ' / ' + count);
+        const time=Math.min(start+index,Math.max(0,video.duration-.04));
+        message('Analyse HUD · '+format(time)+' / '+format(start+duration)+' · '+(index+1)+' / '+count+' images');
         await seek(time);
         const values = {};
         for (const [field, zone] of selected) {
           if (job.stopped) break;
           const ctx = extract(zone);
           if (zone.mode !== 'text') {
-            values[field] = window.VCEVideoHUDData.readBar(ctx.getImageData(0, 0, crop.width, crop.height), field, zone.mode === 'vertical');
+            const image=ctx.getImageData(0,0,crop.width,crop.height);
+            values[field]=zone.mode==='lmu-arc'
+              ? window.VCEVideoHUDData.readLmuPedal(image,field)
+              : window.VCEVideoHUDData.readBar(image,field,zone.mode==='vertical');
             continue;
           }
           const params = {
@@ -458,11 +505,18 @@
           values[field]=value??(!job.stopped&&improveContrast(ctx)?await recognize():null);
         }
         if (job.stopped) break;
-        reads += Object.values(values).filter(value => value !== null).length;
+        reads+=fields.filter(([key])=>key!=='throttle'&&key!=='brake'&&values[key]!=null).length;
         hudRows.push({time,values});
-        renderRow(time, values);
+        if(index%previewStride===0||index===count-1)renderRow(time,values);
+        if(index===14 || index===59) renderCoach();
       }
-      message(job.stopped ? 'Analyse arrêtée.' : reads ? 'Analyse terminée. Clique sur une position pour revoir l’image.' : 'Aucune valeur lisible. Essaie de resserrer les zones sur les chiffres.');
+      if(!job.stopped && telemetry && videoStart===null){
+        const aligned=window.VCEVideoCoach.startFromHud(hudRows,telemetry.lap);
+        if(aligned!==null)align(aligned,'Calage estimé par le chrono du HUD');
+      }
+      message(job.stopped?'Analyse arrêtée.':reads
+        ? 'Analyse terminée · '+count+' image(s) sur '+format(duration)+(previewStride>1?' · Le tableau affiche un extrait.':'.')
+        : 'Aucun chiffre lisible dans les zones du HUD. Ajuste les cadres puis relance l’analyse.');
     } catch (error) {
       message('Analyse interrompue. ' + error.message);
     } finally {
@@ -470,12 +524,14 @@
       if (job.stopped) message('Analyse arrêtée.');
       task = null;
       video.controls = true;
+      if(automatic&&!video.error) video.currentTime=initialTime;
       controls();
       renderCoach();
     }
   }
-  get('read').addEventListener('click', () => analyze(false));
-  get('scan').addEventListener('click', () => analyze(true));
+  get('read').addEventListener('click',()=>analyze());
+  get('scan').addEventListener('click',()=>analyze({scan:true}));
+  get('full-scan').addEventListener('click',()=>analyze({scan:true,full:true}));
   get('stop').addEventListener('click', () => {
     if (task) task.stopped = true;
     message('Arrêt après la lecture en cours…');

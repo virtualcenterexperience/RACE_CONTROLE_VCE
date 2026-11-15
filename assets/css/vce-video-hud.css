@@ -43,3 +43,14 @@
 .vce-video-coach li { display: flex; gap: 10px; margin-top: 8px; align-items: flex-start; }
 .vce-video-coach li button { flex: none; min-height: 34px; padding: 4px 8px; }
 .vce-video-coach li span { line-height: 1.5; }
+
+.vce-video-stage { position: relative; margin: 16px auto 0; }
+.vce-video-stage video { margin: 0; height: auto; max-height: none; }
+.vce-hud-overlay { position: absolute; inset: 0; pointer-events: none; }
+.vce-hud-overlay > div { position: absolute; outline: 1px solid var(--zone-color); }
+.vce-hud-overlay span {
+  position: absolute; bottom: 100%; right: 0; padding: 1px 4px;
+  background: #081221e8; color: var(--zone-color); font-size: clamp(8px, 1vw, 12px); white-space: nowrap;
+}
+.vce-video-controls .vce-hud-switch { display: flex; align-items: center; }
+.vce-hud-switch input { width: auto; }

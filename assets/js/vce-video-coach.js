@@ -22,11 +22,41 @@
     }));
   }
 
+  function hudClock(values) {
+    const match=String(values.chrono??'').match(/^(\d+):(\d{2}\.\d{3})$/);
+    return match?Number(match[1])*60+Number(match[2]):null;
+  }
+
+  function splitHudLaps(rows) {
+    if (!rows.length) return [];
+    const segments=[];
+    let start=0, label=null, lastClock=null;
+    for(const [index,row] of rows.entries()){
+      const clock=hudClock(row.values);
+      const observed=row.values.lap;
+      const confirmed=observed!=null&&String(rows[index+1]?.values.lap)===String(observed);
+      const newLap=confirmed&&label!=null&&Number(observed)===Number(label)+1;
+      const reset=clock!==null&&lastClock!==null&&lastClock>15&&clock<3;
+      if(index-start>=3&&(newLap||reset)){
+        segments.push({number:label,rows:rows.slice(start,index)});
+        start=index;
+        label=null;
+      }
+      if(confirmed)label=observed;
+      if(clock!==null)lastClock=clock;
+    }
+    segments.push({number:label,rows:rows.slice(start)});
+    return segments;
+  }
+
   function startFromHud(rows, lap) {
+    const segments=splitHudLaps(rows);
+    const matchingLap=segments.filter(segment=>segment.number!=null&&Number(segment.number)===Number(lap.number));
+    if(segments.length>1 && matchingLap.length!==1) return null;
+    if(matchingLap.length===1) rows=matchingLap[0].rows;
     const readings = rows.flatMap(({time, values}) => {
-      const chrono = String(values.chrono ?? '').match(/^(\d+):(\d{2}\.\d{3})$/);
-      if (!chrono) return [];
-      const lapTime = Number(chrono[1])*60+Number(chrono[2]);
+      const lapTime=hudClock(values);
+      if(lapTime===null)return [];
       if (lapTime <= 0 || lapTime > (lap.duration ?? 0)+.5) return [];
       return [{time, lapTime, offset:time-lapTime}];
     });
@@ -79,5 +109,5 @@
     flush();
     return {usable:usable.length,sufficient:true,events:events.sort((a,b)=>a.start-b.start).slice(0,12)};
   }
-  window.VCEVideoCoach={hudSamples,startFromHud,diagnose,titles,tips};
+  window.VCEVideoCoach={hudSamples,startFromHud,diagnose,splitHudLaps,titles,tips};
 })();
