@@ -185,3 +185,70 @@ body.vce-page-staff .panel{border-radius:11px}
 .vce-criteria-annotation { grid-column: 1 / -1; margin: 0; color: #a9c5df; font-size: .85rem; line-height: 1.5; }
 
 #rankingResult.vce-rank-observation{border-color:#ff9b66;background:#38251e}
+
+/* Evaluator workspace */
+.vce-evaluation-page main { max-width: 1380px; padding-inline: clamp(15px, 3vw, 44px); }
+.vce-evaluation-header {
+  padding: 22px clamp(18px, 4vw, 42px);
+  margin-bottom: 24px;
+  background: linear-gradient(105deg, #132640, #0e1b2d);
+  border: 1px solid #2f4b68;
+  border-top: 3px solid #f75170;
+  border-radius: 16px;
+}
+.vce-evaluation-header h1 { letter-spacing: -.045em; line-height: 1.08; margin: 14px 0 8px; }
+.vce-evaluation-header p { margin: 0; max-width: 74ch; }
+.vce-evaluation-back { display: inline-flex; align-items: center; min-height: 32px; font-size: .86rem; font-weight: 700; }
+.vce-evaluation-layout { display: grid; grid-template-columns: 195px minmax(0, 1fr); align-items: start; gap: 22px; }
+.vce-evaluation-sidebar { position: sticky; top: 20px; padding: 10px; background: #0c192b; border: 1px solid #2f4b68; border-radius: 13px; }
+.vce-evaluation-sidebar nav { display: grid; gap: 3px; }
+.vce-evaluation-sidebar a { color: #cbdff3; padding: 10px 11px; border-radius: 7px; font-size: .88rem; font-weight: 680; white-space: nowrap; }
+.vce-evaluation-sidebar a:hover, .vce-evaluation-sidebar a:focus-visible { background: #1c3752; color: #fff; }
+.vce-evaluation-progress { padding: 12px 10px 3px; margin-top: 7px; border-top: 1px solid #314961; }
+.vce-evaluation-progress small { display: block; margin-bottom: 6px; font-variant-numeric: tabular-nums; }
+.vce-evaluation-progress progress { display: block; width: 100%; height: 7px; }
+.vce-evaluation-local { width: fit-content; margin: 0 0 12px; color: #b3c6dc; font-size: .8rem; }
+.vce-evaluation-content > .panel { margin: 0 0 18px; background: #102036; }
+.vce-evaluation-content > .panel:target { border-color: #64b4ff; }
+.vce-evaluation-content > .panel > h2 { margin: 0 0 12px; font-size: clamp(19px, 2vw, 25px); line-height: 1.25; letter-spacing: -.02em; }
+.vce-evaluation-content .grid { column-gap: 18px; row-gap: 9px; }
+.vce-evaluation-content .grid label { margin-top: 5px; }
+.vce-evaluation-content #criteria { margin-bottom: 22px; }
+.vce-evaluation-content .vce-criteria-phase { border: 1px solid #2c4966; border-radius: 11px; background: #0d1a2d; }
+.vce-criteria-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 15px; padding: 12px 14px; border-bottom: 1px solid #29455e; background: #172f47; border-radius: 10px 10px 0 0; }
+.vce-criteria-heading h3 { color: #e7f3ff; margin: 0; }
+.vce-criteria-heading small { color: #b0d5f2; font-variant-numeric: tabular-nums; }
+.vce-evaluation-content .criteria { grid-template-columns: minmax(135px, 1fr) minmax(125px, .74fr) minmax(0, 1.65fr); align-items: start; gap: 7px 12px; padding: 11px 14px; }
+.vce-evaluation-content .criteria:last-child { border-bottom: 0; }
+.vce-evaluation-content .criteria label { padding-top: 10px; }
+.vce-evaluation-content .criteria textarea { min-height: 48px; padding: 8px 10px; font-size: .85rem; line-height: 1.4; margin: 0; }
+.vce-evaluation-content .criteria select { font-size: .85rem; padding: 9px 6px; }
+.vce-evaluation-content .criteria select[data-rating="0"] { color: #9db4ca; }
+.vce-evaluation-content .criteria select:is([data-rating="1"],[data-rating="2"]) { border-color: #ba765a; }
+.vce-evaluation-content .criteria select:is([data-rating="4"],[data-rating="5"]) { border-color: #4db095; }
+.vce-evaluation-content .vce-criteria-annotation { grid-column: 3; overflow-wrap: anywhere; }
+.vce-evaluation-content #metrics { margin: 12px 0; }
+.vce-evaluation-content #metrics .panel { margin: 0; padding: 13px; background: #0c1a2c; font-variant-numeric: tabular-nums; }
+.vce-evaluation-lmu { margin-top: 18px; padding: 16px; border: 1px solid #334e69; background: #0b192c; border-radius: 11px; }
+.vce-evaluation-lmu h3 { margin: 0 0 10px; }
+.vce-evaluation-lmu .vce-rank-check { margin-bottom: 0; }
+.vce-evaluation-content .vce-rank-metric { background: #0c1c30; }
+.vce-evaluation-content .vce-rank-metric strong { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.vce-evaluation-content .vce-ranking-panel { border-top: 2px solid #e74e6c; }
+.vce-evaluation-actions { padding: 12px; border: 1px solid #304b67; background: #0b192b; border-radius: 11px; }
+@media(max-width: 920px) {
+  .vce-evaluation-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .vce-evaluation-sidebar { top: 0; z-index: 2; padding: 6px; }
+  .vce-evaluation-sidebar nav { display: flex; overflow-x: auto; }
+  .vce-evaluation-progress { display: flex; align-items: center; gap: 12px; margin-top: 3px; padding: 5px 8px 0; }
+  .vce-evaluation-progress small { flex: none; margin: 0; }
+  .vce-evaluation-content > .panel { scroll-margin-top: 8px; }
+}
+@media(max-width: 600px) {
+  .vce-evaluation-content .criteria { grid-template-columns: minmax(0, 1fr) minmax(118px, .85fr); align-items: center; }
+  .vce-evaluation-content .criteria label { padding-top: 0; }
+  .vce-evaluation-content .criteria textarea, .vce-evaluation-content .vce-criteria-annotation { grid-column: 1 / -1; }
+  .vce-evaluation-content #metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vce-evaluation-content > .panel { padding: 14px; }
+  .vce-evaluation-actions button { width: 100%; }
+}
