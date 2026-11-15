@@ -78,6 +78,8 @@
   const zones = new Map();
   const raw = document.createElement('canvas');
   const crop = document.createElement('canvas');
+  const atlas = document.createElement('canvas');
+  const atlasContext = atlas.getContext('2d');
   let fileUrl, startPoint, endPoint, task, engine, telemetry, autoScanPending=false, videoStart=null, hudRows=[];
   picker.append(...regions.map(([key, label]) => new Option(label, key)));
   function message(text) {
@@ -155,11 +157,13 @@
     applyPreset();
     message('Zones HUD LMU prépositionnées.');
   });
-  video.addEventListener('loadeddata',()=>{
-    if(!autoScanPending||get('details').hidden) return;
+  function startAutomaticScan() {
+    if(!autoScanPending||get('details').hidden||video.readyState<2) return;
     autoScanPending=false;
     analyze({scan:true,full:true,automatic:true});
-  });
+  }
+  video.addEventListener('loadeddata',startAutomaticScan);
+  video.addEventListener('canplay',startAutomaticScan);
   video.addEventListener('error', () => {
     get('details').hidden = true;
     message('Ce MP4 est illisible dans ce navigateur. Essaie un MP4 encodé en H.264.');
@@ -240,7 +244,7 @@
   function showMinimap() {
     const zone = zones.get('minimap');
     get('minimap-panel').hidden = !zone;
-    if (!zone || video.readyState < 2) return;
+    if (!zone || video.readyState < 2 || task) return;
     const canvas = get('minimap');
     const width = video.videoWidth * zone.w, height = video.videoHeight * zone.h;
     canvas.width = Math.max(1, Math.min(420, Math.round(width)));
@@ -258,8 +262,13 @@
       script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';
       script.integrity = 'sha384-r1ru3tcf6FhnCFR4B7pIFG+BhFF9LlFtz/P1y4pblWn3AGs9y3lBx5SKLNf4+rED';
       script.crossOrigin = 'anonymous';
-      script.onload = () => resolve(window.Tesseract);
-      script.onerror = () => { script.remove(); reject(new Error('Le moteur de lecture est inaccessible. Vérifie ta connexion.')); };
+      const failed=()=>{
+        clearTimeout(timer);script.remove();
+        reject(new Error('Le lecteur HUD ne se charge pas. Vérifie ta connexion puis relance la lecture.'));
+      };
+      const timer=setTimeout(failed,10000);
+      script.onload=()=>{clearTimeout(timer);resolve(window.Tesseract)};
+      script.onerror=failed;
       document.head.append(script);
     }).catch(error => { engine = null; throw error; });
     return engine;
@@ -357,7 +366,11 @@
       const time=item.start+(archive?videoStart:0);
       const line=document.createElement('li');
       const jump=document.createElement('button');jump.type='button';jump.textContent=format(time);
-      jump.addEventListener('click',()=>{if(!task){video.pause();video.currentTime=Math.max(0,time-.3)}});
+      jump.addEventListener('click',()=>{
+        const target=Math.max(0,time-.3);
+        if(task){task.stopped=true;task.review=target;message('Ouverture du passage après cette image…');return}
+        video.pause();video.currentTime=target;
+      });
       const detail=document.createElement('span');
       const duration=item.end-item.start;
       detail.textContent=(item.number==null?'':'Tour '+item.number+' · ')+coach.titles[item.kind]+' · '+Math.round(item.speed)+' km/h'+
@@ -413,24 +426,46 @@
   });
   for(const event of ['timeupdate','seeked']) video.addEventListener(event,showSynchronizedSample);
 
-  function improveContrast(context) {
-    const image=context.getImageData(0,0,crop.width,crop.height);
-    const pixels=image.data;
-    const brightness=new Uint8Array(pixels.length/4);
-    let min=255,max=0;
-    for(let i=0;i<brightness.length;i++){
-      const p=4*i;
-      const value=Math.round(.299*pixels[p]+.587*pixels[p+1]+.114*pixels[p+2]);
-      brightness[i]=value;min=Math.min(min,value);max=Math.max(max,value);
+  function deadline(promise,ms,message,onLateResult) {
+    let timer;
+    let expired=false;
+    const timeout=new Promise((_,reject)=>{
+      timer=setTimeout(()=>{expired=true;reject(new Error(message))},ms);
+    });
+    return Promise.race([promise.then(result=>{
+      if(expired) onLateResult?.(result);
+      return result;
+    }),timeout]).finally(()=>clearTimeout(timer));
+  }
+
+  function paintAtlas(textZones) {
+    const rowHeight=window.VCEVideoHUDData.ATLAS_ROW_HEIGHT;
+    atlas.width=300;
+    atlas.height=rowHeight*textZones.length;
+    atlasContext.fillStyle='#fff';
+    atlasContext.fillRect(0,0,atlas.width,atlas.height);
+    for(const [index,[,zone]] of textZones.entries()){
+      const sw=zone.w*video.videoWidth,sh=zone.h*video.videoHeight;
+      const scale=Math.min(44/sh,284/sw);
+      crop.width=Math.max(1,Math.round(sw*scale));crop.height=Math.max(1,Math.round(sh*scale));
+      const ctx=crop.getContext('2d',{willReadFrequently:true});
+      ctx.drawImage(video,zone.x*video.videoWidth,zone.y*video.videoHeight,sw,sh,0,0,crop.width,crop.height);
+      const image=ctx.getImageData(0,0,crop.width,crop.height);
+      const pixels=image.data;
+      let min=255,max=0,sum=0;
+      for(let p=0;p<pixels.length;p+=4){
+        const l=Math.round(.299*pixels[p]+.587*pixels[p+1]+.114*pixels[p+2]);
+        pixels[p]=l;min=Math.min(min,l);max=Math.max(max,l);sum+=l;
+      }
+      if(max-min<18) continue;
+      const lightHud=sum/(pixels.length/4)<(min+max)/2;
+      for(let p=0;p<pixels.length;p+=4){
+        const intensity=255*(pixels[p]-min)/(max-min);
+        const value=(lightHud?255-intensity:intensity)<115?0:255;
+        pixels[p]=pixels[p+1]=pixels[p+2]=value;
+      }
+      atlasContext.putImageData(image,8,index*rowHeight+Math.floor((rowHeight-crop.height)/2));
     }
-    if(max-min<18) return false;
-    for(let i=0;i<brightness.length;i++){
-      const p=4*i;
-      const value=Math.round(255*(brightness[i]-min)/(max-min));
-      pixels[p]=pixels[p+1]=pixels[p+2]=value;
-    }
-    context.putImageData(image,0,0);
-    return true;
   }
 
   function renderRow(time, values) {
@@ -459,72 +494,85 @@
     const count=scan?window.VCEVideoHUDData.sampleCount(duration):1;
     const previewStride=Math.max(1,Math.ceil(count/240));
     const selected = [...zones].filter(([key]) => key !== 'minimap');
+    const textZones=selected.filter(([,zone])=>zone.mode==='text');
+    const pedalZones=selected.filter(([,zone])=>zone.mode!=='text');
+    const textFields=textZones.map(([field])=>field);
+    let nextReport=4;
     let worker;
     get('rows').replaceChildren();
     get('results').hidden = true;
     hudRows=[];
     try {
-      if (selected.some(([, zone]) => zone.mode === 'text')) {
+      if(textZones.length){
         message('Chargement du moteur de lecture du HUD…');
-        const api = await getEngine();
+        const api=await getEngine();
         if (job.stopped) return;
-        worker = await api.createWorker('eng', 1, {
+        worker=await deadline(api.createWorker('eng',1,{
           workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/worker.min.js',
           corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0',
           langPath: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int',
-          errorHandler: error => { console.error('VCE OCR', error); }
-        });
+          errorHandler:error=>console.warn('VCE OCR',error)
+        }),25000,'Le moteur HUD ne démarre pas. Vérifie ta connexion, puis relance la lecture.',
+        lateWorker=>lateWorker.terminate().catch(()=>{}));
+        if(job.stopped) return;
+        await deadline(worker.setParameters({
+          tessedit_pageseg_mode:'6',
+          tessedit_char_whitelist:textFields.includes('track')?'':'0123456789:.,NR%'
+        }),5000,'Le moteur HUD ne répond pas.');
       }
-      let reads = 0;
+      let reads=0,skipped=0,seekFailures=0;
       for (let index = 0; index < count && !job.stopped; index++) {
         const time=Math.min(start+index,Math.max(0,video.duration-.04));
         message('Analyse HUD · '+format(time)+' / '+format(start+duration)+' · '+(index+1)+' / '+count+' images');
-        await seek(time);
-        const values = {};
-        for (const [field, zone] of selected) {
-          if (job.stopped) break;
-          const ctx = extract(zone);
-          if (zone.mode !== 'text') {
-            const image=ctx.getImageData(0,0,crop.width,crop.height);
-            values[field]=zone.mode==='lmu-arc'
-              ? window.VCEVideoHUDData.readLmuPedal(image,field)
-              : window.VCEVideoHUDData.readBar(image,field,zone.mode==='vertical');
-            continue;
-          }
-          const params = {
-            tessedit_pageseg_mode: field === 'gear' ? '10' : '7',
-            tessedit_char_whitelist: field === 'track' ? '' : field === 'chrono' ? '0123456789:.,' :
-              field === 'gear' ? '0123456789NR' : '0123456789%'
-          };
-          await worker.setParameters(params);
-          const recognize=async()=>{
-            const {data}=await worker.recognize(crop);
-            return data.confidence>=65?window.VCEVideoHUDData.readValue(field,data.text):null;
-          };
-          const value=await recognize();
-          values[field]=value??(!job.stopped&&improveContrast(ctx)?await recognize():null);
+        try {
+          await seek(time);
+          seekFailures=0;
+        } catch(error) {
+          if(video.error||++seekFailures>=2||!scan) throw error;
+          skipped++;
+          hudRows.push({time,values:{}});
+          continue;
+        }
+        if(job.stopped) break;
+        const values={};
+        for(const [field,zone] of pedalZones){
+          const ctx=extract(zone);
+          const image=ctx.getImageData(0,0,crop.width,crop.height);
+          values[field]=zone.mode==='lmu-arc'
+            ?window.VCEVideoHUDData.readLmuPedal(image,field)
+            :window.VCEVideoHUDData.readBar(image,field,zone.mode==='vertical');
+        }
+        if(worker&&!job.stopped){
+          paintAtlas(textZones);
+          const {data}=await deadline(worker.recognize(atlas,{},{text:false,tsv:true}),8000,
+            'La lecture du HUD s’est bloquée à '+format(time)+'. Les secondes déjà lues restent disponibles.');
+          Object.assign(values,window.VCEVideoHUDData.readAtlas(data.tsv,textFields));
         }
         if (job.stopped) break;
-        reads+=fields.filter(([key])=>key!=='throttle'&&key!=='brake'&&values[key]!=null).length;
+        reads+=fields.filter(([key])=>key==='throttle'||key==='brake'?Number(values[key])>0:values[key]!=null).length;
         hudRows.push({time,values});
         if(index%previewStride===0||index===count-1)renderRow(time,values);
-        if(index===14 || index===59) renderCoach();
+        if(index+1>=nextReport){
+          renderCoach();
+          nextReport+=Math.max(6,Math.ceil(nextReport/4));
+        }
       }
       if(!job.stopped && telemetry && videoStart===null){
         const aligned=window.VCEVideoCoach.startFromHud(hudRows,telemetry.lap);
         if(aligned!==null)align(aligned,'Calage estimé par le chrono du HUD');
       }
       message(job.stopped?'Analyse arrêtée.':reads
-        ? 'Analyse terminée · '+count+' image(s) sur '+format(duration)+(previewStride>1?' · Le tableau affiche un extrait.':'.')
+        ? 'Analyse terminée · '+(count-skipped)+' image(s) sur '+format(duration)+(skipped?' · '+skipped+' image illisible.':'.')+(previewStride>1?' Le tableau affiche un extrait.':'')
         : 'Aucun chiffre lisible dans les zones du HUD. Ajuste les cadres puis relance l’analyse.');
     } catch (error) {
       message('Analyse interrompue. ' + error.message);
     } finally {
       if (worker) await worker.terminate().catch(() => {});
-      if (job.stopped) message('Analyse arrêtée.');
+      if (job.stopped) message(Number.isFinite(job.review)?'Analyse interrompue pour revoir le passage. Relance-la pour analyser la suite.':'Analyse arrêtée.');
       task = null;
       video.controls = true;
-      if(automatic&&!video.error) video.currentTime=initialTime;
+      if(!video.error&&(automatic||Number.isFinite(job.review))) video.currentTime=job.review??initialTime;
+      showMinimap();
       controls();
       renderCoach();
     }

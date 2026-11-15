@@ -6,12 +6,14 @@
   const titles = {
     coast: 'Temps sans frein ni accélérateur',
     overlap: 'Frein et accélérateur simultanés',
-    lift: 'Remise des gaz interrompue'
+    lift: 'Remise des gaz interrompue',
+    speedTrough: 'Ralentissement suivi d’une reprise de vitesse'
   };
   const tips = {
     coast: 'Revois l’entrée du virage. Vérifie si la transition est volontaire, puis teste un relâché du frein plus progressif ou une reprise des gaz plus tôt si la voiture est placée.',
     overlap: 'Vérifie le mouvement des deux pieds. Si le chevauchement est involontaire, essaie de finir de relâcher le frein avant la remise des gaz.',
-    lift: 'Revois la sortie. Si la correction suit une remise des gaz trop tôt, attends que le volant s’ouvre davantage avant de réaccélérer.'
+    lift: 'Revois la sortie. Si la correction suit une remise des gaz trop tôt, attends que le volant s’ouvre davantage avant de réaccélérer.',
+    speedTrough: 'Revois ce passage. Si la sortie se referme, teste un point de corde plus tardif au tour suivant et compare la vitesse de sortie. Le HUD seul ne situe pas la voiture sur la piste.'
   };
 
   function hudSamples(rows) {
@@ -69,12 +71,27 @@
     return median;
   }
 
+  function speedReview(points) {
+    const events=[];
+    for(let i=2;i+2<points.length;i++){
+      const [entry,before,apex,after,exit]=points.slice(i-2,i+3);
+      if(![entry,before,apex,after,exit].every(point=>known(point.speed)) ||
+         exit.t-entry.t<3.9 || exit.t-entry.t>4.1 || apex.speed<45 ||
+         entry.speed-before.speed<12 || before.speed-apex.speed<8 ||
+         after.speed-apex.speed<5 || exit.speed-apex.speed<15) continue;
+      if(events.length&&entry.t-events.at(-1).end<3)continue;
+      events.push({kind:'speedTrough',start:entry.t,end:exit.t,speed:apex.speed});
+    }
+    return events.slice(0,12);
+  }
+
   function diagnose(samples,{archive=false}={}) {
     const points=samples.filter(p=>known(p.t)).sort((a,b)=>a.t-b.t);
     const usable=points.filter(p=>known(p.brake)&&known(p.throttle)&&known(p.speed));
     // A fully flat zero channel is common when a HUD region was selected wrongly.
     if (usable.length < 4 || !usable.some(p=>p.brake>.2) || !usable.some(p=>p.throttle>.3)) {
-      return {usable:usable.length, events:[], sufficient:false};
+      const events=archive?[]:speedReview(points);
+      return {usable:usable.length,events,sufficient:events.length>0};
     }
     const intervals=points.map((p,i)=>i ? p.t-points[i-1].t : 0).filter(t=>t>0).sort((a,b)=>a-b);
     const gap=archive ? Math.min(.65,Math.max(.13,(intervals[Math.floor(intervals.length/2)]||.03)*4)) : 1.1;

@@ -82,7 +82,21 @@
     return longest===0?'0':longest<4?null:String(Math.round(100*longest/steps));
   }
 
+  const ATLAS_ROW_HEIGHT=64;
+  function readAtlas(tsv,fields) {
+    const words=fields.map(()=>[]);
+    for(const line of (tsv||'').split('\n')){
+      const [level,,,,,,left,top,,height,confidence,text]=line.split('\t');
+      if(level!=='5'||Number(confidence)<55||!text?.trim()) continue;
+      const row=Math.floor((Number(top)+Number(height)/2)/ATLAS_ROW_HEIGHT);
+      if(words[row]) words[row].push({left:Number(left),text:text.trim()});
+    }
+    return Object.fromEntries(fields.map((field,index)=>[
+      field,readValue(field,words[index].sort((a,b)=>a.left-b.left).map(word=>word.text).join(' '))
+    ]));
+  }
+
   const sampleCount=duration=>Number.isFinite(duration)&&duration>0?Math.ceil(duration):0;
 
-  window.VCEVideoHUDData = {readValue,readBar,lmuZones,readLmuPedal,sampleCount};
+  window.VCEVideoHUDData = {readValue,readBar,lmuZones,readLmuPedal,sampleCount,readAtlas,ATLAS_ROW_HEIGHT};
 })();
