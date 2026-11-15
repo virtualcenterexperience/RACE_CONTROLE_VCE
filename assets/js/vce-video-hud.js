@@ -12,7 +12,7 @@
   const colors = ['#66c9ff', '#e9d888', '#dcaeff', '#acc6f0', '#45e2aa', '#ff7e9a', '#f2a266'];
   root.innerHTML = `
     <div class="vce-lap-heading">
-      <div><h2>Analyser une vidéo MP4</h2><p>Relève les valeurs visibles sur le HUD. La vidéo reste dans ce navigateur.</p></div>
+      <div><h2>Analyser une vidéo MP4</h2><p>Analyse les valeurs visibles du HUD ou synchronise le MP4 avec un tour VCE, notamment sur Le Mans Ultimate. Les fichiers restent dans ce navigateur.</p></div>
       <label class="vce-lap-picker">Choisir un MP4<input data-video="file" type="file" accept=".mp4,video/mp4"></label>
     </div>
     <p data-video="status" role="status" hidden></p>
@@ -44,6 +44,19 @@
         <button type="button" data-video="stop" hidden>Arrêter</button>
       </div>
       <p class="vce-video-note">Le scan lit jusqu’à 180 images, espacées d’au moins une seconde. Les barres vertes d’accélérateur et rouges de frein donnent un pourcentage estimé.</p>
+      <section class="vce-video-coach" aria-label="Diagnostic du pilotage">
+        <h3>Passages à revoir</h3>
+        <p data-video="archive">Pour une analyse précise dans LMU, importe aussi le JSON du même tour dans « Importer un tour ».</p>
+        <button type="button" data-video="use-session" hidden>Utiliser le tour A de Télémétrie</button>
+        <div class="vce-video-controls" data-video="align-tools" hidden>
+          <button type="button" data-video="align">Marquer ici le début du tour</button>
+          <button type="button" data-video="auto-align" disabled>Caler avec le chrono du HUD</button>
+        </div>
+        <p data-video="align-status" role="status" hidden></p>
+        <p data-video="live" hidden></p>
+        <p data-video="coach-status" role="status">Lance un scan du HUD ou cale un tour importé pour obtenir des observations.</p>
+        <ol data-video="observations"></ol>
+      </section>
       <div data-video="results" class="vce-video-results" hidden>
         <table><caption>Valeurs lues dans la vidéo</caption><thead><tr><th scope="col">Position vidéo</th>
           ${fields.map(([, label]) => '<th scope="col">' + label + '</th>').join('')}
@@ -59,7 +72,7 @@
   const zones = new Map();
   const raw = document.createElement('canvas');
   const crop = document.createElement('canvas');
-  let fileUrl, startPoint, endPoint, task, engine;
+  let fileUrl, startPoint, endPoint, task, engine, telemetry, videoStart=null, hudRows=[];
   picker.append(...regions.map(([key, label]) => new Option(label, key)));
   function message(text) {
     const status = get('status');
@@ -76,6 +89,8 @@
     for (const name of ['read', 'scan']) get(name).disabled = !!task || !fields.some(([key]) => zones.has(key));
     for (const name of ['mark', 'field', 'mode', 'length', 'file']) get(name).disabled = !!task;
     get('stop').hidden = !task;
+    get('align').disabled = !!task;
+    get('auto-align').disabled = !!task || !telemetry || hudRows.length < 3;
   }
   get('file').addEventListener('change', () => {
     const file = get('file').files[0];
@@ -86,6 +101,10 @@
     if (fileUrl) URL.revokeObjectURL(fileUrl);
     fileUrl = URL.createObjectURL(file);
     zones.clear();
+    hudRows=[];
+    videoStart=null;
+    alignmentMessage('');
+    renderCoach();
     showMinimap();
     get('rows').replaceChildren();
     get('details').hidden = true;
@@ -234,6 +253,143 @@
     return ctx;
   }
 
+  const format = time => {
+    const seconds = Math.floor(Math.max(0,time)*10)/10;
+    return Math.floor(seconds/60)+':'+(seconds%60).toFixed(1).padStart(4,'0');
+  };
+  function alignmentMessage(text) {
+    get('align-status').textContent=text;
+    get('align-status').hidden=!text;
+  }
+  function showArchive() {
+    const ready=telemetry?.lap.points.some(p=>Number.isFinite(p.t)&&Number.isFinite(p.speed));
+    get('align-tools').hidden=!ready;
+    get('archive').textContent=ready
+      ? [telemetry.track,telemetry.game,telemetry.car,'Tour '+telemetry.lap.number,Number.isFinite(telemetry.lap.time)?format(telemetry.lap.time):''].filter(Boolean).join(' · ')
+      : 'Pour une analyse précise dans LMU, importe le JSON VCE du même tour dans « Importer un tour ».';
+    controls();
+  }
+  function nearestPoint(points,time) {
+    let lower=0,upper=points.length-1;
+    while(lower<upper){
+      const middle=(lower+upper)>>1;
+      if(points[middle].t<time) lower=middle+1; else upper=middle;
+    }
+    const current=points[lower], previous=points[lower-1];
+    return previous && Math.abs(previous.t-time)<Math.abs(current.t-time) ? previous : current;
+  }
+  function showSynchronizedSample() {
+    const live=get('live');
+    live.hidden=true;
+    const time=video.currentTime-videoStart;
+    if(!telemetry?.points.length||videoStart===null||time<0||time>telemetry.points.at(-1).t) return;
+    const point=nearestPoint(telemetry.points,time);
+    if(Math.abs(point.t-time)>.35) return;
+    const value=(n,mult,unit)=>Number.isFinite(n)?Math.round(n*mult)+unit:'—';
+    live.textContent='Télémétrie au curseur · '+value(point.speed,1,' km/h')+
+      ' · Frein '+value(point.brake,100,' %')+' · Accélérateur '+value(point.throttle,100,' %')+
+      ' · Rapport '+(point.gear===0?'N':point.gear===-1?'R':value(point.gear,1,''))+
+      ' · Tour '+value(point.progress,100,' %')+
+      (Number.isFinite(point.x)&&Number.isFinite(point.z)?' · Position X/Z '+Math.round(point.x)+' / '+Math.round(point.z):'')+
+      (Number.isFinite(point.steer)?' · Volant '+point.steer.toFixed(2):'');
+    live.hidden=false;
+  }
+  function renderCoach() {
+    const coach=window.VCEVideoCoach;
+    const list=get('observations');
+    list.replaceChildren();
+    showSynchronizedSample();
+    const archive=videoStart!==null&&!!telemetry;
+    if(!archive&&!hudRows.length) {
+      get('coach-status').textContent='Lance un scan du HUD ou cale un tour importé pour obtenir des observations.';
+      return;
+    }
+    const source=archive?'Télémétrie VCE synchronisée':'HUD vidéo · estimation';
+    const points=archive?telemetry.points.filter(p=>p.t+videoStart>=0&&p.t+videoStart<=video.duration):coach.hudSamples(hudRows);
+    const result=coach.diagnose(points,{archive});
+    get('coach-status').textContent=source+' · '+(!result.sufficient
+      ? 'Données insuffisantes. Il faut des relevés exploitables de vitesse, de frein et d’accélérateur.'
+      : result.events.length?'Passages à vérifier dans le replay.':'Aucun passage n’a atteint les seuils du diagnostic sur la portion analysée.');
+    for(const item of result.events){
+      const time=item.start+(archive?videoStart:0);
+      const line=document.createElement('li');
+      const jump=document.createElement('button');jump.type='button';jump.textContent=format(time);
+      jump.addEventListener('click',()=>{if(!task){video.pause();video.currentTime=Math.max(0,time-.3)}});
+      const detail=document.createElement('span');
+      const duration=item.end-item.start;
+      detail.textContent=coach.titles[item.kind]+' · '+Math.round(item.speed)+' km/h'+
+        (duration>=.1?' · '+duration.toFixed(1)+' s':'')+
+        (archive&&Number.isFinite(item.progress)?' · '+Math.round(item.progress*100)+' % du tour':'')+
+        '. '+coach.tips[item.kind];
+      line.append(jump,detail);
+      list.append(line);
+    }
+  }
+  function align(time,label) {
+    videoStart=time;
+    alignmentMessage(label+' · '+(time>=0?'début du tour à '+format(time):'la vidéo commence '+format(-time)+' après le début du tour')+'. Vérifie le calage au passage de la ligne.');
+    renderCoach();
+  }
+  function useArchive(detail) {
+    telemetry=detail?{...detail,points:detail.lap.points.filter(p=>Number.isFinite(p.t)).sort((a,b)=>a.t-b.t)}:null;
+    videoStart=null;
+    alignmentMessage('');
+    showArchive();
+    renderCoach();
+  }
+  document.addEventListener('vce-video-lap',event=>useArchive(event.detail));
+  const lapSelector=document.getElementById('lap');
+  function telemetrySelection() {
+    const session=window.vceSession;
+    const laps=(session?.laps||[]).filter(lap=>lap&&(
+      (Number.isFinite(lap.time)&&lap.time>0)||lap.samples?.length>=2||Number.isInteger(lap.number)
+    )).sort((a,b)=>(a.number??0)-(b.number??0));
+    const active=lapSelector?.value===''?null:laps[Number(lapSelector?.value)];
+    return active?.samples?.length>=2?{session,active}:null;
+  }
+  function updateSessionButton(){
+    get('use-session').hidden=!telemetrySelection();
+  }
+  get('use-session').addEventListener('click',()=>{
+    const selected=telemetrySelection();
+    if(!selected||task) return;
+    const {session,active}=selected;
+    useArchive({lap:window.VCELapImportData.normalizeLap(active,0),track:session.track,game:session.game,car:session.car});
+  });
+  if(lapSelector){
+    document.addEventListener('vce-cloud-update',updateSessionButton);
+    lapSelector.addEventListener('change',updateSessionButton);
+    document.getElementById('session')?.addEventListener('change',()=>queueMicrotask(updateSessionButton));
+    updateSessionButton();
+  }
+  get('align').addEventListener('click',()=>align(video.currentTime,'Calage manuel'));
+  get('auto-align').addEventListener('click',()=>{
+    const time=window.VCEVideoCoach.startFromHud(hudRows,telemetry.lap);
+    if(time===null) alignmentMessage('Le chrono du tour doit défiler : cadre le chrono en cours, puis scanne au moins trois images concordantes.');
+    else align(time,'Calage estimé par le chrono du HUD');
+  });
+  for(const event of ['timeupdate','seeked']) video.addEventListener(event,showSynchronizedSample);
+
+  function improveContrast(context) {
+    const image=context.getImageData(0,0,crop.width,crop.height);
+    const pixels=image.data;
+    const brightness=new Uint8Array(pixels.length/4);
+    let min=255,max=0;
+    for(let i=0;i<brightness.length;i++){
+      const p=4*i;
+      const value=Math.round(.299*pixels[p]+.587*pixels[p+1]+.114*pixels[p+2]);
+      brightness[i]=value;min=Math.min(min,value);max=Math.max(max,value);
+    }
+    if(max-min<18) return false;
+    for(let i=0;i<brightness.length;i++){
+      const p=4*i;
+      const value=Math.round(255*(brightness[i]-min)/(max-min));
+      pixels[p]=pixels[p+1]=pixels[p+2]=value;
+    }
+    context.putImageData(image,0,0);
+    return true;
+  }
+
   function renderRow(time, values) {
     const row = get('rows').insertRow();
     const jump = document.createElement('button');
@@ -262,6 +418,7 @@
     let worker;
     get('rows').replaceChildren();
     get('results').hidden = true;
+    hudRows=[];
     try {
       if (selected.some(([, zone]) => zone.mode === 'text')) {
         message('Chargement du moteur de lecture du HUD…');
@@ -293,11 +450,16 @@
               field === 'gear' ? '0123456789NR' : '0123456789%'
           };
           await worker.setParameters(params);
-          const {data} = await worker.recognize(crop);
-          values[field] = data.confidence >= 35 ? window.VCEVideoHUDData.readValue(field, data.text) : null;
+          const recognize=async()=>{
+            const {data}=await worker.recognize(crop);
+            return data.confidence>=65?window.VCEVideoHUDData.readValue(field,data.text):null;
+          };
+          const value=await recognize();
+          values[field]=value??(!job.stopped&&improveContrast(ctx)?await recognize():null);
         }
         if (job.stopped) break;
         reads += Object.values(values).filter(value => value !== null).length;
+        hudRows.push({time,values});
         renderRow(time, values);
       }
       message(job.stopped ? 'Analyse arrêtée.' : reads ? 'Analyse terminée. Clique sur une position pour revoir l’image.' : 'Aucune valeur lisible. Essaie de resserrer les zones sur les chiffres.');
@@ -309,6 +471,7 @@
       task = null;
       video.controls = true;
       controls();
+      renderCoach();
     }
   }
   get('read').addEventListener('click', () => analyze(false));

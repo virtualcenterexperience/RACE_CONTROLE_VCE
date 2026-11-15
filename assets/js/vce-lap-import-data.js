@@ -20,6 +20,7 @@
       speed: bounded(first(row.speed_kmh, row.speed_kph, row.speed, scaled(number(row.speed_mps), 3.6)), 0, 900),
       throttle: bounded(first(scaled(number(row.throttle_pct), .01), row.throttle, row.accelerator), 0, 1),
       brake: bounded(first(scaled(number(row.brake_pct), .01), row.brake), 0, 1),
+      steer: first(row.steering, row.steer, row.steer_raw),
       gear: bounded(number(row.gear), -1, 30),
       progress: bounded(first(row.lap_pos, row.progress, row.distance), 0, 1),
       x: first(row.world_x, row.x),
@@ -168,5 +169,5 @@
     return distinct(positions) ? {positions, type: 'X/Z SIMULATEUR'} : null;
   }
 
-  window.VCELapImportData = {parse, project, circuitFromFilename};
+  window.VCELapImportData = {parse, project, circuitFromFilename, normalizeLap:lap};
 })();

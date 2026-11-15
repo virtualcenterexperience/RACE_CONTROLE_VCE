@@ -179,6 +179,9 @@
     drawMap(current.points);
     drawChart(current.points);
     updatePosition();
+    document.dispatchEvent(new CustomEvent('vce-video-lap', {
+      detail: {lap:current,track:session.track,game:session.game,car:session.car}
+    }));
   }
 
   function selectSession() {
@@ -209,6 +212,7 @@
     if (!file) return;
     const id = ++request;
     event.target.value = '';
+    document.dispatchEvent(new CustomEvent('vce-video-lap'));
     showStatus('Lecture du fichier…');
     try {
       if (file.size > 150 * 1024 * 1024) throw new Error('Le fichier dépasse 150 Mo. Exporte une session plus courte.');
