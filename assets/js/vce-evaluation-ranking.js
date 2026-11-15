@@ -1,12 +1,12 @@
 /* VCE ESPORT — combined coach evaluation / verified chrono ranking, advisory v1.
- * Five coach criteria (0–10) are weighted equally on the /50 scale.
+ * Ten coach criteria (0–10) are weighted equally on the /100 scale.
  * Unconfirmed weighting thresholds are provisional and must be approved by STAFF.
  */
 (()=>{'use strict';
  const POLICY=Object.freeze({
-  version:'vce-evaluation-ranking-5x10-2026-11',
+  version:'vce-evaluation-ranking-10x10-2026-11',
   status:'PROPOSED_NOT_APPROVED',
-  totalCriteria:5,
+  totalCriteria:10,
   maxPerCriterion:10,
   pointsBands:[
    {min:25,name:'ESPORT',rank:3},
@@ -31,9 +31,10 @@
   const total=ratedScores.reduce((sum,value)=>sum+value,0);
   const maxTotal=rated*POLICY.maxPerCriterion;
   const complete=finalized&&rated>0&&rated===clean.length;
-  const points50=complete?50*total/maxTotal:null;
+  const points100=complete?100*total/maxTotal:null;
+  const points50=complete?points100/2:null;
   const name=coachBand(points50)?.name??null;
-  return {complete,rated,total,maxTotal,points50,points100:complete?points50*2:null,name};
+  return {complete,rated,total,maxTotal,points50,points100,name};
  }
  function percentage(pct){
   const n=Number(pct);
