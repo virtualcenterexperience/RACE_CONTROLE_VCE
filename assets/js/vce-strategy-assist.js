@@ -39,7 +39,7 @@ function mount(){
  const anchor=$('v19-tools');if(!anchor)return;
  const root=document.createElement('section');root.id='vce-strategy-help';root.className='vce-strategy-help';
  root.innerHTML='<h2>⛽ AIDE VISUELLE · AUTONOMIE & CARBURANT</h2><p>Comparaison indépendante fondée sur les valeurs de course saisies : consommation, tours, réserve, marge de sécurité et réservoir.</p><div class="vce-strategy-bars" id="vce-strategy-bars"></div><p id="vce-strategy-note" role="status">En attente de paramètres.</p>';
- anchor.after(root);
+ anchor.append(root);
  ['fuel','tank','reserve','safetyFuel','v19-fuel-laps','v19-fuel-onboard'].forEach(id=>$(id)?.addEventListener('input',chart));
  document.querySelectorAll('button').forEach(b=>{if(/recalculer|calculer|apply/i.test(b.textContent))b.addEventListener('click',()=>setTimeout(chart,80))});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)chart()});setInterval(()=>{if(!document.hidden)chart()},6500);chart();

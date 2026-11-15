@@ -19,11 +19,12 @@ function setSlotData(data){store.slots[currentSlot()]=data; saveStore();}
 function saveCurrentState(){let slot=getSlotData(); slot.inputs={}; for(let id of inputIds){ if($(id)){ slot.inputs[id]=($(id).type==='checkbox')?$(id).checked:$(id).value; } } slot.pilotData=[]; let n=num('nPilots'); for(let i=0;i<Math.max(4,n);i++){ slot.pilotData[i]={name:$('pilotName'+i)?.value||`PILOTE ${i+1}`,lap:$('pilotLap'+i)?.value||$('lap').value}; } slot.doneMap=doneMap; slot.doubleMap=doubleMap; slot.debriefs=slot.debriefs||[]; setSlotData(slot); }
 function applyCurrentState(){ renderCourseTabs(); let slot=getSlotData(); // names
  for(let i=1;i<=3;i++) $('slotName'+i).value=store.slotNames[i-1]||`Course ${i}`;
- if(slot.inputs){ for(let [k,v] of Object.entries(slot.inputs)){ if($(k)) $(k).type==='checkbox'?$(k).checked=v:$(k).value=v; } }
+ const liveDefaults=window.VCEStrategyLive?{liveLaps:'0',liveMinutes:'0',liveFuel:'0',liveTyres:'0',paceDelta:'0',extraLap:'1',fuelExtra:'0',pitExtra:'0'}:{};
+ if(slot.inputs||window.VCEStrategyLive){ for(let [k,v] of Object.entries({...liveDefaults,...slot.inputs})){ if($(k)) $(k).type==='checkbox'?$(k).checked=v:$(k).value=v; } }
  pilotList(slot.pilotData); doneMap=slot.doneMap||{}; doubleMap=slot.doubleMap||{}; updateCourseVisibility(); fillDebriefPilots(); calculate(); showDebrief(); }
 function renderCourseTabs(){ $('courseTabs').innerHTML=[0,1,2].map(i=>`<button class="courseBtn ${store.active===i?'active':''}" onclick="switchCourse(${i})">COURSE ${i+1}<br><span class="small" style="color:${store.active===i?'#eaf2ff':'#9cb3cf'}">${esc(store.slotNames[i]||('Course '+(i+1)))}</span></button>`).join(''); }
 function blankSlot(i){ return { inputs:{raceType:'endurance',race:store.slotNames[i]||('Course '+(i+1)),car:'',track:'',sim:'LMU',hours:'4',start:'13:30:00',lap:'1:40.000',fuel:'3.1',tank:'75',reserve:'1',tyreLife:'23',safetyFuel:'3',trafficTyres:'0',nPilots:'2',driverMode:'rotation',allowDoubleFast:false,swaps:'1',maxStint:'0',stintMargin:'2',mode:'normal',open:'0',close:'0',pitlane:'41',fuelTime:'14.5',tyreTime:'20',swapTime:'20',lightTime:'20',heavyTime:'70',emergency:false,elapsed:'60',repair:'120',currentPilot:'0',remainFuel:'30',remainTyres:'10',pos:'2',goalPos:'1',gap:'20',remaining:'20',ownLap:'1:40.000',otherLap:'1:40.500',gapPit:'0',pitRisk:'5',pLane:false,pFuel:false,pTyre:false,pSwap:false,pLight:false,pHeavy:false,debriefStint:'1',damaged:'no',consistency:'3',apex:'3',limits:'0',brakes:'0',throttle:'0',trafficDebrief:'3',tyreState:'fresh',handling:'ok',focus:'3',comm:'3',notes:'',sprintPlan:'auto',sprintTyreGoal:'balanced',sprintFuelSave:'0',sprintPitManual:'off'}, pilotData:[{name:'PILOTE 1',lap:'1:40.000'},{name:'PILOTE 2',lap:'1:40.500'},{name:'PILOTE 3',lap:'1:41.000'},{name:'PILOTE 4',lap:'1:41.500'}], doneMap:{}, doubleMap:{}, debriefs:[]}; }
-function switchCourse(i){ saveCurrentState(); store.active=i; if(!store.slots[i]){ store.slots[i]=blankSlot(i); } saveStore(); applyCurrentState(); }
+function switchCourse(i){ saveCurrentState(); store.active=i; if(!store.slots[i]){ store.slots[i]=blankSlot(i); } saveStore(); applyCurrentState(); window.VCEStrategyLive?.onCourse(); }
 function updateSlotNames(){ store.slotNames=[$('slotName1').value||'Course 1',$('slotName2').value||'Course 2',$('slotName3').value||'Course 3']; saveStore(); }
 function resetCurrentCourse(){ if(confirm('Réinitialiser uniquement cette course ?')){ store.slots[currentSlot()]={}; saveStore(); location.reload(); } }
 function pilotList(existing){ let n=Math.max(1,Math.min(4,parseInt($('nPilots').value||'1',10))); let baseLap=$('lap').value||'1:40.000'; $('pilots').innerHTML=''; let data=existing||[]; for(let i=0;i<n;i++){ let name=(data[i]&&data[i].name)||`PILOTE ${i+1}`; let lap=(data[i]&&data[i].lap)||baseLap; let row=document.createElement('div'); row.className='pilot'; row.innerHTML=`<div class="num">${String(i+1).padStart(2,'0')}</div><input id="pilotName${i}" value="${esc(name)}"><input id="pilotLap${i}" value="${esc(lap)}">`; $('pilots').appendChild(row); }
@@ -31,35 +32,49 @@ function pilotList(existing){ let n=Math.max(1,Math.min(4,parseInt($('nPilots').
 function fillDebriefPilots(){ let n=Math.max(1,Math.min(4,parseInt($('nPilots').value||'1',10))); let opts=Array.from({length:n},(_,i)=>`<option value="${i}">${esc(($('pilotName'+i)?.value)||('PILOTE '+(i+1)))}</option>`).join(''); $('debriefDriver').innerHTML=opts; if($('currentPilot').options.length!==n) $('currentPilot').innerHTML=opts; }
 function updateCourseVisibility(){ let sprint=$('raceType').value==='sprint'; document.querySelectorAll('.enduranceOnly').forEach(el=>el.classList.toggle('hidden',sprint)); document.querySelectorAll('.sprintOnly').forEach(el=>el.classList.toggle('hidden',!sprint)); if(sprint){ if($('nPilots').value!=='1'){ $('nPilots').value='1'; pilotList(getSlotData().pilotData); } $('driverMode').value='rotation'; $('allowDoubleFast').checked=false; } }
 function getPilots(){ let n=Math.max(1,Math.min(4,parseInt($('nPilots').value||'1',10))); return Array.from({length:n},(_,i)=>({idx:i,name:$('pilotName'+i)?.value||`PILOTE ${i+1}`,lap:lapSeconds($('pilotLap'+i)?.value||$('lap').value)||lapSeconds($('lap').value)})); }
-function pickNextDriver(pilots,currentIdx,stintIndex){ if(doubleMap[stintIndex]) return currentIdx; if($('driverMode').value==='fast'){ let fastest=pilots.reduce((a,p)=>p.lap<a.lap?p:a,pilots[0]); if(yes('allowDoubleFast') && (stintIndex%2===0)) return fastest.idx; return (currentIdx+1)%pilots.length; } return (currentIdx+1)%pilots.length; }
+function pickNextDriver(pilots,currentIdx,stintIndex,live){ if(!live&&doubleMap[stintIndex]) return currentIdx; if($('driverMode').value==='fast'){ let fastest=pilots.reduce((a,p)=>p.lap<a.lap?p:a,pilots[0]); if(yes('allowDoubleFast') && (stintIndex%2===0)) return fastest.idx; return (currentIdx+1)%pilots.length; } return (currentIdx+1)%pilots.length; }
 function pitService({lane,fuel,tyre,swap,light,heavy}){ let t=0; if(lane)t+=num('pitlane'); if(fuel)t+=num('fuelTime'); if(tyre)t+=num('tyreTime'); if(swap)t+=num('swapTime'); if(light)t+=num('lightTime'); if(heavy)t+=num('heavyTime'); return t; }
-function calculate(){
- updateSlotNames();updateCourseVisibility();fillDebriefPilots();plan=[];
- const warnings=[];const avg=lapSeconds($('lap').value)+num('paceDelta');
- if(avg<=0||num('fuel')<=0||num('tank')<=0||num('tyreLife')<=0){$('message').className='notice warn';$('message').textContent='Vérifie le chrono, la consommation, le réservoir et la durée de vie pneus : valeurs strictement positives requises.';return;}
+function calculate({persist=true}={}){
+ if(persist)updateSlotNames();updateCourseVisibility();fillDebriefPilots();plan=[];
+ const warnings=[];
  const type=$('raceType').value, totalSeconds=num('hours')*3600;
- let elapsed=type==='endurance'&&yes('emergency')?Math.max(0,num('elapsed')*60):Math.max(0,num('liveLaps')*avg);
- let remainSeconds=num('liveMinutes')>0?num('liveMinutes')*60:Math.max(0,totalSeconds-elapsed);
+ const isEmergency=type==='endurance'&&yes('emergency');
+ const live=isEmergency?null:window.VCEStrategyLive?.snapshot();
+ const avg=lapSeconds($('lap').value)+num('paceDelta');
+ const invalid=message=>{
+   $('message').className='notice warn';$('message').textContent=message;
+   if(window.VCEStrategyLive){
+     $('stats').replaceChildren();
+     $('optimizer').textContent=message;
+     renderPlan(live);updateProgress(live);
+     window.VCEStrategyLive.onPlan({live,invalid:true});
+   }
+ };
+ if(avg<=0||num('fuel')<=0||num('tank')<=0||num('tyreLife')<=0){invalid('Vérifie le chrono, la consommation, le réservoir et la durée de vie pneus : valeurs strictement positives requises.');return;}
+ const finished=live?.phase==='finished';
+ const elapsed=live?(live.elapsedSeconds??Math.max(0,totalSeconds-live.remainingSeconds)):
+   isEmergency?Math.max(0,num('elapsed')*60):Math.max(0,num('liveLaps')*avg);
+ const remainSeconds=finished?0:live?.remainingSeconds??(num('liveMinutes')>0?num('liveMinutes')*60:Math.max(0,totalSeconds-elapsed));
  let fuelSaveMap={0:0,1:.02,2:.04,3:.06}; let sprintSave=$('raceType').value==='sprint'?(fuelSaveMap[$('sprintFuelSave').value]||0):0; let fpt=num('fuel')*(1+num('safetyFuel')/100)*(1-sprintSave), tank=num('tank'), reserve=num('reserve'), extra=num('fuelExtra');
  let fuelCap=Math.max(0,Math.floor((tank-extra)/fpt-reserve)), tyreCap=Math.max(0,Math.floor(num('tyreLife')-num('trafficTyres')));
  let stintCap=num('maxStint')>0?Math.max(0,Math.floor((num('maxStint')-num('stintMargin'))*60/avg)):9999;
  let cap=Math.min(fuelCap,tyreCap,stintCap); if(type==='sprint' && $('sprintPlan').value==='nostop'){ cap=999999; if(Math.ceil(remainSeconds/avg)>Math.min(fuelCap,tyreCap)) warnings.push('Mode NO STOP choisi : risque élevé de perte de temps / panne si l’autonomie réelle est insuffisante.'); }
  // Estimation de tours incluant les arrêts : résolution itérative jusqu'à stabilisation.
- let theoreticalLaps=Math.max(0,Math.ceil(remainSeconds/avg)+Number($('extraLap').value));
+ const extraLaps=finished?0:Number($('extraLap').value);
+ const theoreticalLaps=Math.max(0,Math.ceil(remainSeconds/avg)+extraLaps);
  let estimatedLaps=theoreticalLaps;
  for(let k=0;k<8;k++){
    const stops=Math.max(0,Math.ceil(estimatedLaps/Math.max(1,cap))-1);
    const meanService=pitService({lane:true,fuel:true,tyre:true,swap:type==='endurance'&&getPilots().length>1,light:false,heavy:false})+num('pitExtra');
-   const next=Math.max(0,Math.ceil(Math.max(0,remainSeconds-stops*meanService)/avg)+Number($('extraLap').value));
+   const next=Math.max(0,Math.ceil(Math.max(0,remainSeconds-stops*meanService)/avg)+extraLaps);
    if(next===estimatedLaps)break;estimatedLaps=next;
  }
  let lapsRemaining=estimatedLaps;
- if(cap<1){$('message').className='notice warn';$('message').textContent='Aucun tour sûr possible avec la configuration actuelle. Augmente l’autonomie ou corrige les marges.';return;}
+ if(cap<1&&!finished){invalid('Aucun tour sûr possible avec la configuration actuelle. Augmente l’autonomie ou corrige les marges.');return;}
  if(type==='sprint'&&num('hours')>2.5)warnings.push('Sprint au-delà de 2 h 30 : vérifier la catégorie de course.');
  let pilots=getPilots(), driver=type==='sprint'?0:Math.min(pilots.length-1,parseInt($('currentPilot').value||'0',10)||0);
- let isEmergency=type==='endurance'&&yes('emergency');
- let firstFuel= isEmergency?num('remainFuel'):num('liveFuel')>0?num('liveFuel'):null;
- let firstTyres=isEmergency?num('remainTyres'):num('liveTyres')>0?num('liveTyres'):null;
+ const firstFuel=isEmergency?num('remainFuel'):live?.fuelLiters??(num('liveFuel')>0?num('liveFuel'):null);
+ const firstTyres=isEmergency?num('remainTyres'):live?.tyreLapsRemaining??(num('liveTyres')>0?num('liveTyres'):null);
  let firstCap=Math.min(cap,firstFuel!==null?Math.max(0,Math.floor(firstFuel/fpt-reserve)):cap,firstTyres!==null?Math.floor(firstTyres):cap);
  let totalPit=0,swaps=0, cursor=elapsed, tyresAvailable=firstTyres??tyreCap;
  let variant=$('mode').value, i=0;
@@ -73,46 +88,61 @@ function calculate(){
    let stop=lapsRemaining>target, nextTyres=tyresAvailable-target;
    let tyreStop=stop&&nextTyres<Math.min(tyreCap,Math.max(1,lapsRemaining-target));
    let nextDriver=driver;
-   if(stop&&type==='endurance'){nextDriver=pickNextDriver(pilots,driver,i);}
+   if(stop&&type==='endurance'){nextDriver=pickNextDriver(pilots,driver,i,live);}
    let swap=stop&&type==='endurance'&&nextDriver!==driver;
    let pit=stop?pitService({lane:true,fuel:true,tyre:tyreStop,swap,light:false,heavy:false})+num('pitExtra'):0;
    if(isEmergency&&i===0&&stop)pit+=num('repair');
    const start=cursor,end=start+target*avg;
    let neededFuel=Math.min(tank,Math.max(0,(target+reserve)*fpt+extra));
    if(i===0&&firstFuel!==null)neededFuel=firstFuel;
-   plan.push({index:i+1,driver:pilots[driver].name,start,end,tours:target,fuel:neededFuel,tyresLeft:Math.max(0,nextTyres),stop,swap,tyreStop,service:pit,double:!!doubleMap[i],finish:!stop});
+   plan.push({index:i+1,driver:pilots[driver].name,start,end,tours:target,fuel:neededFuel,tyresLeft:Math.max(0,nextTyres),stop,swap,tyreStop,service:pit,double:!live&&!!doubleMap[i],finish:!stop});
    cursor=end+pit;totalPit+=pit;swaps+=Number(swap);lapsRemaining-=target;
    if(!stop)break;
    driver=nextDriver;tyresAvailable=tyreStop?tyreCap:Math.max(0,nextTyres);i++;
  }
+ if(finished)warnings.length=0;
  let totalPlanned=plan.reduce((s,p)=>s+p.tours,0), requiredSwaps=type==='endurance'?num('swaps'):0;
- if(swaps<requiredSwaps)warnings.push(`Seulement ${swaps} swap(s) pour ${requiredSwaps} requis : plan non conforme.`);
+ if(!live&&swaps<requiredSwaps)warnings.push(`Seulement ${swaps} swap(s) pour ${requiredSwaps} requis : plan non conforme.`);
  let pitOpen=num('open')*60,pitClose=totalSeconds-num('close')*60;
+ if(live&&requiredSwaps>0&&!finished)warnings.push('Contrôle les swaps obligatoires en tenant compte de ceux déjà effectués.');
+ if(live?.pitOpen===false&&!finished)warnings.push('Voie des stands fermée selon le flux. Le plan d’arrêts reste indicatif.');
  if(type==='endurance')plan.filter(p=>p.stop).forEach(p=>{if(p.end<pitOpen||p.end>pitClose)warnings.push('Un arrêt tombe hors fenêtre réglementaire de pit.');});
  if(cursor>elapsed+remainSeconds+avg)warnings.push('Temps de service non entièrement compatible avec le nombre de tours prévus : vérifier la fin de course.');
  $('heading').textContent=$('race').value||store.slotNames[currentSlot()]||'Course VCE';
  $('context').textContent=`${$('track').value} · ${$('car').value} · ${$('sim').value} · ${num('hours')} h · ${$('start').value}`;
- $('strategyStatus').textContent=isEmergency?'PLAN D’URGENCE':type==='sprint'?'MODE SPRINT':'STRATÉGIE PRÉVISIONNELLE';
+ $('strategyStatus').textContent=isEmergency?'PLAN D’URGENCE':finished?'COURSE TERMINÉE':live?'PLAN RESTANT · LIVE':type==='sprint'?'MODE SPRINT':'STRATÉGIE PRÉVISIONNELLE';
  $('sprintNote').classList.toggle('hidden',type!=='sprint');
- if(type==='sprint'){ let st = plan.length===1?'Aucun arrêt prévu':'Arrêt nécessaire'; let pitChoice=$('sprintPlan').value.toUpperCase(); $('sprintNote').textContent=st+' · Départ conseillé '+plan[0].fuel.toFixed(1)+' L · Gestion '+$('sprintTyreGoal').selectedOptions[0].text+' · Carburant '+$('sprintFuelSave').selectedOptions[0].text+' · Plan '+pitChoice+'.'; }
+ if(type==='sprint'){ let st = plan.length<=1?'Aucun arrêt prévu':'Arrêt nécessaire'; let pitChoice=$('sprintPlan').value.toUpperCase(); $('sprintNote').textContent=st+(plan[0]?' · Départ conseillé '+plan[0].fuel.toFixed(1)+' L':'')+' · Gestion '+$('sprintTyreGoal').selectedOptions[0].text+' · Carburant '+$('sprintFuelSave').selectedOptions[0].text+' · Plan '+pitChoice+'.'; }
  let stats=[['Autonomie carburant',fuelCap,'Tours sûrs'],['Longévité pneus',tyreCap,'Tours sûrs'],['Relais max',cap,'Limite combinée'],['Arrêts prévus',Math.max(0,plan.length-1),'Plan actuel'],['Tours ciblés',totalPlanned,'Durée restante'],['Swaps prévus',swaps,`Minimum ${requiredSwaps}`],['Temps total pits',fmtDur(totalPit),'Services configurés'],['Fin prévisionnelle',fmtClock(cursor),'Estimation']];
  $('stats').innerHTML=stats.map(([a,b,c])=>`<div class="stat"><div class="name">${esc(a)}</div><div class="val">${esc(b)}</div><div class="hint">${esc(c)}</div></div>`).join('');
- $('message').className='notice'+(warnings.length?' warn':'');$('message').textContent=warnings.length?'⚠ '+[...new Set(warnings)].join(' · '):'✅ Plan calculé. Contrôler le règlement, le carburant réel et les arrêts avant application.';
+ $('message').className='notice'+(warnings.length?' warn':'');$('message').textContent=warnings.length?'⚠ '+[...new Set(warnings)].join(' · '):finished?'Le live timing indique la fin de course.':'✅ Plan calculé. Contrôler le règlement, le carburant réel et les arrêts avant application.';
  const alternatives=['normal','advance','quick','offset','late'].map(mode=>{
  const delta=mode==='advance'?1:mode==='quick'?2:mode==='offset'?1:0;
  const usable=Math.max(1,cap-delta),n=Math.max(0,Math.ceil(totalPlanned/usable)-1);
  return {mode,n,estimate:n*(num('pitlane')+num('fuelTime')+num('pitExtra'))};
  }).sort((a,b)=>a.estimate-b.estimate);
  $('optimizer').innerHTML=`<b>Décision carburant / performance</b><br>Conso corrigée : <b>${fpt.toFixed(3)} L/tour</b> · Autonomie : <b>${fuelCap} tours</b> · Plein théorique requis pour ${totalPlanned} tours sans arrêt : <b>${((totalPlanned+reserve)*fpt+extra).toFixed(1)} L</b> (réservoir ${tank.toFixed(1)} L).<br>Plan actif : <b>${plan.length} relais / ${totalPit.toFixed(1)} s d’arrêts</b>. Mode potentiellement le moins coûteux en passages, selon les hypothèses simplifiées : <b>${alternatives[0].mode.toUpperCase()}</b>.<br><small>Un « pit rapide » n’est pas nécessairement gagnant : comparer le nombre d’arrêts et la durée de chaque service. Les contraintes sportives, sous-cuts, trafic et pneus peuvent inverser le résultat.</small>`;
- renderPlan();updateProgress();updateScenario();updatePit();previewDebrief();saveCurrentState();
+ renderPlan(live);updateProgress(live,finished);updateScenario();updatePit();previewDebrief();
+ const nextStop=plan.find(stint=>stint.stop);
+ window.VCEStrategyLive?.onPlan({nextStop,live,finished,immediate:firstCap===0&&plan.length>0});
+ if(persist)saveCurrentState();
 }
-function renderPlan(){ $('stints').innerHTML=plan.map((p,i)=>`<tr class="${doneMap[i]?'done':''} ${!doneMap[i]&&i===0?'current':''}"><td>${p.index}</td><td><b>${esc(p.driver)}</b></td><td>${fmtClock(p.start)}</td><td>${fmtClock(p.end)}</td><td>${p.tours}</td><td>${p.fuel.toFixed(1)} L</td><td>${p.tyresLeft}</td><td>${p.stop?'OUI':'NON'}</td><td>${p.stop && p.swap?'OUI':'NON'}</td><td>${p.stop && p.tyreStop?'OUI':'NON'}</td><td>${p.stop?`<input type="checkbox" ${p.double?'checked':''} onchange="toggleDouble(${i},this.checked)">`:'—'}</td><td>${p.stop?fmtDur(p.service):'0 s'}</td><td><input type="checkbox" ${doneMap[i]?'checked':''} onchange="markDone(${i},this.checked)"></td></tr>`).join(''); }
+function renderPlan(live){ $('stints').innerHTML=plan.map((p,i)=>`<tr class="${!live&&doneMap[i]?'done':''} ${(live||!doneMap[i])&&i===0?'current':''}"><td>${p.index}</td><td><b>${esc(p.driver)}</b></td><td>${fmtClock(p.start)}</td><td>${fmtClock(p.end)}</td><td>${p.tours}</td><td>${p.fuel.toFixed(1)} L</td><td>${p.tyresLeft}</td><td>${p.stop?'OUI':'NON'}</td><td>${p.stop && p.swap?'OUI':'NON'}</td><td>${p.stop && p.tyreStop?'OUI':'NON'}</td><td>${p.stop&&!live?`<input type="checkbox" ${p.double?'checked':''} onchange="toggleDouble(${i},this.checked)">`:'—'}</td><td>${p.stop?fmtDur(p.service):'0 s'}</td><td>${live?'—':`<input type="checkbox" ${doneMap[i]?'checked':''} onchange="markDone(${i},this.checked)">`}</td></tr>`).join(''); }
 function toggleDouble(i,v){ doubleMap[i]=v; saveCurrentState(); calculate(); }
 function markDone(i,v){ doneMap[i]=v; saveCurrentState(); updateProgress(); }
-function updateProgress(){ let total=plan.length||0, done=Object.values(doneMap).filter(Boolean).length; $('progressFill').style.width=(total?done*100/total:0)+'%'; $('raceProgress').textContent=total?`${done} action(s) validée(s) sur ${total} — ${done===0?'Concentration et précision.':done<total?'Bon boulot, on garde le rythme !':'🏁 Excellent travail, mission validée !'}`:'Aucune action.'; }
-function view(v){ ['strategy','scenario','pit','debrief'].forEach(name=>{$(name+'View').classList.toggle('hidden',name!==v)}); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v)); if(v==='scenario')updateScenario(); if(v==='pit')updatePit(); if(v==='debrief')previewDebrief(); }
-function updateScenario(){ let own=lapSeconds($('ownLap').value), other=lapSeconds($('otherLap').value), gap=num('gap')+num('gapPit')+num('pitRisk'), remain=num('remaining')*60; if(!(own>0&&other>0&&remain>0)){ $('scenarioResult').innerHTML='<div class="muted">Renseigne des chronos valides.</div>'; return; } let lapsLeft=Math.floor(remain/Math.max(own,other)); let deltaPerLap=other-own; let gain=Math.max(0,deltaPerLap*lapsLeft); let finalGap=gap-gain; let state='NEUTRE', color='#ffd16f'; if(finalGap<=-3){state='GAGNANTE'; color='#45d499';} else if(finalGap>15){state='PERDANTE'; color='#ff7d86';} else if(finalGap<=5){state='EN FAVEUR'; color='#70c8ff';} else if(finalGap<=15){state='NEUTRE'; color='#ffd16f';}
- $('scenarioResult').innerHTML=`<div class="score" style="color:${color}">${state}</div><div class="tip"><b>Écart final estimé :</b> ${finalGap.toFixed(1)} s<br><b>Gain théorique :</b> ${gain.toFixed(1)} s sur ${lapsLeft} tour(s)<br><b>Position actuelle / objectif :</b> P${num('pos')} → P${num('goalPos')}</div>`;
+function updateProgress(live,finished){
+ if(live){
+   $('progressFill').style.width=(num('hours')>0?Math.min(100,Math.max(0,100*(1-live.remainingSeconds/(num('hours')*3600)))):0)+'%';
+   $('raceProgress').textContent=finished?'Course terminée.':live.laps+' tours terminés · le tableau affiche les relais à venir.';
+   return;
+ }
+ let total=plan.length||0, done=Object.values(doneMap).filter(Boolean).length; $('progressFill').style.width=(total?done*100/total:0)+'%'; $('raceProgress').textContent=total?`${done} action(s) validée(s) sur ${total} — ${done===0?'Concentration et précision.':done<total?'Bon boulot, on garde le rythme !':'🏁 Excellent travail, mission validée !'}`:'Aucune action.'; }
+function view(v){ ['strategy','scenario','pit','debrief'].forEach(name=>{$(name+'View').classList.toggle('hidden',name!==v)}); document.querySelectorAll('.tab').forEach(t=>{const selected=t.dataset.view===v;t.classList.toggle('active',selected);if(t.hasAttribute('aria-pressed'))t.setAttribute('aria-pressed',String(selected));}); if(v==='scenario')updateScenario(); if(v==='pit')updatePit(); if(v==='debrief')previewDebrief(); }
+function updateScenario(){
+ const live=yes('emergency')&&$('raceType').value==='endurance'?null:window.VCEStrategyLive?.snapshot();
+ let own=live?.lastLapSeconds??lapSeconds($('ownLap').value), other=lapSeconds($('otherLap').value),
+ gap=(live?.gapAheadSeconds??num('gap'))+num('gapPit')+num('pitRisk'), remain=live?.remainingSeconds??num('remaining')*60; if(!(own>0&&other>0&&remain>0)){ $('scenarioResult').innerHTML='<div class="muted">Renseigne des chronos valides.</div>'; return; } let lapsLeft=Math.floor(remain/Math.max(own,other)); let deltaPerLap=other-own; let gain=Math.max(0,deltaPerLap*lapsLeft); let finalGap=gap-gain; let state='NEUTRE', color='#ffd16f'; if(finalGap<=-3){state='GAGNANTE'; color='#45d499';} else if(finalGap>15){state='PERDANTE'; color='#ff7d86';} else if(finalGap<=5){state='EN FAVEUR'; color='#70c8ff';} else if(finalGap<=15){state='NEUTRE'; color='#ffd16f';}
+ $('scenarioResult').innerHTML=`<div class="score" style="color:${color}">${state}</div><div class="tip"><b>Écart final estimé :</b> ${finalGap.toFixed(1)} s<br><b>Gain théorique :</b> ${gain.toFixed(1)} s sur ${lapsLeft} tour(s)<br><b>Position actuelle / objectif :</b> P${live?.position??num('pos')} → P${num('goalPos')}</div>`;
  let tips=[]; if(finalGap<=0) tips.push('Si le rythme reste identique, le rattrapage est théoriquement possible avant l’arrivée.'); else tips.push('Il faudra soit augmenter le rythme, soit profiter d’un meilleur pit, du trafic ou d’une erreur adverse.'); if(deltaPerLap>0.5) tips.push('Avantage chrono important : stratégie agressive envisageable.'); if(deltaPerLap<0.2) tips.push('L’avantage est faible : éviter toute erreur et optimiser le pit.'); if(num('pitRisk')>=5) tips.push('Attention au risque de temps perdu aux stands.'); $('scenarioTips').innerHTML='<b>Lecture rapide</b><br>'+tips.join('<br>'); }
 function updatePit(){ let t=pitService({lane:yes('pLane'),fuel:yes('pFuel'),tyre:yes('pTyre'),swap:yes('pSwap'),light:yes('pLight'),heavy:yes('pHeavy')}); let details=[]; if(yes('pLane')) details.push(`Passage voie des stands : ${num('pitlane')} s`); if(yes('pFuel')) details.push(`Essence : ${num('fuelTime')} s`); if(yes('pTyre')) details.push(`Pneus : ${num('tyreTime')} s`); if(yes('pSwap')) details.push(`Swap : ${num('swapTime')} s`); if(yes('pLight')) details.push(`Dégât léger : ${num('lightTime')} s`); if(yes('pHeavy')) details.push(`Dégât lourd : ${num('heavyTime')} s`); $('pitResult').innerHTML=`<div class="score">${t.toFixed(1)} <span style="font-size:18px">sec</span></div><div class="small" style="margin-top:6px">${details.length?details.join(' · '):'Aucune case cochée : 0 seconde.'}</div>`; }
 function previewDebrief(){ let score=100; score -= (4-parseInt($('consistency').value))*8; score -= (4-parseInt($('apex').value))*6; score -= parseInt($('limits').value)*5; score -= parseInt($('brakes').value)*6; score -= parseInt($('throttle').value)*5; score -= (4-parseInt($('trafficDebrief').value))*4; score -= (4-parseInt($('focus').value))*6; score -= (4-parseInt($('comm').value))*3; if($('damaged').value==='yes') score -= 10; if($('tyreState').value==='used') score -= 3; if($('tyreState').value==='degraded') score -= 7; if($('tyreState').value==='critical') score -= 12; if($('handling').value!=='ok') score -= 5; score=Math.max(0,Math.round(score));
@@ -146,11 +176,11 @@ $('debriefScore').insertAdjacentHTML('beforeend',`<div class="tip"><b>Analyse t�
 function saveDebrief(){ previewDebrief(); let slot=getSlotData(); slot.debriefs=slot.debriefs||[]; slot.debriefs.unshift({date:new Date().toLocaleString('fr-FR'),pilot:$('debriefDriver').selectedOptions[0]?.textContent||'',stint:$('debriefStint').value,score:document.querySelector('#debriefScore .score')?.textContent||'',notes:$('notes').value,summary:$('debriefScore')?.innerText||''}); setSlotData(slot); showDebrief(); }
 function showDebrief(){ let slot=getSlotData(); let list=slot.debriefs||[]; $('debriefResult').innerHTML=list.length?list.slice(0,20).map(d=>`<div class="tip"><b>${esc(d.pilot)} · relais ${esc(d.stint)} · ${esc(d.score)}</b><div class="small">${esc(d.date)}</div><div style="margin-top:6px">${esc(d.summary)}</div>${d.notes?`<div class="small" style="margin-top:6px">Notes : ${esc(d.notes)}</div>`:''}</div>`).join(''):'<div class="muted">Aucun débrief enregistré pour cette course.</div>'; }
 function clearDebrief(){ if(confirm('Effacer les débriefs de cette course ?')){ let slot=getSlotData(); slot.debriefs=[]; setSlotData(slot); showDebrief(); } }
-function exportCSV(){ if(!plan.length) calculate(); let rows=[['Relais','Pilote','Début','Fin','Tours','Essence départ L','Pneus restants','Arrêt','Swap','Pneus','Double','Durée pit','Validé'],...plan.map((p,i)=>[p.index,p.driver,fmtClock(p.start),fmtClock(p.end),p.tours,p.fuel.toFixed(1),p.tyresLeft,p.stop?'OUI':'NON',p.swap?'OUI':'NON',p.tyreStop?'OUI':'NON',p.double?'OUI':'NON',p.service.toFixed(1),doneMap[i]?'OUI':'NON'])]; let csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n'); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='VCE_Race_Control_'+(store.slotNames[currentSlot()]||('Course_'+(currentSlot()+1))).replace(/[^\w-]+/g,'_')+'.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+function exportCSV(){ if(!plan.length) calculate(); let rows=[['Relais','Pilote','Début','Fin','Tours','Essence départ L','Pneus restants','Arrêt','Swap','Pneus','Double','Durée pit','Validé'],...plan.map((p,i)=>[p.index,p.driver,fmtClock(p.start),fmtClock(p.end),p.tours,p.fuel.toFixed(1),p.tyresLeft,p.stop?'OUI':'NON',p.swap?'OUI':'NON',p.tyreStop?'OUI':'NON',p.double?'OUI':'NON',p.service.toFixed(1),window.VCEStrategyLive?.snapshot()?'':doneMap[i]?'OUI':'NON'])]; let csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n'); let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='VCE_Race_Control_'+(store.slotNames[currentSlot()]||('Course_'+(currentSlot()+1))).replace(/[^\w-]+/g,'_')+'.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
 function initDefaultsIfEmpty(){ if(!store.slots[0]){ store.slots[0]={ inputs:{raceType:'endurance',race:'Endurance VCE',car:'LMP2',track:'Le Mans',sim:'LMU',hours:'4',start:'13:30:00',lap:'1:37.589',fuel:'3.1',tank:'75',reserve:'1',tyreLife:'23',safetyFuel:'3',trafficTyres:'0',nPilots:'4',driverMode:'rotation',allowDoubleFast:false,swaps:'2',maxStint:'0',stintMargin:'2',mode:'normal',open:'0',close:'0',pitlane:'41',fuelTime:'14.5',tyreTime:'20',swapTime:'20',lightTime:'20',heavyTime:'70',emergency:false,elapsed:'60',repair:'120',currentPilot:'0',remainFuel:'30',remainTyres:'10',pos:'2',goalPos:'1',gap:'40',remaining:'20',ownLap:'1:30.000',otherLap:'1:32.000',gapPit:'0',pitRisk:'5',pLane:false,pFuel:false,pTyre:false,pSwap:false,pLight:false,pHeavy:false,debriefStint:'1',damaged:'no',consistency:'3',apex:'3',limits:'0',brakes:'0',throttle:'0',trafficDebrief:'3',tyreState:'fresh',handling:'ok',focus:'3',comm:'3',notes:'',sprintPlan:'auto',sprintTyreGoal:'balanced',sprintFuelSave:'0',sprintPitManual:'off'}, pilotData:[{name:'PILOTE 1',lap:'1:37.589'},{name:'PILOTE 2',lap:'1:37.989'},{name:'PILOTE 3',lap:'1:38.389'},{name:'PILOTE 4',lap:'1:38.789'}], doneMap:{}, doubleMap:{}, debriefs:[]}; saveStore(); } }
 initDefaultsIfEmpty();
-function bind(){ document.addEventListener('input',e=>{ if(e.target.id==='nPilots'){ pilotList(); } if(e.target.id.startsWith('pilotName')||e.target.id.startsWith('pilotLap')){ fillDebriefPilots(); } if(['slotName1','slotName2','slotName3'].includes(e.target.id)){ updateSlotNames(); } if(['pLane','pFuel','pTyre','pSwap','pLight','pHeavy'].includes(e.target.id)) updatePit(); if(['pos','goalPos','gap','remaining','ownLap','otherLap','gapPit','pitRisk'].includes(e.target.id)) updateScenario(); if(['dbTours','dbAverage','dbBest','dbFuel','dbTyres','dbContacts','dbTrafficLoss','dbFade','dbBrakeConfidence','dbTemp','dbFatigue','dbRecommendation','damaged','consistency','apex','limits','brakes','throttle','trafficDebrief','tyreState','handling','focus','comm','notes','debriefDriver','debriefStint'].includes(e.target.id)) previewDebrief(); if(['raceType'].includes(e.target.id)) updateCourseVisibility(); if(e.target.matches('input,select,textarea') && !['notes'].includes(e.target.id)){ saveCurrentState(); calculate(); }
- }); document.addEventListener('change',e=>{ if(e.target.matches('input,select,textarea')){ saveCurrentState(); if(['pLane','pFuel','pTyre','pSwap','pLight','pHeavy'].includes(e.target.id)) updatePit(); if(['dbTours','dbAverage','dbBest','dbFuel','dbTyres','dbContacts','dbTrafficLoss','dbFade','dbBrakeConfidence','dbTemp','dbFatigue','dbRecommendation','damaged','consistency','apex','limits','brakes','throttle','trafficDebrief','tyreState','handling','focus','comm'].includes(e.target.id)) previewDebrief(); }}); }
+function bind(){ document.addEventListener('input',e=>{ if(e.target.closest?.('#strategyLiveDialog'))return; if(e.target.id==='nPilots'){ pilotList(); } if(e.target.id.startsWith('pilotName')||e.target.id.startsWith('pilotLap')){ fillDebriefPilots(); } if(['slotName1','slotName2','slotName3'].includes(e.target.id)){ updateSlotNames(); } if(['pLane','pFuel','pTyre','pSwap','pLight','pHeavy'].includes(e.target.id)) updatePit(); if(['pos','goalPos','gap','remaining','ownLap','otherLap','gapPit','pitRisk'].includes(e.target.id)) updateScenario(); if(['dbTours','dbAverage','dbBest','dbFuel','dbTyres','dbContacts','dbTrafficLoss','dbFade','dbBrakeConfidence','dbTemp','dbFatigue','dbRecommendation','damaged','consistency','apex','limits','brakes','throttle','trafficDebrief','tyreState','handling','focus','comm','notes','debriefDriver','debriefStint'].includes(e.target.id)) previewDebrief(); if(['raceType'].includes(e.target.id)) updateCourseVisibility(); if(e.target.matches('input,select,textarea') && !['notes'].includes(e.target.id)){ saveCurrentState(); calculate(); }
+ }); document.addEventListener('change',e=>{ if(e.target.closest?.('#strategyLiveDialog'))return; if(e.target.matches('input,select,textarea')){ saveCurrentState(); if(['pLane','pFuel','pTyre','pSwap','pLight','pHeavy'].includes(e.target.id)) updatePit(); if(['dbTours','dbAverage','dbBest','dbFuel','dbTyres','dbContacts','dbTrafficLoss','dbFade','dbBrakeConfidence','dbTemp','dbFatigue','dbRecommendation','damaged','consistency','apex','limits','brakes','throttle','trafficDebrief','tyreState','handling','focus','comm'].includes(e.target.id)) previewDebrief(); }}); }
 bind(); applyCurrentState();
 
 const EXTRA_FIELDS=['rxTraffic','rxWear','rxTrack','rxWeather','rxErrorChance','rxErrorCost','rxPenaltyChance','rxPenaltyCost','rxSC','rxSCGain','mapUrl','mapNotes','turnCount'];
