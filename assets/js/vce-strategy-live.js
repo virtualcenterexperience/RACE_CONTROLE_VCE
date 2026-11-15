@@ -13,6 +13,8 @@
   const form = byId('strategyLiveForm');
   const formMessage = byId('strategyLiveFormMessage');
   const badge = byId('strategyLiveBadge');
+  const carInput = byId('strategyCarNumber');
+  const editCarNumber = byId('strategyEditCarNumber');
   const timingLink = byId('strategyTimingLink');
   const refreshButton = byId('strategyRefreshLive');
   const stopButton = byId('strategyStopLive');
@@ -51,7 +53,7 @@
   }
 
   function carKey(value) {
-    return String(value ?? '').trim().replace(/^#/, '').replace(/^0+(?=\d)/, '').toUpperCase();
+    return String(value ?? '').trim().replace(/^#\s*/, '').replace(/^0+(?=\d)/, '').toUpperCase();
   }
 
   function decode(data, carNumber) {
@@ -162,7 +164,10 @@
     };
     byId('strategyTimingUrl').value = safeUrl(config.page);
     byId('strategyFeedUrl').value = safeUrl(config.feed);
-    byId('strategyCarNumber').value = typeof config.car === 'string' ? config.car : '';
+    const carNumber = typeof config.car === 'string' ? config.car.trim().replace(/^#\s*/, '') : '';
+    carInput.value = carNumber;
+    editCarNumber.textContent = carNumber ? 'Voiture #' + carNumber : 'Choisir la voiture';
+    editCarNumber.title = carNumber ? 'Changer le numéro de voiture' : 'Renseigner le numéro de voiture';
     const url = byId('strategyTimingUrl').value || byId('strategyFeedUrl').value;
     timingLink.hidden = !url;
     timingLink.href = url || '#';
@@ -178,7 +183,7 @@
     const config = {
       page: urlFor(byId('strategyTimingUrl').value.trim()),
       feed: urlFor(byId('strategyFeedUrl').value.trim()),
-      car: byId('strategyCarNumber').value.trim()
+      car: carInput.value.trim().replace(/^#\s*/, '')
     };
     if (requireFeed && (!config.feed || !carKey(config.car))) {
       throw Error('Renseigne l’URL du flux JSON et le numéro de voiture.');
@@ -215,7 +220,7 @@
       state = 'live';
       errorCount = 0;
       const details = [
-        messages[snapshot.phase], 'Voiture #' + source.car,
+        messages[snapshot.phase],
         snapshot.pitOpen === false ? 'Stands fermés' : snapshot.pitOpen === true ? 'Stands ouverts' : '',
         snapshot.lastLapSeconds !== null ? 'Dernier tour ' + decimal(snapshot.lastLapSeconds, 3) + ' s' : '',
         snapshot.fuelLiters !== null ? decimal(snapshot.fuelLiters) + ' L à bord' : '',
@@ -254,6 +259,11 @@
     const dialog = byId(button.dataset.strategyDialog);
     button.addEventListener('click', () => dialog.showModal());
   }
+  editCarNumber.addEventListener('click', () => {
+    byId('strategyLiveDialog').showModal();
+    carInput.focus();
+    carInput.select();
+  });
   for (const link of document.querySelectorAll('[data-plan-view]')) {
     link.addEventListener('click', () => view(link.dataset.planView));
   }

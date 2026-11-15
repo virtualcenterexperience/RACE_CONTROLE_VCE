@@ -440,6 +440,22 @@ body.vce-page-staff .panel{border-radius:11px}
   font-size: 11px;
   font-weight: 750;
 }
+.strategy-live-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.strategy-car-number {
+  background: #153553;
+  border-color: #417cab;
+  color: #e1f3ff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.strategy-car-number:hover { background: #1e466d; }
 .strategy-pill[data-state="live"] {
   border-color: #267650;
   color: #83ebbb;
