@@ -1,13 +1,13 @@
 /* VCE ESPORT — combined coach evaluation / verified chrono ranking, advisory v1.
- * Rated coach criteria (1–5) are weighted equally and normalized to /50.
+ * Five coach criteria (0–10) are weighted equally on the /50 scale.
  * Unconfirmed weighting thresholds are provisional and must be approved by STAFF.
  */
 (()=>{'use strict';
  const POLICY=Object.freeze({
-  version:'vce-evaluation-ranking-proposal-2026-11-coach-observation',
+  version:'vce-evaluation-ranking-5x10-2026-11',
   status:'PROPOSED_NOT_APPROVED',
-  totalCriteria:20,
-  maxPerCriterion:5,
+  totalCriteria:5,
+  maxPerCriterion:10,
   pointsBands:[
    {min:25,name:'ESPORT',rank:3},
    {min:20,name:'ACADÉMIE',rank:2},
@@ -25,15 +25,15 @@
  }
  function score(scores,{finalized=false}={}){
   if(!Array.isArray(scores)||scores.length!==POLICY.totalCriteria)return null;
-  const clean=scores.filter(value=>value!=null&&value!==''&&value!==0&&value!=='0').map(Number);
-  const ratedScores=clean.filter(value=>Number.isInteger(value)&&value>=1&&value<=POLICY.maxPerCriterion);
+  const clean=scores.filter(value=>value!=null&&value!=='').map(Number);
+  const ratedScores=clean.filter(value=>Number.isInteger(value)&&value>=0&&value<=POLICY.maxPerCriterion);
   const rated=ratedScores.length;
   const total=ratedScores.reduce((sum,value)=>sum+value,0);
   const maxTotal=rated*POLICY.maxPerCriterion;
   const complete=finalized&&rated>0&&rated===clean.length;
   const points50=complete?50*total/maxTotal:null;
   const name=coachBand(points50)?.name??null;
-  return {complete,rated,total,maxTotal,points50,name};
+  return {complete,rated,total,maxTotal,points50,points100:complete?points50*2:null,name};
  }
  function percentage(pct){
   const n=Number(pct);
@@ -57,7 +57,9 @@
   result.ready=true;
   const coachReason=coach.name==='OBSERVATION'
    ?'À améliorer d’urgence. Deuxième chance avec des objectifs précis et une réévaluation.'
-   :'Orientation proposée à partir des compétences évaluées par le coach.';
+   :coach.name==='REFUSÉ'
+    ?'Refusé à ce stade. Une nouvelle évaluation est possible après avoir travaillé les points relevés.'
+    :'Orientation déterminée par la note du coach sur 50.';
   const chronoReason=!chrono
    ?'Une référence LMU comparable peut compléter le dossier.'
    :chrono.name==='REFUSÉ'

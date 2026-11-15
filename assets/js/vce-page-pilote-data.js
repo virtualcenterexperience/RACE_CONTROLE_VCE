@@ -135,7 +135,7 @@ async function refreshOfficialEvaluation(){
   panel.hidden=!status;
   if(!status)return;
   panel.dataset.orientation=status.orientation;
-  document.getElementById('vceOfficialOrientation').textContent=status.orientation==='OBSERVATION'?'Observation · deuxième chance':status.orientation;
+  document.getElementById('vceOfficialOrientation').textContent=status.orientation==='OBSERVATION'?'Observation · deuxième chance':status.orientation==='REFUSÉ'?'Refusé à ce stade · réévaluation possible':status.orientation;
   const time=document.getElementById('vceOfficialDate');
   const date=new Date(status.evaluated_on+'T12:00:00Z');
   time.dateTime=status.evaluated_on;

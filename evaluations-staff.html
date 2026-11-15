@@ -1,25 +1,26 @@
 <!doctype html><html lang="fr"><head>
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pôle Performance — Évaluations STAFF | VCE ESPORT</title><link rel="stylesheet" href="vce-page-evaluations-staff.css?v=20261115-4"><script defer src="assets/js/vce-i18n.js?v=20261109-3"></script></head><body class="vce-evaluation-page"><main><header class="vce-evaluation-header"><a class="vce-evaluation-back" href="staff.html">← Retour STAFF</a><h1>Évaluations & recrutement</h1><p class="muted">Renseigne le dossier, note les compétences observées en piste et compare les chronos LMU avant la décision sportive.</p></header><section id="gate" class="panel">Vérification des droits STAFF…</section><div id="app" class="hidden vce-evaluation-layout">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pôle Performance — Évaluations STAFF | VCE ESPORT</title><link rel="stylesheet" href="vce-page-evaluations-staff.css?v=20261115-5"><script defer src="assets/js/vce-i18n.js?v=20261109-3"></script></head><body class="vce-evaluation-page"><main><header class="vce-evaluation-header"><a class="vce-evaluation-back" href="staff.html">← Retour STAFF</a><h1>Évaluations & recrutement</h1><p class="muted">Renseigne le dossier, note les compétences observées en piste et compare les chronos LMU avant la décision sportive.</p></header><section id="gate" class="panel">Vérification des droits STAFF…</section><div id="app" class="hidden vce-evaluation-layout">
 <aside class="vce-evaluation-sidebar">
 <nav aria-label="Étapes de l’évaluation">
 <a href="#dossier">Dossier pilote</a><a href="#grille">Grille coach</a><a href="#session">Analyse des tours</a><a href="#classement">Résultats et LMU</a><a href="#decision-finale">Décision</a><a href="#historique">Historique</a>
 </nav>
 <div class="vce-evaluation-progress">
-<small id="evaluationProgressLabel">0 / 20 critères évalués</small>
-<progress id="evaluationProgress" max="20" value="0" aria-labelledby="evaluationProgressLabel"></progress>
+<small id="evaluationProgressLabel">0 / 5 critères évalués</small>
+<progress id="evaluationProgress" max="5" value="0" aria-labelledby="evaluationProgressLabel"></progress>
 </div>
 </aside>
 <div class="vce-evaluation-content">
 <p class="vce-evaluation-local">Dossiers enregistrés sur cet appareil</p>
 <section id="dossier" class="panel"><h2>Dossier pilote</h2><div class="grid"><div><label for="pilotSelect">Pilote de l’effectif VCE</label><select id="pilotSelect"><option value="">Choisir un pilote</option></select><small id="pilotRosterStatus" role="status"></small></div>
-<div><label for="pilot">Nom du pilote ou du candidat</label><input id="pilot" required placeholder="Prénom NOM"></div><div><label for="profile">Type de dossier</label><select id="profile"><option value="candidat">Candidat / recrutement</option><option value="team">Pilote VCE / suivi</option></select></div><div><label for="campaign">Campagne / phase d’évaluation</label><select id="campaign"><option value="initial">Évaluation initiale</option><option value="suivi">Suivi périodique</option><option value="retest">Contre-test / progression</option><option value="quatre_semaines">Bilan après 4 semaines</option></select></div><div><label for="coach">Coach évaluateur</label><input id="coach" placeholder="Nom du coach"></div><div><label for="sessionDate">Date de la session</label><input type="date" id="sessionDate"></div><div><label for="sim">Simulateur</label><select id="sim"><option>Assetto Corsa</option><option>Le Mans Ultimate</option><option>RaceRoom</option><option>Autre</option></select></div><div><label for="combo">Voiture et circuit</label><input id="combo" placeholder="Ex. : GT3 — Spa-Francorchamps"></div><div><label for="familiarity">Connaissance du combo</label><select id="familiarity"><option value="connu">Connu</option><option value="inconnu">Inconnu / découverte</option></select></div><div><label for="conditions">Conditions de test</label><input id="conditions" placeholder="Build, météo, grip, pneus, carburant, setup, aides"></div><div><label for="testDuration">Format et durée</label><input id="testDuration" placeholder="Ex. : 10 tours chrono + 20 min course"></div><div><label for="hardware">Matériel utilisé</label><input id="hardware" placeholder="Volant, pédalier, FFB, assistances"></div></div></section><section id="grille" class="panel"><h2>Grille d’évaluation du coach</h2><p class="muted">Note chaque critère observé de 1 à 5 et ajoute un exemple ou une preuve. Laisse « 0 · Non évalué » pour les autres critères. Tu calculeras la note sur 50 à la fin.</p><div id="criteria"></div><label for="potential">Potentiel / éléments à confirmer</label><textarea id="potential" placeholder="Compétences prometteuses et points encore non démontrés"></textarea><label for="strengths">Points forts</label><textarea id="strengths" placeholder="Comportements observés et preuves"></textarea><label for="weaknesses">Axes de progrès</label><textarea id="weaknesses" placeholder="Erreurs, causes possibles et corrections"></textarea><label for="objective">Objectif du prochain test</label><textarea id="objective" placeholder="Objectif concret et mesurable"></textarea></section><section id="session" class="panel"><h2>Analyse des tours</h2><p class="muted">Saisis les temps des tours propres en secondes, séparés par des espaces, virgules ou retours à la ligne. Exemple : 101.234 101.592 101.410. Les tours perturbés doivent être exclus par le coach.</p><label for="laps">Temps des tours propres (secondes)</label><textarea id="laps" placeholder="101.234&#10;101.592&#10;101.410"></textarea><div class="actions"><button type="button" class="secondary" id="analyze">Analyser les tours</button></div><div class="three" id="metrics"><div class="panel">Tours propres : <b id="cleanCount">—</b></div><div class="panel">Meilleur : <b id="best">—</b></div><div class="panel">Moyenne : <b id="average">—</b></div><div class="panel">Médiane : <b id="median">—</b></div><div class="panel">Écart-type : <b id="deviation">—</b></div><div class="panel">Amplitude : <b id="spread">—</b></div></div><p class="muted">L’amplitude est le meilleur–pire tour de la sélection, à utiliser comme indicateur de régularité sur une séquence de 10 tours propres consécutifs. Exclure les tours perturbés et noter les exclusions.</p><label for="excludedLaps">Tours exclus / justification</label><textarea id="excludedLaps" placeholder="Tours de stands, drapeaux, trafic, dégâts, outliers ; indiquer pourquoi"></textarea><label for="context">Contexte / limites de l'analyse</label><textarea id="context" placeholder="Trafic, météo, setup, dégâts, niveau d'adhérence, tours exclus…"></textarea><label for="proof">Référence des preuves</label><input id="proof" placeholder="Lien replay / télémétrie ou référence du fichier"></section><section id="classement" class="panel vce-ranking-panel">
+<div><label for="pilot">Nom du pilote ou du candidat</label><input id="pilot" required placeholder="Prénom NOM"></div><div><label for="profile">Type de dossier</label><select id="profile"><option value="candidat">Candidat / recrutement</option><option value="team">Pilote VCE / suivi</option></select></div><div><label for="campaign">Campagne / phase d’évaluation</label><select id="campaign"><option value="initial">Évaluation initiale</option><option value="suivi">Suivi périodique</option><option value="retest">Contre-test / progression</option><option value="quatre_semaines">Bilan après 4 semaines</option></select></div><div><label for="coach">Coach évaluateur</label><input id="coach" placeholder="Nom du coach"></div><div><label for="sessionDate">Date de la session</label><input type="date" id="sessionDate"></div><div><label for="sim">Simulateur</label><select id="sim"><option>Assetto Corsa</option><option>Le Mans Ultimate</option><option>RaceRoom</option><option>Autre</option></select></div><div><label for="combo">Voiture et circuit</label><input id="combo" placeholder="Ex. : GT3 — Spa-Francorchamps"></div><div><label for="familiarity">Connaissance du combo</label><select id="familiarity"><option value="connu">Connu</option><option value="inconnu">Inconnu / découverte</option></select></div><div><label for="conditions">Conditions de test</label><input id="conditions" placeholder="Build, météo, grip, pneus, carburant, setup, aides"></div><div><label for="testDuration">Format et durée</label><input id="testDuration" placeholder="Ex. : 10 tours chrono + 20 min course"></div><div><label for="hardware">Matériel utilisé</label><input id="hardware" placeholder="Volant, pédalier, FFB, assistances"></div></div></section><section id="grille" class="panel"><h2>Grille d’évaluation du coach</h2><p class="muted">Note les cinq critères de 0 à 10. Laisse la note vide si le critère n’a pas été évalué. Un 0 compte dans le calcul.</p>
+<details class="vce-evaluation-scale"><summary>Voir le barème détaillé de 0 à 10</summary><dl id="evaluationScale"></dl></details><div id="criteria"></div><label for="potential">Potentiel / éléments à confirmer</label><textarea id="potential" placeholder="Compétences prometteuses et points encore non démontrés"></textarea><label for="strengths">Points forts</label><textarea id="strengths" placeholder="Comportements observés et preuves"></textarea><label for="weaknesses">Axes de progrès</label><textarea id="weaknesses" placeholder="Erreurs, causes possibles et corrections"></textarea><label for="objective">Objectif du prochain test</label><textarea id="objective" placeholder="Objectif concret et mesurable"></textarea></section><section id="session" class="panel"><h2>Analyse des tours</h2><p class="muted">Saisis les temps des tours propres en secondes, séparés par des espaces, virgules ou retours à la ligne. Exemple : 101.234 101.592 101.410. Les tours perturbés doivent être exclus par le coach.</p><label for="laps">Temps des tours propres (secondes)</label><textarea id="laps" placeholder="101.234&#10;101.592&#10;101.410"></textarea><div class="actions"><button type="button" class="secondary" id="analyze">Analyser les tours</button></div><div class="three" id="metrics"><div class="panel">Tours propres : <b id="cleanCount">—</b></div><div class="panel">Meilleur : <b id="best">—</b></div><div class="panel">Moyenne : <b id="average">—</b></div><div class="panel">Médiane : <b id="median">—</b></div><div class="panel">Écart-type : <b id="deviation">—</b></div><div class="panel">Amplitude : <b id="spread">—</b></div></div><p class="muted">L’amplitude est le meilleur–pire tour de la sélection, à utiliser comme indicateur de régularité sur une séquence de 10 tours propres consécutifs. Exclure les tours perturbés et noter les exclusions.</p><label for="excludedLaps">Tours exclus / justification</label><textarea id="excludedLaps" placeholder="Tours de stands, drapeaux, trafic, dégâts, outliers ; indiquer pourquoi"></textarea><label for="context">Contexte / limites de l'analyse</label><textarea id="context" placeholder="Trafic, météo, setup, dégâts, niveau d'adhérence, tours exclus…"></textarea><label for="proof">Référence des preuves</label><input id="proof" placeholder="Lien replay / télémétrie ou référence du fichier"></section><section id="classement" class="panel vce-ranking-panel">
 <h2>Résultats et références LMU</h2>
-<p class="vce-rank-sub">Les points des critères évalués s’additionnent. La note sur 50 correspond au total obtenu divisé par le maximum des critères évalués, puis multiplié par 50. La grille propose l’orientation. Le chrono LMU comparable donne au STAFF un repère supplémentaire pour sa décision.</p>
+<p class="vce-rank-sub">La note sur 50 détermine la classe. Quand un critère est laissé vide, la note est ramenée sur 50 à partir des critères évalués. Le total sur 100 est le double de la note sur 50. Le chrono LMU reste un repère pour le STAFF.</p>
 <div class="actions"><button type="button" id="finalizeCoach" disabled>Calculer la note finale sur 50</button></div>
 <div class="vce-ranking-grid">
-<div class="vce-rank-metric"><small>NOTE DES COACHS</small><strong id="vce-rank-coach">— / 50</strong><small id="vce-rank-coach-level" hidden></small><small id="vce-rank-completion">0 / 20 critères</small></div>
+<div class="vce-rank-metric"><small>NOTE DES COACHS</small><strong id="vce-rank-coach">— / 50</strong><small id="vce-rank-coach100" class="vce-grade-total">— / 100</small><small id="vce-rank-coach-level" hidden></small><small id="vce-rank-completion">0 / 5 critères</small></div>
 <div class="vce-rank-metric"><small>PERFORMANCE LMU</small><strong id="vce-rank-percent">— %</strong><small id="vce-rank-chrono-level">Référence manquante</small></div>
-<div class="vce-rank-metric"><small>CLASSEMENT PROPOSÉ</small><strong id="vce-rank-category">EN ATTENTE</strong><small>ESPORT · ACADÉMIE · ROOKIE · OBSERVATION · REFUSÉ</small></div>
+<div class="vce-rank-metric"><small>CLASSE SELON LA NOTE</small><strong id="vce-rank-category">EN ATTENTE</strong><small>ESPORT · ACADÉMIE · ROOKIE · OBSERVATION · REFUSÉ À CE STADE</small></div>
 </div>
 <div id="rankingResult" role="status" aria-live="polite"><h3 id="vce-rank-heading">Évaluation incomplète</h3><p id="vce-rank-reason">Note au moins un critère pour calculer une note.</p></div>
 <div class="vce-evaluation-lmu"><h3>Chrono pilote et référence</h3><div class="grid">
@@ -32,91 +33,52 @@
 </div>
 <label class="vce-rank-check"><input type="checkbox" id="lmuConfirmed"><span>Le STAFF confirme que les temps LMU comparent la même voiture, la même catégorie, le même circuit et des conditions compatibles, sur un tour propre.</span></label>
 </div>
-<p class="vce-rank-note">Barème coach · REFUSÉ sous 10/50 (par exemple 5/50 = 10 %) · dès 10/50 (20 %) OBSERVATION · dès 15/50 (30 %) ROOKIE · dès 20/50 (40 %) ACADÉMIE · dès 25/50 (50 %) ESPORT. Observation signifie à améliorer d’urgence avec une deuxième chance. Le STAFF valide l’orientation sportive finale.</p>
+<p class="vce-rank-note">Barème coach · REFUSÉ À CE STADE sous 10/50 · dès 10/50 (20 %) OBSERVATION · dès 15/50 (30 %) ROOKIE · dès 20/50 (40 %) ACADÉMIE · dès 25/50 (50 %) ESPORT. En observation, fixe des objectifs prioritaires pour un deuxième passage. Après un refus, le pilote peut être réévalué.</p>
 <p class="vce-rank-sub"><strong>Repères chrono LMU</strong> · jusqu’à 101 % ESPORT · au-dessus de 101 % et jusqu’à 103 % ACADÉMIE · au-dessus de 103 % et sous 105 % ROOKIE · dès 105 % hors seuil chrono. Compare les tours sur le même combo et dans des conditions compatibles.</p>
 </section><section id="decision-finale" class="panel"><h2>Orientation et décision finale</h2><div class="grid"><div><label for="decision">Proposition de décision</label><select id="decision"><option value="en_cours">Évaluation en cours</option><option value="tests">Tests complémentaires nécessaires</option><option value="observation">Observation · deuxième chance</option><option value="programme">Programme de développement</option><option value="team_b">Orientation Team B</option><option value="integration">Proposition d'intégration</option><option value="maintien">Maintien dans la structure</option><option value="extension">Prolongation du programme / nouveau bilan</option><option value="reaffectation">Réaffectation sportive</option><option value="fin_collaboration">Fin de collaboration (proposition)</option><option value="promotion">Proposition de montée de catégorie</option><option value="refus">Non retenu à ce stade</option></select></div><div><label for="reviewDate">Date de réévaluation</label><input id="reviewDate" type="date"></div></div><label for="reviewers">Autres évaluateurs / avis collégial</label><input id="reviewers" placeholder="Responsables consultés et avis divergents"><label for="reason">Motivation de la décision</label><textarea id="reason" placeholder="Justification factuelle et points à revoir"></textarea><label for="approver">Responsable sportif (si décision officielle)</label><input id="approver" placeholder="Nom du responsable"><div class="vce-evaluation-lmu">
 <h3>Publication officielle sur le profil</h3>
-<p class="muted">Sélectionne un pilote de l’effectif, termine la grille et confirme le statut. Le profil affiche le statut et la date de l’évaluation. Les observations restent dans le dossier local.</p>
-<label for="officialStatus">Statut à publier</label>
-<select id="officialStatus"><option value="">Choisir le statut officiel</option><option>OBSERVATION</option><option>ROOKIE</option><option>ACADÉMIE</option><option>ESPORT</option><option>REFUSÉ</option></select>
+<p class="muted">Sélectionne un pilote de l’effectif et confirme la publication de la classe calculée. Le profil affiche le statut et la date de l’évaluation. Les observations restent dans le dossier local.</p>
+<p class="vce-official-grade"><span>Statut à publier</span> <strong id="officialStatus">En attente de la note</strong></p>
 <div class="actions"><button id="publishEvaluation" type="button" disabled>Publier le statut sur le profil</button></div>
 <p id="publicationStatus" class="muted" role="status"></p>
-</div></section><div class="actions vce-evaluation-actions"><button id="save" type="button">Enregistrer le dossier localement</button><button id="new" type="button" class="secondary">Nouveau dossier</button><button id="export" type="button" class="ghost">Exporter le dossier JSON</button></div><p id="status" class="muted" role="status"></p><section id="historique" class="panel"><h2>Historique des dossiers</h2><div id="history"></div></section></div></div><footer>© VCE ESPORT · Pôle Performance — espace réservé aux membres STAFF habilités.</footer></main><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261115-evaluation"></script><script src="assets/js/vce-evaluation-ranking.js?v=20261115-4"></script><script>
+</div></section><div class="actions vce-evaluation-actions"><button id="save" type="button">Enregistrer le dossier localement</button><button id="new" type="button" class="secondary">Nouveau dossier</button><button id="export" type="button" class="ghost">Exporter le dossier JSON</button></div><p id="status" class="muted" role="status"></p><section id="historique" class="panel"><h2>Historique des dossiers</h2><div id="history"></div></section></div></div><footer>© VCE ESPORT · Pôle Performance — espace réservé aux membres STAFF habilités.</footer></main><script src="vce-supabase-config.js"></script><script src="vce-supabase.js?v=20261115-evaluation"></script><script src="assets/js/vce-evaluation-ranking.js?v=20261115-5"></script><script>
 'use strict';
 const $=id=>document.getElementById(id),KEY='vce_performance_coach_dossiers_v1';
-const storedDomains=['Raw Pace / vitesse pure','Adaptability / adaptation','Consistency / régularité','Car Control / contrôle du véhicule','Driving Technique / technique de pilotage','Tyre Management / gestion des pneus','Fuel & Energy Management / carburant et énergie','Stint Management / gestion des relais','Track Conditions Adaptability / conditions de piste','Racecraft / bataille en course','Race Start Performance / départs','Decision Making / prise de décision','Error Management / gestion des erreurs','Qualifying Performance / qualifications','Pressure Performance / performance sous pression','Setup & Vehicle Adaptation / réglages','Communication / débrief','Team Racing / travail en équipe','Race Pace Management / rythme de course','Telemetry Awareness / lecture télémétrique'];
-const phases=[
- {title:'Tours de référence',criteria:[[4,'Trajectoires et technique de pilotage'],[0,'Rythme et vitesse pure'],[2,'Régularité des chronos'],[3,'Contrôle du véhicule'],[12,'Gestion des erreurs']]},
- {title:'Adaptation et qualifications',criteria:[[1,'Adaptation au combo'],[8,'Adaptation aux conditions de piste'],[13,'Performance en qualifications'],[14,'Pilotage sous pression']]},
- {title:'Course et stratégie',criteria:[[10,'Départs'],[9,'Bataille en course'],[18,'Gestion du rythme en course'],[5,'Gestion des pneus'],[6,'Gestion du carburant et de l’énergie'],[7,'Gestion des relais'],[11,'Prise de décision'],[17,'Travail en équipe']]},
- {title:'Analyse et débrief',criteria:[[19,'Lecture de la télémétrie'],[15,'Réglages et adaptation du véhicule'],[16,'Communication et débrief']]}
+const criteriaScale='vce-5x10';
+const criteria=[
+ ['Driving Technique / technique de pilotage','Trajectoires et technique de pilotage','les repères de braquage, les points de corde et la largeur en sortie'],
+ ['Raw Pace / vitesse pure','Rythme et vitesse pure','l’écart au chrono de référence et le virage où il se creuse'],
+ ['Consistency / régularité','Régularité des chronos','le nombre de tours dans la même fenêtre de temps et la cause des écarts'],
+ ['Car Control / contrôle du véhicule','Contrôle du véhicule','la réaction au sous-virage, au survirage ou à la perte de motricité'],
+ ['Error Management / gestion des erreurs','Gestion des erreurs','la façon de sécuriser la voiture et de retrouver son rythme après une erreur']
 ];
-const annotationSubjects=[
- 'l’écart au chrono de référence et le virage où il se creuse',
- 'le temps nécessaire pour retrouver ses repères sur un combo inconnu',
- 'le nombre de tours dans la même fenêtre de temps et la cause des écarts',
- 'la réaction au sous-virage, au survirage ou à la perte de motricité',
- 'les repères de braquage, les points de corde et la largeur utilisée en sortie',
- 'l’évolution du rythme avec l’usure des pneus',
- 'la consommation par tour et la marge à l’arrivée',
- 'la tenue du rythme et des objectifs sur la durée du relais',
- 'l’ajustement des repères de freinage quand l’adhérence change',
- 'le placement du pilote à côté d’une autre voiture',
- 'la réaction au départ, la motricité et le placement au premier virage',
- 'la décision prise, le contexte et son effet sur la course',
- 'la façon de sécuriser la voiture et de retrouver son rythme après une erreur',
- 'la préparation des pneus et l’exécution du tour lancé',
- 'le respect des repères et des décisions quand la pression monte',
- 'le changement de réglage testé et son effet observable',
- 'la précision des retours et la prochaine action proposée',
- 'la coordination avec les équipiers, notamment au changement de pilote',
- 'le maintien du rythme dans le trafic ou sur pneus usés',
- 'le canal télémétrique consulté et ce qu’il permet de vérifier'
+const unrated=['Non évalué','Travail non rendu, absence ou critère non applicable.'];
+const scale=[
+ ['Non compris','Sujet hors propos, incompréhension totale ou absence de réponse pertinente.'],
+ ['Très insuffisant','Quelques mots ou idées isolées, mais aucune logique d’ensemble.'],
+ ['Insuffisant','Tentative de réponse, mais de graves erreurs de compréhension persistent.'],
+ ['Fragile','Des notions de base sont présentes, mais l’application reste très confuse.'],
+ ['En cours d’acquisition','Compréhension partielle du sujet, mais plusieurs oublis ou erreurs majeures.'],
+ ['Passable / Moyen','L’essentiel est compris, mais le travail reste superficiel et manque de précision.'],
+ ['Assez bien','Compétence acquise dans l’ensemble, avec quelques maladresses ou imprécisions mineures.'],
+ ['Satisfaisant','Travail sérieux et structuré, les notions attendues sont bien maîtrisées.'],
+ ['Très bien','Maîtrise solide, argumentation claire et aucune erreur notable.'],
+ ['Remarquable','Travail très approfondi, précis et parfaitement structuré.'],
+ ['Excellent','Maîtrise totale du sujet, réflexion aboutie et qualité irréprochable.']
 ];
-const annotationExamples={
- 0:[
-  'Le meilleur tour est à 2,1 s de la référence. Reprendre le freinage au virage 1, où le delta se creuse.',
-  'Il reste 0,9 s sur la référence, dont la moitié dans le secteur 2. Travailler les sorties de virage.',
-  'Le meilleur tour est à 0,5 s de la référence dans les mêmes conditions. L’essentiel de l’écart se fait au dernier virage.',
-  'Deux tours propres à moins de 0,3 s de la référence avec le même combo.',
-  'Chrono de référence égalé sur deux tours propres, avec le même carburant et le même niveau d’adhérence.'
- ],
- 4:[
-  'À la chicane, braquage trop tôt et corde manquée sur trois tours. Reprendre le repère de braquage à vitesse réduite.',
-  'Corde atteinte deux fois sur cinq. Retarder le braquage pour ouvrir la sortie.',
-  'Points de corde réguliers sur cinq tours propres. La sortie reste serrée au dernier virage.',
-  'Toute la largeur est utilisée en sortie et les trajectoires se répètent sur cinq tours propres.',
-  'Le pilote adapte sa ligne en trafic puis retrouve ses repères dès le tour suivant.'
- ],
- 2:[
-  'Les écarts dépassent 1 s sur six tours propres. Stabiliser le repère de freinage au virage 1.',
-  'Six tours sur dix sont dans une fenêtre de 0,8 s. Travailler la répétition du freinage à la chicane.',
-  'Huit tours propres sur dix tiennent dans une fenêtre de 0,4 s. Vérifier le freinage au virage 1 sur les deux tours plus lents.',
-  'Neuf tours propres sur dix tiennent dans une fenêtre de 0,3 s malgré l’usure des pneus.',
-  'Dix tours propres dans une fenêtre de 0,2 s, avec des repères maintenus en fin de relais.'
- ]
-};
-const annotationPrompts=[
- 'Décris l’écart observé et la première correction à travailler',
- 'Précise ce qui manque de régularité et propose un ajustement',
- 'Indique ce qui est maîtrisé et précise la marge de progrès',
- 'Cite une réussite répétée et les conditions dans lesquelles tu l’as observée',
- 'Décris une performance confirmée dans une situation plus exigeante'
-];
+const categoryLabel=value=>value==='REFUSÉ'?'REFUSÉ À CE STADE':value;
 function updateAnnotation(index){
- const note=Number($('score'+index).value);
- const hint=$('annotation'+index);
- const example=annotationExamples[index]?.[note-1];
- const prompt=annotationPrompts[note-1];
- hint.textContent=example?'Exemple · '+example:prompt?prompt+'. Observe '+annotationSubjects[index]+'.':'';
- hint.hidden=!hint.textContent;
- $('score'+index).dataset.rating=String(note);
+ const select=$('score'+index),hint=$('annotation'+index);
+ const grade=select.value===''?null:scale[Number(select.value)];
+ hint.textContent=grade?grade[1]+' Pour ce critère, observe '+criteria[index][2]+'.':'';
+ hint.hidden=!grade;
+ select.dataset.rating=select.value;
 }
 let currentId=null,records=[],coachFinalized=false,publishing=false,loadedPilotSlug='';
 const roster=new Map();
 function syncPublishButton() {
  const pilot=$('pilotSelect').value;
- $('publishEvaluation').disabled=publishing||!coachFinalized||!roster.has(pilot)||!$('officialStatus').value;
+ $('publishEvaluation').disabled=publishing||!coachFinalized||!roster.has(pilot);
 }
 async function loadEvaluationRoster(){
  const status=$('pilotRosterStatus');
@@ -149,54 +111,51 @@ $('pilot').addEventListener('input',()=>{
   syncPublishButton();
  }
 });
-$('officialStatus').addEventListener('change',syncPublishButton);
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch{return []}}
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function build(){
+ const legend=$('evaluationScale');
+ for(const [index,[label,description]] of [unrated,...scale].entries()){
+  const term=document.createElement('dt');term.dataset.rating=index?String(index-1):'';
+  term.textContent=index?(index-1)+' · '+label:label;
+  const desc=document.createElement('dd');desc.textContent=description;
+  legend.append(term,desc);
+ }
  const host=$('criteria');
- for(const phase of phases){
-  const section=document.createElement('section');
-  section.className='vce-criteria-phase';
-  const title=document.createElement('h3');title.textContent=phase.title;
-  const count=document.createElement('small');count.id='phaseProgress'+phase.criteria[0][0];
-  const heading=document.createElement('div');heading.className='vce-criteria-heading';
-  heading.append(title,count);section.append(heading);
-  for(const [index,caption] of phase.criteria){
-   const row=document.createElement('div');row.className='criteria';
-   const label=document.createElement('label');label.htmlFor='score'+index;label.textContent=caption;
-   const select=document.createElement('select');select.id='score'+index;
-   for(const [value,text] of [['0','0 · Non évalué'],['1','1 · Non acquis'],['2','2 · À améliorer'],['3','3 · Maîtrisé'],['4','4 · Bien'],['5','5 · Excellent']]){
-    select.append(new Option(text,value));
-   }
-   const evidence=document.createElement('textarea');evidence.id='evidence'+index;evidence.rows=2;
-   evidence.placeholder='Observation ou preuve';
-   evidence.setAttribute('aria-label','Observation pour '+caption);
-   const hint=document.createElement('p');hint.id='annotation'+index;
-   hint.className='vce-criteria-annotation';hint.hidden=true;
-   evidence.setAttribute('aria-describedby',hint.id);
-   row.append(label,select,evidence,hint);section.append(row);
-   select.addEventListener('change',()=>{coachFinalized=false;updateAnnotation(index);renderRanking()});
-  }
-  host.append(section);
+ for(const [index,[,caption]] of criteria.entries()){
+  const row=document.createElement('div');row.className='criteria';
+  const label=document.createElement('label');label.htmlFor='score'+index;label.textContent=caption;
+  const select=document.createElement('select');select.id='score'+index;
+  select.append(new Option(unrated[0],''));
+  for(const [note,[name]] of scale.entries()) select.append(new Option(note+' · '+name,String(note)));
+  const evidence=document.createElement('textarea');evidence.id='evidence'+index;evidence.rows=2;
+  evidence.placeholder='Observation ou preuve';
+  evidence.setAttribute('aria-label','Observation pour '+caption);
+  const hint=document.createElement('p');hint.id='annotation'+index;
+  hint.className='vce-criteria-annotation';hint.hidden=true;
+  evidence.setAttribute('aria-describedby',hint.id);
+  select.setAttribute('aria-describedby',hint.id);
+  row.append(label,select,evidence,hint);host.append(row);
+  select.addEventListener('change',()=>{coachFinalized=false;updateAnnotation(index);renderRanking()});
  }
 }
 function readCriteria(){
- return storedDomains.map((domain,index)=>({
-  domain,score:Number($('score'+index).value),
+ return criteria.map(([domain],index)=>({
+  domain,score:$('score'+index).value===''?null:Number($('score'+index).value),
   evidence:$('evidence'+index).value.trim()
  }));
 }
 function fillCriteria(dossier){
  const previous=Array.isArray(dossier?.criteria)?dossier.criteria:[];
  const byDomain=new Map(previous.filter(value=>value?.domain).map(value=>[value.domain,value]));
- storedDomains.forEach((domain,index)=>{
-  const entry=byDomain.get(domain)??(previous[index]?.domain===undefined?previous[index]:null);
-  $('score'+index).value=entry?.score??'0';
+ const sameScale=dossier?.criteriaScale===criteriaScale;
+ criteria.forEach(([domain],index)=>{
+  const entry=byDomain.get(domain);
+  $('score'+index).value=sameScale?entry?.score??'':'';
   $('evidence'+index).value=entry?.evidence||'';
   updateAnnotation(index);
  });
- coachFinalized=dossier?.coachFinalized??(previous.length===storedDomains.length&&
-  dossier?.proposedRanking?.coach?.complete===true);
+ coachFinalized=sameScale&&dossier.coachFinalized===true;
 }
 function rankingState(){
  const engine=window.VCEEvaluationRanking;
@@ -222,25 +181,23 @@ function renderRanking(){
  syncPublishButton();
  const rated=coach?.rated||0;
  $('evaluationProgress').value=rated;
- $('evaluationProgressLabel').textContent=rated+' / '+storedDomains.length+' critères évalués';
- for(const phase of phases){
-  const ratedInPhase=phase.criteria.filter(([index])=>Number($('score'+index).value)>0).length;
-  $('phaseProgress'+phase.criteria[0][0]).textContent=ratedInPhase+' / '+phase.criteria.length+' évalués';
- }
+ $('evaluationProgressLabel').textContent=rated+' / '+criteria.length+' critères évalués';
  $('vce-rank-coach').textContent=coach?.complete?coach.points50.toFixed(1)+' / 50':'— / 50';
+ $('vce-rank-coach100').textContent=coach?.complete?coach.points100.toFixed(1)+' / 100':'— / 100';
+ $('officialStatus').textContent=ranking.ready?categoryLabel(ranking.category):'En attente de la note';
  const level=$('vce-rank-coach-level');
  level.hidden=!coach?.complete;
- level.textContent=coach?.complete?(coach.points50*2).toLocaleString('fr-FR',{maximumFractionDigits:1})+' % · '+coach.name:'';
+ level.textContent=coach?.complete?coach.points100.toLocaleString('fr-FR',{maximumFractionDigits:1})+' % · '+categoryLabel(coach.name):'';
  $('finalizeCoach').disabled=!coach?.rated||coach.complete;
  $('vce-rank-completion').textContent=coach?.rated
-  ?coach.total+' / '+coach.maxTotal+' points · '+coach.rated+' / '+storedDomains.length+' critères évalués'
+  ?coach.total+' / '+coach.maxTotal+' points · '+coach.rated+' / '+criteria.length+' critères évalués'
   :'Aucun critère évalué';
  $('vce-rank-percent').textContent=Number.isFinite(ranking.percent)?ranking.percent.toFixed(3)+' %':'— %';
  $('vce-rank-chrono-level').textContent=ranking.chrono?.name==='REFUSÉ'?'Hors seuil chrono LMU':ranking.chrono?.name||'Référence LMU à confirmer';
- $('vce-rank-category').textContent=ranking.ready?ranking.category:'EN ATTENTE';
+ $('vce-rank-category').textContent=ranking.ready?categoryLabel(ranking.category):'EN ATTENTE';
  $('rankingResult').className=ranking.ready?'vce-rank-'+
   ({'ESPORT':'esport','ACADÉMIE':'academie','ROOKIE':'rookie','OBSERVATION':'observation','REFUSÉ':'refuse'}[ranking.category]||''):'';
- $('vce-rank-heading').textContent=ranking.ready?'Orientation proposée : '+ranking.category:'Évaluation en attente';
+ $('vce-rank-heading').textContent=ranking.ready?'Classe selon la note · '+categoryLabel(ranking.category):'Évaluation en attente';
  $('vce-rank-reason').textContent=ranking.mismatch?
   ranking.reason+' Vérifie les chronos LMU saisis, les deux pourcentages ne concordent pas.':ranking.reason;
 }
@@ -249,37 +206,38 @@ function data(){const ranking=rankingState();return {
  referenceLmu:{pilotLap:$('lmuPilotLap').value,referenceLap:$('lmuReferenceLap').value,
   percentage:$('lmuPercentManual').value,combo:$('lmuCombo').value,
   proof:$('lmuProof').value,conditions:$('lmuConditions').value,confirmed:$('lmuConfirmed').checked},
- proposedCategory:ranking.ready?ranking.category:null,proposedRanking:ranking,id:currentId||('vce-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)),pilot:$('pilot').value.trim(),pilotSlug:$('pilotSelect').value||loadedPilotSlug||null,officialStatus:$('officialStatus').value,profile:$('profile').value,campaign:$('campaign').value,familiarity:$('familiarity').value,conditions:$('conditions').value,testDuration:$('testDuration').value,hardware:$('hardware').value,excludedLaps:$('excludedLaps').value,potential:$('potential').value,reviewers:$('reviewers').value,coach:$('coach').value.trim(),sessionDate:$('sessionDate').value,sim:$('sim').value,combo:$('combo').value,criteria:readCriteria(),coachFinalized,strengths:$('strengths').value,weaknesses:$('weaknesses').value,objective:$('objective').value,lapTimes:$('laps').value,analysis:analysis(),context:$('context').value,proof:$('proof').value,decision:$('decision').value,reviewDate:$('reviewDate').value,reason:$('reason').value,approver:$('approver').value,updatedAt:new Date().toISOString()}}
-function fill(d){currentId=d?.id||null;
+ proposedCategory:ranking.ready?ranking.category:null,proposedRanking:ranking,id:currentId||('vce-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)),pilot:$('pilot').value.trim(),pilotSlug:$('pilotSelect').value||loadedPilotSlug||null,officialStatus:ranking.ready?ranking.category:null,criteriaScale,profile:$('profile').value,campaign:$('campaign').value,familiarity:$('familiarity').value,conditions:$('conditions').value,testDuration:$('testDuration').value,hardware:$('hardware').value,excludedLaps:$('excludedLaps').value,potential:$('potential').value,reviewers:$('reviewers').value,coach:$('coach').value.trim(),sessionDate:$('sessionDate').value,sim:$('sim').value,combo:$('combo').value,criteria:readCriteria(),coachFinalized,strengths:$('strengths').value,weaknesses:$('weaknesses').value,objective:$('objective').value,lapTimes:$('laps').value,analysis:analysis(),context:$('context').value,proof:$('proof').value,decision:$('decision').value,reviewDate:$('reviewDate').value,reason:$('reason').value,approver:$('approver').value,updatedAt:new Date().toISOString()}}
+function fill(d){
+ const legacy=Boolean(d&&d.criteriaScale!==criteriaScale);
+ currentId=legacy?null:d?.id||null;
  loadedPilotSlug=d?.pilotSlug||'';
  $('pilotSelect').value=roster.has(loadedPilotSlug)?loadedPilotSlug:'';
- $('officialStatus').value=d?.officialStatus||'';
  $('publicationStatus').textContent='';
  const ref=d?.referenceLmu||{};
  for(const [id,name] of [['lmuPilotLap','pilotLap'],['lmuReferenceLap','referenceLap'],
   ['lmuPercentManual','percentage'],['lmuCombo','combo'],['lmuProof','proof'],['lmuConditions','conditions']])
   $(id).value=ref[name]||'';
- $('lmuConfirmed').checked=ref.confirmed===true;for(const id of ['pilot','profile','campaign','familiarity','conditions','testDuration','hardware','excludedLaps','potential','reviewers','coach','sessionDate','sim','combo','strengths','weaknesses','objective','context','proof','decision','reviewDate','reason','approver']){if(d&&d[id]!==undefined)$(id).value=d[id];else if($(id).tagName==='SELECT')$(id).selectedIndex=0;else $(id).value=''}$('laps').value=d?.lapTimes||'';fillCriteria(d);try{analysis()}catch{}renderRanking();$('status').textContent=d?'Dossier chargé.':'Nouveau dossier.'}
-function history(){const h=$('history');h.replaceChildren();if(!records.length){h.textContent='Aucun dossier enregistré sur cet appareil.';return}for(const d of [...records].reverse()){const article=document.createElement('article');const name=document.createElement('strong');name.textContent=(d.pilot||'Sans nom')+' — '+(d.profile==='candidat'?'Candidat':'Pilote VCE');const detail=document.createElement('p');detail.className='muted';detail.textContent=(d.sessionDate||'Date inconnue')+' · '+(d.coach||'Coach non renseigné')+' · '+(d.proposedCategory?'Orientation : '+d.proposedCategory+' · ':'')+d.decision;const actions=document.createElement('div');actions.className='actions';const open=document.createElement('button');open.className='secondary';open.textContent='Ouvrir';open.onclick=()=>{fill(d);scrollTo({top:0,behavior:'smooth'})};const del=document.createElement('button');del.className='ghost';del.textContent='Supprimer';del.onclick=()=>{if(!confirm('Supprimer ce dossier local ?'))return;records=records.filter(x=>x.id!==d.id);localStorage.setItem(KEY,JSON.stringify(records));if(currentId===d.id)fill(null);history()};actions.append(open,del);article.append(name,detail,actions);h.append(article)}}
+ $('lmuConfirmed').checked=ref.confirmed===true;for(const id of ['pilot','profile','campaign','familiarity','conditions','testDuration','hardware','excludedLaps','potential','reviewers','coach','sessionDate','sim','combo','strengths','weaknesses','objective','context','proof','decision','reviewDate','reason','approver']){if(d&&d[id]!==undefined)$(id).value=d[id];else if($(id).tagName==='SELECT')$(id).selectedIndex=0;else $(id).value=''}$('laps').value=d?.lapTimes||'';fillCriteria(d);try{analysis()}catch{}renderRanking();$('status').textContent=legacy?'Ancienne grille chargée en nouveau brouillon. Les observations sont reprises selon les critères correspondants. Renseigne les notes sur 10.':d?'Dossier chargé.':'Nouveau dossier.'}
+function history(){const h=$('history');h.replaceChildren();if(!records.length){h.textContent='Aucun dossier enregistré sur cet appareil.';return}for(const d of [...records].reverse()){const article=document.createElement('article');const name=document.createElement('strong');name.textContent=(d.pilot||'Sans nom')+' — '+(d.profile==='candidat'?'Candidat':'Pilote VCE');const detail=document.createElement('p');detail.className='muted';detail.textContent=(d.sessionDate||'Date inconnue')+' · '+(d.coach||'Coach non renseigné')+' · '+(d.proposedCategory?'Orientation · '+categoryLabel(d.proposedCategory)+' · ':'')+d.decision;const actions=document.createElement('div');actions.className='actions';const open=document.createElement('button');open.className='secondary';open.textContent=d.criteriaScale===criteriaScale?'Ouvrir':'Reprendre avec le nouveau barème';open.onclick=()=>{fill(d);scrollTo({top:0,behavior:'smooth'})};const del=document.createElement('button');del.className='ghost';del.textContent='Supprimer';del.onclick=()=>{if(!confirm('Supprimer ce dossier local ?'))return;records=records.filter(x=>x.id!==d.id);localStorage.setItem(KEY,JSON.stringify(records));if(currentId===d.id)fill(null);history()};actions.append(open,del);article.append(name,detail,actions);h.append(article)}}
 for(const id of ['lmuPilotLap','lmuReferenceLap','lmuPercentManual','lmuCombo','lmuProof','lmuConditions','lmuConfirmed']){
  $(id).addEventListener('input',renderRanking);$(id).addEventListener('change',renderRanking);
 }
 $('finalizeCoach').onclick=()=>{coachFinalized=true;renderRanking()};
 $('analyze').onclick=()=>{try{analysis();renderRanking();$('status').textContent='Analyse recalculée.'}catch(e){$('status').textContent=e.message}};
-$('save').onclick=()=>{try{const d=data();if(!d.pilot||!d.coach||!d.sessionDate)throw Error('Renseigne le pilote, le coach et la date.');if(d.criteria.some(x=>x.score&&!x.evidence))throw Error('Chaque compétence notée nécessite une observation ou preuve.');if(d.decision!=='en_cours'&&!d.reason.trim())throw Error('Une décision nécessite une justification.');if(['integration','promotion','refus','fin_collaboration'].includes(d.decision)&&!d.approver.trim())throw Error('Cette décision exige le nom du responsable sportif.');currentId=d.id;records=records.filter(x=>x.id!==d.id);records.push(d);localStorage.setItem(KEY,JSON.stringify(records));history();$('status').textContent='Dossier enregistré localement le '+new Date(d.updatedAt).toLocaleString('fr-FR',{timeZone:'Europe/Paris'})+'. Non synchronisé.'}catch(e){$('status').textContent='Enregistrement impossible : '+e.message}};
+$('save').onclick=()=>{try{const d=data();if(!d.pilot||!d.coach||!d.sessionDate)throw Error('Renseigne le pilote, le coach et la date.');if(d.criteria.some(x=>x.score!==null&&!x.evidence))throw Error('Chaque compétence notée nécessite une observation ou preuve.');if(d.decision!=='en_cours'&&!d.reason.trim())throw Error('Une décision nécessite une justification.');if(['integration','promotion','refus','fin_collaboration'].includes(d.decision)&&!d.approver.trim())throw Error('Cette décision exige le nom du responsable sportif.');currentId=d.id;records=records.filter(x=>x.id!==d.id);records.push(d);localStorage.setItem(KEY,JSON.stringify(records));history();$('status').textContent='Dossier enregistré localement le '+new Date(d.updatedAt).toLocaleString('fr-FR',{timeZone:'Europe/Paris'})+'. Non synchronisé.'}catch(e){$('status').textContent='Enregistrement impossible : '+e.message}};
 $('publishEvaluation').onclick=async()=>{
  if(publishing)return;
  const output=$('publicationStatus');
  try{
   const d=data(),name=roster.get(d.pilotSlug);
-  if(!name||!d.proposedRanking.coach?.complete||!d.officialStatus)throw Error('Sélectionne le pilote, calcule la note finale et choisis un statut.');
+  if(!name||!d.proposedRanking.coach?.complete||!d.officialStatus)throw Error('Sélectionne le pilote, puis calcule la note finale.');
   if(!d.coach||!d.sessionDate||!d.approver.trim())throw Error('Renseigne le coach, la date de la séance et le responsable sportif.');
-  if(d.criteria.some(x=>x.score&&!x.evidence))throw Error('Ajoute une observation pour chaque critère noté.');
-  if(!confirm('Publier le statut « '+d.officialStatus+' » sur le profil de '+name+' ?'))return;
+  if(d.criteria.some(x=>x.score!==null&&!x.evidence))throw Error('Ajoute une observation pour chaque critère noté.');
+  if(!confirm('Publier le statut « '+categoryLabel(d.officialStatus)+' » sur le profil de '+name+' ?'))return;
   publishing=true;syncPublishButton();
   output.textContent='Publication en cours…';
   await VCESupabase.publishPilotEvaluationStatus(d.pilotSlug,d.officialStatus,d.sessionDate);
-  output.textContent='Statut '+d.officialStatus+' publié sur le profil de '+name+'.';
+  output.textContent='Statut '+categoryLabel(d.officialStatus)+' publié sur le profil de '+name+'.';
  }catch(e){output.textContent='Publication impossible · '+e.message}
  finally{publishing=false;syncPublishButton()}
 };
