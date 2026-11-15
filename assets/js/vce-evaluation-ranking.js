@@ -4,24 +4,24 @@
  */
 (()=>{'use strict';
  const POLICY=Object.freeze({
-  version:'vce-evaluation-ranking-proposal-2026-11-coach-bands',
+  version:'vce-evaluation-ranking-proposal-2026-11-coach-observation',
   status:'PROPOSED_NOT_APPROVED',
   totalCriteria:20,
   maxPerCriterion:5,
   pointsBands:[
    {min:25,name:'ESPORT',rank:3},
    {min:20,name:'ACADÉMIE',rank:2},
-   {min:5,exclusive:true,name:'ROOKIE',rank:1},
+   {min:15,name:'ROOKIE',rank:1},
+   {min:10,name:'OBSERVATION',rank:1},
    {min:0,name:'REFUSÉ',rank:0}
   ],
   percentBands:[{max:101,name:'ESPORT',rank:3},{max:103,name:'ACADÉMIE',rank:2},{max:105,name:'ROOKIE',rank:1},{max:Infinity,name:'REFUSÉ',rank:0}],
   refusalPercent:105,
   versionStatus:'Barème de points proposé, validation STAFF requise'
  });
- const names=['REFUSÉ','ROOKIE','ACADÉMIE','ESPORT'];
  function coachBand(points){
   if(!Number.isFinite(points)||points<0||points>50)return null;
-  return POLICY.pointsBands.find(band=>band.exclusive?points>band.min:points>=band.min);
+  return POLICY.pointsBands.find(band=>points>=band.min);
  }
  function score(scores,{finalized=false}={}){
   if(!Array.isArray(scores)||scores.length!==POLICY.totalCriteria)return null;
@@ -53,15 +53,19 @@
     :'Note au moins un critère pour calculer une note.';
    return result;
   }
-  if(!chrono){
-   result.reason='Pourcentage LMU absent ou non confirmé : référence voiture/circuit/catégorie et conditions requise.';return result;
-  }
-  const pointRank=names.indexOf(coach.name),chronoRank=chrono.rank;
-  result.category=names[Math.min(pointRank,chronoRank)];
+  result.category=coach.name;
   result.ready=true;
-  result.reason=result.category==='REFUSÉ'
-   ?(chrono.percent>=105?'Seuil chrono VCE de 105 % atteint.':"Le score des critères ne dépasse pas le seuil minimal proposé.")
-   :'Le niveau le plus bas entre la grille coach et le chrono comparable fixe l’orientation.';
+  const coachReason=coach.name==='OBSERVATION'
+   ?'À améliorer d’urgence. Deuxième chance avec des objectifs précis et une réévaluation.'
+   :'Orientation proposée à partir des compétences évaluées par le coach.';
+  const chronoReason=!chrono
+   ?'Une référence LMU comparable peut compléter le dossier.'
+   :chrono.name==='REFUSÉ'
+    ?'Le seuil chrono LMU de 105 % est atteint ou dépassé. Le STAFF examine ce résultat avec la grille avant sa décision.'
+    :chrono.name===coach.name
+    ?'Le chrono LMU comparable va dans le même sens.'
+    :'Repère chrono LMU : '+chrono.name+'. Le STAFF examine l’écart avec la grille avant sa décision.';
+  result.reason=coachReason+' '+chronoReason;
   return result;
  }
  function timeSeconds(raw){

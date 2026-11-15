@@ -183,3 +183,5 @@ body.vce-page-staff .panel{border-radius:11px}
 #finalizeCoach:disabled { cursor: default; opacity: .55; }
 
 .vce-criteria-annotation { grid-column: 1 / -1; margin: 0; color: #a9c5df; font-size: .85rem; line-height: 1.5; }
+
+#rankingResult.vce-rank-observation{border-color:#ff9b66;background:#38251e}
