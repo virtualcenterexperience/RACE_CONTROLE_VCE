@@ -427,3 +427,7 @@ body.vce-page-staff .panel{border-radius:11px}
 #vce-staff-retry{margin:10px 0 4px;border:1px solid #497b9d;border-radius:8px;background:#153750;color:#cfebff;font-size:12px;font-weight:900;padding:12px 17px}
 #vce-staff-retry:hover{background:#205170}
 #vce-staff-retry[hidden]{display:none!important}
+
+.vce-restart-notice { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px; }
+.vce-restart-shortcut { display: inline-flex; padding: 8px 12px; border: 1px solid #7e6343; border-radius: 7px; background: #30263a; color: #ffe3bb; font-size: .83rem; font-weight: 750; }
+.vce-restart-shortcut:hover { background: #473348; color: #fff; }

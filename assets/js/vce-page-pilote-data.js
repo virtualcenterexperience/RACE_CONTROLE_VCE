@@ -113,7 +113,37 @@ window.addEventListener('vce-team-updated',()=>__vcePageCache.clear());
 const PILOT_REFRESH_MS=120_000;
 const DASHBOARD_CACHE_MS=PILOT_REFRESH_MS-1000;
 let renderVersion=0;
+let evaluationPilot='',evaluationRequest=0;
+function clearOfficialEvaluation(){
+ evaluationRequest++;
+ evaluationPilot='';
+ const panel=document.getElementById('vceOfficialEvaluation');
+ if(panel)panel.hidden=true;
+}
+window.addEventListener('vce-auth-session-ended',clearOfficialEvaluation);
+async function refreshOfficialEvaluation(){
+ const panel=document.getElementById('vceOfficialEvaluation');
+ if(!panel)return;
+ let id='';
+ try{id=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')}catch{}
+ if(!id||!window.VCEPilotAuthCanAccess?.(id)||!window.VCESupabase?.pilotEvaluationStatus){clearOfficialEvaluation();return}
+ if(evaluationPilot!==id){panel.hidden=true;evaluationPilot=id}
+ const sequence=++evaluationRequest;
+ try{
+  const status=await VCESupabase.pilotEvaluationStatus(id);
+  if(sequence!==evaluationRequest||!window.VCEPilotAuthCanAccess?.(id))return;
+  panel.hidden=!status;
+  if(!status)return;
+  panel.dataset.orientation=status.orientation;
+  document.getElementById('vceOfficialOrientation').textContent=status.orientation==='OBSERVATION'?'Observation · deuxième chance':status.orientation;
+  const time=document.getElementById('vceOfficialDate');
+  const date=new Date(status.evaluated_on+'T12:00:00Z');
+  time.dateTime=status.evaluated_on;
+  time.textContent=Number.isNaN(date.getTime())?'':'Évalué le '+date.toLocaleDateString('fr-FR',{dateStyle:'long',timeZone:'UTC'});
+ }catch(e){console.warn('Statut d’évaluation indisponible',e.message)}
+}
 async function render(){
+ refreshOfficialEvaluation();
  const version=++renderVersion;
  let d={},remote=false;
  // Independent datasets run together instead of forming a 4–5 request waterfall.
@@ -201,7 +231,7 @@ const slug=n=>VCE.norm(n).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-
 const allPilots=PILOTS.map(name=>({name,id:slug(name)}));
 function showPilotList(){const q=VCE.norm(document.getElementById('pilotSearch').value);const root=document.getElementById('pilotGrid');root.replaceChildren();let found=allPilots.filter(p=>VCE.norm(p.name).includes(q));document.getElementById('pilotCount').textContent=found.length+' PILOTES';for(const p of found){let b=document.createElement('button');b.className='pilot-select';b.dataset.pilotId=p.id;let av=document.createElement('span');av.className='avatar';av.textContent=p.name.split(' ').slice(0,2).map(x=>x[0]).join('');let label=document.createElement('span');let name=document.createElement('b');name.textContent=p.name;let sub=document.createElement('small');sub.textContent='VOIR LE PROFIL · POINTS & CLASSEMENT';label.append(name,sub);b.append(av,label);b.onclick=()=>{location.hash=encodeURIComponent(p.id)};root.append(b)}}
 function showAssignments(name){const root=document.getElementById('assignedList');root.replaceChildren();let items=[];try{items=JSON.parse(localStorage.getItem('vce_training_assignments_v1')||'[]')}catch{}const selected=(Array.isArray(items)?items:[]).filter(x=>VCE.norm(x.driver||'')===VCE.norm(name));if(!selected.length){root.textContent='Aucun entraînement attribué pour le moment.';return}for(const x of selected.slice().reverse()){const article=document.createElement('article');article.className='item';const title=document.createElement('h3');title.textContent=x.mode==='rhythm'?'ENTRAÎNEMENT DE RYTHME':'EXERCICE SPÉCIFIQUE';const info=document.createElement('p');info.textContent=[x.circuit,x.car,x.laps+' tour(s)',x.target?'Chrono objectif : '+x.target:''].filter(Boolean).join(' · ');const task=document.createElement('p');task.textContent='EXERCICE : '+(x.exercise||'');const status=document.createElement('small');status.textContent='STATUT : '+({assigned:'À EFFECTUER',in_progress:'EN COURS',submitted:'EN ATTENTE STAFF',approved:'VALIDÉ',rejected:'REFUSÉ'}[x.status]||'À EFFECTUER');const link=document.createElement('a');link.href='coach-irl.html?assignment='+encodeURIComponent(x.id)+'&pilot='+encodeURIComponent(name);link.textContent='CONSULTER LA SÉANCE →';article.append(title,info,task,status,document.createElement('br'),link);root.append(article)}}
-function routePilot(){let id='';try{id=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')}catch{}let p=allPilots.find(x=>x.id===id);const selection=document.getElementById('pilotSelection'),dashboard=document.getElementById('pilotDashboard');const verified=!!p&&window.VCEPilotAuthCanAccess?.(id)===true;selection.classList.toggle('hidden',!!p);dashboard.classList.toggle('hidden',!verified);selection.style.setProperty('display',p?'none':'block','important');dashboard.style.setProperty('display',verified?'block':'none','important');dashboard.setAttribute('aria-hidden',String(!verified));if(verified){VCE.selectPilot(p.name);showAssignments(p.name);VCE.$('name').textContent=p.name;render();document.title=p.name+' | VCE ESPORT'}else if(!p){document.title='Profils pilotes | VCE ESPORT'}window.scrollTo(0,0)}
+function routePilot(){let id='';try{id=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'')}catch{}let p=allPilots.find(x=>x.id===id);const selection=document.getElementById('pilotSelection'),dashboard=document.getElementById('pilotDashboard');const verified=!!p&&window.VCEPilotAuthCanAccess?.(id)===true;selection.classList.toggle('hidden',!!p);dashboard.classList.toggle('hidden',!verified);selection.style.setProperty('display',p?'none':'block','important');dashboard.style.setProperty('display',verified?'block':'none','important');dashboard.setAttribute('aria-hidden',String(!verified));if(verified){VCE.selectPilot(p.name);showAssignments(p.name);VCE.$('name').textContent=p.name;render();document.title=p.name+' | VCE ESPORT'}else{clearOfficialEvaluation();if(!p)document.title='Profils pilotes | VCE ESPORT'}window.scrollTo(0,0)}
 document.getElementById('pilotSearch').oninput=showPilotList;document.getElementById('backToPilots')?.addEventListener('click',()=>location.hash='');window.addEventListener('hashchange',routePilot);window.addEventListener('vce-pilot-verified',routePilot);showPilotList();routePilot();
 
 async function refreshPilotDashboard(){

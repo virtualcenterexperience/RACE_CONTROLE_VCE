@@ -208,6 +208,22 @@ async function trainingSubmissions({includePayload=true}={}){
  const columns=includePayload?'session_id,pilot,payload,submitted_at':'session_id,pilot,submitted_at';
  return request('/rest/v1/vce_training_submissions?select='+columns+'&order=submitted_at.desc',{},true);
 }
+async function pilotEvaluationStatus(pilotSlug){
+ if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pilotSlug||''))return null;
+ const rows=await request('/rest/v1/vce_pilot_evaluation_status?pilot_slug=eq.'+
+  encodeURIComponent(pilotSlug)+'&select=orientation,evaluated_on&limit=1',{},true);
+ return rows?.[0]||null;
+}
+async function publishPilotEvaluationStatus(pilotSlug,orientation,evaluatedOn){
+ if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pilotSlug||''))throw Error('Sélectionne un pilote dans l’effectif.');
+ if(!['REFUSÉ','OBSERVATION','ROOKIE','ACADÉMIE','ESPORT'].includes(orientation))throw Error('Statut officiel invalide.');
+ const rows=await request('/rest/v1/vce_pilot_evaluation_status?on_conflict=pilot_slug',{
+  method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},
+  body:JSON.stringify({pilot_slug:pilotSlug,orientation,evaluated_on:evaluatedOn})
+ },true);
+ if(rows?.[0]?.pilot_slug!==pilotSlug)throw Error('Le statut n’a pas été confirmé par le serveur.');
+ return rows[0];
+}
 // New endpoints are deliberately read-only: no automatic writes or account migrations.
 const services=new Set(['vce-pilot-accounts','vce-roster-sync','vce-training','vce-team','vce-telemetry-history','vce-pilot-presence']);
 async function serviceRead(name){if(!services.has(name))throw Error('Service inconnu');return request('/functions/v1/'+name,{method:'GET'},true)}
@@ -223,5 +239,5 @@ window.addEventListener('storage',event=>{
  clearStaffCache();
  window.dispatchEvent(new Event('vce-auth-session-ended'));
 });
-window.VCESupabase={configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck};
+window.VCESupabase={configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck,pilotEvaluationStatus,publishPilotEvaluationStatus};
 })();

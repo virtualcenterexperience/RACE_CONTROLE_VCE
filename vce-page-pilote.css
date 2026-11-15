@@ -500,3 +500,25 @@ body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-selec
 #vce-pilot-retry{border:1px solid #477fa8;background:#1c4a6d;color:#e6f4ff;font-size:12px;font-weight:850;border-radius:7px;padding:11px 12px}
 #vce-pilot-retry:hover{background:#29658d}
 #vce-pilot-retry[hidden]{display:none!important}
+
+.vce-official-evaluation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px 20px;
+  margin: 14px 0;
+  padding: 16px 20px;
+  border: 1px solid #3c688c;
+  border-left: 4px solid #76c8ff;
+  border-radius: 10px;
+  background: #11263b;
+  color: #eef6ff;
+}
+.vce-official-evaluation[hidden] { display: none; }
+.vce-official-evaluation p { margin: 0 0 5px; font-size: .77rem; color: #add2ef; }
+.vce-official-evaluation strong { font-size: clamp(1.12rem, 2vw, 1.55rem); }
+.vce-official-evaluation time { font-size: .82rem; color: #bbd5ea; }
+.vce-official-evaluation[data-orientation="OBSERVATION"] { border-left-color: #ffad70; }
+.vce-official-evaluation[data-orientation="REFUSÉ"] { border-left-color: #ff6b85; }
+.vce-official-evaluation[data-orientation="ESPORT"] { border-left-color: #62dfb1; }
