@@ -16,7 +16,7 @@
  const names=['REFUSÉ','ROOKIE','ACADÉMIE','ESPORT'];
  function score(scores,{finalized=false}={}){
   if(!Array.isArray(scores)||scores.length!==POLICY.totalCriteria)return null;
-  const clean=scores.filter(value=>value!=null&&value!=='').map(Number);
+  const clean=scores.filter(value=>value!=null&&value!==''&&value!==0&&value!=='0').map(Number);
   const ratedScores=clean.filter(value=>Number.isInteger(value)&&value>=1&&value<=POLICY.maxPerCriterion);
   const rated=ratedScores.length;
   const total=ratedScores.reduce((sum,value)=>sum+value,0);
