@@ -1,5 +1,5 @@
 <!doctype html><html lang="fr"><head>
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pôle Performance — Évaluations STAFF | VCE ESPORT</title><link rel="stylesheet" href="vce-page-evaluations-staff.css?v=20261115-1"><script defer src="assets/js/vce-i18n.js?v=20261109-3"></script></head><body><main><a href="staff.html">← Retour STAFF</a><p class="tag">VCE ESPORT / PÔLE PERFORMANCE</p><h1>Évaluations & recrutement</h1><p class="muted">Test obligatoire pour les candidats à l’intégration et évaluation régulière de tous les pilotes VCE : même référentiel, conclusions adaptées au parcours. Les autoévaluations ne valent jamais validation officielle.</p><section id="gate" class="panel">Vérification des droits STAFF…</section><div id="app" class="hidden"><div class="alert">Version de travail : les dossiers sont sauvegardés uniquement dans ce navigateur STAFF. Ils ne sont pas encore synchronisés avec Supabase. Évite de saisir des informations sensibles tant que la table privée et ses règles d'accès ne sont pas en place.</div><section class="panel"><h2>01 · Dossier pilote</h2><div class="grid"><div><label for="pilot">Nom du pilote</label><input id="pilot" required placeholder="Prénom NOM"></div><div><label for="profile">Type de dossier</label><select id="profile"><option value="candidat">Candidat / recrutement</option><option value="team">Pilote VCE / suivi</option></select></div><div><label for="campaign">Campagne / phase d’évaluation</label><select id="campaign"><option value="initial">Évaluation initiale</option><option value="suivi">Suivi périodique</option><option value="retest">Contre-test / progression</option><option value="quatre_semaines">Bilan après 4 semaines</option></select></div><div><label for="coach">Coach évaluateur</label><input id="coach" placeholder="Nom du coach"></div><div><label for="sessionDate">Date de la session</label><input type="date" id="sessionDate"></div><div><label for="sim">Simulateur</label><select id="sim"><option>Assetto Corsa</option><option>Le Mans Ultimate</option><option>RaceRoom</option><option>Autre</option></select></div><div><label for="combo">Voiture et circuit</label><input id="combo" placeholder="Ex. : GT3 — Spa-Francorchamps"></div><div><label for="familiarity">Connaissance du combo</label><select id="familiarity"><option value="connu">Connu</option><option value="inconnu">Inconnu / découverte</option></select></div><div><label for="conditions">Conditions de test</label><input id="conditions" placeholder="Build, météo, grip, pneus, carburant, setup, aides"></div><div><label for="testDuration">Format et durée</label><input id="testDuration" placeholder="Ex. : 10 tours chrono + 20 min course"></div><div><label for="hardware">Matériel utilisé</label><input id="hardware" placeholder="Volant, pédalier, FFB, assistances"></div></div></section><section class="panel"><h2>02 · Grille d'évaluation du coach</h2><p class="muted">Note chaque critère observé de 1 à 5 et ajoute un exemple ou une preuve. Laisse « 0 · Non évalué » pour les autres critères. Tu calculeras la note sur 50 à la fin.</p><div id="criteria"></div><label for="potential">Potentiel / éléments à confirmer</label><textarea id="potential" placeholder="Compétences prometteuses et points encore non démontrés"></textarea><label for="strengths">Points forts</label><textarea id="strengths" placeholder="Comportements observés et preuves"></textarea><label for="weaknesses">Axes de progrès</label><textarea id="weaknesses" placeholder="Erreurs, causes possibles et corrections"></textarea><label for="objective">Objectif du prochain test</label><textarea id="objective" placeholder="Objectif concret et mesurable"></textarea></section><section class="panel"><h2>03 · Analyse de session</h2><p class="muted">Saisis les temps des tours propres en secondes, séparés par des espaces, virgules ou retours à la ligne. Exemple : 101.234 101.592 101.410. Les tours perturbés doivent être exclus par le coach.</p><label for="laps">Temps des tours propres (secondes)</label><textarea id="laps" placeholder="101.234&#10;101.592&#10;101.410"></textarea><div class="actions"><button type="button" class="secondary" id="analyze">Analyser les tours</button></div><div class="three" id="metrics"><div class="panel">Tours propres : <b id="cleanCount">—</b></div><div class="panel">Meilleur : <b id="best">—</b></div><div class="panel">Moyenne : <b id="average">—</b></div><div class="panel">Médiane : <b id="median">—</b></div><div class="panel">Écart-type : <b id="deviation">—</b></div><div class="panel">Amplitude : <b id="spread">—</b></div></div><p class="muted">L’amplitude est le meilleur–pire tour de la sélection, à utiliser comme indicateur de régularité sur une séquence de 10 tours propres consécutifs. Exclure les tours perturbés et noter les exclusions.</p><label for="excludedLaps">Tours exclus / justification</label><textarea id="excludedLaps" placeholder="Tours de stands, drapeaux, trafic, dégâts, outliers ; indiquer pourquoi"></textarea><label for="context">Contexte / limites de l'analyse</label><textarea id="context" placeholder="Trafic, météo, setup, dégâts, niveau d'adhérence, tours exclus…"></textarea><label for="proof">Référence des preuves</label><input id="proof" placeholder="Lien replay / télémétrie ou référence du fichier"></section><section class="panel vce-ranking-panel">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pôle Performance — Évaluations STAFF | VCE ESPORT</title><link rel="stylesheet" href="vce-page-evaluations-staff.css?v=20261115-2"><script defer src="assets/js/vce-i18n.js?v=20261109-3"></script></head><body><main><a href="staff.html">← Retour STAFF</a><p class="tag">VCE ESPORT / PÔLE PERFORMANCE</p><h1>Évaluations & recrutement</h1><p class="muted">Test obligatoire pour les candidats à l’intégration et évaluation régulière de tous les pilotes VCE : même référentiel, conclusions adaptées au parcours. Les autoévaluations ne valent jamais validation officielle.</p><section id="gate" class="panel">Vérification des droits STAFF…</section><div id="app" class="hidden"><div class="alert">Version de travail : les dossiers sont sauvegardés uniquement dans ce navigateur STAFF. Ils ne sont pas encore synchronisés avec Supabase. Évite de saisir des informations sensibles tant que la table privée et ses règles d'accès ne sont pas en place.</div><section class="panel"><h2>01 · Dossier pilote</h2><div class="grid"><div><label for="pilot">Nom du pilote</label><input id="pilot" required placeholder="Prénom NOM"></div><div><label for="profile">Type de dossier</label><select id="profile"><option value="candidat">Candidat / recrutement</option><option value="team">Pilote VCE / suivi</option></select></div><div><label for="campaign">Campagne / phase d’évaluation</label><select id="campaign"><option value="initial">Évaluation initiale</option><option value="suivi">Suivi périodique</option><option value="retest">Contre-test / progression</option><option value="quatre_semaines">Bilan après 4 semaines</option></select></div><div><label for="coach">Coach évaluateur</label><input id="coach" placeholder="Nom du coach"></div><div><label for="sessionDate">Date de la session</label><input type="date" id="sessionDate"></div><div><label for="sim">Simulateur</label><select id="sim"><option>Assetto Corsa</option><option>Le Mans Ultimate</option><option>RaceRoom</option><option>Autre</option></select></div><div><label for="combo">Voiture et circuit</label><input id="combo" placeholder="Ex. : GT3 — Spa-Francorchamps"></div><div><label for="familiarity">Connaissance du combo</label><select id="familiarity"><option value="connu">Connu</option><option value="inconnu">Inconnu / découverte</option></select></div><div><label for="conditions">Conditions de test</label><input id="conditions" placeholder="Build, météo, grip, pneus, carburant, setup, aides"></div><div><label for="testDuration">Format et durée</label><input id="testDuration" placeholder="Ex. : 10 tours chrono + 20 min course"></div><div><label for="hardware">Matériel utilisé</label><input id="hardware" placeholder="Volant, pédalier, FFB, assistances"></div></div></section><section class="panel"><h2>02 · Grille d'évaluation du coach</h2><p class="muted">Note chaque critère observé de 1 à 5 et ajoute un exemple ou une preuve. Laisse « 0 · Non évalué » pour les autres critères. Tu calculeras la note sur 50 à la fin.</p><div id="criteria"></div><label for="potential">Potentiel / éléments à confirmer</label><textarea id="potential" placeholder="Compétences prometteuses et points encore non démontrés"></textarea><label for="strengths">Points forts</label><textarea id="strengths" placeholder="Comportements observés et preuves"></textarea><label for="weaknesses">Axes de progrès</label><textarea id="weaknesses" placeholder="Erreurs, causes possibles et corrections"></textarea><label for="objective">Objectif du prochain test</label><textarea id="objective" placeholder="Objectif concret et mesurable"></textarea></section><section class="panel"><h2>03 · Analyse de session</h2><p class="muted">Saisis les temps des tours propres en secondes, séparés par des espaces, virgules ou retours à la ligne. Exemple : 101.234 101.592 101.410. Les tours perturbés doivent être exclus par le coach.</p><label for="laps">Temps des tours propres (secondes)</label><textarea id="laps" placeholder="101.234&#10;101.592&#10;101.410"></textarea><div class="actions"><button type="button" class="secondary" id="analyze">Analyser les tours</button></div><div class="three" id="metrics"><div class="panel">Tours propres : <b id="cleanCount">—</b></div><div class="panel">Meilleur : <b id="best">—</b></div><div class="panel">Moyenne : <b id="average">—</b></div><div class="panel">Médiane : <b id="median">—</b></div><div class="panel">Écart-type : <b id="deviation">—</b></div><div class="panel">Amplitude : <b id="spread">—</b></div></div><p class="muted">L’amplitude est le meilleur–pire tour de la sélection, à utiliser comme indicateur de régularité sur une séquence de 10 tours propres consécutifs. Exclure les tours perturbés et noter les exclusions.</p><label for="excludedLaps">Tours exclus / justification</label><textarea id="excludedLaps" placeholder="Tours de stands, drapeaux, trafic, dégâts, outliers ; indiquer pourquoi"></textarea><label for="context">Contexte / limites de l'analyse</label><textarea id="context" placeholder="Trafic, météo, setup, dégâts, niveau d'adhérence, tours exclus…"></textarea><label for="proof">Référence des preuves</label><input id="proof" placeholder="Lien replay / télémétrie ou référence du fichier"></section><section class="panel vce-ranking-panel">
 <h2>04 · Classement VCE : évaluations + performance LMU</h2>
 <p class="vce-rank-sub">Les points des critères évalués s’additionnent. La note sur 50 correspond au total obtenu divisé par le maximum des critères évalués, puis multiplié par 50. Le classement proposé tient aussi compte d’une référence LMU comparable.</p>
 <div class="grid">
@@ -29,6 +29,66 @@ const phases=[
  {title:'Course et stratégie',criteria:[[10,'Départs'],[9,'Bataille en course'],[18,'Gestion du rythme en course'],[5,'Gestion des pneus'],[6,'Gestion du carburant et de l’énergie'],[7,'Gestion des relais'],[11,'Prise de décision'],[17,'Travail en équipe']]},
  {title:'Analyse et débrief',criteria:[[19,'Lecture de la télémétrie'],[15,'Réglages et adaptation du véhicule'],[16,'Communication et débrief']]}
 ];
+const annotationSubjects=[
+ 'l’écart au chrono de référence et le virage où il se creuse',
+ 'le temps nécessaire pour retrouver ses repères sur un combo inconnu',
+ 'le nombre de tours dans la même fenêtre de temps et la cause des écarts',
+ 'la réaction au sous-virage, au survirage ou à la perte de motricité',
+ 'les repères de braquage, les points de corde et la largeur utilisée en sortie',
+ 'l’évolution du rythme avec l’usure des pneus',
+ 'la consommation par tour et la marge à l’arrivée',
+ 'la tenue du rythme et des objectifs sur la durée du relais',
+ 'l’ajustement des repères de freinage quand l’adhérence change',
+ 'le placement du pilote à côté d’une autre voiture',
+ 'la réaction au départ, la motricité et le placement au premier virage',
+ 'la décision prise, le contexte et son effet sur la course',
+ 'la façon de sécuriser la voiture et de retrouver son rythme après une erreur',
+ 'la préparation des pneus et l’exécution du tour lancé',
+ 'le respect des repères et des décisions quand la pression monte',
+ 'le changement de réglage testé et son effet observable',
+ 'la précision des retours et la prochaine action proposée',
+ 'la coordination avec les équipiers, notamment au changement de pilote',
+ 'le maintien du rythme dans le trafic ou sur pneus usés',
+ 'le canal télémétrique consulté et ce qu’il permet de vérifier'
+];
+const annotationExamples={
+ 0:[
+  'Le meilleur tour est à 2,1 s de la référence. Reprendre le freinage au virage 1, où le delta se creuse.',
+  'Il reste 0,9 s sur la référence, dont la moitié dans le secteur 2. Travailler les sorties de virage.',
+  'Le meilleur tour est à 0,5 s de la référence dans les mêmes conditions. L’essentiel de l’écart se fait au dernier virage.',
+  'Deux tours propres à moins de 0,3 s de la référence avec le même combo.',
+  'Chrono de référence égalé sur deux tours propres, avec le même carburant et le même niveau d’adhérence.'
+ ],
+ 4:[
+  'À la chicane, braquage trop tôt et corde manquée sur trois tours. Reprendre le repère de braquage à vitesse réduite.',
+  'Corde atteinte deux fois sur cinq. Retarder le braquage pour ouvrir la sortie.',
+  'Points de corde réguliers sur cinq tours propres. La sortie reste serrée au dernier virage.',
+  'Toute la largeur est utilisée en sortie et les trajectoires se répètent sur cinq tours propres.',
+  'Le pilote adapte sa ligne en trafic puis retrouve ses repères dès le tour suivant.'
+ ],
+ 2:[
+  'Les écarts dépassent 1 s sur six tours propres. Stabiliser le repère de freinage au virage 1.',
+  'Six tours sur dix sont dans une fenêtre de 0,8 s. Travailler la répétition du freinage à la chicane.',
+  'Huit tours propres sur dix tiennent dans une fenêtre de 0,4 s. Vérifier le freinage au virage 1 sur les deux tours plus lents.',
+  'Neuf tours propres sur dix tiennent dans une fenêtre de 0,3 s malgré l’usure des pneus.',
+  'Dix tours propres dans une fenêtre de 0,2 s, avec des repères maintenus en fin de relais.'
+ ]
+};
+const annotationPrompts=[
+ 'Décris l’écart observé et la première correction à travailler',
+ 'Précise ce qui manque de régularité et propose un ajustement',
+ 'Indique ce qui est maîtrisé et précise la marge de progrès',
+ 'Cite une réussite répétée et les conditions dans lesquelles tu l’as observée',
+ 'Décris une performance confirmée dans une situation plus exigeante'
+];
+function updateAnnotation(index){
+ const note=Number($('score'+index).value);
+ const hint=$('annotation'+index);
+ const example=annotationExamples[index]?.[note-1];
+ const prompt=annotationPrompts[note-1];
+ hint.textContent=example?'Exemple · '+example:prompt?prompt+'. Observe '+annotationSubjects[index]+'.':'';
+ hint.hidden=!hint.textContent;
+}
 let currentId=null,records=[],coachFinalized=false;
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[]}catch{return []}}
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -49,8 +109,11 @@ function build(){
    const evidence=document.createElement('input');evidence.id='evidence'+index;
    evidence.placeholder='Observation ou preuve';
    evidence.setAttribute('aria-label','Observation pour '+caption);
-   row.append(label,select,evidence);section.append(row);
-   select.addEventListener('change',()=>{coachFinalized=false;renderRanking()});
+   const hint=document.createElement('p');hint.id='annotation'+index;
+   hint.className='vce-criteria-annotation';hint.hidden=true;
+   evidence.setAttribute('aria-describedby',hint.id);
+   row.append(label,select,evidence,hint);section.append(row);
+   select.addEventListener('change',()=>{coachFinalized=false;updateAnnotation(index);renderRanking()});
   }
   host.append(section);
  }
@@ -68,6 +131,7 @@ function fillCriteria(dossier){
   const entry=byDomain.get(domain)??(previous[index]?.domain===undefined?previous[index]:null);
   $('score'+index).value=entry?.score??'0';
   $('evidence'+index).value=entry?.evidence||'';
+  updateAnnotation(index);
  });
  coachFinalized=dossier?.coachFinalized??(previous.length===storedDomains.length&&
   dossier?.proposedRanking?.coach?.complete===true);

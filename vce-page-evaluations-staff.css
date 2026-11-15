@@ -181,3 +181,5 @@ body.vce-page-staff .panel{border-radius:11px}
 .vce-criteria-phase + .vce-criteria-phase { margin-top: 1.25rem; }
 .vce-criteria-phase h3 { color: #a9d5ff; font-size: 1rem; margin: 1rem 0 .4rem; }
 #finalizeCoach:disabled { cursor: default; opacity: .55; }
+
+.vce-criteria-annotation { grid-column: 1 / -1; margin: 0; color: #a9c5df; font-size: .85rem; line-height: 1.5; }
