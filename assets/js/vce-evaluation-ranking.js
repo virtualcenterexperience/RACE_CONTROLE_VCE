@@ -4,16 +4,25 @@
  */
 (()=>{'use strict';
  const POLICY=Object.freeze({
-  version:'vce-evaluation-ranking-proposal-2026-11-optional-criteria',
+  version:'vce-evaluation-ranking-proposal-2026-11-coach-bands',
   status:'PROPOSED_NOT_APPROVED',
   totalCriteria:20,
   maxPerCriterion:5,
-  pointsBands:[{min:40,name:'ESPORT',rank:3},{min:30,name:'ACADÉMIE',rank:2},{min:20,name:'ROOKIE',rank:1},{min:0,name:'REFUSÉ',rank:0}],
+  pointsBands:[
+   {min:25,name:'ESPORT',rank:3},
+   {min:20,name:'ACADÉMIE',rank:2},
+   {min:5,exclusive:true,name:'ROOKIE',rank:1},
+   {min:0,name:'REFUSÉ',rank:0}
+  ],
   percentBands:[{max:101,name:'ESPORT',rank:3},{max:103,name:'ACADÉMIE',rank:2},{max:105,name:'ROOKIE',rank:1},{max:Infinity,name:'REFUSÉ',rank:0}],
   refusalPercent:105,
   versionStatus:'Barème de points proposé, validation STAFF requise'
  });
  const names=['REFUSÉ','ROOKIE','ACADÉMIE','ESPORT'];
+ function coachBand(points){
+  if(!Number.isFinite(points)||points<0||points>50)return null;
+  return POLICY.pointsBands.find(band=>band.exclusive?points>band.min:points>=band.min);
+ }
  function score(scores,{finalized=false}={}){
   if(!Array.isArray(scores)||scores.length!==POLICY.totalCriteria)return null;
   const clean=scores.filter(value=>value!=null&&value!==''&&value!==0&&value!=='0').map(Number);
@@ -23,7 +32,7 @@
   const maxTotal=rated*POLICY.maxPerCriterion;
   const complete=finalized&&rated>0&&rated===clean.length;
   const points50=complete?50*total/maxTotal:null;
-  const name=complete?POLICY.pointsBands.find(band=>points50>=band.min).name:null;
+  const name=coachBand(points50)?.name??null;
   return {complete,rated,total,maxTotal,points50,name};
  }
  function percentage(pct){
@@ -64,5 +73,5 @@
   }
   return null;
  }
- window.VCEEvaluationRanking={POLICY,score,percentage,combine,timeSeconds};
+ window.VCEEvaluationRanking={POLICY,score,coachBand,percentage,combine,timeSeconds};
 })();
