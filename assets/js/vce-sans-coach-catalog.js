@@ -136,8 +136,10 @@ async function init(){
 }
 $('sourcePack').addEventListener('change',switchPack);
 $('levels').addEventListener('click',e=>{const btn=e.target.closest('[data-level]');if(!btn)return;level=btn.dataset.level;page=0;document.querySelectorAll('#levels button').forEach(el=>{el.classList.toggle('active',el===btn);el.setAttribute('aria-pressed',String(el===btn))});show();});
-document.querySelectorAll('[data-search]').forEach(button=>button.addEventListener('click',()=>{
- $('search').value=button.dataset.search;page=0;show();
+document.querySelectorAll('[data-search]').forEach(button=>button.addEventListener('click',async()=>{
+ $('search').value=button.dataset.search;page=0;
+ if(pack==='structure'&&!filter().length){$('sourcePack').value='complementary';await switchPack();}
+ else show();
 }));
 $('clearFilters').addEventListener('click',()=>{
  $('search').value='';$('category').value='';$('vehicleType').value='';$('sortOrder').value='skill';level='TOUS';page=0;
