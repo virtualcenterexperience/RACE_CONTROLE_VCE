@@ -17,6 +17,9 @@ const data = {
 };
 const cases = [
   ['je sous vire en sortie', 'front'],
+  ['j ai du sousvirage', 'front'],
+  ['je sur vire en entree', 'rear'],
+  ['j ai un bloquage des roues', 'lock'],
   ['ma voiture tire tout droit', 'front'],
   ['je souvire sur le vibreur', 'front'],
   ['le train avant glisse', 'front'],

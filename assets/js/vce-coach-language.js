@@ -8,21 +8,21 @@
   const words = text => normalize(text).split(' ').filter(word => word.length > 2 && !stopWords.has(word));
   const topics = [
     {
-      id: 'front', issue: 'front', terms: ['sous virage', 'sous vire', 'sousvire', 'souvire', 'understeer', 'avant glisse', 'tire tout droit', 'tourne pas', 'avant elargit', 'pousse de l avant'],
+      id: 'front', issue: 'front', terms: ['sous virage', 'sousvirage', 'sous vire', 'sousvire', 'souvire', 'understeer', 'avant glisse', 'tire tout droit', 'tourne pas', 'avant elargit', 'pousse de l avant'],
       explanation: 'Quand l’avant élargit malgré le volant, il manque de l’adhérence pour la vitesse et l’angle demandés.',
       action: 'Entre un peu moins vite et braque progressivement. Si tu es déjà en train de glisser, desserre légèrement la direction pour aider les pneus avant à retrouver de l’adhérence.',
       alternative: 'Compare maintenant deux passages avec la même vitesse d’entrée et des remises de gaz différentes. Une accélération trop tôt peut aussi faire élargir la voiture.',
       question: 'L’avant commence à glisser au freinage, à la corde ou quand tu remets les gaz ?'
     },
     {
-      id: 'rear', issue: 'rear', terms: ['survirage', 'survire', 'oversteer', 'arriere decroche', 'arriere glisse', 'arriere chasse', 'perds l arriere', 'tete a queue', 'gondole'],
+      id: 'rear', issue: 'rear', terms: ['survirage', 'sur virage', 'sur vire', 'survire', 'oversteer', 'arriere decroche', 'arriere glisse', 'arriere chasse', 'perds l arriere', 'tete a queue', 'gondole'],
       explanation: 'Un arrière qui décroche indique que les pneus arrière perdent leur marge d’adhérence. La correction dépend surtout du moment où cela commence.',
       action: 'Rends les mouvements de pédales et de volant plus progressifs. Au freinage, surveille le relâchement et les rétrogradages. À l’accélération, dose les gaz pendant que tu redresses la direction.',
       alternative: 'Regarde si le décrochage coïncide avec un rétrogradage, une bosse ou une intervention du TC. Compare deux passages en gardant le même rapport pour isoler la transmission.',
       question: 'L’arrière part avant la corde ou à la remise des gaz ?'
     },
     {
-      id: 'lock', issue: 'lock', terms: ['blocage', 'bloque les roues', 'roues bloquent', 'roues bloquees', 'lockup', 'je bloque', 'pneus bloquent'],
+      id: 'lock', issue: 'lock', terms: ['blocage', 'bloquage', 'bloque les roues', 'roues bloquent', 'roues bloquees', 'lockup', 'je bloque', 'pneus bloquent'],
       explanation: 'Une roue se bloque quand le freinage demandé dépasse son adhérence disponible.',
       action: 'Relâche progressivement la pression quand le blocage commence. Vérifie si ce sont les roues avant ou arrière et si le blocage apparaît en ligne droite ou avec du volant.',
       alternative: 'Compare un freinage avec le même repère et un pic de pression plus faible. Observe aussi si un rétrogradage trop rapide déclenche le blocage arrière.',
