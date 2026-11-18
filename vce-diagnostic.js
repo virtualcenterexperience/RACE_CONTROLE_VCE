@@ -1,14 +1,90 @@
-(()=>{'use strict';const $=id=>document.getElementById(id);const form=$('vceChatForm');if(!form)return;const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();const stop=new Set('avec dans pour cette voiture quand elle sont plus moins avoir ressenti aussi mais alors depuis comme donc cela tout tous toute etre fait peux peut sur les des une aux mon mes ton tes est pas que qui par'.split(' '));const words=s=>norm(s).split(' ').filter(w=>w.length>3&&!stop.has(w));let rows=[],loaded=false,history=[],lastAdvice=[];const field=(r,keys)=>{for(const k of keys){let v=r[k];if(Array.isArray(v))v=v.join(', ');if(typeof v==='string'&&v.trim())return v.trim()}return ''};function bubble(role,message){const box=document.createElement('div');box.className='vce-chat-bubble '+role;const label=document.createElement('strong');label.textContent=role==='user'?'PILOTE':'ASSISTANT VCE';const p=document.createElement('p');p.textContent=message;box.append(label,p);$('vceChatMessages').append(box);$('vceChatMessages').scrollTop=$('vceChatMessages').scrollHeight;return box}async function fetchSolutions(url){
- if(url.endsWith('/solutions_5000.json')&&typeof DecompressionStream==='function'){
-  try{
-   const response=await fetch('data/ressources/solutions_5000.json.gz');
-   if(response.ok&&response.body){
-    return await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).json();
-   }
-  }catch(error){console.warn('VCE : lecture du catalogue compressé impossible',error)}
- }
- const response=await fetch(url);
- if(!response.ok)throw Error('HTTP '+response.status);
- return response.json();
-}
-async function load(){if(loaded)return;const urls=['data/solutions_1000.json','data/solutions_5000.json'];const results=await Promise.allSettled(urls.map(async u=>{const data=await fetchSolutions(u);return Array.isArray(data)?data:Array.isArray(data.solutions)?data.solutions:[]}));rows=results.filter(x=>x.status==='fulfilled').flatMap(x=>x.value);if(!rows.length)throw Error('Aucune fiche de diagnostic accessible.');loaded=true}function match(row,message,context){const topic=field(row,['probleme','problème','symptome','symptôme','domaine','question','ressenti']);const details=field(row,['contexte','categorie','catégorie','voiture','vehicule','véhicule']);const questionWords=words(message),candidate=words(topic+' '+details);let score=0;for(const w of questionWords){if(candidate.includes(w))score+=6;else if(candidate.some(t=>t.length>=5&&w.length>=5&&t.slice(0,5)===w.slice(0,5)))score+=3}if(!score)return 0;const games=row.jeux;if(context.game&&Array.isArray(games)&&games.some(g=>norm(g)===norm(context.game)))score+=2;if(context.car&&norm(details).includes(norm(context.car)))score+=3;if(context.phase&&norm(topic+' '+details).includes(norm(context.phase)))score+=2;return score}function contextual(){return {game:$('vceGame')?.value||'',car:$('vceCar')?.value.trim()||'',circuit:$('vceCircuit')?.value.trim()||'',phase:$('vcePhase')?.value||''}}function reply(message){const context=contextual();const q=message+' '+context.phase;const candidates=rows.map(r=>({r,s:match(r,q,context)})).filter(x=>x.s>=6).sort((a,b)=>b.s-a.s);if(!candidates.length){lastAdvice=[];return 'Je ne trouve pas de fiche suffisamment proche de ce symptôme dans la base VCE. Peux-tu préciser : la phase du virage, ce que fait le train avant ou arrière, et si le problème survient au freinage, au point de corde ou à la réaccélération ?'}const best=candidates[0].s;const selected=candidates.filter(x=>x.s>=Math.max(6,best*.65)).slice(0,2);const responses=[];lastAdvice=[];for(const {r} of selected){const topic=field(r,['probleme','domaine','symptome'])||'Comportement à vérifier';const solution=field(r,['solution','reponse','réponse','conseil']);const exercise=field(r,['exercice','test','action']);const verification=field(r,['verification','question_suivi']);if(!solution)continue;let msg='• '+topic+'\n'+solution;if(exercise)msg+='\nExercice : '+exercise;if(verification)msg+='\nÀ vérifier : '+verification;responses.push(msg);lastAdvice.push(msg)}if(!responses.length)return 'J’ai trouvé une catégorie proche, mais aucune solution exploitable. Demande une vérification au coach.';const intro='D’après les fiches VCE'+(context.car?' pour ton contexte '+context.car:'')+', voici '+(responses.length>1?'deux pistes':'une piste')+' à tester :\n\n';return intro+responses.join('\n\n')+'\n\nEst-ce que le problème apparaît surtout à l’entrée, au milieu ou à la sortie du virage ? Ces pistes ne remplacent pas une analyse de télémétrie.'}form.addEventListener('submit',async e=>{e.preventDefault();const input=$('vceFeeling'),message=input.value.trim();if(!message)return;history.push({role:'user',text:message});bubble('user',message);input.value='';const button=$('vceDiagnose');button.disabled=true;const waiting=bubble('assistant','Recherche dans les fiches VCE…');try{await load();const response=reply(message);waiting.querySelector('p').textContent=response;history.push({role:'assistant',text:response})}catch(err){waiting.querySelector('p').textContent='Je ne peux pas consulter la base VCE pour le moment : '+err.message}finally{button.disabled=false;$('vceChatMessages').scrollTop=$('vceChatMessages').scrollHeight}});$('vceAddDiagnosis').addEventListener('click',()=>{if(!lastAdvice.length){$('vceChatNotice').textContent='Échange d’abord avec l’assistant pour obtenir des conseils issus des fiches VCE.';return}const d=$('vceDebrief');const ctx=contextual();const note='Diagnostic VCE à confirmer par le coach\nJeu : '+(ctx.game||'non précisé')+' | Voiture : '+(ctx.car||'non précisée')+' | Circuit : '+(ctx.circuit||'non précisé')+'\n'+lastAdvice.join('\n\n');d.value=(d.value.trim()?d.value.trim()+'\n\n':'')+note;d.dispatchEvent(new Event('input',{bubbles:true}));$('vceChatNotice').textContent='Conseils ajoutés au débrief.'});$('vceChatClear').addEventListener('click',()=>{history=[];lastAdvice=[];$('vceChatMessages').replaceChildren();bubble('assistant','Nouvelle discussion. Décris-moi le comportement de ta voiture.');$('vceChatNotice').textContent=''})})();
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const form = $('vceChatForm');
+  if (!form) return;
+  let prior = {};
+  let last = null;
+  let sequence = 0;
+  const greeting = 'Décris ton problème avec le circuit, le virage et la voiture. Tu peux répondre aux questions pour affiner le conseil.';
+  function bubble(role, message) {
+    const box = document.createElement('div');
+    box.className = 'vce-chat-bubble ' + role;
+    const label = document.createElement('strong');
+    label.textContent = role === 'user' ? 'PILOTE' : 'ASSISTANT VCE';
+    const p = document.createElement('p');
+    p.textContent = message;
+    box.append(label, p);
+    $('vceChatMessages').append(box);
+    $('vceChatMessages').scrollTop = $('vceChatMessages').scrollHeight;
+    return p;
+  }
+  function advice(result) {
+    const c = result.context;
+    const relevant = result.stages.find(stage => stage.selected) || result.stages[1];
+    return [
+      [c.trackLabel, c.cornerNumber ? 'T' + c.cornerNumber : c.cornerLabel, c.category, c.model].filter(Boolean).join(' · '),
+      result.title,
+      relevant.cause,
+      'À tester\n' + relevant.correction,
+      'Exercice\n' + relevant.exercise + '\n' + relevant.improvement,
+      result.hint.join('\n'),
+      result.followups.slice(0, 2).join('\n'),
+    ].filter(Boolean).join('\n\n');
+  }
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const question = $('vceFeeling').value.trim();
+    if (!question || $('vceDiagnose').disabled) return;
+    const request = ++sequence;
+    bubble('user', question);
+    $('vceFeeling').value = '';
+    const reply = bubble('assistant', 'Consultation des fiches circuit et voiture…');
+    $('vceDiagnose').disabled = true;
+    last = null;
+    try {
+      const engine = window.VCECoachEngine;
+      if (!engine) throw Error('Moteur de coaching indisponible.');
+      const data = await engine.load();
+      if (request !== sequence) return;
+      const phase = engine.detectPhase($('vcePhase').value);
+      const result = engine.analyze(question, {
+        model: $('vceCar')?.value || '', track: $('vceCircuit')?.value || '',
+        phase, setup: $('vceSetup')?.value || '', assists: $('vceAssists')?.value || ''
+      }, data, prior);
+      prior = result.context;
+      last = result;
+      reply.textContent = advice(result);
+      $('vceChatNotice').textContent = 'Conseil fondé sur les fiches VCE, à vérifier en piste avec ton coach.';
+    } catch (error) {
+      reply.textContent = 'Les fiches ne sont pas accessibles pour le moment. ' + error.message;
+    } finally {
+      $('vceDiagnose').disabled = false;
+      $('vceChatMessages').scrollTop = $('vceChatMessages').scrollHeight;
+    }
+  });
+  $('vceAddDiagnosis').addEventListener('click', () => {
+    if (!last) {
+      $('vceChatNotice').textContent = 'Analyse d’abord un ressenti pour ajouter les conseils.';
+      return;
+    }
+    const target = $('vceDebrief');
+    target.value = [target.value.trim(), 'Conseils VCE à vérifier en piste\n' + advice(last)].filter(Boolean).join('\n\n');
+    target.dispatchEvent(new Event('input', {bubbles:true}));
+    $('vceChatNotice').textContent = 'Conseils ajoutés à ta fiche de suivi.';
+  });
+  $('vceChatClear').addEventListener('click', () => {
+    sequence++;
+    last = null;
+    prior = {};
+    $('vceChatMessages').replaceChildren();
+    bubble('assistant', greeting);
+    $('vceChatNotice').textContent = '';
+  });
+  for (const button of document.querySelectorAll('[data-coach-prompt]')) {
+    button.addEventListener('click', () => {
+      $('vceFeeling').value = button.dataset.coachPrompt;
+      $('vceFeeling').focus();
+    });
+  }
+})();

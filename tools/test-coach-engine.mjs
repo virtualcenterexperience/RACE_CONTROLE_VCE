@@ -27,3 +27,16 @@ const open=e.analyze('Je perds la voiture',{},data,{track:example.context.track,
 assert.equal(open.context.trackLabel,example.context.trackLabel);
 assert.equal(open.context.cornerNumber,5);
 console.log('PASS: VCE coach GT3 Monza T5, distinct phases, uncertain symptoms and contextual follow-up');
+
+const interlagos=e.analyze("j'ai du mal dans le deuxième virage à interlagos en GT4, je souvire sur le vibreur et perd du temps",{assists:'ABS et TC actifs'},data);
+assert.equal(interlagos.context.category,'GT4');
+assert.match(interlagos.context.trackLabel,/interlagos/i);
+assert.equal(interlagos.context.cornerNumber,2);
+assert.equal(interlagos.context.issue,'front');
+assert.match(interlagos.stages[1].correction,/vibreur/i);
+assert.ok(interlagos.hint.some(hint=>/ABS limite/.test(hint)));
+const follow=e.analyze('en sortie, même voiture',{},data,interlagos.context);
+assert.equal(follow.context.cornerNumber,2);
+assert.equal(follow.context.category,'GT4');
+assert.equal(follow.context.phase,'sortie');
+console.log('PASS: Interlagos GT4 T2, typo, kerb, assists and follow-up context');

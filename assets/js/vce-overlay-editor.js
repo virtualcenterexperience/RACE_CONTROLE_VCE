@@ -164,10 +164,12 @@ function marker(){
  '<h2>VCE GRAPHIC STUDIO</h2><p class="vce-editor-muted">Déplace les blocs à la souris. Choisis un thème, modifie les tailles et place les portraits / logos. Les modifications restent sur cet appareil tant que tu ne les exportes pas.</p>'+
  '<section class="vce-editor-background"><h3>ARRIÈRE-PLAN</h3><label>Type de fond<select id="vce-bg-mode"><option value="default">Design original VCE</option><option value="preset">Dégradé personnalisé</option><option value="image">Photo / image importée</option></select></label><label>Couleur / ambiance<select id="vce-bg-preset"><option value="blue">Bleu racing</option><option value="red">Rouge compétition</option><option value="graphite">Graphite</option><option value="violet">Violet nuit</option><option value="black">Noir studio</option></select></label><label>Importer un arrière-plan<input id="vce-bg-file" type="file" accept="image/png,image/jpeg,image/webp"></label><label>Position horizontale de la photo <output id="vce-bg-position-label">50 %</output><input id="vce-bg-position" type="range" min="0" max="100" value="50"></label><label>Position verticale <output id="vce-bg-position-y-label">50 %</output><input id="vce-bg-position-y" type="range" min="0" max="100" value="50"></label><label>Assombrir pour la lisibilité <output id="vce-bg-darkness-label">32 %</output><input id="vce-bg-darkness" type="range" min="0" max="85" value="32"></label><div class="vce-editor-buttons"><button type="button" id="vce-bg-remove">SUPPRIMER LA PHOTO</button></div><p class="vce-editor-muted">L’image et son cadrage sont conservés dans le brouillon de cet overlay et inclus dans l’export JSON.</p></section>'+
  '<div class="vce-editor-buttons"><button type="button" data-theme="red">ACCENT ROUGE</button><button type="button" data-theme="blue">ACCENT BLEU</button></div>'+
+ '<div class="vce-photo-library" aria-label="Images VCE">'+buttons+'</div>'+
  '<label>Élément à modifier<select id="vce-editor-pick"></select></label>'+
  '<label>Décalage horizontal (px)<input id="vce-editor-x" type="number" step="5" value="0"></label>'+
  '<label>Décalage vertical (px)<input id="vce-editor-y" type="number" step="5" value="0"></label>'+
  '<label>Taille (facteur)<input id="vce-editor-scale" type="range" min=".3" max="2.2" step=".05" value="1"></label>'+
+ '<div class="vce-editor-buttons"><button type="button" id="vce-editor-center">CENTRER À L’HORIZONTALE</button><button type="button" id="vce-editor-restore-position">POSITION INITIALE</button></div>'+
  '<label>Rotation (degrés)<input id="vce-editor-rotation" type="range" min="-40" max="40" step="1" value="0"></label>'+
  '<label>Texte à afficher (240 caractères max)<textarea id="vce-editor-text" maxlength="240" rows="3" placeholder="Titre, sous-titre, nom, annonce…"></textarea></label>'+
  '<div class="vce-editor-buttons"><button type="button" id="vce-editor-add-text">+ AJOUTER UN TEXTE</button><button type="button" id="vce-editor-reset-text">TEXTE PAR DÉFAUT</button></div>'+
@@ -199,6 +201,31 @@ function marker(){
  };
  $('vce-bg-remove').onclick=()=>{settings.background={...settings.background,image:'',mode:'default'};applyBackground();syncBackgroundControls();save();$('vce-editor-status').textContent='Arrière-plan personnalisé supprimé.'};
  syncBackgroundControls();
+ let photoRequest=0;
+ panel.querySelectorAll('[data-vce-photo]').forEach(button=>button.addEventListener('click',async()=>{
+  const request=++photoRequest;
+  button.disabled=true;
+  try{
+   const response=await fetch(button.dataset.vcePhoto);
+   if(!response.ok)throw Error('Image inaccessible');
+   const blob=await response.blob();
+   if(request!==photoRequest)return;
+   await uploadBackground(blob);
+   syncBackgroundControls();
+   $('vce-editor-status').textContent='Visuel VCE appliqué. Ajuste son cadrage et son assombrissement.';
+  }catch(error){$('vce-editor-status').textContent=error.message}
+  finally{button.disabled=false}
+ }));
+ $('vce-editor-center').onclick=()=>{
+  if(!selected||!target)return;
+  const surface=stage().getBoundingClientRect(),bounds=selected.getBoundingClientRect(),ratio=surface.width/1920||1;
+  const shift=(surface.left+surface.width/2-bounds.left-bounds.width/2)/ratio;
+  settings.items[target]={...(settings.items[target]||{}),x:(settings.items[target]?.x||0)+Math.round(shift)};
+  renderItem(target);pick(target);save();
+ };
+ $('vce-editor-restore-position').onclick=()=>{
+  if(!target)return;delete settings.items[target];renderItem(target);pick(target);save();
+ };
  list.onchange=()=>pick(list.value);
  for(const k of ['x','y','scale','rotation'])$('vce-editor-'+k).oninput=readControls;
  $('vce-editor-text').oninput=()=>{

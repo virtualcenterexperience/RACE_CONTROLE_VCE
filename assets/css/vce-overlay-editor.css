@@ -39,3 +39,12 @@ body[data-vce-bg-mode=preset].vce-overlay-calendar #stage .photo{display:none!im
 body[data-vce-bg-mode=preset].vce-overlay-calendar #stage .veil{background:transparent!important}
 body[data-vce-bg-mode=image] #stage:before,body[data-vce-bg-mode=image] #stage:after,
 body[data-vce-bg-mode=image] .stage:before,body[data-vce-bg-mode=image] .stage:after{opacity:.16!important}
+
+.vce-photo-library{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:15px 0}
+.vce-photo-library button{padding:0!important;overflow:hidden;text-align:left;background:#122b43!important;border:1px solid #476a8a;border-radius:7px;cursor:pointer;color:#d1e7ff}
+.vce-photo-library img{display:block;width:100%;height:66px;object-fit:cover}
+.vce-photo-library span{display:block;padding:7px;font-size:10px}
+.vce-editor-panel section{padding:12px;border:1px solid #294e6b;border-radius:9px;background:#0c2033;margin-top:16px}
+.vce-editor-panel h3{margin-top:0}
+body.vce-graphic-editing .vce-editor-panel{width:340px}
+@media(max-width:700px){body.vce-graphic-editing .vce-editor-panel{width:min(340px,calc(100vw - 26px));max-height:48vh;top:auto}}

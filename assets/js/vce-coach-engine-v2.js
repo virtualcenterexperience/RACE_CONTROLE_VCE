@@ -100,7 +100,7 @@ function detectPhase(text){
 }
 function detectIssue(text){
  const n=N(text);
- if(/\b(?:sous[ -]?vir\w*|understeer|tire tout droit|ne tourne pas|train avant gliss\w*|avant gliss\w*|avant qui gliss\w*|elargi\w*|pousse de l avant)\b/.test(n))return 'front';
+ if(/\b(?:sous[ -]?vir\w*|souvir\w*|understeer|tire tout droit|ne tourne pas|train avant gliss\w*|avant gliss\w*|avant qui gliss\w*|elargi\w*|pousse de l avant)\b/.test(n))return 'front';
  if(/\b(?:survir\w*|oversteer|arriere decroch\w*|arriere chass\w*|arriere gliss\w*|perds l arriere|perte du train arriere|part en tete a queue|tete a queue)\b/.test(n))return 'rear';
  if(/\b(?:bloqu|lockup|roues bloquees|abs en permanence)\b/.test(n))return 'lock';
  if(/\b(?:patin|motricite|traction|trop de gaz|reacceleration)\b/.test(n))return 'traction';
@@ -190,7 +190,9 @@ function analyze(message,settings={},data={},prior={}){
  const askedTrack=matchTrack(question,tracks);
  const track=askedTrack||matchTrack(settings.track,tracks)||prior.track||null;
  const rawCorner=n.match(/\b(?:virage|v|t|turn|corner)\s*(?:no\s*)?(\d{1,2})\b/);
- const num=rawCorner?Number(rawCorner[1]):(settings.corner?Number(settings.corner):prior.cornerNumber??null);
+ const ordinal=n.match(/\b(premier|premiere|deuxieme|second|seconde|troisieme|quatrieme|cinquieme|sixieme|septieme|huitieme|neuvieme|dixieme)\s+virage\b/);
+ const ordinalNumbers={premier:1,premiere:1,deuxieme:2,second:2,seconde:2,troisieme:3,quatrieme:4,cinquieme:5,sixieme:6,septieme:7,huitieme:8,neuvieme:9,dixieme:10};
+ const num=rawCorner?Number(rawCorner[1]):ordinal?ordinalNumbers[ordinal[1]]:(settings.corner?Number(settings.corner):prior.cornerNumber??null);
  const corner=preciseCorner(question,track,num)||(!rawCorner&&num==null?preciseCorner(settings.track,track,null):null);
  const enteredCar=carFromText(question,data.catalog),formCar=carFromText(settings.model,data.catalog);
  const model=enteredCar?.model||settings.model||prior.model||'';
@@ -200,9 +202,21 @@ function analyze(message,settings={},data={},prior={}){
  const phase=detectPhase(question)||settings.phase||prior.phase||'';
  const setup=setupStatus(question,settings.setup,prior.setup);
  const actions=reportedActions(question);
+ const assists=settings.assists||prior.assists||'';
+ const curb=actions.includes('vibreur');
  const hint=classHint(profile,category,model,setup);
+ if(assists)hint.push('Aides déclarées : '+assists+'.');
+ if(assists==='ABS et TC actifs'||assists==='ABS seul')hint.push('L’ABS limite le blocage des roues. Réduis progressivement la pression du frein en ajoutant du volant et compare les passages à vitesse similaire.');
+ if(assists==='ABS et TC actifs'||assists==='TC seul')hint.push('Le TC limite le patinage. Observe son intervention et ouvre progressivement le volant avant d’augmenter les gaz.');
+ if(/sans abs|sans.*tc/i.test(assists))hint.push('Sans aide électronique, dose progressivement frein et accélérateur, surtout avec du volant ou sur un vibreur.');
+ else if(assists)hint.push('Compare les passages avec les mêmes niveaux d’ABS et de TC. Repère les interventions avant de modifier une aide.');
  const stages=['entree','milieu','sortie'].map(k=>{
-  const [cause,correction,change]=(rules[issue]||rules.unknown)[k];
+  let [cause,correction,change]=(rules[issue]||rules.unknown)[k];
+  if(curb&&issue!=='curb'){
+   cause+=' '+rules.curb[k][0];
+   correction+=' '+rules.curb[k][1];
+   change+=' Compare trois passages sans monter sur le vibreur et trois passages en utilisant seulement sa partie basse, à pneus et aides identiques.';
+  }
   return {id:k,title:phaseNames[k],selected:phase===k,placement:placement(k,corner,track),cause,correction,improvement:change,exercise:exercise(k,issue,corner)};
  });
  const followups=[];
@@ -222,7 +236,7 @@ function analyze(message,settings={},data={},prior={}){
  if(track&&corner&&corner.profil?.risques?.length)sourceNotes.push('Risques recensés sur la fiche : '+corner.profil.risques.join(', ')+'.');
  if(!track&&settings.track)sourceNotes.push('Le circuit déclaré n’a pas été trouvé dans les données VCE ; aucune géométrie de virage n’a été supposée.');
  if(track&&num!=null&&!corner)sourceNotes.push('Numéro de virage absent de la fiche VCE ; ne pas déduire le tracé.');
- const context={track,trackLabel,corner,cornerNumber:corner?.numero??num,cornerLabel,category,model,setup,issue,phase,actions};
+ const context={track,trackLabel,corner,cornerNumber:corner?.numero??num,cornerLabel,category,model,setup,assists,issue,phase,actions};
  const title=issue==='unknown'?'Perte de contrôle : diagnostic ouvert':({rear:'Survirage / train arrière instable',front:'Sous-virage / train avant saturé',lock:'Blocage au freinage',traction:'Patinage / motricité',curb:'Instabilité sur vibreur',braking:'Freinage / équilibre',pace:'Perte de temps / trajectoire'})[issue];
  const description=issue==='unknown'?'Le symptôme ne permet pas encore d’identifier le train concerné. Les trois phases ci-dessous décrivent des hypothèses à différencier en piste.':'Hypothèses de pilotage à comparer avec les sensations et la télémétrie ; aucune cause n’est confirmée sans mesure.';
  return {question,title,description,context,stages,hint,sourceNotes,followups,resources:related(data.resources,issue,category),coverage:{tracks:tracks.length,corners:tracks.reduce((n,t)=>n+(t.virages?.length||0),0),classes:data.cars?.categories?.length||0},missing:data.missing||[]};

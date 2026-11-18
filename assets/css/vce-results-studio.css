@@ -66,3 +66,10 @@ canvas:active { cursor: grabbing; }
 .stage canvas { width: min(100%, var(--preview-width, 608px)); margin-inline: auto; box-shadow: 0 16px 35px #03060b90; }
 .stage .dimension { font-variant-numeric: tabular-nums; }
 .photo-source { margin: 0 0 12px; color: var(--muted); font-size: .8rem; }
+
+.vce-photo-library{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:14px 0}
+.vce-photo-library button{padding:0;overflow:hidden;border-radius:7px;background:#162c44;text-align:left;color:#d3eaff;border:1px solid #41607d;cursor:pointer}
+.vce-photo-library img{display:block;width:100%;height:70px;object-fit:cover}
+.vce-photo-library span{display:block;padding:6px;font-size:11px}
+.tools{background:linear-gradient(145deg,#14253b,#0d1a2c)}
+#poster{touch-action:none}

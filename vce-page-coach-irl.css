@@ -195,3 +195,12 @@ body.vce-page-coach-irl .vce-irl-empty{grid-column:1/-1;border:1px dashed #44627
 body.vce-page-coach-irl .vce-irl-note{margin-top:40px;border-top:1px solid #324a64;padding-top:20px;font-size:12px;line-height:1.5;color:#91aeca}
 @media(max-width:760px){body.vce-page-coach-irl .vce-irl-list{grid-template-columns:1fr}body.vce-page-coach-irl .vce-irl-info{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:no-preference){body.vce-page-coach-irl .vce-irl-card{transition:transform .22s ease,border-color .22s ease}body.vce-page-coach-irl .vce-irl-card:hover{transform:translateY(-3px);border-color:#5f9ac7}}
+
+.vce-irl-report{margin-top:20px;padding-top:18px;border-top:1px solid #355b7a;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vce-irl-report h4,.vce-irl-report label:has(textarea),.vce-irl-report p{grid-column:1/-1}
+.vce-irl-report label{display:grid;gap:7px;color:#c6dff3;font-size:12px}
+.vce-irl-report input,.vce-irl-report textarea{width:100%;padding:11px;border:1px solid #3f6381;border-radius:7px;background:#0b1a2c;color:white;font:14px system-ui}
+.vce-irl-report button,.vce-irl-refresh{padding:12px 16px;background:#176a8c;color:white;border:1px solid #428fb7;border-radius:8px;cursor:pointer}
+.vce-irl-report button:disabled{opacity:.6;cursor:default}
+.vce-irl-refresh{margin:0 0 14px}
+@media(max-width:550px){.vce-irl-report{grid-template-columns:1fr}}

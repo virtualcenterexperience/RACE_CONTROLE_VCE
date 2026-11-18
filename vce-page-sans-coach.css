@@ -265,3 +265,11 @@ body.vce-page-exercises .dialog #modalBody p{line-height:1.6;font-size:14px}
 @media(max-width:1100px){body.vce-page-exercises .vce-catalogue-filters{grid-template-columns:repeat(2,minmax(0,1fr))}body.vce-page-exercises #cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:660px){body.vce-page-exercises .vce-catalogue-filters{grid-template-columns:1fr}body.vce-page-exercises #cards{grid-template-columns:1fr}body.vce-page-exercises #cards .card{min-height:0}body.vce-page-exercises #levels button{min-width:0}body.vce-page-exercises .vce-catalogue-result-head{display:block}body.vce-page-exercises .vce-count{text-align:left}body.vce-page-exercises .vce-gallery img{height:115px}}
 @media(prefers-reduced-motion:reduce){body.vce-page-exercises #cards .exercise-photo{transition:none}}
+
+.vce-search-label{display:block;font-size:12px;font-weight:700;margin:18px 0 10px}
+.vce-search-label input{display:block;width:100%;padding:15px;border-radius:10px;border:1px solid #4c799d;font-size:16px;margin-top:8px;background:#0c2036;color:white}
+.vce-search-shortcuts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.vce-search-shortcuts button{padding:8px 13px;border-radius:22px;border:1px solid #375e80;background:#12304a;color:#d1eafe;cursor:pointer}
+.vce-search-shortcuts button:last-child{margin-left:auto;background:transparent}
+.vce-search-shortcuts button:hover{border-color:#70c6ff}
+.vce-catalogue-filters{padding:15px;background:#0c1c2e;border:1px solid #2e4a64;border-radius:10px}

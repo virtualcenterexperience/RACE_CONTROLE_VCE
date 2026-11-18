@@ -76,7 +76,7 @@ function updateCategory(){
 }
 function filter(){
  const q=normalize($('search').value.trim()),grp=$('category').value,cat=normalize($('vehicleType').value),sort=$('sortOrder').value;
- let a=activeExercises().filter(x=>(level==='TOUS'||x.level===level)&&(!grp||x.group===grp)&&(!cat||normalize(x.carClass+' '+x.module+' '+x.contexte).includes(cat))&&(!q||normalize([x.title,x.module,x.exercice,x.solution,x.carClass].join(' ')).includes(q)));
+ let a=activeExercises().filter(x=>(level==='TOUS'||x.level===level)&&(!grp||x.group===grp)&&(!cat||normalize(x.carClass+' '+x.module+' '+x.contexte).includes(cat))&&(!q||q.split(/\s+/).every(word=>normalize([x.title,x.module,x.exercice,x.solution,x.carClass].join(' ')).includes(word))));
  const rank={ROOKIE:0,PERFORMANCE:1,ESPORT_PRO:2};
  a.sort((a,b)=>sort==='alphabet'?a.title.localeCompare(b.title,'fr'):sort==='difficulty'?(rank[a.level]-rank[b.level]||a.title.localeCompare(b.title,'fr')):(imageLabel[a.group].localeCompare(imageLabel[b.group],'fr')||rank[a.level]-rank[b.level]||a.title.localeCompare(b.title,'fr')));
  return a;
@@ -89,7 +89,7 @@ function show(){
  $('count').textContent=a.length+' exercice(s) · '+(pack==='structure'?'packs VCE structurés':'ressources complémentaires');
  $('pageInfo').textContent='Page '+(page+1)+' / '+max;
  $('previous').disabled=page===0;$('next').disabled=page>=max-1;
- $('cards').innerHTML=a.slice(page*size,(page+1)*size).map(x=>'<article class="card" data-level="'+esc(x.level)+'">'+photo(x)+'<div class="card-meta"><span class="tag">'+(x.level==='ESPORT_PRO'?'ESPORT PRO':esc(x.level))+'</span><small>'+esc(imageLabel[x.group])+' · '+esc(x.sourceLabel)+'</small></div><h3>'+esc(x.title)+'</h3><p>'+esc(x.solution||x.exercice).slice(0,190)+'</p><div class="card-footer"><small>'+esc(x.carClass)+'</small><button type="button" data-id="'+esc(x.id)+'">VOIR L’EXERCICE</button></div></article>').join('')||'<p class="muted">Aucun exercice trouvé : change les filtres.</p>';
+ $('cards').innerHTML=a.slice(page*size,(page+1)*size).map(x=>'<article class="card" data-level="'+esc(x.level)+'">'+photo(x)+'<div class="card-meta"><span class="tag">'+(x.level==='ESPORT_PRO'?'ESPORT PRO':esc(x.level))+'</span><small>'+esc(imageLabel[x.group])+' · '+esc(x.sourceLabel)+'</small></div><h3>'+esc(x.title)+'</h3><p>'+esc(x.solution||x.exercice).slice(0,190)+'</p><div class="card-footer"><small>'+esc(x.carClass)+'</small><button type="button" data-id="'+esc(x.id)+'">VOIR L’EXERCICE</button></div></article>').join('')||'<p class="muted">Aucun exercice trouvé. Retire un filtre, essaie un mot plus court ou ouvre les fiches complémentaires.</p>';
 }
 function setupContext(){
  const cs=$('trainingCircuit');const track=cs?.value!==''?circuits[Number(cs.value)]:null;
@@ -135,7 +135,15 @@ async function init(){
  }catch(e){$('status').textContent='Chargement des exercices impossible : '+e.message;}
 }
 $('sourcePack').addEventListener('change',switchPack);
-$('levels').addEventListener('click',e=>{const btn=e.target.closest('[data-level]');if(!btn)return;level=btn.dataset.level;page=0;document.querySelectorAll('#levels button').forEach(el=>el.classList.toggle('active',el===btn));show();});
+$('levels').addEventListener('click',e=>{const btn=e.target.closest('[data-level]');if(!btn)return;level=btn.dataset.level;page=0;document.querySelectorAll('#levels button').forEach(el=>{el.classList.toggle('active',el===btn);el.setAttribute('aria-pressed',String(el===btn))});show();});
+document.querySelectorAll('[data-search]').forEach(button=>button.addEventListener('click',()=>{
+ $('search').value=button.dataset.search;page=0;show();
+}));
+$('clearFilters').addEventListener('click',()=>{
+ $('search').value='';$('category').value='';$('vehicleType').value='';$('sortOrder').value='skill';level='TOUS';page=0;
+ document.querySelectorAll('#levels button').forEach(button=>{const active=button.dataset.level==='TOUS';button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
+ show();
+});
 $('search').addEventListener('input',()=>{page=0;show()});
 $('category').addEventListener('change',()=>{page=0;show()});
 $('vehicleType').addEventListener('change',()=>{page=0;show()});

@@ -208,3 +208,17 @@ body.vce-page-coach .vce-coach-tip{color:#97bcd8;border-top:1px solid #2d516c;pa
 body.vce-page-coach .vce-coach-debrief{background:#d42d51;color:#fff;border:1px solid #fa5371;padding:13px 18px;font-weight:900;border-radius:8px;cursor:pointer}
 @media(max-width:960px){body.vce-page-coach .vce-coach-phase-grid{grid-template-columns:1fr}body.vce-page-coach .vce-coach-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){body.vce-page-coach .vce-coach-bottom-grid{grid-template-columns:1fr}body.vce-page-coach .vce-coach-form{grid-template-columns:1fr}body.vce-page-coach .vce-coach-phase-card{padding:15px}}
+
+.vce-session-nav{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.vce-session-nav a,.vce-coach-prompts button{border:1px solid #375d7c;border-radius:8px;padding:11px 14px;background:#15324d;color:#d6edff;text-decoration:none;cursor:pointer;font:600 12px system-ui}
+.vce-session-nav a:first-child{background:#a62746;border-color:#ec4c70;color:white}
+#vce-suivi,#vceAdvisor,#vce-lap-import,#vce-video-hud{scroll-margin-top:20px;width:100%;max-width:1200px;box-sizing:border-box}
+#vce-suivi{border-top:3px solid #57baf6;margin-top:16px}
+#vceAdvisor{border-top:3px solid #32c89f}
+#vceAdvisor .vce-chat-context{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#vceAdvisor .vce-chat-context>span{grid-column:1/-1;order:2}
+.vce-coach-prompts{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.vce-chat-bubble p{white-space:pre-wrap;line-height:1.7}
+#vce-suivi .vce-fields textarea{min-height:95px}
+#vce-suivi input:focus,#vce-suivi textarea:focus,#vceAdvisor textarea:focus{outline:2px solid #63c9ff;outline-offset:2px}
+@media(max-width:650px){#vceAdvisor .vce-chat-context{grid-template-columns:1fr}.vce-session-nav a{flex:1;text-align:center}}

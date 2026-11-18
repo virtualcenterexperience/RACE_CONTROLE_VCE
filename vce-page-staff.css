@@ -431,3 +431,11 @@ body.vce-page-staff .panel{border-radius:11px}
 .vce-restart-notice { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px; }
 .vce-restart-shortcut { display: inline-flex; padding: 8px 12px; border: 1px solid #7e6343; border-radius: 7px; background: #30263a; color: #ffe3bb; font-size: .83rem; font-weight: 750; }
 .vce-restart-shortcut:hover { background: #473348; color: #fff; }
+
+.rc-discord-settings{margin:18px 0;padding:16px 20px;border:1px solid #3d5877;border-radius:10px;background:#14243b}
+.rc-discord-settings summary{cursor:pointer;color:#cee5ff;font-size:14px;font-weight:750}
+.rc-discord-settings p{color:#a9c6e3;line-height:1.6;font-size:12px}
+.rc-discord-settings form{max-width:750px}
+.rc-discord-settings label{display:block;margin:12px 0 6px}
+.rc-discord-settings input{width:100%;padding:12px;border-radius:7px;border:1px solid #416a8c;background:#0c1a2e;color:white}
+.rc-discord-settings button{padding:11px 15px;border:1px solid #3c84ad;background:#175981;color:white;border-radius:7px;cursor:pointer}

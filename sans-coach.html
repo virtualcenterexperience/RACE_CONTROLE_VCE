@@ -5,9 +5,9 @@
  <meta name="viewport" content="width=device-width,initial-scale=1">
  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
  <title>Sans coach — Exercices VCE ESPORT</title>
- <link rel="stylesheet" href="vce-page-sans-coach.css?v=20261112-exercises">
+ <link rel="stylesheet" href="vce-page-sans-coach.css?v=20261118-training">
  <script defer src="assets/js/vce-i18n.js?v=20261109-3"></script>
- <script defer src="assets/js/vce-sans-coach-catalog.js?v=20261112-1"></script>
+ <script defer src="assets/js/vce-sans-coach-catalog.js?v=20261118-training"></script>
  <script defer src="assets/js/vce-exercise-flow.js?v=20261109-4"></script>
  <script defer src="assets/js/vce-training-cycle-cache.js?v=20261114-refresh120"></script>
 </head>
@@ -17,6 +17,12 @@
  <header class="vce-exercises-header"><div><span class="eyebrow">VCE ESPORT / DRIVER ACADEMY</span><h1>ENTRAÎNEMENT <em>SANS COACH</em></h1><p>Des exercices pratiques à suivre à ton rythme. Choisis ta compétence, ta catégorie et ton niveau, puis lance la fiche d'entraînement.</p></div><a href="entrainement.html" class="vce-back">← Entraînement</a></header>
  <section class="panel vce-catalogue-panel" aria-labelledby="catalogue-title">
   <div class="toolbar vce-catalogue-top"><div><div class="eyebrow">BIBLIOTHÈQUE DE PILOTAGE</div><h2 id="catalogue-title">EXERCICES VCE</h2><p class="muted">Les packs structurés regroupent les modules GT3, monoplaces et tourisme. Les ressources complémentaires sont accessibles séparément.</p></div><div class="vce-count"><strong class="stat" id="total">—</strong><small class="muted">exercices</small></div></div>
+  <label for="search" class="vce-search-label">RECHERCHER UN EXERCICE
+    <input id="search" type="search" placeholder="Freinage, trajectoire, motricité, attaque, défense, rythme…" autocomplete="off">
+  </label>
+  <div class="vce-search-shortcuts" aria-label="Recherches rapides">
+<button type="button" data-search="freinage">Freinage</button><button type="button" data-search="vibreur">Vibreurs</button><button type="button" data-search="regularite">Régularité</button><button type="button" data-search="pneus">Pneus</button><button type="button" id="clearFilters">Réinitialiser les filtres</button>
+</div>
   <div class="vce-catalogue-filters">
    <label for="sourcePack">COLLECTION
      <select id="sourcePack"><option value="structure">Packs VCE structurés</option><option value="complementary">800 fiches complémentaires</option></select>
@@ -38,9 +44,6 @@
    <button type="button" data-level="ESPORT_PRO">ESPORT PRO</button>
   </div>
   <div class="vce-level-legend" aria-label="Niveaux"><span><i style="--dot:var(--vce-rookie)"></i>Rookie · bases</span><span><i style="--dot:var(--vce-academy)"></i>Performance · perfectionnement</span><span><i style="--dot:var(--vce-esport)"></i>Esport Pro · avancé</span></div>
-  <label for="search" class="vce-search-label">RECHERCHER UN EXERCICE
-    <input id="search" type="search" placeholder="Freinage, trajectoire, motricité, attaque, défense, rythme…" autocomplete="off">
-  </label>
   <details class="vce-exercise-context"><summary>Configurer ta séance · Jeu, voiture et circuit</summary>
    <div class="formgrid three" id="trainingContext">
     <div><label for="trainingGame">JEU</label><select id="trainingGame"><option>Assetto Corsa</option><option>Assetto Corsa Competizione</option><option>Assetto Corsa EVO</option><option>Le Mans Ultimate</option><option>rFactor 2</option></select></div>
@@ -52,7 +55,7 @@
    </div>
    <p class="muted">Le contexte accompagne la fiche d'exercice ; aucune mesure de télémétrie n'est inventée.</p>
   </details>
-  <div class="vce-catalogue-result-head"><p id="count" role="status">Chargement du catalogue…</p><span class="muted">Images classées par technique</span></div>
+  <div class="vce-catalogue-result-head"><p id="count" role="status">Chargement du catalogue…</p><span class="muted">Recherche dans le titre, les consignes et les objectifs</span></div>
   <div class="grid" id="cards" aria-live="polite"></div>
   <div class="toolbar vce-pagination"><button type="button" id="previous">← PRÉCÉDENT</button><span id="pageInfo" class="muted">—</span><button type="button" id="next">SUIVANT →</button></div>
   <p class="notice" id="status" role="status">Chargement des exercices VCE…</p>

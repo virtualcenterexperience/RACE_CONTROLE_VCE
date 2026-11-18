@@ -522,3 +522,18 @@ body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-selec
 .vce-official-evaluation[data-orientation="OBSERVATION"] { border-left-color: #ffad70; }
 .vce-official-evaluation[data-orientation="REFUSÉ"] { border-left-color: #ff6b85; }
 .vce-official-evaluation[data-orientation="ESPORT"] { border-left-color: #62dfb1; }
+
+#pilotSelection{max-width:1220px;margin:auto}
+#pilotSelection .hero{text-align:left;padding:28px 0 14px}
+#pilotSelection .selection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+#pilotSelection .pilot-select{display:flex;align-items:center;gap:15px;width:100%;min-height:112px;text-align:left;padding:20px;border:1px solid #345774;border-radius:12px;background:linear-gradient(120deg,#162b44,#101e31);cursor:pointer}
+#pilotSelection .pilot-select:hover{border-color:#63c9ff;background:#193650}
+#pilotSelection .pilot-select b{display:block;font-size:15px;line-height:1.5}
+#pilotSelection .pilot-select small{display:block;margin-top:7px;font-size:10px;color:#9bbbd6}
+#pilotSelection .search{flex:1;max-width:650px;min-width:180px;padding:13px;border:1px solid #426386;border-radius:9px}
+#pilotSelection .avatar{flex:none;width:56px;height:56px;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:#234567;color:#c5e7ff;font-weight:800}
+.vce-leaderboard-head,.vce-leaderboard-row{display:grid!important;grid-template-columns:minmax(150px,1fr) repeat(3,minmax(60px,.23fr));gap:12px;align-items:center}
+.vce-leaderboard-head{padding:12px;color:#a5c8e4;font-size:11px}
+.vce-leaderboard-row>span{text-align:right;font-variant-numeric:tabular-nums}
+#leaderboard{overflow-x:auto}
+@media(max-width:550px){.vce-leaderboard-head,.vce-leaderboard-row{min-width:440px}#pilotSelection .pilot-select{min-height:92px}}

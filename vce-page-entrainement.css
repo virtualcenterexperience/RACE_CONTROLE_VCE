@@ -157,3 +157,12 @@ body.vce-page-staff .panel{border-radius:11px}
 
 /* Animation légèrement décalée entre les vignettes et survol doux */
 @media(prefers-reduced-motion:no-preference){:is(.selection-grid,.vce-race-track,.cards,.grid)>:nth-child(2){animation-delay:65ms}:is(.selection-grid,.vce-race-track,.cards,.grid)>:nth-child(3){animation-delay:110ms}:is(.selection-grid,.vce-race-track,.cards,.grid)>:nth-child(4){animation-delay:155ms}:is(.selection-grid,.vce-race-track,.cards,.grid)>:nth-child(n+5){animation-delay:190ms}.pilot-select .avatar{transition:transform .25s ease,box-shadow .25s ease}.pilot-select:hover .avatar{transform:scale(1.055)}}
+
+body.vce-page-training .wrap{max-width:1250px}
+body.vce-page-training .grid.vce-training-modes{gap:18px}
+body.vce-page-training .vce-training-modes .card{display:flex;flex-direction:column;align-items:stretch;justify-content:space-between;min-height:275px;padding:26px;background:linear-gradient(0deg,#0c1a2f 0%,#10243eea 55%,#132a45d6 100%);border:1px solid #365777}
+body.vce-page-training .vce-training-modes .card:nth-child(1){border-top:3px solid #56bdfa}
+body.vce-page-training .vce-training-modes .card:nth-child(2){border-top:3px solid #2fd3a6}
+body.vce-page-training .vce-training-modes .card:nth-child(3){border-top:3px solid #fa496e}
+body.vce-page-training .vce-training-modes .card span{display:block;margin-top:12px;line-height:1.7}
+body.vce-page-training .vce-training-modes .arrow{margin-top:25px;align-self:flex-start}

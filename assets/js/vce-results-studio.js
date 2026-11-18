@@ -439,6 +439,26 @@ $('background').onchange = async event => {
     if (request === backgroundRequest) event.target.value = '';
   }
 };
+document.querySelectorAll('[data-vce-photo]').forEach(button=>button.addEventListener('click',async()=>{
+ const request=++backgroundRequest;
+ button.disabled=true;
+ try{
+  const image=await fromPath(button.dataset.vcePhoto);
+  if(request!==backgroundRequest){image.close?.();return}
+  state.background?.close?.();state.background=image;
+  $('photo-source').textContent=button.textContent.trim();
+  $('clear-bg').hidden=false;$('photo-framing').hidden=false;
+  photoFrame.zoom=1;photoFrame.x=.5;photoFrame.y=.5;
+  for(const key of ['zoom','x','y'])$('photo-'+key).value=String(photoFrame[key]*100);
+  changed();
+ }catch(error){status('Image indisponible · '+error.message)}
+ finally{button.disabled=false}
+}));
+$('recenter-photo').onclick=()=>{
+ photoFrame.zoom=1;photoFrame.x=.5;photoFrame.y=.5;
+ for(const key of ['zoom','x','y'])$('photo-'+key).value=String(photoFrame[key]*100);
+ changed();
+};
 $('clear-bg').onclick = () => {
   backgroundRequest++;
   state.background?.close?.();

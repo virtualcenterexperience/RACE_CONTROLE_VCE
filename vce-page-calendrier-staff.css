@@ -217,3 +217,8 @@ body.vce-page-staff .panel input,body.vce-page-staff .panel select,body.vce-page
 @keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) backwards;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
+
+.vce-studio-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0;padding:16px;border:1px solid #3c6482;border-radius:9px;background:#112a42}
+.vce-studio-actions a{padding:11px 15px;background:#24678e;border:1px solid #62abd2;border-radius:7px;color:white;text-decoration:none;font-size:13px;font-weight:750}
+.vce-studio-actions span{font-size:12px;color:#accce7}
+iframe{border:1px solid #406386;border-radius:10px}

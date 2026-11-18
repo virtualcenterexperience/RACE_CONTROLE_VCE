@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Résultats TEAM | VCE ESPORT</title>
-<link rel="stylesheet" href="assets/css/vce-results-studio.css?v=3">
+<link rel="stylesheet" href="assets/css/vce-results-studio.css?v=20261118-studio">
 <script defer src="vce-supabase-config.js"></script>
 <script defer src="vce-supabase.js?v=20261113-session"></script>
 <script defer src="assets/js/vce-result-posters.js?v=1"></script>
-<script type="module" src="assets/js/vce-results-studio.js?v=3"></script>
+<script type="module" src="assets/js/vce-results-studio.js?v=20261118-studio"></script>
 </head>
 <body>
 <header class="top"><a href="staff.html#staff-team">← TEAM Staff</a><strong>VCE <span>ESPORT</span></strong><a href="team-resultats-recus.html">Résultats reçus</a></header>
@@ -50,12 +50,12 @@
         <label>Format<select id="poster-format"><option value="social">Instagram · vertical 4:5</option><option value="landscape">Paysage · 1920 × 1090</option></select></label>
         <label>Preset<select id="palette"><option value="red">Rouge + bleu</option><option value="yellow">Jaune + bleu</option><option value="gray">Rouge + gris + bleu</option></select></label>
         <label>Photo de course <small>Ajoute la capture de ta course · JPEG, PNG ou TGA</small><input type="file" id="background" accept=".jpg,.jpeg,.png,.tga,image/jpeg,image/png"></label>
-        <button id="clear-bg" class="quiet" type="button" hidden>Rétablir le fond VCE</button>
+        <div class="vce-photo-library" aria-label="Images VCE"><button type="button" data-vce-photo="data/images/vce-results-gt3.webp"><img src="data/images/vce-results-gt3.webp" alt="" loading="lazy"><span>Nuit GT3</span></button><button type="button" data-vce-photo="data/images/entrainement/01_trajectoire_ideale.webp"><img src="data/images/entrainement/01_trajectoire_ideale.webp" alt="" loading="lazy"><span>Trajectoire</span></button><button type="button" data-vce-photo="data/images/entrainement/03_gestion_trafic.webp"><img src="data/images/entrainement/03_gestion_trafic.webp" alt="" loading="lazy"><span>Course</span></button></div><button id="clear-bg" class="quiet" type="button" hidden>Rétablir le fond VCE</button>
         <div class="photo-framing" id="photo-framing" hidden>
           <label>Zoom de la photo<input id="photo-zoom" type="range" min="100" max="230" value="100"></label>
           <label>Cadrage horizontal<input id="photo-x" type="range" min="0" max="100" value="50"></label>
           <label>Cadrage vertical<input id="photo-y" type="range" min="0" max="100" value="50"></label>
-        </div>
+        <button type="button" id="recenter-photo">Recentrer la photo</button></div>
         <label>Texte sélectionné<select id="layers"></select></label>
         <div class="row"><button type="button" id="add-layer">+ Ajouter un texte</button><button type="button" id="remove-layer" class="quiet">Retirer</button></div>
         <div id="layer-fields" hidden>

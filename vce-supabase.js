@@ -203,7 +203,7 @@ async function review(session_id,pilot,decision){
  const rows=await request('/rest/v1/vce_training_reviews?on_conflict=session_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({session_id,pilot,decision})},true);
  return rows?.[0]||null;
 }
-async function submitTraining(item){if(!item?.id||!item?.driver)throw Error('Séance invalide');return request('/rest/v1/vce_training_submissions',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({session_id:String(item.id),pilot:String(item.driver),payload:item})})}
+async function submitTraining(item){if(!item?.id||!item?.driver)throw Error('Séance invalide');return request('/rest/v1/vce_training_submissions',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({session_id:String(item.id),pilot:String(item.driver),payload:item})},true)}
 async function trainingSubmissions({includePayload=true}={}){
  const columns=includePayload?'session_id,pilot,payload,submitted_at':'session_id,pilot,submitted_at';
  return request('/rest/v1/vce_training_submissions?select='+columns+'&order=submitted_at.desc',{},true);
@@ -239,5 +239,11 @@ window.addEventListener('storage',event=>{
  clearStaffCache();
  window.dispatchEvent(new Event('vce-auth-session-ended'));
 });
-window.VCESupabase={configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck,pilotEvaluationStatus,publishPilotEvaluationStatus};
+async function pilotTrainingData(pilot){
+ return request('/rest/v1/rpc/vce_pilot_training_data',{method:'POST',body:JSON.stringify({p_pilot:pilot})},true);
+}
+async function discordTrainingConfig(webhook=null){
+ return request('/rest/v1/rpc/vce_discord_training_config',{method:'POST',body:JSON.stringify({p_webhook:webhook})},true);
+}
+window.VCESupabase={pilotTrainingData,discordTrainingConfig,configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck,pilotEvaluationStatus,publishPilotEvaluationStatus};
 })();
