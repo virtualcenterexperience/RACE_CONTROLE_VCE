@@ -19,7 +19,24 @@
     $('vceChatMessages').scrollTop = $('vceChatMessages').scrollHeight;
     return p;
   }
+  const followupControls=document.createElement('div');
+  followupControls.className='vce-coach-prompts';
+  followupControls.setAttribute('aria-label','Continuer la discussion');
+  form.before(followupControls);
+  function showSuggestions(result){
+    followupControls.replaceChildren();
+    for(const question of result.conversation?.suggestions||[]){
+      const button=document.createElement('button');
+      button.type='button';button.textContent=question;
+      button.addEventListener('click',()=>{
+        $('vceFeeling').value=question;
+        form.requestSubmit();
+      });
+      followupControls.append(button);
+    }
+  }
   function advice(result) {
+    if(result.conversation?.paragraphs?.length)return result.conversation.paragraphs.join('\n\n');
     const c = result.context;
     const relevant = result.stages.find(stage => stage.selected) || result.stages[1];
     return [
@@ -42,6 +59,7 @@
     const reply = bubble('assistant', 'Consultation des fiches circuit et voiture…');
     $('vceDiagnose').disabled = true;
     last = null;
+    followupControls.replaceChildren();
     try {
       const engine = window.VCECoachEngine;
       if (!engine) throw Error('Moteur de coaching indisponible.');
@@ -55,6 +73,7 @@
       prior = result.context;
       last = result;
       reply.textContent = advice(result);
+      showSuggestions(result);
       $('vceChatNotice').textContent = 'Conseil fondé sur les fiches VCE, à vérifier en piste avec ton coach.';
     } catch (error) {
       reply.textContent = 'Les fiches ne sont pas accessibles pour le moment. ' + error.message;
@@ -73,10 +92,17 @@
     target.dispatchEvent(new Event('input', {bubbles:true}));
     $('vceChatNotice').textContent = 'Conseils ajoutés à ta fiche de suivi.';
   });
+  $('vceCircuit')?.addEventListener('change',()=>{
+    prior={...prior,track:null,corner:null,cornerNumber:null,phase:''};
+  });
+  $('vceCar')?.addEventListener('change',()=>{
+    prior={...prior,model:'',category:''};
+  });
   $('vceChatClear').addEventListener('click', () => {
     sequence++;
     last = null;
     prior = {};
+    followupControls.replaceChildren();
     $('vceChatMessages').replaceChildren();
     bubble('assistant', greeting);
     $('vceChatNotice').textContent = '';

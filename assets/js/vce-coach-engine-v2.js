@@ -84,7 +84,13 @@ async function load(){
 function matchTrack(text,tracks){
  const hits=[];
  for(const t of tracks)for(const alias of [t.name,...(t.aliases||[]),...(t.mots_cles||[])]){if(alias&&N(alias).length>=4&&contains(text,alias))hits.push({track:t,len:N(alias).length})}
- hits.sort((a,b)=>b.len-a.len);return hits[0]?.track||null;
+ hits.sort((a,b)=>b.len-a.len);
+ if(hits.length)return hits[0].track;
+ const tokens=N(text).split(' ');
+ const ignored=new Set(['circuit','autodromo','autodrome','international','speedway','raceway','motor','park']);
+ const possible=tracks.filter(track=>[track.name,...(track.aliases||[])].some(alias=>
+  N(alias).split(' ').some(word=>word.length>=6&&!ignored.has(word)&&tokens.some(token=>root.VCECoachLanguage?.closeWord(word,token)))));
+ return possible.length===1?possible[0]:null;
 }
 function detectCategory(text){const n=' '+N(text)+' ';for(const [type,pattern] of categories)if(pattern.test(n))return type;return ''}
 function carFromText(text,catalog){
@@ -188,18 +194,22 @@ function related(rows,issue,category){
 function analyze(message,settings={},data={},prior={}){
  const question=String(message||'').trim(),n=N(question),tracks=data.tracks||[];
  const askedTrack=matchTrack(question,tracks);
- const track=askedTrack||matchTrack(settings.track,tracks)||prior.track||null;
+ const track=askedTrack||prior.track||matchTrack(settings.track,tracks)||null;
  const rawCorner=n.match(/\b(?:virage|v|t|turn|corner)\s*(?:no\s*)?(\d{1,2})\b/);
  const ordinal=n.match(/\b(premier|premiere|deuxieme|second|seconde|troisieme|quatrieme|cinquieme|sixieme|septieme|huitieme|neuvieme|dixieme)\s+virage\b/);
  const ordinalNumbers={premier:1,premiere:1,deuxieme:2,second:2,seconde:2,troisieme:3,quatrieme:4,cinquieme:5,sixieme:6,septieme:7,huitieme:8,neuvieme:9,dixieme:10};
- const num=rawCorner?Number(rawCorner[1]):ordinal?ordinalNumbers[ordinal[1]]:(settings.corner?Number(settings.corner):prior.cornerNumber??null);
+ const changedTrack=Boolean(askedTrack&&prior.track&&askedTrack.name!==prior.track.name);
+ const num=rawCorner?Number(rawCorner[1]):ordinal?ordinalNumbers[ordinal[1]]:(settings.corner?Number(settings.corner):changedTrack?null:prior.cornerNumber??null);
  const corner=preciseCorner(question,track,num)||(!rawCorner&&num==null?preciseCorner(settings.track,track,null):null);
  const enteredCar=carFromText(question,data.catalog),formCar=carFromText(settings.model,data.catalog);
- const model=enteredCar?.model||settings.model||prior.model||'';
- const category=enteredCar?.category||formCar?.category||detectCategory(question)||settings.category||prior.category||'';
+ const askedCategory=detectCategory(question);
+ const category=enteredCar?.category||askedCategory||formCar?.category||settings.category||prior.category||'';
+ const changedCategory=Boolean(askedCategory&&prior.category&&askedCategory!==prior.category);
+ const model=enteredCar?.model||(!changedCategory?settings.model||prior.model:'')||'';
  const profile=profileFor(category,data.cars);
- const issueRaw=detectIssue(question),issue=issueRaw!=='unknown'?issueRaw:(prior.issue&&prior.issue!=='unknown'?prior.issue:'unknown');
- const phase=detectPhase(question)||settings.phase||prior.phase||'';
+ const matchedTopic=root.VCECoachLanguage?.matchTopic(question)?.topic;
+ const issueRaw=matchedTopic?.issue||detectIssue(question),issue=issueRaw!=='unknown'?issueRaw:(prior.issue&&prior.issue!=='unknown'?prior.issue:'unknown');
+ const phase=detectPhase(question)||settings.phase||(!changedTrack?prior.phase:'')||'';
  const setup=setupStatus(question,settings.setup,prior.setup);
  const actions=reportedActions(question);
  const assists=settings.assists||prior.assists||'';
@@ -239,7 +249,10 @@ function analyze(message,settings={},data={},prior={}){
  const context={track,trackLabel,corner,cornerNumber:corner?.numero??num,cornerLabel,category,model,setup,assists,issue,phase,actions};
  const title=issue==='unknown'?'Perte de contrôle : diagnostic ouvert':({rear:'Survirage / train arrière instable',front:'Sous-virage / train avant saturé',lock:'Blocage au freinage',traction:'Patinage / motricité',curb:'Instabilité sur vibreur',braking:'Freinage / équilibre',pace:'Perte de temps / trajectoire'})[issue];
  const description=issue==='unknown'?'Le symptôme ne permet pas encore d’identifier le train concerné. Les trois phases ci-dessous décrivent des hypothèses à différencier en piste.':'Hypothèses de pilotage à comparer avec les sensations et la télémétrie ; aucune cause n’est confirmée sans mesure.';
- return {question,title,description,context,stages,hint,sourceNotes,followups,resources:related(data.resources,issue,category),coverage:{tracks:tracks.length,corners:tracks.reduce((n,t)=>n+(t.virages?.length||0),0),classes:data.cars?.categories?.length||0},missing:data.missing||[]};
+ const conversation=root.VCECoachLanguage?.respond(question,{...context,stages},data,prior)||null;
+ if(conversation?.topicId){context.topicId=conversation.topicId;context.topicStep=conversation.topicStep||0;}
+ else if(prior.topicId)context.topicId=prior.topicId;
+ return {question,title,description,context,stages,hint,conversation,sourceNotes,followups,resources:related(data.resources,issue,category),coverage:{tracks:tracks.length,corners:tracks.reduce((n,t)=>n+(t.virages?.length||0),0),classes:data.cars?.categories?.length||0},missing:data.missing||[]};
 }
 const api={analyze,load,normalize:N,detectIssue,detectPhase};
 root.VCECoachEngine=api;
