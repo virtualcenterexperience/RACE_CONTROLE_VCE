@@ -7,7 +7,7 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>VCE ESPORT | Stratégie de course</title>
 <link rel="stylesheet" href="vce-page-strategie.css?v=20261115-car-number">
-<script defer src="assets/js/vce-i18n.js?v=20261109-3"></script><script defer src="assets/js/vce-strategy-assist.js?v=20261115-cockpit"></script><script defer src="assets/js/vce-tool-guide.js?v=20261110-1"></script><script defer src="assets/js/vce-strategy-live.js?v=20261115-car-number"></script></head>
+<script defer src="assets/js/vce-i18n.js?v=20261109-3"></script><script defer src="assets/js/vce-strategy-assist.js?v=20261115-cockpit"></script><script defer src="assets/js/vce-tool-guide.js?v=20261110-1"></script><script defer src="assets/js/vce-strategy-live.js?v=20261115-car-number"></script><link rel="stylesheet" href="assets/css/vce-ui-controls.css?v=20261123-ui"></head>
 <body class="vce-page-strategy"><nav class="vce-strategy-nav" aria-label="Navigation VCE"><a href="connexion.html">← PROFILS</a><span>VCE ESPORT <b>/ STRATÉGIE</b></span><a href="index.html">ACCUEIL</a></nav>
 <div class="app">
 <header class="top strategy-header">
@@ -45,7 +45,7 @@
 <div class="actions" style="margin-top:14px;justify-content:flex-end"><button class="btn green" onclick="closeSetup();calculate()">✓ APPLIQUER ET RECALCULER</button></div>
 </div></div>
 <dialog class="strategy-window" id="strategyLiveDialog" aria-labelledby="strategyLiveTitle">
-<div class="strategy-window-head"><h2 id="strategyLiveTitle">Configurer le live timing</h2><form method="dialog"><button class="btn">Fermer</button></form></div>
+<div class="strategy-window-head"><h2 id="strategyLiveTitle">Configurer le live timing</h2><form method="dialog"><button class="btn" type="submit">Fermer</button></form></div>
 <form class="strategy-live-form" id="strategyLiveForm">
 <label for="strategyTimingUrl">Lien de la page de live timing <small>facultatif</small></label>
 <input id="strategyTimingUrl" type="url" placeholder="https://…" autocomplete="off">
@@ -68,7 +68,7 @@
 <div class="actions"><button class="btn" id="strategySaveLive" type="button">Enregistrer</button><button class="btn blue" type="submit">Connecter le flux</button></div>
 </form></dialog>
 <dialog class="strategy-window strategy-settings" id="strategySettings" aria-labelledby="strategySettingsTitle">
-<div class="strategy-window-head"><h2 id="strategySettingsTitle">Réglages de la course</h2><form method="dialog"><button class="btn">Fermer</button></form></div>
+<div class="strategy-window-head"><h2 id="strategySettingsTitle">Réglages de la course</h2><form method="dialog"><button class="btn" type="submit">Fermer</button></form></div>
 <div class="sect">
 <h3>⚙ Paramètres de course</h3>
 <div class="fields">
@@ -144,7 +144,7 @@
 <div class="courseNameRow"><span class="small">COURSE 3</span><input id="slotName3" value="Course 3"/></div>
 </div></dialog>
 <dialog class="strategy-window" id="strategyManual" aria-labelledby="strategyManualTitle">
-<div class="strategy-window-head"><h2 id="strategyManualTitle">Saisie manuelle et urgence</h2><form method="dialog"><button class="btn">Fermer</button></form></div>
+<div class="strategy-window-head"><h2 id="strategyManualTitle">Saisie manuelle et urgence</h2><form method="dialog"><button class="btn" type="submit">Fermer</button></form></div>
 <p class="small">Les valeurs reçues du flux sont prioritaires quand il est connecté. Le plan d’urgence utilise la saisie manuelle.</p>
 <div class="sect"><h3>Données en piste</h3>
 <div class="fields">

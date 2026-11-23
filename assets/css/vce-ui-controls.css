@@ -1,0 +1,35 @@
+/* Shared interface sizing. Export canvases retain their original pixel dimensions. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-block: 1rem; }
+body :is(main, .wrap, .panel, .card, .rc-main, .rc-content) { min-width: 0; }
+body :is(button, .btn, input, select, textarea) { box-sizing: border-box; max-width: 100%; }
+body :is(button, .btn) { min-height: 44px; overflow-wrap: anywhere; white-space: normal; touch-action: manipulation; }
+body :is(button, a, input, select, textarea, summary):focus-visible { outline: 3px solid #83d5ff; outline-offset: 3px; }
+body button:disabled { cursor: not-allowed; opacity: .6; }
+body :is(input, select, textarea):disabled { opacity: .65; cursor: not-allowed; }
+body :is(img, video, canvas) { max-width: 100%; }
+body :is(.actions, .vce-buttons, .vce-tool-nav) { flex-wrap: wrap; gap: 10px; }
+body :is(.tablewrap, .table-wrap, #leaderboard) { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+body dialog { box-sizing: border-box; max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); overflow: auto; overscroll-behavior: contain; }
+body :is(h1, h2, h3, .muted, [role="status"]) { overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+ body :is(button, .btn, summary) { min-height: 44px; }
+ body :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]) { min-height: 44px; font-size: 16px; min-width: 0; }
+ body :is(header, .top) { flex-wrap: wrap; }
+ body .actions > :is(button, .btn, a), body .vce-buttons > button { flex: 1 1 140px; }
+ body .vce-chat-compose { flex-wrap: wrap; }
+ body .vce-chat-compose textarea { flex-basis: 100%; }
+ body .vce-chat-compose button { width: 100%; }
+ body .vce-chat-head { flex-wrap: wrap; }
+ body .vce-chat-bubble { max-width: 100%; }
+ body :is(.vce-chat-context, .vce-chat-context label) { min-width: 0; }
+ body .vce-chat-context label { flex-wrap: wrap; }
+ body .vce-chat-context select { max-width: 100%; }
+ body .strategy-window-head { align-items: flex-start; gap: 12px; }
+ body .strategy-window-head h2 { min-width: 0; }
+ body .strategy-window-head form { flex-shrink: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body :is(.vce-fields, .fields, .grid, .driver) > * { min-width: 0; }
+
+body :is(button, .btn) { min-width: 44px; }
+body :is(.nav, .vce-team-workflow-nav, .vce-tool-nav) a, body .back { min-height: 44px; display: inline-flex; align-items: center; }

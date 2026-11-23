@@ -279,7 +279,9 @@ function marker(){
   settings.items[drag.id]={...(settings.items[drag.id]||{}),x:Math.round(drag.x+(e.clientX-drag.startX)/drag.scale),y:Math.round(drag.y+(e.clientY-drag.startY)/drag.scale)};
   renderItem(drag.id);pick(drag.id);
  },true);
- document.addEventListener('pointerup',()=>{if(drag){save();drag=null}},true);
+ function finishDrag(){if(drag){save();drag=null}}
+ document.addEventListener('pointerup',finishDrag,true);
+ document.addEventListener('pointercancel',finishDrag,true);
  const refresh=()=>{ensureCustomText();
   for(const [id] of ids()){const el=locate(id);if(el){
    if(!el.dataset.vceElement){el.dataset.vceElement=id;el.classList.add('vce-graphic-target')}

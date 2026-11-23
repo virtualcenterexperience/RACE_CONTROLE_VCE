@@ -439,3 +439,14 @@ body.vce-page-staff .panel{border-radius:11px}
 .rc-discord-settings label{display:block;margin:12px 0 6px}
 .rc-discord-settings input{width:100%;padding:12px;border-radius:7px;border:1px solid #416a8c;background:#0c1a2e;color:white}
 .rc-discord-settings button{padding:11px 15px;border:1px solid #3c84ad;background:#175981;color:white;border-radius:7px;cursor:pointer}
+
+/* Top actions must remain reachable at narrow widths and browser zoom. */
+@media(max-width:700px){
+ #dashboard .rc-topbar{height:auto;min-height:58px;flex-wrap:wrap;padding:12px 14px;gap:10px}
+ #dashboard .rc-top-left,#dashboard .rc-top-right{min-width:0;flex-wrap:wrap;gap:10px;max-width:100%}
+ #dashboard .rc-top-right{flex:1 1 100%;justify-content:space-between}
+ #dashboard .rc-topbar #logout{min-height:44px}
+ #dashboard .rc-topbar a{min-height:44px;display:inline-flex;align-items:center}
+ #dashboard .rc-nav{max-width:100%}
+ #dashboard .rc-bottom{flex-wrap:wrap}
+}

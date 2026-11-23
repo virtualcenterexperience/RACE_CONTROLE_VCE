@@ -1,8 +1,9 @@
 (() => {
   'use strict';
   const mount = document.getElementById('overview');
-  if (!mount) return;
+  if (!mount || document.getElementById('vceDiscordTrainingSettings')) return;
   const panel = document.createElement('details');
+  panel.id = 'vceDiscordTrainingSettings';
   panel.className = 'rc-discord-settings';
   panel.innerHTML = '<summary>Notifications Discord · Entraînements</summary><p>Lorsqu’un pilote envoie une séance, le salon reçoit son nom, le circuit, la voiture et l’exercice, avec un lien vers les validations.</p><form><label for="trainingDiscordWebhook">Webhook du salon Discord</label><input id="trainingDiscordWebhook" type="password" autocomplete="new-password" placeholder="https://discord.com/api/webhooks/…" required><p>Dans Discord, ouvre les paramètres du salon → Intégrations → Webhooks. Copie son URL ici.</p><button type="submit">Enregistrer le salon</button></form><p role="status">Configuration disponible après connexion STAFF.</p>';
   mount.after(panel);
@@ -28,6 +29,7 @@
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const button = form.querySelector('button');
+    if (button.disabled) return;
     button.disabled = true;
     try {
       await VCESupabase.discordTrainingConfig(input.value.trim());

@@ -537,3 +537,12 @@ body.vce-page-pilot #pilotSelection:not(.hidden) .vce-race-carousel .pilot-selec
 .vce-leaderboard-row>span{text-align:right;font-variant-numeric:tabular-nums}
 #leaderboard{overflow-x:auto}
 @media(max-width:550px){.vce-leaderboard-head,.vce-leaderboard-row{min-width:440px}#pilotSelection .pilot-select{min-height:92px}}
+
+/* The initial roster must not overflow before the optional carousel is mounted. */
+html body.vce-page-pilot #pilotSelection:not(.hidden) #pilotGrid:not([data-vce-carousel="1"]) {
+ display: grid !important; grid-template-columns: repeat(auto-fit,minmax(min(100%,270px),1fr)) !important;
+ width: 100%; gap: 14px !important;
+}
+#pilotSelection #pilotGrid:not([data-vce-carousel="1"]) .pilot-select { min-width: 0; width: 100%; }
+#pilotSelection #pilotGrid:not([data-vce-carousel="1"]) .pilot-select > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.vce-race-carousel { min-width: 0; max-width: 100%; }
