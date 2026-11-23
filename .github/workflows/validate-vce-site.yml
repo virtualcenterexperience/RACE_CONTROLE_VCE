@@ -48,6 +48,8 @@ jobs:
           done < <(find . -type f -name '*.js' ! -path './race-controle-windows/*' -print0)
       - name: Validate JavaScript embedded in HTML pages
         run: node tools/validate_inline_js.mjs
+      - name: Verify reversible interface translations and form values
+        run: node tools/test-i18n.mjs
       - name: Verify interface action locks and responsive stylesheet coverage
         run: node tools/test-ui-actions.mjs
       - name: Verify Supabase publishable key authentication headers

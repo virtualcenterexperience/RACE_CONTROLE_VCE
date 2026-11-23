@@ -125,6 +125,11 @@ function buildGroup(key,label,links){
  const back=create('a','vce-staff-hub-back','← Retour à l’accueil Staff');back.href='#overview';
  header.append(title,back);
  section.append(header);
+ const picture=create('figure','vce-workspace-illustration');
+ const img=create('img','');img.src='data/images/'+categories.find(item=>item[0]===key)[3];
+ img.alt='';img.width=1200;img.height=800;img.loading='lazy';img.decoding='async';
+ const caption={administratif:'Pilotes, dossiers et suivi',entrainement:'Préparer. Rouler. Progresser.',team:'Course, résultats et communication'};
+ picture.append(img,create('figcaption','',caption[key]));section.append(picture);
  const cards=create('div','vce-staff-hub-links');
  for(const [icon,name,description,href] of links){
   const card=create('a','vce-staff-hub-action');card.href=href;
