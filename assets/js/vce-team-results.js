@@ -1,5 +1,5 @@
 /* VCE TEAM race-result submission / staff moderation.
-   Official ratings and published results are never modified by a pilot form. */
+   Pilot forms remain pending; only STAFF acceptance feeds the official race rating. */
 (()=>{'use strict';
 const page=document.body.dataset.vceResultsMode;
 if(page!=='pilot'&&page!=='staff')return;
@@ -93,7 +93,7 @@ function renderList(){
    reject.onclick=()=>review(row,'rejected',area.value);
    actions.append(approve,reject);card.append(area,actions);
   }else if(staff&&row.status==='accepted'){
-   const msg=el('p','vce-race-publish-note','Vérifié par le Staff. Publication officielle encore à effectuer.');
+   const msg=el('p','vce-race-publish-note','Validé par le STAFF : pris en compte dans le rating du pilote. Affiche facultative.');
    const action=el('a','vce-race-publish','Préparer l’affiche & la publication');action.href='resultats-staff.html?draft='+encodeURIComponent(row.id);
    action.onclick=()=>{try{sessionStorage.setItem('vce_team_result_draft',JSON.stringify(row))}catch{}};
    card.append(msg,action)
@@ -153,7 +153,9 @@ async function review(row,decision,note){
    'PATCH',{status:decision,staff_notes:String(note||'').slice(0,2000),
    reviewed_by:session.user.id,reviewed_at:new Date().toISOString()},'return=representation');
   if(!Array.isArray(changed)||changed.length!==1)throw Error('Ce résultat a déjà été traité ou la modification a été refusée. Actualise la liste.');
-  await load({quiet:true});info('✓ Décision enregistrée. Le résultat officiel et le rating attendent toujours une publication STAFF.')
+  window.dispatchEvent(new Event('vce-team-updated'));
+  try{localStorage.setItem('vce_team_results_updated_at',String(Date.now()))}catch{}
+  await load({quiet:true});info(decision==='accepted'?'✓ Résultat validé et intégré au rating. Le profil se met à jour à son prochain chargement ou avec Actualiser.':'✓ Résultat refusé : aucun point attribué.')
  }catch(e){info('Décision refusée : '+e.message,true)}
  finally{busy=false}
 }
@@ -161,7 +163,7 @@ function addFilters(){
  const target=$('vce-race-list');if(!target)return;
  const area=el('div','vce-race-filterbar');
  const heading=el('div','vce-race-filter-head');
- heading.append(el('strong','','AFFINER LES RÉSULTATS'),el('small','',page==='staff'?'Réception et décision · aucune publication automatique':'Suivi de tes propositions'));
+ heading.append(el('strong','','AFFINER LES RÉSULTATS'),el('small','',page==='staff'?'Validation STAFF · rating synchronisé':'Suivi de tes propositions'));
  area.append(heading);
  const toolbar=el('div','vce-race-filter-controls');
  const status=el('select','');status.id='vce-race-filter-status';status.setAttribute('aria-label','Filtrer selon le statut');

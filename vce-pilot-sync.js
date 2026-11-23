@@ -5,7 +5,10 @@ const activeCycle=()=>Number(localStorage.getItem('vce_training_cache_generation
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function resultsFor(p){
- let all=[];if(window.VCESupabase?.configured()){try{const d=await window.VCESupabase.read('resultats');const groups=(d.presets||[]).filter(x=>x.published&&x.data).map(x=>x.data);for(const g of groups)for(const x of (g.results||[])){const names=[(x.firstName||'')+' '+(x.lastName||''),x.pilot||'',...(Array.isArray(x.drivers)?x.drivers:[])];if(names.some(n=>slug(n)===p.id||slug(n)===slug(p.name)))all.push({...x,event:g.event||g.title||'Course',date:x.resultDate||g.date||''})}}catch(e){console.warn('Résultats Supabase',e)}return [...new Map(all.map(r=>[[r.event,r.date,r.position,r.firstName,r.lastName].join('|'),r])).values()]}for(const file of ['resultats-presets.json','resultats.json']){
+ let all=[];if(window.VCESupabase?.configured()){
+  const [publication,accepted]=await Promise.all([window.VCESupabase.read('resultats'),window.VCESupabase.acceptedRaceResults()]);
+  return window.VCERaceRating.merge(publication,accepted).filter(row=>row.drivers.some(name=>slug(name)===p.id||slug(name)===slug(p.name))).map(row=>({...row.result,event:row.race.event,date:row.result.resultDate||row.race.date,officialRating:window.VCERaceRating.delta(row)}));
+ }for(const file of ['resultats-presets.json','resultats.json']){
   try{const r=await fetch('data/team/'+file,{cache:'default',signal:AbortSignal.timeout(6500)});if(!r.ok)continue;const d=await r.json();
   const groups=Array.isArray(d.presets)?d.presets.filter(x=>x.published&&x.data).map(x=>x.data):[d];
   for(const g of groups)for(const x of (g.results||[])){
@@ -18,6 +21,7 @@ async function resultsFor(p){
  const unique=new Map(all.map(r=>[[r.event,r.date,r.position,r.firstName,r.lastName].join('|'),r]));return [...unique.values()];
 }
 function ratingRace(r){
+ if(Number.isFinite(r.officialRating))return r.officialRating;
  const st=String(r.status||r.statut||'').toUpperCase();
  if(st.includes('DNF')||st.includes('ABANDON'))return -25;
  const pos=Number(r.position);if(!pos)return 0;
@@ -44,7 +48,7 @@ async function sync(){
  bell.textContent='🔔';bell.classList.toggle('has-new',unread.length>0);bell.setAttribute('data-count',unread.length>99?'99+':String(unread.length));bell.setAttribute('aria-label',unread.length+' notifications non lues');bell.onclick=()=>{if(document.documentElement.classList.contains('vce-pilot-spectator')){document.getElementById('vceNotices')?.scrollIntoView();return}localStorage.setItem(key,JSON.stringify(myN.map(n=>n.id)));bell.classList.remove('has-new');bell.setAttribute('data-count','0');document.getElementById('vceNotices').scrollIntoView({behavior:'smooth'})};
  let block=document.getElementById('vceNotices');if(!block){block=document.createElement('section');block.id='vceNotices';block.className='panel section';dash.append(block)}
  block.innerHTML='<h2>NOTIFICATIONS</h2>'+ (myN.length?myN.slice().reverse().map(n=>`<div class="item">${esc(n.text)} · <a href="coach-irl.html?assignment=${encodeURIComponent(n.assignment)}&pilot=${encodeURIComponent(p.name)}">Voir l’entraînement</a></div>`).join(''):'<p>Aucune notification</p>');
- const races=await resultsFor(p);
+ let races;try{races=await resultsFor(p)}catch(error){console.warn('Résultats non synchronisés',error);const panel=document.getElementById('vceRace');if(panel)panel.textContent='Résultats non synchronisés : actualise pour réessayer.';return}
  let race=document.getElementById('vceRace');if(!race){race=document.createElement('section');race.id='vceRace';race.className='panel section';dash.append(race)}
  const positions=races.map(r=>Number(r.position)),top20=positions.filter(n=>n>=1&&n<=20).length,top5=positions.filter(n=>n>=1&&n<=5).length,podium=positions.filter(n=>n>=1&&n<=3).length,safety=races.reduce((n,r)=>n+ratingRace(r),0);
  race.innerHTML='<h2>MES RÉSULTATS TEAM</h2><p>'+races.length+' courses · '+top20+' TOP 20 · '+top5+' TOP 5 · '+podium+' podiums · '+safety+' R course</p>'+races.slice(0,12).map(r=>'<div class="item">'+esc(r.event)+' · P'+esc(r.position)+' · '+(ratingRace(r)>=0?'+':'')+ratingRace(r)+' R</div>').join('');

@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
+const window={};
+runInNewContext(readFileSync('assets/js/vce-race-rating.js','utf8'),{window});
+const {merge,delta}=window.VCERaceRating;
+const proposal={id:'accepted-1',pilot_slug:'victor-auger',event_name:'Tarmac Rally 101',race_date:'2026-11-11',track:'Monza',category:'special',finishing_position:3};
+const accepted=merge({presets:[]},[proposal]);
+assert.equal(accepted.length,1,'Existing accepted result must appear without an image');
+assert.equal(delta(accepted[0]),80,'P3 earns the existing +80 race rating');
+assert.equal(merge({},[{...proposal,status:'pending'},{...proposal,status:'rejected'}]).length,0);
+assert.equal(merge({},[proposal,proposal,{...proposal,id:'duplicate'}]).length,1,'Reloads and duplicate submissions cannot multiply the score');
+for(const [position,expected] of [[1,100],[2,80],[3,80],[4,25],[8,25],[9,10],[12,10],[13,-10],[18,-10],[19,-25],[100,-25],[0,0],[1.5,0]]){
+ assert.equal(delta({race:{},result:{position}}),expected,'Position '+position);
+}
+const official={presets:[{id:1,published:true,data:{event:'TARMAC RALLY 101',date:'2026-11-11',circuit:'monza',results:[{position:3,firstName:'Victor',lastName:'Auger',drivers:['Victor Auger']}]}}]};
+assert.equal(merge(official,[proposal]).length,1,'Official publication and accepted proposal represent one result');
+assert.equal(merge(official,[{...proposal,race_date:'2026-11-12'}]).length,2,'Separate races remain distinct');
+const crew={presets:[{id:2,published:true,data:{event:'Endurance',date:'2026-11-12',circuit:'Spa',results:[{position:1,firstName:'Victor',lastName:'Auger',drivers:['Victor Auger','Lucas Galy']}]}}]};
+assert.equal(merge(crew,[])[0].drivers.length,2,'Endurance lead driver is not counted twice');
+for(const settings of [{ratingEnabled:false},{ratingMode:'none'},{ratingMode:'manual'},{competitionType:'event'},{competitionType:'rally'}])assert.equal(delta({race:settings,result:{position:1}}),0);
+assert.equal(delta({race:{},result:{position:1,status:'DNF'}}),-25);
+const profile=readFileSync('assets/js/vce-page-pilote-data.js','utf8');
+const logic=profile.slice(profile.indexOf('async function publishedRaceEntries()'),profile.indexOf('async function approvedTrainingData()'));
+const context={window:{VCESupabase:{configured:()=>true},VCERaceRating:window.VCERaceRating},VCESupabase:{read:async()=>({presets:[]}),acceptedRaceResults:async()=>[proposal]},VCE:{norm:window.VCERaceRating.norm},Map,Set,Number};
+runInNewContext(logic,context);
+const rows=await context.publishedRaceEntries();
+const scores=await context.raceRatings(rows);
+assert.equal(scores.scores.get('VICTOR AUGER'),80,'Profile and leaderboard include the accepted rating');
+assert.equal(scores.events.get('VICTOR AUGER').length,1);
+context.VCESupabase.acceptedRaceResults=async()=>{throw Error('offline')};
+await assert.rejects(context.publishedRaceEntries(),/offline/,'A failed read must not be cached as an empty result');
+assert.match(readFileSync('pilote.html','utf8'),/vce-race-rating.js[^]*vce-page-pilote-data.js/);
+console.log('Race rating regression tests passed: approval, history, leaderboard, deduplication, endurance, barème and outage.');

@@ -208,6 +208,14 @@ async function trainingSubmissions({includePayload=true}={}){
  const columns=includePayload?'session_id,pilot,payload,submitted_at':'session_id,pilot,submitted_at';
  return request('/rest/v1/vce_training_submissions?select='+columns+'&order=submitted_at.desc',{},true);
 }
+async function acceptedRaceResults(){
+ const all=[];
+ for(let offset=0;;offset+=1000){
+  const rows=await request('/rest/v1/vce_race_rating_results?select=id,pilot_slug,event_name,race_date,track,car,category,finishing_position&order=id.asc&limit=1000&offset='+offset,{},true);
+  if(!Array.isArray(rows))throw Error('Résultats validés non confirmés par le serveur.');
+  all.push(...rows);if(rows.length<1000)return all;
+ }
+}
 async function pilotEvaluationStatus(pilotSlug){
  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pilotSlug||''))return null;
  const rows=await request('/rest/v1/vce_pilot_evaluation_status?pilot_slug=eq.'+
@@ -245,5 +253,5 @@ async function pilotTrainingData(pilot){
 async function discordTrainingConfig(webhook=null){
  return request('/rest/v1/rpc/vce_discord_training_config',{method:'POST',body:JSON.stringify({p_webhook:webhook})},true);
 }
-window.VCESupabase={pilotTrainingData,discordTrainingConfig,configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck,pilotEvaluationStatus,publishPilotEvaluationStatus};
+window.VCESupabase={acceptedRaceResults,pilotTrainingData,discordTrainingConfig,configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck,pilotEvaluationStatus,publishPilotEvaluationStatus};
 })();

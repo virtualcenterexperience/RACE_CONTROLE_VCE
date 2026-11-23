@@ -58,5 +58,7 @@ jobs:
         run: node tools/test-coach-engine.mjs
       - name: Verify conversational coaching and keyword retrieval
         run: node tools/test-coach-language.mjs
+      - name: Verify accepted race results update profile ratings once
+        run: node tools/test-race-rating.mjs
       - name: Check module-specific scripts and GitHub/Supabase routing
         run: node tools/test-page-routing.mjs
