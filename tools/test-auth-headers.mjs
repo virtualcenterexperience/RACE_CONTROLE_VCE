@@ -22,7 +22,7 @@ const mockFetch=async(url,opts={})=>{
  else throw Error('Unexpected endpoint '+url);
  return {ok:true,status:200,text:async()=>JSON.stringify(value)};
 };
-const window={VCE_SUPABASE:{url:'https://testing.supabase.co',key},dispatchEvent:()=>{}};
+const window={addEventListener(){},VCE_SUPABASE:{url:'https://testing.supabase.co',key},dispatchEvent:()=>{}};
 runInNewContext(readFileSync('vce-supabase.js','utf8'),{
  window,sessionStorage,fetch:mockFetch,AbortSignal,Date,JSON,Map,Promise,Error,Event:class Event{constructor(type){this.type=type}}
 });

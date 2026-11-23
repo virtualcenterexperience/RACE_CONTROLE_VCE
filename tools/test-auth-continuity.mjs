@@ -12,6 +12,8 @@ const mapStore=(map)=>({
   removeItem:k=>map.delete(k)
 });
 function browser(shared,tab=new Map()){
+ let now=Date.now();
+ class TestDate extends Date { static now(){return now} }
  const localStorage=mapStore(shared),sessionStorage=mapStore(tab);
  let calls=0;
  async function fetch(url,opts={}){
@@ -24,7 +26,7 @@ function browser(shared,tab=new Map()){
    })
   };
   if(path.includes('/auth/v1/token?grant_type=refresh_token')){
-   if(backend.refreshStatus!==200)return {ok:false,status:backend.refreshStatus};
+   if(backend.refreshStatus!==200)return {ok:false,status:backend.refreshStatus,json:async()=>({})};
    backend.access++;
    return {ok:true,status:200,json:async()=>({
     access_token:'jwt-'+backend.access,refresh_token:'refresh-'+backend.access,expires_in:3600
@@ -32,9 +34,9 @@ function browser(shared,tab=new Map()){
   }
   throw Error('unexpected endpoint: '+path);
  }
- const window={VCE_SUPABASE:{url:'https://example.supabase.co',key:'sb_publishable_TEST'},dispatchEvent(){}};
- runInNewContext(script,{window,localStorage,sessionStorage,fetch,setTimeout,AbortSignal,Date,JSON,Map,Promise,Error,Event:class{constructor(type){this.type=type}}});
- return {client:window.VCESupabase,localStorage,sessionStorage,calls:()=>calls};
+ const window={addEventListener(){},VCE_SUPABASE:{url:'https://example.supabase.co',key:'sb_publishable_TEST'},dispatchEvent(){}};
+ runInNewContext(script,{window,localStorage,sessionStorage,fetch,setTimeout:fn=>{fn();return 0},AbortSignal,Date:TestDate,JSON,Map,Promise,Error,Event:class{constructor(type){this.type=type}}});
+ return {client:window.VCESupabase,localStorage,sessionStorage,calls:()=>calls,advance:ms=>{now+=ms}};
 }
 const memory=new Map();
 let first=browser(memory);
@@ -49,13 +51,14 @@ const stale=JSON.parse(restored.localStorage.getItem(KEY));
 stale.expires_at=Math.floor(Date.now()/1000)-10;
 restored.localStorage.setItem(KEY,JSON.stringify(stale));
 backend.refreshStatus=504;
-await assert.rejects(restored.client.validSession(),/indisponible.*504/);
+await assert.rejects(restored.client.validSession(),/temporairement indisponible/);
 assert.equal(restored.client.session().refresh_token,stale.refresh_token,'server outage must not erase refresh token');
 // A still-valid JWT can be used briefly even if proactive refresh fails.
 stale.expires_at=Math.floor(Date.now()/1000)+20;
 restored.localStorage.setItem(KEY,JSON.stringify(stale));
 assert.equal((await restored.client.validSession()).access_token,'jwt-1');
 backend.refreshStatus=200;
+restored.advance(10001); // Respect the bounded retry backoff before checking recovery.
 assert.equal((await restored.client.validSession()).access_token,'jwt-2','session recovers when backend returns');
 assert.equal(JSON.parse(restored.localStorage.getItem(KEY)).access_token,'jwt-2');
 restored.client.logout();

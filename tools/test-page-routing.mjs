@@ -18,11 +18,13 @@ for(const page of pages){
  assert.ok((html.match(/\.css\?v=/g)||[]).length>=1,page+" should version its single stylesheet");
 }
 assert.equal(load("vce-github-config.js").includes('repo:"RACE_CONTROLE_VCE"'),true,"Current Github repository must match the deployed GitHub Pages repository");
-for(const page of ["calendrier.html","calendrier-staff.html","lineup.html","lineup-staff.html","resultats.html","resultats-staff.html"]){
+for(const page of ["calendrier.html","calendrier-staff.html","lineup.html","lineup-staff.html","resultats.html","resultats-classement-staff.html"]){
  const html=load(page);
  assert.ok(html.includes("vce-github-config.js?v=20261112-final"),page+" uses stale Github configuration");
  assert.ok(html.includes("vce-github-sync.js?v=20261112-final"),page+" uses stale data-sync script");
 }
+assert.ok(load("resultats-staff.html").includes("assets/js/vce-results-studio.js"),"Result studio must load its dedicated controller");
+assert.ok(load("resultats-staff.html").includes("assets/js/vce-result-posters.js"),"Result studio must retain private poster publishing");
 const pilot=load("assets/js/vce-page-pilote-data.js");
 assert.ok(pilot.includes("VCEPilotAuthCanAccess"),"Never render another pilot without access check");
 assert.ok(pilot.includes("__vceCached"),"Pilot datasets should use scoped in-memory cache");
@@ -50,10 +52,13 @@ const segmentStart=telemetrySrc.indexOf('if(action==="upload_segment"){');
 const segmentEnd=telemetrySrc.indexOf('if(action==="live_batch"){',segmentStart);
 assert.ok(segmentStart>0&&segmentEnd>segmentStart,"Upload segment handler missing");
 const segmentHandler=telemetrySrc.slice(segmentStart,segmentEnd);
-assert.match(segmentHandler,/if\(offset!==0&&!previous\.data\)return reply/,"Resumed chunk must require an initialized verified session");
+const ingestSql=load("supabase/migrations/20261114220000_ingest_telemetry_segment.sql");
+assert.match(segmentHandler,/db\.rpc\("vce_ingest_telemetry_segment"/,"Segments must use the server-side ingestion transaction");
+assert.match(ingestSql,/if not found then[\s\S]*?Session non initialisée/,"Resumed chunks require an initialized session in SQL");
+assert.match(ingestSql,/if v_owner is distinct from p_device then/,"Server-side ingestion must verify device ownership");
 assert.match(segmentHandler,/if\(offset===0\)\{[\s\S]*?vce_agent_sessions"\)\.upsert\(/,"Only first segment may initialize session metadata");
 assert.equal((segmentHandler.match(/vce_agent_sessions"\)\.upsert\(/g)||[]).length,1,"Only one session upsert path allowed per lap transfer");
-assert.match(segmentHandler,/vce_agent_lap_segments"\)\.upsert\(/,"Full segment data must still be stored");
+assert.match(ingestSql,/insert into public\.vce_agent_lap_segments/,"Full segment data must still be stored transactionally");
 assert.ok(!telemetrySrc.includes('db.from("vce_agent_devices").select("*")'),"Don't read unnecessary private device columns on every telemetry chunk");
 
 console.log("PASS: data scripts, cached page loads, correct GitHub repo, Staff-protected read endpoints.");

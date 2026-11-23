@@ -10,14 +10,14 @@ function setup(status){
  local.set('vce_supabase_session',JSON.stringify({access_token:'prior-access-token',refresh_token:'prior-refresh-token',expires_at:Math.floor(Date.now()/1000)-120}));
  let calls=0;
  const sessionStorage={getItem:k=>local.get(k)??null,setItem:(k,v)=>local.set(k,v),removeItem:k=>local.delete(k)};
- const fetch=async(url,opts)=>{calls++;assert.match(String(url),/\/auth\/v1\/token\?grant_type=refresh_token$/);assert.equal(opts.method,'POST');return {ok:false,status};};
- const window={VCE_SUPABASE:{url:'https://testing.supabase.co',key:'sb_publishable_TEST'},dispatchEvent(){}};
- runInNewContext(program,{window,fetch,sessionStorage,AbortSignal,Date,JSON,Map,Promise,Error,Event:class{constructor(type){this.type=type}}});
+ const fetch=async(url,opts)=>{calls++;assert.match(String(url),/\/auth\/v1\/token\?grant_type=refresh_token$/);assert.equal(opts.method,'POST');return {ok:false,status,json:async()=>status===401?{error_code:'refresh_token_not_found'}:{}};};
+ const window={addEventListener(){},VCE_SUPABASE:{url:'https://testing.supabase.co',key:'sb_publishable_TEST'},dispatchEvent(){}};
+ runInNewContext(program,{window,fetch,setTimeout:fn=>{fn();return 0},sessionStorage,AbortSignal,Date,JSON,Map,Promise,Error,Event:class{constructor(type){this.type=type}}});
  return {client:window.VCESupabase,sessionStorage,calls:()=>calls};
 }
 const down=setup(504);
-await assert.rejects(down.client.validSession(),/indisponible.*504/);
-assert.equal(down.calls(),1);
+await assert.rejects(down.client.validSession(),/temporairement indisponible/);
+assert.equal(down.calls(),2,'Transient failures receive one bounded retry');
 assert.equal(down.client.session()?.refresh_token,'prior-refresh-token','503/504 must not clear client session');
 const revoked=setup(401);
 await assert.rejects(revoked.client.validSession(),/Session expirée ou révoquée/);
