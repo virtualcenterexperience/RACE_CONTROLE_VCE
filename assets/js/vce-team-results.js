@@ -12,7 +12,7 @@ function info(message,error=false){const label=$('vce-race-state');if(label){lab
 async function identity(){
  if(!window.VCESupabase?.configured())throw Error('Supabase indisponible');
  const session=await window.VCESupabase.validSession();
- if(!session?.access_token)throw Error(tr('Connecte-toi d’abord à ton profil pilote.','Sign in to your driver profile first.'));
+ if(!session?.access_token)throw Error(page==='staff'?tr('Connecte-toi avec ton compte STAFF depuis l’espace Staff.','Sign in with your STAFF account from the Staff workspace.'):tr('Connecte-toi d’abord à ton profil pilote.','Sign in to your driver profile first.'));
  if(page==='staff'){
   staff=false;
   if(!await window.VCESupabase.isStaff())throw Error('Accès STAFF requis');
