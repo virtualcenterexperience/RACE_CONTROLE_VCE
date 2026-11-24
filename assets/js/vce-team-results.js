@@ -9,7 +9,7 @@ const el=(tag,cl,txt)=>{const o=document.createElement(tag);if(cl)o.className=cl
 let staff=false,me=null,busy=false,rows=[],loadSeq=0,statusFilter=page==='staff'?'pending':'all',categoryFilter='all',query='';
 let staffSessionAllowed=false;
 let selectedTarget=new URLSearchParams(location.search).get('pilot')||location.hash.slice(1)||'';
-const permitted=['sprint','esport','qualification','endurance','special','rally'];
+const permitted=['championship','daily','hotlap','esport_qualifying','esport_race','rally'];
 function info(message,error=false){const label=$('vce-race-state');if(label){label.textContent=message;label.dataset.error=error?'true':'false'}}
 async function identity(){
  if(!window.VCESupabase?.configured())throw Error('Supabase indisponible');
@@ -108,7 +108,7 @@ function renderList(){
   for(const value of [
    ['Pilote',row.pilot_slug.replaceAll('-',' ')],
    ['Classement','P'+row.finishing_position+(row.starters?'/'+row.starters:'')],
-   ['Catégorie',row.category],
+   ['Catégorie',window.VCERaceRating?.types[window.VCERaceRating.eventType(row.category)]?.label||row.category],
    ['Jeu',row.game||'Non précisé']
   ]){const block=el('div','');block.append(el('small','',value[0]),el('strong','',String(value[1])));details.append(block)}
   card.append(details);
@@ -116,6 +116,14 @@ function renderList(){
   if(row.proof_url){const link=el('a','vce-race-proof','Voir la preuve fournie');link.href=row.proof_url;link.target='_blank';link.rel='noopener noreferrer';card.append(link)}
   if(row.staff_notes)card.append(el('p','vce-race-notes','STAFF : '+row.staff_notes));
   if(staff&&row.status==='pending'){
+   const criteria=el('div','vce-race-form-grid');
+   const typeLabel=el('label','','Type d’épreuve confirmé par le STAFF');const type=el('select','');
+   for(const [value,rule] of Object.entries(window.VCERaceRating.types))type.append(new Option(rule.label,value));
+   type.value=window.VCERaceRating.eventType(row.category)||'daily';typeLabel.append(type);
+   const fieldLabel=el('label','','Nombre de participants confirmé');const count=el('input','');count.type='number';count.min='2';count.max='5000';count.value=row.starters||'';fieldLabel.append(count);type.disabled=count.disabled=Number(row.scoring_version||1)<2;
+   const preview=el('p','');preview.setAttribute('role','status');
+   const updateScore=()=>{const result=window.VCERaceRating.breakdown({race:{scoringVersion:row.scoring_version||1,competitionType:type.value,starters:Number(count.value)},result:{position:row.finishing_position}});preview.textContent=result.reason||('Estimation après validation : '+(result.points>=0?'+':'')+result.points+' R · position relative '+result.percentile.toFixed(2)+' %');};
+   type.onchange=count.oninput=updateScore;updateScore();criteria.append(typeLabel,fieldLabel);card.append(criteria,preview);
    const area=el('textarea','vce-race-review-notes');
    area.placeholder='Motif de validation ou de refus (facultatif)';
    area.maxLength=2000;area.rows=2;
@@ -123,7 +131,7 @@ function renderList(){
    const approve=el('button','vce-race-approve','✓ Accepter');
    const reject=el('button','vce-race-reject','✕ Refuser');
    approve.type=reject.type='button';
-   approve.onclick=()=>review(row,'accepted',area.value);
+   approve.onclick=()=>review(row,'accepted',area.value,{category:type.value,starters:Number(count.value)});
    reject.onclick=()=>review(row,'rejected',area.value);
    actions.append(approve,reject);card.append(area,actions);
   }else if(staff&&row.status==='accepted'){
@@ -142,7 +150,7 @@ async function load({quiet=false}={}){
   const candidate=page==='pilot'?await whoami():null;
   if(seq!==loadSeq)return;
   if(page==='pilot')me=candidate;
-  const url='vce_race_result_submissions?select=id,pilot_slug,event_name,championship,race_date,track,car,game,category,finishing_position,starters,notes,proof_url,status,staff_notes,created_at&order=created_at.desc&limit=200';
+  const url='vce_race_result_submissions?select=id,pilot_slug,event_name,championship,race_date,track,car,game,category,finishing_position,starters,notes,proof_url,status,staff_notes,created_at,scoring_version&order=created_at.desc&limit=200';
   const data=await req(url+(page==='pilot'&&me?'&pilot_slug=eq.'+encodeURIComponent(me.slug):''));
   if(seq!==loadSeq)return;
   rows=Array.isArray(data)?data:[];
@@ -160,7 +168,7 @@ async function submit(event){
  const form=event.currentTarget,button=form.querySelector('[type=submit]');
  const data=Object.fromEntries(new FormData(form));
  const position=Number(data.finishing_position),starters=data.starters?Number(data.starters):null;
- if(!Number.isInteger(position)||position<1||position>5000||starters!==null&&(!Number.isInteger(starters)||starters<position||starters>5000)){info('Vérifie la position et le nombre de participants.',true);return}
+ if(!Number.isInteger(position)||position<1||position>5000||!Number.isInteger(starters)||starters<2||starters<position||starters>5000){info('Vérifie la position et le nombre de participants.',true);return}
  if(!permitted.includes(data.category)){info('Catégorie invalide',true);return}
  const link=String(data.proof_url||'').trim();
  if(link&&!/^https:\/\/[^\s]+$/i.test(link)){info('La preuve doit être un lien HTTPS, ou rester vide.',true);return}
@@ -172,7 +180,7 @@ async function submit(event){
    pilot_auth_user:identity.id,pilot_slug:identity.slug,
    event_name:String(data.event_name||'').trim(),championship:String(data.championship||'').trim(),
    race_date:data.race_date,track:String(data.track||'').trim(),car:String(data.car||'').trim(),
-   game:String(data.game||'').trim(),category:data.category,
+   game:String(data.game||'').trim(),category:data.category,scoring_version:2,
    finishing_position:position,starters,notes:String(data.notes||'').trim(),proof_url:link,
    status:'pending',staff_notes:''
   };
@@ -180,14 +188,15 @@ async function submit(event){
   if(identity.viaStaff)await req('rpc/vce_staff_pilot_race','POST',{p_pilot:identity.slug,p_result:record,p_expected_actor:identity.actorId});
   else await req('vce_race_result_submissions','POST',record,'return=minimal');
   try{localStorage.setItem('vce_team_results_updated_at',String(Date.now()))}catch{}
-  form.reset();
+  form.reset();form.dispatchEvent?.(new Event('input',{bubbles:true}));
   if(identity.viaStaff){const target=$('vce-race-staff-pilot');if(target)target.value=identity.slug}
   await load({quiet:true});info('✓ Résultat reçu par Supabase. Le Staff le retrouvera dans TEAM → Résultats reçus. Le rating reste inchangé.');
  }catch(e){info('Envoi impossible : '+e.message,true)}
  finally{busy=false;button.disabled=!me}
 }
-async function review(row,decision,note){
+async function review(row,decision,note,criteria={}){
  if(busy||!staff)return;
+ if(decision==='accepted'&&Number(row.scoring_version)>=2&&(!permitted.includes(criteria.category)||!Number.isInteger(criteria.starters)||criteria.starters<2||criteria.starters<row.finishing_position||criteria.starters>5000)){info('Confirme le type d’épreuve et le nombre de participants avant validation.',true);return}
  const text=String(note||'').trim();
  if(decision==='rejected'&&text.length<5){info('Indique la raison du refus (5 caractères minimum) pour informer le pilote.',true);return}
  if(!window.confirm((decision==='accepted'?'Accepter':'Refuser')+' le résultat « '+row.event_name+' » du pilote '+row.pilot_slug+' ?'))return;
@@ -196,7 +205,7 @@ async function review(row,decision,note){
  try{
   const session=await identity();
   const changed=await req('vce_race_result_submissions?id=eq.'+encodeURIComponent(row.id)+'&status=eq.pending',
-   'PATCH',{status:decision,staff_notes:String(note||'').slice(0,2000),
+   'PATCH',{...(decision==='accepted'&&Number(row.scoring_version)>=2?criteria:{}),status:decision,staff_notes:String(note||'').slice(0,2000),
    reviewed_by:session.user.id,reviewed_at:new Date().toISOString()},'return=representation');
   if(!Array.isArray(changed)||changed.length!==1)throw Error('Ce résultat a déjà été traité ou la modification a été refusée. Actualise la liste.');
   window.dispatchEvent(new Event('vce-team-updated'));
@@ -217,7 +226,7 @@ function addFilters(){
  status.value=statusFilter;
  status.addEventListener('change',()=>{statusFilter=status.value;renderList()});
  const cat=el('select','');cat.id='vce-race-filter-category';cat.setAttribute('aria-label','Filtrer selon la catégorie');
- for(const [value,name] of [['all','Toutes les catégories'],['sprint','Sprint'],['esport','Esport'],['qualification','Qualification'],['endurance','Endurance'],['special','Spécial'],['rally','Rallye']])cat.append(new Option(name,value));
+ for(const [value,name] of [['all','Toutes les catégories'],...Object.entries(window.VCERaceRating.types).map(([id,r])=>[id,r.label]),['sprint','Ancien · sprint'],['esport','Ancien · Esport'],['qualification','Ancien · qualifications'],['endurance','Ancien · endurance'],['special','Ancien · événement spécial']])cat.append(new Option(name,value));
  cat.addEventListener('change',()=>{categoryFilter=cat.value;renderList()});
  const search=el('input','');search.type='search';search.id='vce-race-filter-search';
  search.placeholder='Pilote, épreuve, circuit…';search.setAttribute('aria-label','Rechercher dans les résultats');
@@ -244,7 +253,9 @@ function init(){
   login.href='pilote.html?auth=pilot'+(pilot?'#'+encodeURIComponent(pilot):'');login.hidden=true;
   $('vce-race-state')?.after(login);
   const category=form.querySelector('[name=category]'),starters=form.querySelector('[name=starters]');
-  category.addEventListener('change',()=>{if(category.value==='rally'&&!starters.value)starters.value='450'});
+  category.addEventListener('change',()=>{if(category.value==='rally'&&!starters.value){starters.value='450';starters.dispatchEvent(new Event('input',{bubbles:true}))}});
+  const estimate=el('p','','Renseigne le type d’épreuve, la position et le nombre de participants pour estimer les points.');estimate.id='vce-race-score-estimate';estimate.setAttribute('role','status');form.append(estimate);
+  form.addEventListener('input',()=>{const pos=Number(form.querySelector('[name=finishing_position]').value);const result=window.VCERaceRating.breakdown({race:{scoringVersion:2,competitionType:category.value,starters:Number(starters.value)},result:{position:pos}});estimate.textContent=result.reason||('Estimation : '+(result.points>=0?'+':'')+result.points+' R · position relative '+result.percentile.toFixed(2)+' % · à confirmer par le STAFF.');});
   form.addEventListener('submit',submit);
   const date=form.querySelector('[name=race_date]');if(date)date.max=new Date().toISOString().slice(0,10);
  }

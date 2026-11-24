@@ -217,7 +217,7 @@ async function trainingSubmissions({includePayload=true}={}){
 async function acceptedRaceResults(){
  const all=[];
  for(let offset=0;;offset+=1000){
-  const rows=await request('/rest/v1/vce_race_rating_results?select=id,pilot_slug,event_name,race_date,track,car,category,finishing_position&order=id.asc&limit=1000&offset='+offset,{},true);
+  const rows=await request('/rest/v1/vce_race_rating_results?select=id,pilot_slug,event_name,race_date,track,car,category,finishing_position,starters,scoring_version&order=id.asc&limit=1000&offset='+offset,{},true);
   if(!Array.isArray(rows))throw Error('Résultats validés non confirmés par le serveur.');
   all.push(...rows);if(rows.length<1000)return all;
  }
