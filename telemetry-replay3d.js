@@ -77,7 +77,17 @@ function paint(){
  const track=basePath.length>700?basePath.filter((_,i)=>i%Math.ceil(basePath.length/700)===0):basePath;
  line(track,'#0b1016',37);line(track,'#3a4852',30);line(track,'#151b22',24);
  line(samples,'#ff951d',7);line(reference,'#4d9dff',3);
- function car(p,color,label,arr){if(!p)return;const [x,y]=project(p);const t=arr===reference?time:time;const before=sampleAt(arr,Math.max(0,t-.2)),after=sampleAt(arr,t+.2);const dir=before&&after?Math.atan2(after.y-before.y,after.x-before.x):0;ctx.save();ctx.translate(x,y);ctx.rotate(dir-(camera==='chase'||camera==='cockpit'?heading:0)+Math.PI/2);ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=10;ctx.beginPath();ctx.moveTo(0,-15);ctx.lineTo(9,10);ctx.lineTo(0,6);ctx.lineTo(-9,10);ctx.closePath();ctx.fill();ctx.restore();ctx.fillStyle='#fff';ctx.font='bold 12px Segoe UI';ctx.fillText(label,x+12,y-10)}
+ function car(p,color,label,arr){
+  if(!p)return;const [x,y]=project(p),before=sampleAt(arr,Math.max(0,time-.2)),after=sampleAt(arr,time+.2);
+  const dir=before&&after?Math.atan2(after.y-before.y,after.x-before.x):0;
+  ctx.save();ctx.translate(x,y);ctx.rotate(dir-(camera==='chase'||camera==='cockpit'?heading:0)+Math.PI/2);
+  ctx.fillStyle='#07090d';for(const xx of [-10,6])for(const yy of [-10,8])ctx.fillRect(xx,yy,4,7);
+  ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-8,-17,16,34,5);ctx.fill();
+  ctx.fillStyle='#12283b';ctx.beginPath();ctx.roundRect(-6,-7,12,15,3);ctx.fill();
+  ctx.fillStyle=color;ctx.fillRect(-5,-2,10,7);ctx.fillStyle='#f0faff';ctx.fillRect(-6,-15,4,2);ctx.fillRect(2,-15,4,2);
+  ctx.fillStyle='#ff203e';ctx.fillRect(-6,14,4,2);ctx.fillRect(2,14,4,2);ctx.fillStyle='#0c1520';ctx.fillRect(-10,10,20,3);
+  ctx.restore();ctx.fillStyle='#fff';ctx.font='bold 12px Segoe UI';ctx.fillText(label,x+14,y-10);
+ }
  car(b,'#4d9dff',referenceName,reference);if(camera!=='cockpit')car(a,'#ff951d','PILOTE',samples);
  if(camera==='cockpit'&&a){ctx.fillStyle='#080d16';ctx.beginPath();ctx.moveTo(w*.28,h);ctx.lineTo(w*.39,h*.83);ctx.lineTo(w*.61,h*.83);ctx.lineTo(w*.72,h);ctx.closePath();ctx.fill();ctx.strokeStyle='#f32d56';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(w*.4,h*.85);ctx.lineTo(w*.6,h*.85);ctx.stroke();ctx.fillStyle='#dbeafe';ctx.font='bold 15px Segoe UI';ctx.fillText('CAMÉRA EMBARQUÉE · RECONSTITUTION XY',18,h-22)}
  ctx.fillStyle='rgba(7,13,24,.83)';ctx.fillRect(12,12,315,62);

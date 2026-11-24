@@ -325,6 +325,16 @@ async function fetchOlderLaps(){
  }catch(e){banner('Chargement impossible : '+e.message,'error')}
  finally{if(button)button.disabled=false}
 }
+// Local archives enter the same replay without any server write.
+window.VCEImportTelemetryArchive=payload=>{
+ const entries=Array.isArray(payload?.sessions)?payload.sessions:[payload?.session?{...payload.session,laps:payload.laps||payload.raw_laps}:payload];
+ if(!entries.length||!entries.every(s=>Array.isArray(s?.laps)))return;
+ const sessions=entries.map((s,i)=>({...s,id:s.id||s.session_id||'import-'+i,
+  participants:s.participants||s.live_sample?.participants||[],
+  laps:s.laps.map(l=>l.lap_number!==undefined?normalizeLap(l):l)}));
+ window.VCEloadTelemetry?.({sessions},{source:'import'});
+ document.dispatchEvent(new Event('vce-cloud-update'));
+};
 function scheduleRefresh(){
  clearTimeout(app.poll);
  const delay=app.failures?Math.min(REFRESH_MS,ACTIVE_REFRESH_MS*2**app.failures):(app.active?ACTIVE_REFRESH_MS:REFRESH_MS);

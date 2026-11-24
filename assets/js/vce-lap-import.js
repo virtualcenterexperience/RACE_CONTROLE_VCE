@@ -228,6 +228,7 @@
         if (id !== request) return;
         if (track) Object.assign(parsed[0], {track, inferred: true});
       }
+      if(file.name.toLowerCase().endsWith('.json'))window.VCEImportTelemetryArchive?.(JSON.parse(contents));
       sessions = parsed;
       get('session').replaceChildren(...sessions.map((s, i) =>
         new Option([s.game, s.track, s.car].filter(Boolean).join(' · ') || 'Session ' + (i + 1), i)));

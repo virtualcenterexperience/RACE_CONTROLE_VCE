@@ -36,3 +36,8 @@ assert.equal(nodes['vce-timing-a'].children.length,2,'Ignore another session');
 events['vce-live-frame']({detail:{session_id:'A',participants:[{id:'1',name:'<script>text only</script>',best_lap_s:89},{id:'2',name:'Driver B',best_lap_s:91}]}});
 assert.match(nodes['vce-session-timing-delta'].textContent,/-2.000 s/);
 console.log('Replay measured coordinates/gaps, precise pedal channels and isolated session timing passed');
+let imported,updated=0;
+const importer={window:{VCEloadTelemetry:p=>imported=p},document:{dispatchEvent:()=>updated++},Event:class{},normalizeLap:l=>({number:l.lap_number,samples:l.samples})};
+runInNewContext(cloud.slice(cloud.indexOf('window.VCEImportTelemetryArchive='),cloud.indexOf('function scheduleRefresh(){')),importer);
+importer.window.VCEImportTelemetryArchive({session_id:'original',laps:[{lap_number:1,samples:[{brake_raw:.12345}]}],participants:[{name:'Test driver'}]});
+assert.equal(imported.sessions[0].participants[0].name,'Test driver');assert.equal(imported.sessions[0].laps[0].number,1);assert.equal(updated,1);
