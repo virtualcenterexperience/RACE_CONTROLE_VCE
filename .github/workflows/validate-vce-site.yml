@@ -50,6 +50,8 @@ jobs:
         run: node tools/validate_inline_js.mjs
       - name: Verify reversible interface translations and form values
         run: node tools/test-i18n.mjs
+      - name: Verify telemetry scheduling and native sample playback
+        run: node tools/test-telemetry-fluid.mjs
       - name: Verify interface action locks and responsive stylesheet coverage
         run: node tools/test-ui-actions.mjs
       - name: Verify Supabase publishable key authentication headers

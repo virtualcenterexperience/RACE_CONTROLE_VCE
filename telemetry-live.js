@@ -14,7 +14,7 @@ function addUI(){
  const root=$('vce-cloud-connect')||document.querySelector('main');
  if(!root)return;
  const box=document.createElement('section');box.id='vce-stream';box.className='panel vce-stream';
- box.innerHTML='<div class="head"><h2>● TÉLÉMÉTRIE EN DIRECT</h2><span id="vce-stream-state">CONNEXION…</span></div><p class="muted">Affichage jusqu’à 30 échantillons par lot · rendu 60 FPS · mesures natives selon le jeu · transmission via canal privé. Les graphes montrent les dernières secondes de roulage.</p>';
+ box.innerHTML='<div class="head"><h2>● TÉLÉMÉTRIE EN DIRECT</h2><span id="vce-stream-state">CONNEXION…</span></div><p class="muted">Positions X/Z réelles du jeu · accélérateur, frein et données voiture synchronisés · jusqu’à 12 mesures par lot privé. L’archive conserve les mesures du tour ; la fluidité du direct dépend du jeu et du réseau.</p>';
  const hud=document.createElement('div');hud.id='vce-live-hud';
  for(const [key,label] of [['track','CIRCUIT'],['car','VOITURE'],['lap','TOUR'],['progress','POSITION PISTE'],
   ['speed','VITESSE'],['brake','FREIN'],['throttle','ACCÉLÉRATEUR'],['gear','RAPPORT'],['rpm','RÉGIME']]){
@@ -38,7 +38,7 @@ function addUI(){
 const updateSession=async()=>{
  const s=window.vceSession,device=s?.device_id;
  if(!s||!device){st('AUCUNE SESSION / AUCUN PC ASSOCIÉ');return;}
- if(state.device===device&&state.session===s.id&&state.channel&&state.status!=='CHANNEL_ERROR'&&state.status!=='TIMED_OUT')return;
+ if(state.device===device&&state.session===s.id&&state.channel&&state.status!=='CHANNEL_ERROR'&&state.status!=='TIMED_OUT'&&state.status!=='CLOSED')return;
  if(!window.supabase?.createClient){st('BIBLIOTHÈQUE REALTIME ABSENTE');return}
  const session=await window.VCESupabase?.validSession();
  if(!session?.access_token){st('CONNEXION PILOTE OU STAFF REQUISE');return}
@@ -50,6 +50,7 @@ const updateSession=async()=>{
  state.channel=state.client.channel('vce:device:'+device,{config:{private:true}})
  .on('broadcast',{event:'frame'},message=>{
     const p=message.payload||{};if(p.device_id!==state.device)return;
+    if(p.session_id&&state.session!==p.session_id)return;
     if(state.session&&p.session_id&&state.session!==p.session_id){state.buffer=[];state.points=[];state.lapPoints=[];state.lapNumber=null;state.hud=null;state.lastSampleTime=null;state.frames=0;}
     state.lastFrame=Date.now();state.session=p.session_id||state.session;state.live=p;
     if(typeof p.track==='string'&&p.track.trim())state.trackName=p.track.trim();
@@ -100,11 +101,18 @@ const updateSession=async()=>{
     else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')st('ERREUR CANAL PRIVÉ · VÉRIFIER LES POLICIES SUPABASE');
  });
 };
+// Replay original samples over a short buffer, never synthesize telemetry/GPS.
+function displaySample(now=Date.now()){
+ const last=state.buffer.at(-1);if(!last)return null;
+ const target=Math.min(last.t,last.t-.20+Math.max(0,now-state.lastFrame)/1000);
+ for(let i=state.buffer.length-1;i>=0;i--)if(state.buffer[i].t<=target)return state.buffer[i];
+ return state.buffer[0];
+}
 function mainPlot(){
  const canvas=$('vce-stream-plot');if(!canvas)return;
  const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
  c.fillStyle='#0a1523';c.fillRect(0,0,w,h);
- const data=state.buffer,last=data.at(-1);
+ const data=state.buffer,last=displaySample();
  const xmin=last?last.t-15:0;
  const left=58,right=w-25,top=14,bottom=h-32,inner=bottom-top;
  const channels=[
@@ -138,7 +146,7 @@ function mainPlot(){
  c.fillStyle='#a4b9d4';c.fillText('Fenêtre : dernières 15 secondes · 0 % en bas, 100 % en haut',left,top+12);
 }
 function trackPlot(ts){
- if(ts-state.lastDraw<(state.lastFrame&&Date.now()-state.lastFrame<3000?260:2000))return;
+ if(ts-state.lastDraw<(state.lastFrame&&Date.now()-state.lastFrame<3000?100:2000))return;
  state.lastDraw=ts;
  const canvas=$('vce-stream-track');
  if(!canvas||!window.VCETrack35)return;
@@ -168,8 +176,8 @@ function trackPlot(ts){
  else caption.textContent='Carte en construction : '+result.primary.reason+'. Le jeu doit transmettre X ET Z, pas seulement la progression du tour.';
 }
 function hud(ts){
- if(ts-state.lastUi<70)return;state.lastUi=ts;
- const s=state.hud;
+ if(ts-state.lastUi<33)return;state.lastUi=ts;
+ const s=displaySample();
  if(!s)return;
  const set=(key,text)=>{const e=$('vce-live-'+key);if(e)e.textContent=text};
  set('lap',num(state.live?.lap_number)?String(state.live.lap_number+1):'—');
@@ -183,7 +191,7 @@ function hud(ts){
 function render(ts){
  // 60 FPS is the target browser rendering cadence, NOT an invented 60Hz sensor frequency.
  if(state.displayEnabled&&!document.hidden&&document.documentElement.dataset.telemetryView!=='setup'){
-  const cadence=state.lastFrame&&Date.now()-state.lastFrame<3000?110:1500;
+  const cadence=state.lastFrame&&Date.now()-state.lastFrame<3000?33:1500;
   if(ts-state.lastChart>cadence){state.lastChart=ts;mainPlot(ts)}
   trackPlot(ts);hud(ts);
  }
@@ -195,6 +203,7 @@ function render(ts){
 }
 function start(){
  addUI();render(0);
+ document.getElementById('session')?.addEventListener('change',()=>setTimeout(()=>updateSession().catch(e=>st('REALTIME : '+e.message)),0));
  document.addEventListener('vce-cloud-update',()=>{state.refKey='';updateSession().catch(e=>st('REALTIME : '+e.message))});
  const token=window.VCESupabase?.validSession();
  Promise.resolve(token).then(()=>updateSession()).catch(()=>{});

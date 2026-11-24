@@ -3,8 +3,8 @@
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id);
-const REFRESH_MS=120_000;
-const app={poll:null,busy:false,manualPending:false,lastKey:'',loginOpen:false,lapCache:new Map(),identity:null,identityAt:0,catalogKey:''};
+const REFRESH_MS=120_000,ACTIVE_REFRESH_MS=5_000;
+const app={poll:null,busy:false,manualPending:false,lastKey:'',loginOpen:false,lapCache:new Map(),identity:null,identityAt:0,catalogKey:'',active:false,failures:0};
 const cfg=()=>window.VCE_SUPABASE||{};
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const requested=()=>slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''));
@@ -21,7 +21,7 @@ function makeUI(){
  const head=el('div','vce-cloud-top');
  head.append(el('strong','', 'SYNCHRONISATION VCE SUPABASE'));
  const badge=el('span','vce-cloud-state','VÉRIFICATION');badge.id='vce-cloud-status';head.append(badge);section.append(head);
- section.append(el('p','muted','Les sessions et les tours sont chargés automatiquement depuis le compte authentifié. Le nom dans l’adresse ne donne pas accès aux données d’un autre pilote.'));
+ section.append(el('p','muted','Les nouveaux tours sont vérifiés toutes les 5 secondes pendant une séance active, toutes les 2 minutes au repos. Le direct reçoit les positions et les données via un canal privé. Le bouton Actualiser agit immédiatement.'));
  const loginLink=el('a','vce-cloud-pilot-link','OUVRIR MA CONNEXION PILOTE');
  loginLink.id='vce-cloud-pilot-link';
  loginLink.href='pilote.html'+(requested()?'#'+encodeURIComponent(requested()):'');
@@ -132,8 +132,9 @@ function normalizeSession(s,laps){
 }
 /* get_laps is deliberately capped at 8 rows by the authenticated Edge Function.
    Follow before_lap until a complete short stint (10+ laps) is available. */
-async function fetchSessionLaps(sessionId,maxLaps=40){
- const byNumber=new Map();let before=null;
+async function fetchSessionLaps(sessionId,maxLaps=40,previous=[]){
+ const byNumber=new Map(previous.map(l=>[Number(l.lap_number),l]));let before=null;
+ const known=new Set(byNumber.keys());
  for(let page=0;page<Math.ceil(maxLaps/8)+1;page++){
   const args={session_id:sessionId,lap_limit:8};
   if(before!==null)args.before_lap=before;
@@ -142,7 +143,8 @@ async function fetchSessionLaps(sessionId,maxLaps=40){
   for(const l of chunk){const n=Number(l.lap_number);if(Number.isInteger(n))byNumber.set(n,l)}
   const numbers=chunk.map(l=>Number(l.lap_number)).filter(Number.isInteger);
   const oldest=numbers.length?Math.min(...numbers):null;
-  if(chunk.length<8||oldest===null||oldest<=1||oldest===before||byNumber.size>=maxLaps)break;
+  if(chunk.length<8||oldest===null||oldest<=1||oldest===before||chunk.some(l=>known.has(Number(l.lap_number))))break;
+  if(!previous.length&&byNumber.size>=maxLaps)break;
   before=oldest;
  }
  return [...byNumber.values()].sort((a,b)=>a.lap_number-b.lap_number).slice(-maxLaps);
@@ -154,6 +156,7 @@ async function refreshData(forced=false){
    if(!window.VCESupabase?.configured())throw Error('Configuration Supabase absente');
    const token=await window.VCESupabase.validSession();
    if(!token?.access_token){
+     app.active=false;
      $('vce-cloud-pilot-link').hidden=false;
      banner('CONNEXION REQUISE · connecte-toi dans ton espace pilote','warn');return;
    }
@@ -172,9 +175,11 @@ async function refreshData(forced=false){
    }
    $('vce-cloud-pilot-link').hidden=true;
    const list=await api(staff?'staff_sessions':'pilot_sessions');
+   app.failures=0;
    let sessions=Array.isArray(list.sessions)?list.sessions:[];
    if(staff && requested())sessions=sessions.filter(s=>slug(s.pilot_slug)===requested());
    sessions=sessions.slice(0,12);
+   app.active=sessions.some(s=>s.status==='in_progress'&&Date.now()-Date.parse(s.last_heartbeat_at||s.started_at)<60_000);
    const newest=sessions[0];
    if(!newest){
      app.lastKey='';window.VCEloadTelemetry?.({sessions:[]},{source:'cloud'});
@@ -186,12 +191,11 @@ async function refreshData(forced=false){
    const enriched=await Promise.all(sessions.map(async(s,i)=>{
      // Preserve historical samples in memory. Refetch only after new laps arrive.
      const cached=app.lapCache.get(s.session_id),count=Number(s.laps_count||0);
-     const fresh=cached&&cached.count===count&&
-       (s.status!=='in_progress'||(!forced && Date.now()-cached.at<REFRESH_MS));
+     const fresh=cached&&cached.count===count&&!forced&&(!count||cached.rows.some(l=>Number(l.lap_number)===count));
      if(fresh)return normalizeSession(s,cached.rows);
      if(i>3)return normalizeSession(s,cached?.rows||[]);
      try{
-       const rows=await fetchSessionLaps(s.session_id,40);
+       const rows=await fetchSessionLaps(s.session_id,40,forced?[]:(cached?.rows||[]));
        app.lapCache.set(s.session_id,{count,rows,at:Date.now()});
        return normalizeSession(s,rows);
      }catch(err){
@@ -212,9 +216,10 @@ async function refreshData(forced=false){
      ' · '+sessions.length+' session(s) · '+total+' tour(s) chargés'+(staff?' · vue STAFF':''),'ok');
    document.dispatchEvent(new Event('vce-cloud-update'));
    if(!app.catalogKey||app.catalogKey!==window.vceSession?.id){app.catalogKey=window.vceSession?.id;updateComparisonCatalog()}
- }catch(e){banner('FLUX SUPABASE : '+e.message,'error')}
+ }catch(e){app.failures=Math.min(5,app.failures+1);banner('FLUX SUPABASE : '+e.message,'error')}
  finally{
    app.busy=false;
+   scheduleRefresh();
    if(app.manualPending){app.manualPending=false;queueMicrotask(()=>refreshData(true))}
  }
 }
@@ -320,10 +325,15 @@ async function fetchOlderLaps(){
  }catch(e){banner('Chargement impossible : '+e.message,'error')}
  finally{if(button)button.disabled=false}
 }
+function scheduleRefresh(){
+ clearTimeout(app.poll);
+ const delay=app.failures?Math.min(REFRESH_MS,ACTIVE_REFRESH_MS*2**app.failures):(app.active?ACTIVE_REFRESH_MS:REFRESH_MS);
+ app.poll=setTimeout(()=>{if(!document.hidden)refreshData();else scheduleRefresh()},delay);
+}
 function start(){
  makeUI();if(!window.VCESupabase){banner('Scripts Supabase introuvables','error');return}
  refreshData(true);
- app.poll=setInterval(()=>{if(!document.hidden)refreshData()},REFRESH_MS);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshData()});
  document.getElementById('session')?.addEventListener('change',()=>setTimeout(updateComparisonCatalog,80));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();

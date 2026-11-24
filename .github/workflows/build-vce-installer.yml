@@ -147,6 +147,13 @@ jobs:
         shell: pwsh
         run: python race-controle-windows/patch_v39.py
 
+      - name: Fluidifier positions live et transferts des tours V3.9.1
+        shell: pwsh
+        run: |
+          Copy-Item "race-controle-windows/vce_transport.py" "agent/vce_transport.py" -Force
+          python race-controle-windows/patch_v391.py
+          python -m unittest discover -s race-controle-windows/tests -p "test_v391.py" -v
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -203,18 +210,27 @@ jobs:
           path: release/Race-Controle-VCE-Setup.exe
           retention-days: 30
 
+      - name: Verifier l'installateur avec Microsoft Defender avant publication
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_release == 'true' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $scanner = Get-ChildItem "$env:ProgramData/Microsoft/Windows Defender/Platform/*/MpCmdRun.exe" | Sort-Object FullName -Descending | Select-Object -First 1
+          if (!$scanner) { throw "Microsoft Defender indisponible : publication bloquee" }
+          & $scanner.FullName -Scan -ScanType 3 -File "$pwd/release/Race-Controle-VCE-Setup.exe" -DisableRemediation
+          if ($LASTEXITCODE -ne 0) { throw "Verification antivirus non validee : publication bloquee" }
+
       - name: Publier un seul EXE dans GitHub Releases
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish_release == 'true' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v3.9.0"
+          $tag = "v3.9.1"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "VCE 3.9.0 : detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
+          $notes = "VCE 3.9.1 : positions live recentes, tours complets envoyes pendant la session, segments de 160 mesures. Detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.9.0 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.9.1 - Installateur Windows" --notes $notes
           }
