@@ -30,7 +30,7 @@ assert.ok(pilot.includes("VCEPilotAuthCanAccess"),"Never render another pilot wi
 assert.ok(pilot.includes("__vceCached"),"Pilot datasets should use scoped in-memory cache");
 const pilotSync=load("vce-pilot-sync.js");
 const verification=pilotSync.indexOf("if(!p||!window.VCEPilotAuthCanAccess?.(p.id))return;");
-const dataRead=pilotSync.indexOf("const [attributions,notifications,seances]=");
+const dataRead=pilotSync.indexOf("const response=await window.VCESupabase.read('training_assignments')");
 assert.ok(verification>=0&&dataRead>verification,"Pilot sessions/assignments must load only after verified profile access.");
 
 assert.ok(load("pilote.html").includes("assets/js/vce-pilot-presence.js"),"Keep authenticated pilot presence.");

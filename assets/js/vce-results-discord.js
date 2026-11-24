@@ -20,7 +20,7 @@ async function config(webhook=null){
 async function check(){const seq=++generation;try{
  if(!await window.VCESupabase?.isStaff()){if(seq===generation)reset();return}
  const result=await config();if(seq!==generation)return;
- panel.hidden=false;button.disabled=false;status.textContent=result.configured?'Salon enregistré · notifications activées pour les prochains résultats.':'Ajoute le webhook du salon STAFF pour activer les notifications de résultats.';
+ panel.hidden=false;button.disabled=false;status.textContent=result.source==='training'?'Notifications de résultats activées dans le salon STAFF des entraînements. Tu peux choisir un salon distinct ci-dessus.':result.configured?'Salon enregistré · notifications activées pour les prochains résultats.':'Ajoute le webhook du salon STAFF pour activer les notifications de résultats.';
 }catch(error){if(seq===generation){reset()}}}
 form.addEventListener('submit',async event=>{event.preventDefault();if(busy||button.disabled)return;
  const webhook=input.value.trim();if(!/^https:\/\/discord\.com\/api\/webhooks\/\d+\/[A-Za-z0-9_-]+$/.test(webhook)){status.textContent='Utilise une URL de webhook Discord valide.';return}

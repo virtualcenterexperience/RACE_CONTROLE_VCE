@@ -37,7 +37,9 @@ document.addEventListener('visibilitychange',recoverStaff);
 window.addEventListener('vce-auth-session-ended',()=>{
  staffCheckInProgress=false;
  staffRetry.disabled=false;
- rcSummaryValidUntil=0;
+ rcSummaryValidUntil=0;clearTimeout(rcRefreshTimer);
+ for(const id of ['rcAssigned','rcApproved','rcResults','rcCalendar','rcNotifyCount'])document.getElementById(id).textContent='—';
+ document.getElementById('rcFeed').replaceChildren();
  window.dispatchEvent(new Event('vce-staff-logged-out'));
  show();
 });
@@ -51,19 +53,54 @@ function rcClockTick(){const el=document.getElementById('rcClock');if(el)el.text
 rcClockTick();setInterval(rcClockTick,1000);
 function rcSafeText(v){return String(v??'')}
 let rcSummaryValidUntil=0;
-async function rcRefresh(force=false){if(rcLoading){rcManualPending ||= force;return}if(!VCESupabase.session())return;rcLoading=true;try{const sync=document.getElementById('rcSync');sync.textContent='● ACTUALISATION…';let errors=0;const tasks=[['training_assignments','rcAssigned',d=>Array.isArray(d.items)?d.items.length:0],['resultats','rcResults',d=>(d.presets||[]).filter(x=>x.published).length],['calendrier','rcCalendar',d=>(d.presets||[]).filter(x=>x.published).length]];const outcomesPromise=Promise.allSettled([VCESupabase.reviews(),VCESupabase.trainingSubmissions({includePayload:false})]);if(force||Date.now()>=rcSummaryValidUntil){await Promise.all(tasks.map(async([kind,id,fn])=>{try{const d=await VCESupabase.read(kind);document.getElementById(id).textContent=fn(d)}catch(e){errors++;console.warn('STAFF',kind,e)}}));if(!errors)rcSummaryValidUntil=Date.now()+RC_REFRESH_MS;}
-const outcomes=await outcomesPromise;const reviews=outcomes[0].status==='fulfilled'?outcomes[0].value:[],submissions=outcomes[1].status==='fulfilled'?outcomes[1].value:[];const feed=document.getElementById('rcFeed');feed.replaceChildren();const warnings=[];if(outcomes[0].status==='rejected'){errors++;warnings.push('Validations : '+outcomes[0].reason.message)}else document.getElementById('rcApproved').textContent=reviews.filter(x=>x.decision==='approved').length;if(outcomes[1].status==='rejected'){errors++;warnings.push('Réception des entraînements : '+outcomes[1].reason.message)}const reviewedIds=new Set(reviews.map(x=>String(x.session_id)));const waiting=submissions.filter(x=>!reviewedIds.has(String(x.session_id)));const bell=document.getElementById('rcNotifyBell');bell.classList.toggle('has-new',waiting.length>0);bell.setAttribute('aria-label',waiting.length+' entraînement(s) en attente');document.getElementById('rcNotifyCount').textContent=waiting.length>99?'99+':String(waiting.length);document.getElementById('rcPending').textContent=outcomes[1].status==='rejected'?'⚠ RÉCEPTION INDISPONIBLE':waiting.length?'🔴 '+waiting.length+' EN ATTENTE':'✓ AUCUNE EN ATTENTE';for(const sub of waiting.slice(0,8)){const item=document.createElement('a');item.href='validation-seances.html';item.className='rc-feeditem';item.style.cssText='display:block;text-decoration:none;border-left:3px solid #ff3654;padding:10px';const title=document.createElement('b');title.textContent='🔴 '+sub.pilot+' — NOUVEL ENTRAÎNEMENT';const desc=document.createElement('small');desc.style.display='block';desc.textContent=new Date(sub.submitted_at).toLocaleString('fr-FR',{timeZone:'Europe/Paris'})+' · CLIQUER POUR VALIDER';item.append(title,desc);feed.append(item)}for(const v of reviews.slice().reverse().slice(0,Math.max(0,8-waiting.length))){const item=document.createElement('div');item.className='rc-feeditem';const title=document.createElement('b');title.textContent=v.pilot||'Pilote';const desc=document.createElement('small');desc.style.display='block';desc.textContent=(v.decision==='approved'?'✓ Séance validée':'✕ Séance refusée')+' · '+(v.reviewed_at?new Date(v.reviewed_at).toLocaleString('fr-FR',{timeZone:'Europe/Paris'}):'Date indisponible');item.append(title,desc);feed.append(item)}for(const message of warnings){const item=document.createElement('div');item.className='rc-feeditem';item.style.color='#ffb55d';item.textContent='⚠ '+message;feed.prepend(item);console.warn('STAFF',message)}if(outcomes[1].status==='rejected'){const link=document.createElement('a');link.href='https://github.com/virtualcenterexperience/RACE_CONTROLE_VCE/blob/main/supabase-training-submissions.sql';link.textContent='Configurer la table Supabase →';link.target='_blank';link.rel='noopener noreferrer';link.style.color='#6cbcff';feed.append(link)}if(!feed.children.length)feed.textContent='Aucune séance reçue.';sync.textContent=errors?'● DONNÉES PARTIELLES':'● DONNÉES SYNCHRONISÉES';sync.style.color=errors?'#f2b53e':'#4fdaa5';
- rcFailures=errors?rcFailures+1:0;
+async function rcRefresh(force=false){
+ if(rcLoading){rcManualPending ||= force;return}
+ if(!VCESupabase.session())return;
+ rcLoading=true;const sequence=__staffCheckSeq;
+ const current=()=>sequence===__staffCheckSeq&&VCESupabase.session()&&dash.style.display==='block';
+ try{
+  if(!await VCESupabase.isStaff()){if(current())show();return}
+  if(!current())return;
+  const sync=document.getElementById('rcSync');sync.textContent='● ACTUALISATION…';
+  let errors=0;
+  const tasks=[['training_assignments','rcAssigned',d=>Array.isArray(d.items)?d.items.length:0],['resultats','rcResults',d=>(d.presets||[]).filter(x=>x.published).length],['calendrier','rcCalendar',d=>(d.presets||[]).filter(x=>x.published).length]];
+  const outcomesPromise=Promise.allSettled([VCESupabase.reviews(),VCESupabase.trainingSubmissions({includePayload:false}),VCESupabase.pendingRaceResults()]);
+  if(force||Date.now()>=rcSummaryValidUntil){
+   await Promise.all(tasks.map(async([kind,id,count])=>{try{const data=await VCESupabase.read(kind);if(current())document.getElementById(id).textContent=count(data)}catch(error){errors++;if(current())document.getElementById(id).textContent='—'}}));
+   if(!errors)rcSummaryValidUntil=Date.now()+RC_REFRESH_MS;
+  }
+  const outcomes=await outcomesPromise;if(!current())return;
+  const values=outcomes.map(x=>x.status==='fulfilled'&&Array.isArray(x.value)?x.value:[]);
+  const [reviews,submissions,races]=values;
+  const feed=document.getElementById('rcFeed');feed.replaceChildren();
+  const add=(title,description,href)=>{const item=document.createElement(href?'a':'div');item.className='rc-feeditem';if(href)item.href=href;const h=document.createElement('b'),p=document.createElement('small');h.textContent=title;p.textContent=description;p.style.display='block';item.append(h,p);feed.append(item)};
+  const labels=['Validations','Réception des entraînements','Réception des résultats'];
+  outcomes.forEach((x,i)=>{if(x.status==='rejected'){errors++;add('⚠ '+labels[i],x.reason.message)}});
+  document.getElementById('rcApproved').textContent=outcomes[0].status==='fulfilled'?reviews.filter(x=>x.decision==='approved').length:'—';
+  const reviewed=new Set(reviews.map(x=>String(x.session_id)));
+  const waiting=submissions.filter(x=>!reviewed.has(String(x.session_id)));
+  const alerts=[...waiting.map(x=>({name:x.pilot,title:'ENTRAÎNEMENT À VALIDER',date:x.submitted_at,href:'validation-seances.html'})),...races.map(x=>({name:x.pilot_slug.replaceAll('-',' '),title:'RÉSULTAT À VALIDER · '+x.event_name,date:x.created_at,href:'team-resultats-recus.html'}))].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const bell=document.getElementById('rcNotifyBell');bell.classList.toggle('has-new',alerts.length>0);bell.setAttribute('aria-label',alerts.length+' envoi(s) en attente · entraînements et résultats');
+  document.getElementById('rcNotifyCount').textContent=alerts.length>99?'99+':String(alerts.length);
+  document.getElementById('rcPending').textContent=errors?'⚠ DONNÉES PARTIELLES':alerts.length?waiting.length+' entraînement(s) · '+races.length+' résultat(s)':'✓ AUCUN ENVOI EN ATTENTE';
+  for(const x of alerts.slice(0,8))add('🔴 '+x.name+' — '+x.title,new Date(x.date).toLocaleString('fr-FR',{timeZone:'Europe/Paris'}),x.href);
+  for(const x of reviews.slice().reverse().slice(0,Math.max(0,8-alerts.length)))add(x.pilot,(x.decision==='approved'?'✓ Séance validée':'✕ Séance refusée')+' · '+new Date(x.reviewed_at).toLocaleString('fr-FR',{timeZone:'Europe/Paris'}));
+  if(!feed.children.length)feed.textContent='Aucun envoi en attente.';
+  sync.textContent=errors?'● DONNÉES PARTIELLES':'● DONNÉES SYNCHRONISÉES';sync.style.color=errors?'#f2b53e':'#4fdaa5';rcFailures=errors?rcFailures+1:0;
  }catch(error){rcFailures++;throw error}
  finally{
   rcLoading=false;
-  const delay=RC_REFRESH_MS*Math.min(4,2**rcFailures);
-  rcNextRefresh=Date.now()+delay;
-  clearTimeout(rcRefreshTimer);
-  rcRefreshTimer=setTimeout(()=>{if(!document.hidden&&dash.style.display==='block')refreshStaffData()},delay);
-  if(rcManualPending){rcManualPending=false;queueMicrotask(()=>refreshStaffData(true))}
- }}
+  if(current()){
+   const delay=RC_REFRESH_MS*Math.min(4,2**rcFailures);rcNextRefresh=Date.now()+delay;
+   clearTimeout(rcRefreshTimer);rcRefreshTimer=setTimeout(()=>{if(!document.hidden&&dash.style.display==='block')refreshStaffData()},delay);
+   if(rcManualPending){rcManualPending=false;queueMicrotask(()=>refreshStaffData(true))}
+  }else rcManualPending=false;
+ }
+}
 function refreshStaffData(force=false){rcRefresh(force).catch(error=>{document.getElementById('rcSync').textContent='● SYNCHRONISATION À RÉESSAYER';console.warn('STAFF',error)})}
 document.getElementById('rcRefresh').addEventListener('click',()=>refreshStaffData(true));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&dash.style.display==='block'&&Date.now()>=rcNextRefresh)refreshStaffData()});
 document.getElementById('logout').addEventListener('click',()=>VCESupabase.logout());show();
+
+window.addEventListener('vce-training-updated',()=>{if(dash.style.display==='block')refreshStaffData(true)});
+window.addEventListener('storage',event=>{if(['vce_training_updated_at','vce_team_results_updated_at'].includes(event.key)&&dash.style.display==='block')refreshStaffData(true)});

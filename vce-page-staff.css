@@ -450,3 +450,6 @@ body.vce-page-staff .panel{border-radius:11px}
  #dashboard .rc-nav{max-width:100%}
  #dashboard .rc-bottom{flex-wrap:wrap}
 }
+
+#rcFeed .rc-feeditem{display:block;overflow-wrap:anywhere;text-decoration:none;min-width:0}
+#vceDiscordResultsSettings[hidden],#vceDiscordTrainingSettings[hidden]{display:none!important}

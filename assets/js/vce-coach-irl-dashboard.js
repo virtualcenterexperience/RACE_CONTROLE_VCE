@@ -7,25 +7,33 @@ const $=id=>document.getElementById(id);
 const slug=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const mk=(tag,text,cls)=>{const el=document.createElement(tag);if(text!=null)el.textContent=text;if(cls)el.className=cls;return el};
 const state={pilot:'',items:[],staff:false,busy:false};
+let loadVersion=0;
 const statuses={assigned:'À EFFECTUER',in_progress:'EN COURS',submitted:'EN ATTENTE DE VALIDATION STAFF',approved:'VALIDÉ',rejected:'À REVOIR'};
 function status(t,isError=false){$('irlStatus').textContent=t;$('irlStatus').dataset.error=String(isError)}
-async function verify(pilotId){
+async function verify(selected){
  const client=window.VCESupabase;
  if(!client?.configured())throw Error('Supabase non configuré.');
  const sess=await client.validSession();
  if(!sess?.access_token)throw Error('Connecte-toi depuis ton profil Pilote ou ton compte Staff.');
- let staff=false;try{staff=await client.isStaff()===true}catch(e){throw Error('Vérification des droits impossible : '+e.message)}
- if(staff)return true;
- const cfg=window.VCE_SUPABASE||{};
- const resp=await fetch(cfg.url+'/functions/v1/vce-telemetry',{
-  method:'POST',cache:'no-store',signal:AbortSignal.timeout(12000),
-  headers:{apikey:cfg.key,Authorization:'Bearer '+sess.access_token,'Content-Type':'application/json'},
-  body:JSON.stringify({action:'pilot_whoami'})
- });
- if(!resp.ok)throw Error('Identité pilote indisponible (HTTP '+resp.status+').');
- const profile=await resp.json();
- if(slug(profile.pilot_slug)!==pilotId)throw Error('Ce compte n’a pas accès aux entraînements de cet autre pilote.');
- return false;
+ const staff=await client.isStaff()===true;
+ let identity=null;
+ if(!staff){
+  const cfg=window.VCE_SUPABASE||{};
+  const resp=await fetch(cfg.url+'/functions/v1/vce-telemetry',{
+   method:'POST',cache:'no-store',signal:AbortSignal.timeout(14000),
+   headers:{apikey:cfg.key,Authorization:'Bearer '+sess.access_token,'Content-Type':'application/json'},
+   body:JSON.stringify({action:'pilot_whoami'})
+  });
+  if(!resp.ok)throw Error('Identité pilote indisponible (HTTP '+resp.status+').');
+  identity=await resp.json();
+  if(identity.password_change_required)throw Error('Termine ton changement de mot de passe depuis ton profil pilote.');
+ }
+ const roster=await client.read('pilotes');
+ const requested=slug(selected||identity?.pilot_slug);
+ const pilot=(roster.items||[]).find(p=>p.id===requested||slug(p.name)===requested);
+ if(!pilot)throw Error('Ouvre Coach IRL depuis le profil du pilote concerné.');
+ if(!staff&&identity?.pilot_slug!==pilot.id)throw Error('Ce compte n’a pas accès aux entraînements de cet autre pilote.');
+ return {staff,pilot};
 }
 function reportForm(x){
  const form=mk('form',null,'vce-irl-report');
@@ -54,6 +62,9 @@ function reportForm(x){
   if(!report.debrief||!Number.isInteger(item.report.laps)||item.report.laps<1)return;
   button.disabled=true;output.textContent='Envoi en cours…';
   try{
+   const access=await verify(state.pilot);
+   if(access.staff||access.pilot.id!==state.pilot||x.pilotSlug&&x.pilotSlug!==access.pilot.id)throw Error('Le compte a changé. Rouvre la séance depuis ton profil.');
+   item.driver=access.pilot.name;item.pilotSlug=access.pilot.id;
    await window.VCESupabase.submitTraining(item);
    try{
     const saved=JSON.parse(localStorage.getItem('vce_training_self_sessions_v1')||'[]');
@@ -96,29 +107,26 @@ function itemCard(x){
  return card;
 }
 async function load(){
- const params=new URLSearchParams(location.search),named=params.get('pilot')||'';
- const selected=named||sessionStorage.getItem('vce_current_pilot')||sessionStorage.getItem('vce_pilot')||decodeURIComponent(location.hash.slice(1));
- const pilotId=slug(selected);
- if(!pilotId){status('Ouvre Coach IRL depuis ton espace Pilote pour connaître le profil concerné.',true);return}
- $('irlPilot').textContent=selected;
- $('irlBack').href='pilote.html#'+encodeURIComponent(pilotId);
+ const version=++loadVersion;
+ const params=new URLSearchParams(location.search);
+ const selected=params.get('pilot')||decodeURIComponent(location.hash.slice(1));
  status('Vérification de la session et des attributions Staff…');
  try{
-  state.staff=await verify(pilotId);state.pilot=pilotId;
-  const response=await window.VCESupabase.read('training_assignments');
-  const list=Array.isArray(response?.items)?response.items:[];
-  state.items=list.filter(x=>slug(x.driver||x.pilot)===pilotId);
-  // Optional per-browser saved work is shown only after server verifies identity.
-  try{
-   const local=JSON.parse(localStorage.getItem('vce_training_assignments_v1')||'[]');
-   if(Array.isArray(local))for(const x of local)if(slug(x.driver||x.pilot)===pilotId&&!state.items.some(y=>String(y.id)===String(x.id)))state.items.push({...x,offline:true});
-  }catch(e){}
-  const submitted=await window.VCESupabase.pilotTrainingData(selected);
-for(const item of state.items){
- const report=submitted.find(row=>String(row.session_id)===String(item.id)||String(row.payload?.assignmentId)===String(item.id));
- if(report){item.status=report.decision||'submitted';item.report=report.payload?.report}
-}
-state.items.sort((a,b)=>Date.parse(b.assignedAt||b.created_at||0)-Date.parse(a.assignedAt||a.created_at||0));
+  const access=await verify(selected);
+  if(version!==loadVersion)return;
+  const pilotId=access.pilot.id;
+  state.staff=access.staff;state.pilot=pilotId;
+  $('irlPilot').textContent=access.pilot.name;
+  $('irlBack').href='pilote.html#'+encodeURIComponent(pilotId);
+  const [response,submitted]=await Promise.all([window.VCESupabase.read('training_assignments'),window.VCESupabase.pilotTrainingData(pilotId)]);
+  if(version!==loadVersion)return;
+  if(!Array.isArray(response?.items)||!Array.isArray(submitted))throw Error('Réponse de synchronisation incomplète.');
+  state.items=response.items.filter(x=>x.pilotSlug?x.pilotSlug===pilotId:[pilotId,slug(access.pilot.name)].includes(slug(x.driver||x.pilot))).map(x=>({...x}));
+  for(const item of state.items){
+   const report=submitted.find(row=>String(row.session_id)===String(item.id)||String(row.payload?.assignmentId)===String(item.id));
+   if(report){item.status=report.decision||'submitted';item.report=report.payload?.report}
+  }
+  state.items.sort((a,b)=>Date.parse(b.publishedAt||b.createdAt||0)-Date.parse(a.publishedAt||a.createdAt||0));
   const chosen=params.get('assignment');
   if(chosen)state.items.sort((a,b)=>(String(b.id)===chosen)-(String(a.id)===chosen));
   $('irlCount').textContent=state.items.length+' entraînement'+(state.items.length!==1?'s':'')+' attribué'+(state.items.length!==1?'s':'');
@@ -126,8 +134,10 @@ state.items.sort((a,b)=>Date.parse(b.assignedAt||b.created_at||0)-Date.parse(a.a
   if(!state.items.length)root.append(mk('div','Aucun entraînement attribué par le Staff pour ce profil.','vce-irl-empty'));
   else for(const x of state.items)root.append(itemCard(x));
   status('Attributions synchronisées depuis Supabase'+(state.staff?' · accès Staff vérifié':' · identité pilote vérifiée')+'.');
- }catch(e){$('irlList').replaceChildren();status('Impossible d’afficher les entraînements : '+e.message,true)}
+ }catch(e){if(version===loadVersion){state.items=[];$('irlList').replaceChildren();$('irlCount').textContent='Synchronisation indisponible';status('Impossible d’afficher les entraînements : '+e.message,true)}}
 }
+window.addEventListener('vce-auth-session-ended',()=>{loadVersion++;state.items=[];state.pilot='';$('irlList').replaceChildren();$('irlCount').textContent='Compte déconnecté';status('Reconnecte-toi depuis ton profil pilote.',true)});
+setInterval(()=>{if(!document.hidden&&!document.activeElement?.closest('.vce-irl-report'))load()},120_000);
 document.addEventListener('DOMContentLoaded',()=>{
  load();
  $('irlRefresh').addEventListener('click',async()=>{const button=$('irlRefresh');button.disabled=true;try{await load()}finally{button.disabled=false}});

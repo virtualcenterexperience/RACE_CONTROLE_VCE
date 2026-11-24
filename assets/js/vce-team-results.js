@@ -149,6 +149,7 @@ async function submit(event){
   };
   if(!record.event_name||!record.race_date||!record.track)throw Error('Épreuve, date et circuit obligatoires.');
   await req('vce_race_result_submissions','POST',record,'return=minimal');
+  try{localStorage.setItem('vce_team_results_updated_at',String(Date.now()))}catch{}
   form.reset();await load({quiet:true});info('✓ Résultat reçu par Supabase. Le Staff le retrouvera dans TEAM → Résultats reçus. Le rating reste inchangé.');
  }catch(e){info('Envoi impossible : '+e.message,true)}
  finally{busy=false;button.disabled=!me}
@@ -216,6 +217,7 @@ function init(){
  }
  const refresh=$('vce-race-refresh');if(refresh)refresh.onclick=load;
  load();
+ setInterval(()=>{if(!document.hidden&&window.VCESupabase?.session())load({quiet:true})},120_000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

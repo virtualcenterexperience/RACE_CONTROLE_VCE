@@ -140,6 +140,7 @@ async function request(path,opts={},auth=false){
   const renewed=latest.access_token!==token?latest:await validSession(true);
   if(renewed&&generation===sessionGeneration)r=await send(renewed.access_token);
  }
+ if(auth&&generation!==sessionGeneration)throw Error('Session modifiée. Actualise après reconnexion.');
  if(!r.ok){let t=await r.text().catch(()=>''),endpoint=path.startsWith('/auth/v1/');if(endpoint&&r.status>=500)throw Error('Service de connexion Supabase indisponible (HTTP '+r.status+'). Les comptes ne sont pas en cause.');throw Error('Supabase HTTP '+r.status+' : '+t.slice(0,180))}
  if(r.status===204||r.status===205)return null;const body=await r.text();if(!body.trim())return null;try{return JSON.parse(body)}catch{throw Error('Réponse Supabase invalide (HTTP '+r.status+')')}
 }
@@ -196,14 +197,19 @@ async function isStaff(){
  staffPromise=task;
  return task;
 }
+async function saveTrainingAssignment(item=null,removeId=null){
+ const payload=await request('/rest/v1/rpc/vce_training_assignment_write',{method:'POST',body:JSON.stringify({p_item:item,p_remove_id:removeId})},true);trainingChanged();return payload;
+}
+async function pendingRaceResults(){return request('/rest/v1/vce_race_result_submissions?status=eq.pending&select=id,pilot_slug,event_name,created_at&order=created_at.desc',{},true)}
 async function reviews(){return request('/rest/v1/vce_training_reviews?select=session_id,pilot,decision,reviewed_at&order=reviewed_at.asc')}
+function trainingChanged(){try{localStorage.setItem('vce_training_updated_at',String(Date.now()))}catch{}window.dispatchEvent(new Event('vce-training-updated'))}
 async function review(session_id,pilot,decision){
  if(!['approved','rejected'].includes(decision))throw Error('Décision invalide');
  if(!session_id||!pilot)throw Error('Séance ou pilote manquant');
  const rows=await request('/rest/v1/vce_training_reviews?on_conflict=session_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({session_id,pilot,decision})},true);
- return rows?.[0]||null;
+ trainingChanged();return rows?.[0]||null;
 }
-async function submitTraining(item){if(!item?.id||!item?.driver)throw Error('Séance invalide');return request('/rest/v1/vce_training_submissions',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({session_id:String(item.id),pilot:String(item.driver),payload:item})},true)}
+async function submitTraining(item){if(!item?.id||!item?.driver)throw Error('Séance invalide');const result=await request('/rest/v1/vce_training_submissions',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({session_id:String(item.id),pilot:String(item.driver),payload:item})},true);trainingChanged();return result}
 async function trainingSubmissions({includePayload=true}={}){
  const columns=includePayload?'session_id,pilot,payload,submitted_at':'session_id,pilot,submitted_at';
  return request('/rest/v1/vce_training_submissions?select='+columns+'&order=submitted_at.desc',{},true);
@@ -253,5 +259,5 @@ async function pilotTrainingData(pilot){
 async function discordTrainingConfig(webhook=null){
  return request('/rest/v1/rpc/vce_discord_training_config',{method:'POST',body:JSON.stringify({p_webhook:webhook})},true);
 }
-window.VCESupabase={acceptedRaceResults,pilotTrainingData,discordTrainingConfig,configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck,pilotEvaluationStatus,publishPilotEvaluationStatus};
+window.VCESupabase={saveTrainingAssignment,pendingRaceResults,acceptedRaceResults,pilotTrainingData,discordTrainingConfig,configured,login,logout,session,validSession,read,save,isStaff,reviews,review,submitTraining,trainingSubmissions,serviceRead,healthCheck,pilotEvaluationStatus,publishPilotEvaluationStatus};
 })();

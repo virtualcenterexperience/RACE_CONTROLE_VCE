@@ -546,3 +546,6 @@ html body.vce-page-pilot #pilotSelection:not(.hidden) #pilotGrid:not([data-vce-c
 #pilotSelection #pilotGrid:not([data-vce-carousel="1"]) .pilot-select { min-width: 0; width: 100%; }
 #pilotSelection #pilotGrid:not([data-vce-carousel="1"]) .pilot-select > span:last-child { min-width: 0; overflow-wrap: anywhere; }
 .vce-race-carousel { min-width: 0; max-width: 100%; }
+
+#assignedList .item,#vceNotices .item{overflow-wrap:anywhere;min-width:0}
+#assignedList a,#vceNotices a{display:inline-block;max-width:100%;padding:8px 0}

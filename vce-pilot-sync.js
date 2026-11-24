@@ -1,68 +1,40 @@
-
-(function(){
-const root='data/vce/',get=async name=>{try{let r=await fetch(root+name+'.json',{cache:'default',signal:AbortSignal.timeout(6500)});return r.ok?await r.json():[]}catch{return []}};
-const activeCycle=()=>Number(localStorage.getItem('vce_training_cache_generation_v1')||0);
+/* Assignments and notices use Supabase only. Profile statistics have their own controller. */
+(()=>{'use strict';
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function resultsFor(p){
- let all=[];if(window.VCESupabase?.configured()){
-  const [publication,accepted]=await Promise.all([window.VCESupabase.read('resultats'),window.VCESupabase.acceptedRaceResults()]);
-  return window.VCERaceRating.merge(publication,accepted).filter(row=>row.drivers.some(name=>slug(name)===p.id||slug(name)===slug(p.name))).map(row=>({...row.result,event:row.race.event,date:row.result.resultDate||row.race.date,officialRating:window.VCERaceRating.delta(row)}));
- }for(const file of ['resultats-presets.json','resultats.json']){
-  try{const r=await fetch('data/team/'+file,{cache:'default',signal:AbortSignal.timeout(6500)});if(!r.ok)continue;const d=await r.json();
-  const groups=Array.isArray(d.presets)?d.presets.filter(x=>x.published&&x.data).map(x=>x.data):[d];
-  for(const g of groups)for(const x of (g.results||[])){
-   const names=[(x.firstName||'')+' '+(x.lastName||''),x.pilot||'',...(Array.isArray(x.drivers)?x.drivers:[])];
-   if(names.some(n=>slug(n)===p.id))all.push({...x,event:g.event||g.title||'Course',date:x.resultDate||g.date||''});
-  }
-  if(all.length)break;
- }catch(e){console.warn('Résultats TEAM',e)}
- }
- const unique=new Map(all.map(r=>[[r.event,r.date,r.position,r.firstName,r.lastName].join('|'),r]));return [...unique.values()];
-}
-function ratingRace(r){
- if(Number.isFinite(r.officialRating))return r.officialRating;
- const st=String(r.status||r.statut||'').toUpperCase();
- if(st.includes('DNF')||st.includes('ABANDON'))return -25;
- const pos=Number(r.position);if(!pos)return 0;
- return pos===1?100:pos<=3?80:pos<=8?25:pos<=12?10:pos<=18?-10:-25;
-}
+let sequence=0,checkedAt=0;
+function selected(){try{return slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''))}catch{return ''}}
+function clear(){sequence++;document.getElementById('assignedList')?.replaceChildren();document.getElementById('vceNotices')?.remove();document.getElementById('vceBell')?.remove()}
 async function sync(){
- // Do not read a single assignment, notification, session or result until
- // an actual pilot has been selected and verified by the auth gate.
- const name=decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||'');
- if(!name)return;
- let pilotes=Array.isArray(window.VCE_PILOT_ROSTER)?window.VCE_PILOT_ROSTER:[];
- if(!pilotes.length&&window.VCESupabase?.configured()){
-   try{const remote=await VCESupabase.read('pilotes');if(Array.isArray(remote.items))pilotes=remote.items}catch(err){console.warn('Roster STAFF indisponible',err)}
- }
- // Do not show archived/deleted pilots from GitHub's outdated static JSON file.
- const p=pilotes.find(p=>p.id===slug(name)||slug(p.name)===slug(name));
+ const request=++sequence,id=selected();
+ const p=(window.VCE_PILOT_ROSTER||[]).find(p=>p.id===id||slug(p.name)===id);
  if(!p||!window.VCEPilotAuthCanAccess?.(p.id))return;
- const [attributions,notifications,seances]=activeCycle()>0?[[],[],[]]:await Promise.all(['attributions','notifications','seances'].map(get));
- let remote=[];try{if(window.VCESupabase?.configured()){const d=await VCESupabase.read('training_assignments');remote=Array.isArray(d.items)?d.items:[]}}catch(e){console.warn('Attributions Supabase indisponibles',e)}const remoteMine=remote.filter(a=>slug(a.driver||a.pilot)===p.id||slug(a.driver||a.pilot)===slug(p.name));const my=[...attributions.filter(a=>a.pilot===p.id),...remoteMine.map(a=>({...a,source:'supabase'}))],myN=[...notifications.filter(n=>n.pilot===p.id),...remoteMine.map(a=>({id:a.id,text:'Nouvel entraînement attribué par le coach : '+a.exercise,assignment:a.id,source:'supabase'}))],myS=seances.filter(s=>s.pilot===p.id);
- let assigned=document.getElementById('assignedList');if(assigned){assigned.innerHTML=my.map(a=>`<div class="item"><b>EXERCICE PERSONNEL — COACH IRL</b><p>${esc(a.circuit)} · ${esc(a.car)} · ${esc(a.laps)} tours</p><p>${esc(a.exercise)}</p><a href="coach-irl.html?assignment=${encodeURIComponent(a.id)}&pilot=${encodeURIComponent(p.name)}">CONSULTER LA SÉANCE →</a></div>`).join('')||'<p>Aucun entraînement attribué par le STAFF.</p>'}
- let dash=document.getElementById('pilotDashboard');if(!dash)return;
- let bell=document.getElementById('vceBell');if(!bell){bell=document.createElement('button');bell.id='vceBell';bell.className='vce-notify-bell';(dash.querySelector('.actions')||dash).prepend(bell)}
- const key='vce_read_'+p.id,seen=JSON.parse(localStorage.getItem(key)||'[]'),unread=myN.filter(n=>!seen.includes(n.id));
- bell.textContent='🔔';bell.classList.toggle('has-new',unread.length>0);bell.setAttribute('data-count',unread.length>99?'99+':String(unread.length));bell.setAttribute('aria-label',unread.length+' notifications non lues');bell.onclick=()=>{if(document.documentElement.classList.contains('vce-pilot-spectator')){document.getElementById('vceNotices')?.scrollIntoView();return}localStorage.setItem(key,JSON.stringify(myN.map(n=>n.id)));bell.classList.remove('has-new');bell.setAttribute('data-count','0');document.getElementById('vceNotices').scrollIntoView({behavior:'smooth'})};
- let block=document.getElementById('vceNotices');if(!block){block=document.createElement('section');block.id='vceNotices';block.className='panel section';dash.append(block)}
- block.innerHTML='<h2>NOTIFICATIONS</h2>'+ (myN.length?myN.slice().reverse().map(n=>`<div class="item">${esc(n.text)} · <a href="coach-irl.html?assignment=${encodeURIComponent(n.assignment)}&pilot=${encodeURIComponent(p.name)}">Voir l’entraînement</a></div>`).join(''):'<p>Aucune notification</p>');
- let races;try{races=await resultsFor(p)}catch(error){console.warn('Résultats non synchronisés',error);const panel=document.getElementById('vceRace');if(panel)panel.textContent='Résultats non synchronisés : actualise pour réessayer.';return}
- let race=document.getElementById('vceRace');if(!race){race=document.createElement('section');race.id='vceRace';race.className='panel section';dash.append(race)}
- const positions=races.map(r=>Number(r.position)),top20=positions.filter(n=>n>=1&&n<=20).length,top5=positions.filter(n=>n>=1&&n<=5).length,podium=positions.filter(n=>n>=1&&n<=3).length,safety=races.reduce((n,r)=>n+ratingRace(r),0);
- race.innerHTML='<h2>MES RÉSULTATS TEAM</h2><p>'+races.length+' courses · '+top20+' TOP 20 · '+top5+' TOP 5 · '+podium+' podiums · '+safety+' R course</p>'+races.slice(0,12).map(r=>'<div class="item">'+esc(r.event)+' · P'+esc(r.position)+' · '+(ratingRace(r)>=0?'+':'')+ratingRace(r)+' R</div>').join('');
- let hist=document.getElementById('vceHistory');if(!hist){hist=document.createElement('section');hist.id='vceHistory';hist.className='panel section';dash.append(hist)}
- hist.innerHTML='<h2>HISTORIQUE PERSONNEL DES SÉANCES</h2>'+(myS.length?myS.slice().reverse().map(s=>`<div class="item">${esc(s.date)} · ${esc(s.mode)} · ${esc(s.circuit)} · ${esc(s.laps)} tours · ${esc(s.status)}</div>`).join(''):'<p>Aucune séance publiée.</p>');
+ const current=()=>request===sequence&&selected()===id&&window.VCEPilotAuthCanAccess?.(p.id);
+ const assigned=document.getElementById('assignedList');
+ try{
+  checkedAt=Date.now();
+  const response=await window.VCESupabase.read('training_assignments');
+  if(!Array.isArray(response?.items))throw Error('Liste des attributions non confirmée par Supabase.');
+  if(!current())return;
+  const my=response.items.filter(a=>a.pilotSlug?a.pilotSlug===p.id:[p.id,slug(p.name)].includes(slug(a.driver||a.pilot)));
+  if(assigned)assigned.innerHTML=my.map(a=>`<article class="item"><b>EXERCICE PERSONNEL — COACH IRL</b><p>${esc(a.circuit)} · ${esc(a.car)} · ${esc(a.laps)} tours</p><p>${esc(a.exercise)}</p><a href="coach-irl.html?assignment=${encodeURIComponent(a.id)}&pilot=${encodeURIComponent(p.id)}">CONSULTER LA SÉANCE →</a></article>`).join('')||'<p>Aucun entraînement attribué par le STAFF.</p>';
+  const dash=document.getElementById('pilotDashboard');if(!dash)return;
+  let block=document.getElementById('vceNotices');if(!block){block=document.createElement('section');block.id='vceNotices';block.className='panel section';dash.append(block)}
+  block.innerHTML='<h2>NOTIFICATIONS DU STAFF</h2>'+(my.length?my.slice().reverse().map(a=>`<div class="item">Nouvel entraînement attribué : ${esc(a.exercise)} · <a href="coach-irl.html?assignment=${encodeURIComponent(a.id)}&pilot=${encodeURIComponent(p.id)}">Voir l’entraînement</a></div>`).join(''):'<p>Aucune notification</p>');
+  let bell=document.getElementById('vceBell');if(!bell){bell=document.createElement('button');bell.type='button';bell.id='vceBell';bell.className='vce-notify-bell';(dash.querySelector('.actions')||dash).prepend(bell)}
+  const key='vce_read_'+p.id;let seen=[];
+  try{const data=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(data))seen=data}catch{}
+  const unread=my.filter(a=>!seen.includes(a.id));
+  bell.textContent='🔔';bell.classList.toggle('has-new',unread.length>0);bell.setAttribute('data-count',unread.length>99?'99+':String(unread.length));bell.setAttribute('aria-label',unread.length+' notifications non lues');
+  bell.onclick=()=>{if(!current())return;if(!document.documentElement.classList.contains('vce-pilot-spectator')){try{localStorage.setItem(key,JSON.stringify(my.map(a=>a.id)))}catch{}bell.classList.remove('has-new');bell.setAttribute('data-count','0');bell.setAttribute('aria-label','0 notifications non lues')}block.scrollIntoView({behavior:'smooth'})};
+ }catch(error){if(current()&&assigned){assigned.textContent='Attributions non synchronisées : '+error.message+' Utilise Actualiser pour réessayer.';document.getElementById('vceNotices')?.replaceChildren();document.getElementById('vceBell')?.remove()}}
 }
-async function coach(){
- if(!location.pathname.endsWith('coach-irl.html'))return;
- const q=new URLSearchParams(location.search),a=q.get('assignment'),pilot=q.get('pilot');if(!a)return;
- const assignments=activeCycle()>0?[]:await get('attributions');try{if(window.VCESupabase?.configured()){const d=await VCESupabase.read('training_assignments');assignments.push(...(Array.isArray(d.items)?d.items:[]))}}catch(e){console.warn('Attribution Supabase indisponible',e)}const row=assignments.find(x=>x.id===a&&slug(x.driver)===slug(pilot));const main=document.querySelector('main')||document.body;
- const div=document.createElement('section');div.style.cssText='padding:20px;background:#13243a;color:white;border:1px solid #365273;border-radius:10px;margin:20px 0';
- if(row){div.innerHTML=`<h2>EXERCICE COACH IRL ATTRIBUÉ PAR LE STAFF</h2><p>${esc(row.driver)}</p><p>${esc(row.circuit)} · ${esc(row.car)} · ${esc(row.laps)} tours</p><p>${esc(row.exercise)}</p><p>${esc(row.message)}</p><p>Chrono cible : ${esc(row.target||'Libre')}</p>`;const error=main.querySelector('.notice,.error');if(error&&error.textContent.includes('introuvable'))error.style.display='none'}
- else div.textContent='Exercice non publié dans data/vce/attributions.json ou pilote incorrect.';
- main.append(div);
+function start(){if(!location.pathname.endsWith('pilote.html'))return;
+ for(const event of ['vce-pilot-verified','vce-roster-updated','vce-pilot-manual-refresh','vce-training-updated'])window.addEventListener(event,sync);
+ window.addEventListener('storage',event=>{if(event.key==='vce_training_updated_at')sync()});
+ window.addEventListener('hashchange',clear);window.addEventListener('vce-auth-session-ended',clear);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-checkedAt>=120_000)sync()});
+ setInterval(()=>{if(!document.hidden)sync()},120_000);sync();
 }
-document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('pilote.html')){sync();window.addEventListener('vce-pilot-verified',sync);window.addEventListener('vce-pilot-manual-refresh',sync);setInterval(()=>{if(!document.hidden)sync()},120_000)}coach()});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
