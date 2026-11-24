@@ -180,7 +180,9 @@ async function submit(event){
   if(identity.viaStaff)await req('rpc/vce_staff_pilot_race','POST',{p_pilot:identity.slug,p_result:record,p_expected_actor:identity.actorId});
   else await req('vce_race_result_submissions','POST',record,'return=minimal');
   try{localStorage.setItem('vce_team_results_updated_at',String(Date.now()))}catch{}
-  form.reset();await load({quiet:true});info('✓ Résultat reçu par Supabase. Le Staff le retrouvera dans TEAM → Résultats reçus. Le rating reste inchangé.');
+  form.reset();
+  if(identity.viaStaff){const target=$('vce-race-staff-pilot');if(target)target.value=identity.slug}
+  await load({quiet:true});info('✓ Résultat reçu par Supabase. Le Staff le retrouvera dans TEAM → Résultats reçus. Le rating reste inchangé.');
  }catch(e){info('Envoi impossible : '+e.message,true)}
  finally{busy=false;button.disabled=!me}
 }

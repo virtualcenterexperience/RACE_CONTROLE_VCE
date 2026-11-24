@@ -27,7 +27,7 @@ assert.equal(writes,0,'Changing connected accounts must not redirect a prepared 
 assert.match(lastMessage,/compte connecté a changé/);
 
 const staffWrites=[];
-const staffSubmit={busy:false,me:{id:'pilot-a',slug:'driver-a',actorId:'staff-a',viaStaff:true},whoami:async()=>({id:'pilot-a',slug:'driver-a',actorId:'staff-a',viaStaff:true}),permitted:['rally'],FormData:class{constructor(){return new Map(Object.entries({event_name:'Race',race_date:'2026-11-24',track:'Spa',finishing_position:'3',starters:'450',category:'rally',proof_url:''}))}},Number,String,Object,Error,info:()=>{},req:async(path,method,data)=>{staffWrites.push({path,method,data})},load:async()=>{},localStorage:{setItem(){}}};
+const staffSubmit={$:()=>null,busy:false,me:{id:'pilot-a',slug:'driver-a',actorId:'staff-a',viaStaff:true},whoami:async()=>({id:'pilot-a',slug:'driver-a',actorId:'staff-a',viaStaff:true}),permitted:['rally'],FormData:class{constructor(){return new Map(Object.entries({event_name:'Race',race_date:'2026-11-24',track:'Spa',finishing_position:'3',starters:'450',category:'rally',proof_url:''}))}},Number,String,Object,Error,info:()=>{},req:async(path,method,data)=>{staffWrites.push({path,method,data})},load:async()=>{},localStorage:{setItem(){}}};
 runInNewContext(source.slice(source.indexOf('async function submit('),source.indexOf('async function review(')),staffSubmit);
 await staffSubmit.submit({preventDefault(){},currentTarget:{querySelector:()=>({disabled:false}),reset(){}}});
 assert.equal(staffWrites.length,1);assert.equal(staffWrites[0].path,'rpc/vce_staff_pilot_race');assert.equal(staffWrites[0].data.p_expected_actor,'staff-a');assert.equal(staffWrites[0].data.p_result.status,'pending');
