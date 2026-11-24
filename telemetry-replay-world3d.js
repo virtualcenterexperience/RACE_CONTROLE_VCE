@@ -29,14 +29,28 @@ const ground=new THREE.Mesh(new THREE.PlaneGeometry(15000,15000),new THREE.MeshL
 ground.rotation.x=-Math.PI/2;ground.position.y=-2.6;scene.add(ground);
 function vehicle(color){
  const v=new THREE.Group();
- const body=new THREE.Mesh(new THREE.BoxGeometry(2.1,.65,4.3),new THREE.MeshStandardMaterial({color,metalness:.42,roughness:.32}));
- body.position.y=.7;v.add(body);
- const roof=new THREE.Mesh(new THREE.BoxGeometry(1.6,.42,2),new THREE.MeshStandardMaterial({color:0x14233a,metalness:.15,roughness:.35}));
- roof.position.set(0,1.2,-.2);v.add(roof);
- const tires=new THREE.MeshStandardMaterial({color:0x0a0d14});
- for(const x of [-1.1,1.1])for(const z of [-1.3,1.3]){
-   const t=new THREE.Mesh(new THREE.BoxGeometry(.42,.6,.75),tires);t.position.set(x,.44,z);v.add(t);
+ const paint=new THREE.MeshStandardMaterial({color,metalness:.55,roughness:.28});
+ const dark=new THREE.MeshStandardMaterial({color:0x111820,roughness:.6});
+ const glass=new THREE.MeshStandardMaterial({color:0x16334b,metalness:.65,roughness:.13});
+ const shell=new THREE.Shape();shell.moveTo(-.65,-2.2);shell.lineTo(.65,-2.2);shell.quadraticCurveTo(1.03,-2.15,1.04,-1.6);
+ shell.lineTo(1.04,1.45);shell.quadraticCurveTo(.95,2.18,.6,2.2);shell.lineTo(-.6,2.2);shell.quadraticCurveTo(-.95,2.18,-1.04,1.45);shell.lineTo(-1.04,-1.6);shell.quadraticCurveTo(-1.03,-2.15,-.65,-2.2);
+ const body=new THREE.Mesh(new THREE.ExtrudeGeometry(shell,{depth:.38,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.12,bevelThickness:.1}),paint);
+ body.rotation.x=-Math.PI/2;body.position.y=.42;v.add(body);
+ const part=(w,h,d,x,y,z,material,rx=0)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.rotation.x=rx;v.add(m);return m};
+ part(1.5,.38,1.65,0,1.02,-.15,glass);part(1.46,.08,1.1,0,1.25,-.35,paint);
+ part(1.42,.10,.70,0,1.05,.72,glass,-.45);
+ part(1.85,.07,.3,0,.31,2.22,dark);part(1.95,.08,.35,0,1.12,-2.05,dark);
+ for(const x of [-.65,.65])part(.07,.52,.08,x,.86,-1.98,dark);
+ const tire=new THREE.MeshStandardMaterial({color:0x07090b,roughness:.92});
+ const rim=new THREE.MeshStandardMaterial({color:0x969eaa,metalness:.85,roughness:.25});
+ for(const x of [-1.02,1.02])for(const z of [-1.37,1.35]){
+  const t=new THREE.Mesh(new THREE.CylinderGeometry(.37,.37,.28,24),tire);t.rotation.z=Math.PI/2;t.position.set(x,.37,z);v.add(t);
+  const r=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.29,12),rim);r.rotation.z=Math.PI/2;r.position.copy(t.position);v.add(r);
  }
+ const white=new THREE.MeshStandardMaterial({color:0xe6f5ff,emissive:0xadcaff,emissiveIntensity:.7});
+ const red=new THREE.MeshStandardMaterial({color:0xff2539,emissive:0xff1429,emissiveIntensity:.7});
+ for(const x of [-.72,.72]){part(.43,.1,.06,x,.65,2.15,white);part(.48,.07,.06,x,.65,-2.15,red)}
+ part(.12,.03,2.5,0,.87,.45,dark);
  group.add(v);return v
 }
 const primary=vehicle(0xff951d),other=vehicle(0x3f97ff);
@@ -45,18 +59,21 @@ const glow=()=>{
  const dot=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),material);return dot
 };
 let selectedKey='',primaryData=[],referenceData=[],center={x:0,z:0},size=150,roadMeshes=[];
+let fixedAnchor=null;
 let modeLive=false,liveFrames=[],liveSession='',liveLatest=null;
 const direct=document.createElement('button');direct.type='button';direct.textContent='● Direct 3D';direct.id='vce-replay-live-toggle';
 $('vce-replay-reload')?.after(direct);
 // The trajectory is measured; the edge-to-edge width is NOT provided by AC telemetry.
 // Manual geometry estimate is adjustable and explicitly labelled as such.
 const widthLabel=document.createElement('label');
-widthLabel.id='vce-replay-trackwidth-label';widthLabel.textContent='Largeur piste (estimée) : ';
+widthLabel.id='vce-replay-trackwidth-label';widthLabel.textContent='Couloir référence (estimé) : ';
 widthLabel.style.cssText='display:inline-flex;align-items:center;gap:6px;margin-left:9px;font-size:12px;color:#c6dcf2';
 const widthSelect=document.createElement('select');widthSelect.id='vce-replay-trackwidth';
 for(const n of [6,8,10,12,14,16,18,20,24,30]){
  const opt=document.createElement('option');opt.value=String(n);opt.textContent=n+' m';widthSelect.append(opt)
 }
+const corridor=document.createElement('input');corridor.type='checkbox';corridor.id='vce-reference-corridor';corridor.setAttribute('aria-label','Afficher le couloir indicatif autour de la référence');widthLabel.append(corridor);
+corridor.onchange=()=>{selectedKey=''};
 widthSelect.value='12';widthSelect.title='Largeur totale indicative : non mesurée par les coordonnées du pilote';
 widthSelect.style.cssText='background:#14253b;border:1px solid #54738f;border-radius:5px;color:#f3f9ff;padding:6px';
 widthLabel.append(widthSelect);direct.after(widthLabel);
@@ -108,10 +125,8 @@ function dispose(){
 }
 function polyline(data,color,radius=.13){
  if(data.length<2)return;
- const thin=data.length>2500?data.filter((_,i)=>i%Math.ceil(data.length/2500)===0):data;
- const curve=new THREE.CatmullRomCurve3(thin.map(p=>new THREE.Vector3(p.x-center.x,.22+p.height,p.z-center.z)));
- const m=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.min(2200,Math.max(2,thin.length)),radius,5,false),
-  new THREE.MeshBasicMaterial({color}));
+ const points=data.map(p=>new THREE.Vector3(p.x-center.x,.22+p.height,p.z-center.z));
+ const m=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color}));
  group.add(m)
 }
 function road(data){
@@ -151,7 +166,7 @@ function rebuild(){
  const directEnabled=modeLive&&liveFrames.length>=3;
  const key=chosen.key+':'+(directEnabled?liveSession+':'+Math.floor(liveFrames.length/40):'recorded');
  if(key===selectedKey)return;
- selectedKey=key;
+ selectedKey=key;fixedAnchor=null;
  primaryData=directEnabled?liveFrames.slice():samplesFor(chosen.a);
  referenceData=samplesFor(chosen.b);
  dispose();
@@ -178,10 +193,14 @@ function rebuild(){
  }
  center={x:(minX+maxX)/2,z:(minZ+maxZ)/2};
  size=Math.max(75,maxX-minX,maxZ-minZ);
- for(const section of cleaned){road(section);polyline(section,0xff951d,.33)}
+ // Never build a road centered on the evaluated driver's line.
+ const independent=chosen.b&&chosen.b!==chosen.a&&refCleaned.length;
+ corridor.disabled=!independent;
+ if(corridor.checked&&independent)for(const part of refCleaned)road(part);
+ for(const section of cleaned)polyline(section,0xff951d,.33);
  for(const section of refCleaned)polyline(section,0x49a1ff,.15);
  const message=$('vce-replay-world-note');
- if(message)message.textContent=refCleaned.length ? '' : 'Référence indisponible dans le replay 3D.'
+ if(message)message.textContent='Coordonnées mesurées : orange pilote, bleu référence. Limites et point de corde réels non fournis. '+(corridor.checked&&independent?'Couloir indicatif autour de la référence, pas les bords réels.':'Aucune route centrée artificiellement sur le pilote.');
 }
 function locate(data,time){
  if(!data.length)return null;
@@ -189,7 +208,9 @@ function locate(data,time){
  if(time>=data.at(-1).t)return data.at(-1);
  let lo=0,hi=data.length-1;
  while(hi-lo>1){const m=(lo+hi)>>1;if(data[m].t<time)lo=m;else hi=m}
- const a=data[lo],b=data[hi],f=(time-a.t)/Math.max(.001,b.t-a.t);
+ const a=data[lo],b=data[hi];
+ if(b.t-a.t>.5||Math.hypot(b.x-a.x,b.z-a.z)>100)return null;
+ const f=(time-a.t)/Math.max(.001,b.t-a.t);
  return {x:a.x+(b.x-a.x)*f,z:a.z+(b.z-a.z)*f,height:a.height+(b.height-a.height)*f}
 }
 function animate(){
@@ -203,7 +224,7 @@ function animate(){
  const p=liveMode?liveFrames.at(-1):locate(primaryData,time);
  const next=liveMode?(liveFrames.at(-2)||p):locate(primaryData,Math.min(duration,time+.35));
  const q=locate(referenceData,time);
- if(!p||!next)return;
+ if(!p||!next){primary.visible=false;other.visible=false;renderer.render(scene,camera);return;}
  const yaw=liveMode?Math.atan2(p.x-next.x,p.z-next.z):Math.atan2(next.x-p.x,next.z-p.z);
  const angle=Number.isFinite(yaw)?yaw:0;
  primary.position.set(p.x-center.x,p.height,p.z-center.z);
@@ -218,7 +239,13 @@ function animate(){
  const distance=(mode==='overview'?Math.max(110,size*.8):mode==='top'?Math.max(55,size*.48):Math.max(9,35/Math.sqrt(zoom)));
  const dir=new THREE.Vector3(Math.sin(angle),0,Math.cos(angle));
  const pos=new THREE.Vector3(p.x-center.x,p.height,p.z-center.z);
- if(mode==='top'){
+ if(mode==='trackside'){
+  // Fixed world camera: the car moves across the frame, including lateral errors.
+  if(!fixedAnchor||Math.hypot(pos.x-fixedAnchor.x,pos.z-fixedAnchor.z)>80)fixedAnchor=pos.clone();
+  camera.position.copy(fixedAnchor).add(new THREE.Vector3(35,Math.max(26,65/Math.sqrt(zoom)),40));
+  camera.lookAt(fixedAnchor);
+ }
+ else if(mode==='top'){
   const height=size*.6/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect));
   camera.position.set(0,Math.max(30,height/Math.sqrt(zoom)),.1);
   camera.lookAt(0,0,0);
@@ -234,6 +261,8 @@ function animate(){
 const note=document.createElement('p');note.id='vce-replay-world-note';note.className='muted';
 note.textContent='Modèle 3D indicatif basé sur les données enregistrées, pas sur les fichiers du circuit.';
 wrapper.after(note);
+const grid=new THREE.GridHelper(10000,1000,0x49705a,0x30533c);grid.position.y=-.1;scene.add(grid);
+$('vce-replay-camera')?.addEventListener('change',()=>{fixedAnchor=null});
 ['lap','reference','session'].forEach(id=>$(id)?.addEventListener('change',()=>{selectedKey=''}));
 document.addEventListener('vce-cloud-update',()=>{selectedKey=''});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)selectedKey=''});

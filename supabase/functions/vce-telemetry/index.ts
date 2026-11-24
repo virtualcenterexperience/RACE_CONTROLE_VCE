@@ -56,15 +56,25 @@ async function authUser(req:Request,allowPasswordChange=false){
    throw Error("Modifie le mot de passe provisoire dans ton espace pilote.");
  return x.data.user;
 }
+function cleanStandings(input:any){
+ if(!Array.isArray(input))return [];
+ return input.slice(0,104).filter((r:any)=>r&&typeof r==='object'&&clean(r.name,64)).map((r:any)=>({
+   id:clean(String(r.id??''),32),name:clean(r.name,64),car:clean(r.car,64),class:clean(r.class,32),
+   position:n(r.position,1,104),is_player:r.is_player===true,laps:n(r.laps,0,100000),
+   best_lap_s:n(r.best_lap_s,10,3600),last_lap_s:n(r.last_lap_s,10,3600)
+ }));
+}
 function normalizedSession(s:any,d:any,status:string){
  const start=n(s.started_at,946684800,5000000000),end=n(s.ended_at,946684800,5000000000);
- const live=s.live_sample&&typeof s.live_sample==="object"?
- {t:n(s.live_sample.t,0,5000000000),lap_pos:n(s.live_sample.lap_pos,0,1),
-  speed_kmh:n(s.live_sample.speed_kmh,0,800),brake:n(s.live_sample.brake,0,1),
-  throttle:n(s.live_sample.throttle,0,1),steer:n(s.live_sample.steer,-100,100),
-  gear:n(s.live_sample.gear,-2,20),rpm:n(s.live_sample.rpm,0,30000),
-  fuel_l:n(s.live_sample.fuel_l,0,1000),position:n(s.live_sample.position,0,1000),
-  sector_index:n(s.live_sample.sector_index,0,50)}:null;
+ const sample=s.live_sample&&typeof s.live_sample==="object"?s.live_sample:{};
+ const live=s.live_sample||Array.isArray(s.participants)?
+ {t:n(sample.t,0,5000000000),lap_pos:n(sample.lap_pos,0,1),
+  speed_kmh:n(sample.speed_kmh,0,800),brake:n(sample.brake,0,1),
+  throttle:n(sample.throttle,0,1),steer:n(sample.steer,-100,100),
+  gear:n(sample.gear,-2,20),rpm:n(sample.rpm,0,30000),
+  fuel_l:n(sample.fuel_l,0,1000),position:n(sample.position,0,1000),
+  sector_index:n(sample.sector_index,0,50),participants:cleanStandings(s.participants||sample.participants),
+  throttle_raw:n(sample.throttle_raw,0,1),brake_raw:n(sample.brake_raw,0,1)}:null;
  if(!UUID.test(s.session_id||"")||!GAMES.includes(s.game)||start===null)throw Error("Session invalide");
  if(status==="completed"&&end===null)throw Error("Date de fin manquante");
  return {session_id:s.session_id,device_id:d.device_id,pilot_slug:d.pilot_slug,
@@ -262,7 +272,7 @@ Deno.serve(async(req)=>{
      game:source.game,track:clean(source.track,100),car:clean(source.car,100),
      session_type:clean(source.session_type,40),
      lap_number:n(source.lap_number,0,100000),
-     timestamp:Date.now(),samples:points};
+     timestamp:Date.now(),samples:points,participants:cleanStandings(source.participants)};
    const topic="vce:device:"+d.device_id;
    const result=await fetch(base+"/realtime/v1/api/broadcast/"+
      encodeURIComponent(topic)+"/events/frame?private=true",{

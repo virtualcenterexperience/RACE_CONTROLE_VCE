@@ -154,6 +154,13 @@ jobs:
           python race-controle-windows/patch_v391.py
           python -m unittest discover -s race-controle-windows/tests -p "test_v391.py" -v
 
+      - name: Capture 50Hz, ALT TAB et classement LMU V3.9.2
+        shell: pwsh
+        run: |
+          Copy-Item "race-controle-windows/vce_lmu_scoring.py" "agent/vce_lmu_scoring.py" -Force
+          python race-controle-windows/patch_v392.py
+          python -m unittest discover -s race-controle-windows/tests -p "test_v392.py" -v
+
       - name: Installer les dependances de compilation
         shell: pwsh
         run: |
@@ -225,12 +232,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v3.9.1"
+          $tag = "v3.9.2"
           $asset = "release/Race-Controle-VCE-Setup.exe"
-          $notes = "VCE 3.9.1 : positions live recentes, tours complets envoyes pendant la session, segments de 160 mesures. Detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
+          $notes = "VCE 3.9.2 : 50Hz natifs, continuite arriere-plan, classement session LMU, positions live recentes, tours complets envoyes pendant la session, segments de 160 mesures. Detection LMU uniquement par la memoire partagee officielle LMU_Data en lecture seule, sans scan de processus LMU ni interaction EAC. Lecture des manifests Steam uniquement, polling DuckDB limite a 10 secondes, capture LMU native et archivage local. Aucun fichier du jeu modifie. Compatibilite EAC a confirmer par essai Windows/LMU. Publication apres verification antivirus."
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.9.1 - Installateur Windows" --notes $notes
+            gh release create $tag $asset --target "${{ github.sha }}" --title "RACE CONTROLE VCE v3.9.2 - Installateur Windows" --notes $notes
           }

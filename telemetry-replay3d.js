@@ -3,7 +3,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
-let playing=false,progress=0,lastTick=0,rate=1,camera='chase',samples=[],reference=[],duration=0,ready=false,zoom=3,referenceName='RÉFÉRENCE';
+let playing=false,progress=0,lastTick=0,rate=1,camera='trackside',samples=[],reference=[],duration=0,ready=false,zoom=3,referenceName='RÉFÉRENCE';
 const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
 const getLaps=()=>{const s=window.vceSession;return(s?.laps||[]).filter(l=>l&&((Number.isFinite(+l.time)&&+l.time>0)||(l.samples||[]).length>=2||Number.isInteger(l.number))).slice().sort((a,b)=>(a.number??0)-(b.number??0))};
 function points(lap){
@@ -73,7 +73,7 @@ function paint(){
  // Draw a neutral surface ribbon; elevation follows z when native data exists.
  // Recorded line is not a surveyed track boundary: no invented kerbs or track width.
  // Illustrative road ribbon traced from measured positions: NOT surveyed road width.
- const basePath=samples.length>=5?samples:reference;
+ const basePath=[]; // No road invented around a driver trajectory.
  const track=basePath.length>700?basePath.filter((_,i)=>i%Math.ceil(basePath.length/700)===0):basePath;
  line(track,'#0b1016',37);line(track,'#3a4852',30);line(track,'#151b22',24);
  line(samples,'#ff951d',7);line(reference,'#4d9dff',3);
@@ -86,8 +86,8 @@ function paint(){
  const fmt=v=>finite(v)?v.toFixed(1):'—';
  $('vce-replay-time').textContent=time.toFixed(2)+' s / '+duration.toFixed(2)+' s';
  $('vce-replay-speed').textContent=fmt(a?.speed)+' km/h';
- $('vce-replay-brake').textContent=fmt(a?.brake)+'';
- $('vce-replay-throttle').textContent=fmt(a?.throttle)+'';
+ $('vce-replay-brake').textContent=(finite(a?.brake)?(a.brake*100).toFixed(2)+' %':'—');
+ $('vce-replay-throttle').textContent=(finite(a?.throttle)?(a.throttle*100).toFixed(2)+' %':'—');
 }
 function loop(ts){
  if(playing&&ready){if(lastTick)progress=Math.min(1,progress+(ts-lastTick)/1000*rate/Math.max(0.1,duration));if(progress>=1){playing=false;$('vce-replay-play').textContent='▶ Lecture'}$('vce-replay-slider').value=String(Math.round(progress*1000))}
@@ -96,7 +96,7 @@ function loop(ts){
 function mount(){
  const anchor=$('tt-circuit');if(!anchor||$('vce-replay'))return;
  const section=el('section',undefined,'panel vce-replay');section.id='vce-replay';
- section.innerHTML='<div class="head"><h2>REPLAY 3D · COMPARAISON DES TRAJECTOIRES</h2><span id="vce-replay-state">En attente de session</span></div><p class="muted"><span class="vce-replay-pilot-key">● Pilote</span> · <span class="vce-replay-reference-key">● Référence</span></p><div class="vce-replay-tools"><button id="vce-replay-play" disabled>▶ Lecture</button><label>Vitesse <select id="vce-replay-rate"><option value=".25">0,25×</option><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><label>Caméra <select id="vce-replay-camera"><option value="chase">Suivi voiture</option><option value="cockpit">Vue embarquée (reconstitution)</option><option value="overview">Perspective générale</option><option value="top">Vue de dessus</option></select></label><label>Zoom <input id="vce-replay-zoom" type="range" min="1" max="12" step="0.5" value="3" style="width:130px;vertical-align:middle"></label><button type="button" id="vce-replay-fit">Cadrer les deux trajectoires</button><button id="vce-replay-reload">Recharger les tours</button><button type="button" id="vce-replay-team">⇄ Pilote VCE</button></div><div class="vce-replay-timeline"><input type="range" id="vce-replay-slider" min="0" max="1000" value="0" step="1" aria-label="Position du replay"><span id="vce-replay-time">—</span></div><canvas id="vce-replay-canvas" width="1100" height="520"></canvas><div class="vce-replay-stats"><span>Référence : <b id="vce-replay-reference-name">—</b></span><span>Vitesse : <b id="vce-replay-speed">—</b></span><span>Frein : <b id="vce-replay-brake">—</b></span><span>Accélérateur : <b id="vce-replay-throttle">—</b></span></div>';
+ section.innerHTML='<div class="head"><h2>REPLAY 3D · COMPARAISON DES TRAJECTOIRES</h2><span id="vce-replay-state">En attente de session</span></div><p class="muted"><span class="vce-replay-pilot-key">● Pilote</span> · <span class="vce-replay-reference-key">● Référence</span></p><div class="vce-replay-tools"><button id="vce-replay-play" disabled>▶ Lecture</button><label>Vitesse <select id="vce-replay-rate"><option value=".25">0,25×</option><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><label>Caméra <select id="vce-replay-camera"><option value="trackside">Vue fixe · trajectoire réelle</option><option value="chase">Suivi voiture</option><option value="cockpit">Vue embarquée (reconstitution)</option><option value="overview">Perspective générale</option><option value="top">Vue de dessus</option></select></label><label>Zoom <input id="vce-replay-zoom" type="range" min="1" max="12" step="0.5" value="3" style="width:130px;vertical-align:middle"></label><button type="button" id="vce-replay-fit">Cadrer les deux trajectoires</button><button id="vce-replay-reload">Recharger les tours</button><button type="button" id="vce-replay-team">⇄ Pilote VCE</button></div><div class="vce-replay-timeline"><input type="range" id="vce-replay-slider" min="0" max="1000" value="0" step="1" aria-label="Position du replay"><span id="vce-replay-time">—</span></div><canvas id="vce-replay-canvas" width="1100" height="520"></canvas><div class="vce-replay-stats"><span>Référence : <b id="vce-replay-reference-name">—</b></span><span>Vitesse : <b id="vce-replay-speed">—</b></span><span>Frein : <b id="vce-replay-brake">—</b></span><span>Accélérateur : <b id="vce-replay-throttle">—</b></span></div>';
  anchor.after(section);
  $('vce-replay-play').onclick=()=>{if(progress>=1)progress=0;playing=!playing;lastTick=0;$('vce-replay-play').textContent=playing?'❚❚ Pause':'▶ Lecture'};
  $('vce-replay-fit').onclick=()=>{

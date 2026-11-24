@@ -12,7 +12,7 @@ const sections={
 };
 const scripts=mode==='setup'
  ? ['telemetry-setup-live.js','telemetry-setup-map.js','telemetry-setup-overview.js','telemetry-setup-studio.js']
- : ['telemetry-inputs.js','telemetry-recap.js','telemetry-advanced.js','telemetry-compare-ui.js','telemetry-replay3d.js','telemetry-replay-world3d.js','telemetry-engineering-v33.js','telemetry-tour-studio.js'];
+ : ['telemetry-inputs.js','telemetry-recap.js','telemetry-advanced.js','telemetry-compare-ui.js','telemetry-session-timing.js','telemetry-replay3d.js','telemetry-replay-world3d.js','telemetry-engineering-v33.js','telemetry-tour-studio.js'];
 function link(label,href,cls=''){
  const a=document.createElement('a');a.href=href;a.textContent=label;a.className=cls;return a;
 }
@@ -47,12 +47,12 @@ function errorMessage(path){
 async function loadModules(){
  // Start network downloads together but execute in order to preserve module dependencies.
  scripts.forEach(path=>{
-  const pre=document.createElement('link');pre.rel='preload';pre.as='script';pre.href=path+'?v=20261110-review';document.head.append(pre);
+  const pre=document.createElement('link');pre.rel='preload';pre.as='script';pre.href=path+'?v=20261124-392';document.head.append(pre);
  });
  for(const path of scripts){
   try{
    await new Promise((resolve,reject)=>{
-    const script=document.createElement('script');script.src=path+'?v=20261110-review';
+    const script=document.createElement('script');script.src=path+'?v=20261124-392';
     script.onload=resolve;script.onerror=()=>reject(new Error(path));
     document.body.append(script);
    });

@@ -6,6 +6,8 @@ const defs=[
  ['speed','VITESSE','km/h','#8075ff',['speed','speed_kmh']],
  ['throttle','ACCÉLÉRATEUR','%','#18cf79',['throttle']],
  ['brake','FREIN','%','#ef4567',['brake']],
+ ['throttle_raw','ACCÉLÉRATEUR PÉDALE BRUT','%','#7ce9aa',['throttle_raw']],
+ ['brake_raw','FREIN PÉDALE BRUT','%','#ff9aa9',['brake_raw']],
  ['steering','VOLANT','','#dfba62',['steering','steer']],
  ['rpm','RÉGIME','tr/min','#f8645b',['rpm']],
  ['gear','GEARS · RAPPORT','','#54aaff',['gear']],

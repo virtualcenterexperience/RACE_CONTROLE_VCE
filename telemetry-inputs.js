@@ -6,6 +6,8 @@ let history=[],lastTime=-Infinity,sessionId='',lastSample=null,drawId=0,lastPack
 const fields=[
  ['throttle','ACCÉLÉRATEUR · INPUT PROGRESSIF','#22c55e',v=>v*100,'%','0–100 %'],
  ['brake','FREIN · INPUT PROGRESSIF','#ef4444',v=>v*100,'%','0–100 %'],
+ ['throttle_raw','ACCÉLÉRATEUR PÉDALE BRUT','#7ce9aa',v=>v*100,'%','0–100 %'],
+ ['brake_raw','FREIN PÉDALE BRUT','#ff9aa9',v=>v*100,'%','0–100 %'],
  ['steering','VOLANT · STEER LEFT / RIGHT','#d9b0ff',v=>v,'','Braquage natif'],
  ['speed','VITESSE','#6366f1',v=>v,' km/h','Vitesse véhicule'],
  ['clutch','EMBRAYAGE','#eab308',v=>v*100,'%','0–100 %']
@@ -14,7 +16,7 @@ function mount(){
  const anchor=$('vce-stream');
  if(!anchor||$('vce-inputs-lab'))return;
  const el=document.createElement('section');el.className='panel vce-inputs-lab';el.id='vce-inputs-lab';
- el.innerHTML='<div class="head"><h2>INPUTS PILOTE · LIVE</h2><span id="vce-input-status">EN ATTENTE DE MESURES</span></div><p class="muted">Accélérateur, frein, volant et vitesse issus des mesures du jeu. Les courbes réagissent à chaque paquet reçu. Le navigateur dessine jusqu’à 60 images/s.</p><div class="vce-input-values" id="vce-input-values"></div><canvas id="vce-input-canvas" width="1400" height="540" aria-label="Courbes de télémétrie des commandes"></canvas><p class="muted" id="vce-input-diagnostic">Les valeurs absentes ne sont pas simulées.</p>';
+ el.innerHTML='<div class="head"><h2>INPUTS PILOTE · LIVE</h2><span id="vce-input-status">EN ATTENTE DE MESURES</span></div><p class="muted">Accélérateur, frein, volant et vitesse issus des mesures du jeu. Les courbes réagissent à chaque paquet reçu. Le navigateur dessine jusqu’à 60 images/s.</p><div class="vce-input-values" id="vce-input-values"></div><canvas id="vce-input-canvas" width="1400" height="750" aria-label="Courbes de télémétrie des commandes"></canvas><p class="muted" id="vce-input-diagnostic">Les valeurs absentes ne sont pas simulées.</p>';
  const toggle=document.createElement('button');toggle.type='button';toggle.id='vce-input-toggle';
  toggle.textContent='● DIRECT ON';toggle.setAttribute('aria-pressed','true');
  toggle.onclick=()=>{liveOn=!liveOn;toggle.textContent=liveOn?'● DIRECT ON':'○ DIRECT OFF';toggle.setAttribute('aria-pressed',String(liveOn));};
@@ -31,7 +33,7 @@ function mount(){
 }
 function normalize(s){
  const steer=finite(s.steer)?s.steer:finite(s.steering)?s.steering:null;
- return {t:s.t,throttle:finite(s.throttle)?s.throttle:null,brake:finite(s.brake)?s.brake:null,
+ return {t:s.t,throttle_raw:finite(s.throttle_raw)?s.throttle_raw:null,brake_raw:finite(s.brake_raw)?s.brake_raw:null,throttle:finite(s.throttle)?s.throttle:null,brake:finite(s.brake)?s.brake:null,
  steering:steer,speed:finite(s.speed_kmh)?s.speed_kmh:null,
  clutch:finite(s.clutch)?s.clutch:null,
  rpm:finite(s.rpm)?s.rpm:null,
@@ -57,7 +59,7 @@ function update(){
    const item=document.querySelector('.vce-input-values [data-key="'+key+'"]');
    if(!item)continue;
    const val=lastSample[key];
-   item.querySelector('strong').textContent=finite(val)?convert(val).toFixed(1)+unit:'—';
+   item.querySelector('strong').textContent=finite(val)?convert(val).toFixed(2)+unit:'—';
    const maxSpeed=Math.max(100,Math.ceil(Math.max(...history.slice(-600).map(p=>finite(p.speed)?p.speed:0))/50)*50);
    const width=key==='speed'?Math.max(0,Math.min(100,val/maxSpeed*100)):key==='steering'?Math.min(100,Math.abs(val)*(Math.abs(val)<=1?100:1)):Math.min(100,val*100);
    item.querySelector('i').style.width=finite(val)?width+'%':'0%';

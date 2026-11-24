@@ -135,10 +135,19 @@ class LMUAdapter:
 
     def __init__(self):
         self.mapping = ExistingReadOnlyMapping()
+        self.participants = []
+        self.last_scoring_at = 0
         self.last_elapsed = None
         self.last_lap = None
 
     def read(self):
+        if time.monotonic()-self.last_scoring_at>=1:
+            self.last_scoring_at=time.monotonic()
+            try:
+                from vce_lmu_scoring import read_participants
+                self.participants=read_participants(self.mapping)
+            except (OSError,ValueError,IndexError):
+                self.participants=[]
         # LMU's header exposes a direct player slot (0..103).
         header = self.mapping.read(TELEMETRY_BASE, 4)
         active, player, has_car = header[0], header[1], header[2]
