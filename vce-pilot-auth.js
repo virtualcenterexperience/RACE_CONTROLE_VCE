@@ -38,7 +38,7 @@ function mount(){
  '<div class="vce-login-kicker">VCE ESPORT · ACCÈS PILOTE</div>'+
  '<h2 id="vce-pilot-auth-title">CONNEXION <span>PILOTE</span></h2>'+
  '<p id="vce-pilot-auth-name"></p><p id="vce-pilot-auth-message" role="status" aria-live="polite"></p>'+
- '<form id="vce-pilot-login-form"><label>Identifiant<input readonly autocomplete="username" id="vce-pilot-username" name="username"></label>'+
+ '<form id="vce-pilot-login-form"><label>Identifiant pilote ou e-mail<input required autocomplete="username" autocapitalize="none" spellcheck="false" id="vce-pilot-username" name="username"></label>'+
  '<label>Mot de passe personnel ou code provisoire<input id="vce-pilot-secret" type="password" autocomplete="current-password" required></label>'+
  '<label class="vce-remember-pilot"><input id="vce-pilot-remember" type="checkbox"> Rester connecté (ordinateur personnel uniquement)</label>'+
  '<button type="submit">ACCÉDER À MON PROFIL</button></form>'+
@@ -54,11 +54,11 @@ function mount(){
  $('vce-pilot-retry').onclick=()=>route();
  $('vce-pilot-reconnect').onclick=()=>{window.VCESupabase?.logout();showForm('Compte déconnecté. Connecte-toi avec les identifiants de ce pilote.')};
 }
-function show(message=''){
+function show(message='',prefill=false){
  mount();card.hidden=false;
  const currentName=current().replace(/-/g,' ').toUpperCase();
  $('vce-pilot-auth-name').textContent=currentName;
- $('vce-pilot-username').value=internalEmail(current());
+ if(prefill||!$('vce-pilot-username').value)$('vce-pilot-username').value=internalEmail(current());
  $('vce-pilot-auth-message').textContent=message;
 }
 function showForm(message=''){
@@ -138,19 +138,25 @@ async function route(){
  }
 }
 async function signIn(e){
- e.preventDefault();const id=current(),input=$('vce-pilot-secret'),secret=input.value;
+ e.preventDefault();const input=$('vce-pilot-secret'),secret=input.value;
+ const entered=$('vce-pilot-username').value.trim();
+ const email=entered.includes('@')?entered.toLowerCase():internalEmail(entered.toLowerCase()==='virtualcenterexperience'?current():slug(entered));
  const button=e.currentTarget.querySelector('button[type=submit]');button.disabled=true;
  show('Vérification des identifiants…');
  try{
-  if(!id)throw Error('Sélectionne ton profil pilote.');
-  await window.VCESupabase.login(internalEmail(id),secret,{remember:$('vce-pilot-remember')?.checked===true});
+  if(!entered)throw Error('Saisis ton identifiant pilote ou ton e-mail.');
+  state.verified='';state.seq++;
+  await window.VCESupabase.login(email,secret,{remember:$('vce-pilot-remember')?.checked===true});
   input.value='';
-  await route();
+  const identity=await api('pilot_whoami');
+  const own=slug(identity.pilot_slug);
+  if(!own)throw Error('Ce compte n’est pas associé à un pilote actif. Utilise ton compte pilote personnel.');
+  if(current()!==own){location.hash=own;}else{await route();}
  }catch(err){
   const rejected=/invalid_credentials|Invalid login credentials/i.test(err.message);
-  showForm(rejected?'Code refusé pour ce pilote. Vérifie le profil sélectionné et utilise le dernier code fourni par le Staff, ou ton mot de passe personnel si tu l’as déjà créé.':'Connexion impossible : '+err.message);
+  showForm(rejected?'Identifiant ou mot de passe incorrect. Tu peux modifier l’identifiant ci-dessus ou choisir un autre profil. Utilise ton mot de passe personnel ou le dernier code provisoire du STAFF.':'Connexion impossible : '+err.message);
  }
- finally{button.disabled=false}
+ finally{input.value='';button.disabled=false}
 }
 async function changePassword(e){
  e.preventDefault();const password=$('vce-pilot-new').value,confirmation=$('vce-pilot-confirm').value;
@@ -173,11 +179,13 @@ async function changePassword(e){
 }
 function start(){
  mount();route();
- window.addEventListener('hashchange',route);
+ window.addEventListener('hashchange',()=>{ $('vce-pilot-secret').value='';$('vce-pilot-username').value=internalEmail(current());route(); });
  window.addEventListener('online',()=>{if(!state.verified&&window.VCESupabase?.session())route()});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!state.verified&&window.VCESupabase?.session())route()});
  window.addEventListener('vce-auth-session-ended',()=>{
   state.verified='';
+  $('vce-pilot-secret').value='';$('vce-pilot-new').value='';$('vce-pilot-confirm').value='';
+  $('vce-pilot-username').value='';
   route();
   window.dispatchEvent(new Event('vce-pilot-verified'));
  });

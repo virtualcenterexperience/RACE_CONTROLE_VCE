@@ -14,6 +14,7 @@ async function identity(){
  const session=await window.VCESupabase.validSession();
  if(!session?.access_token)throw Error(tr('Connecte-toi d’abord à ton profil pilote.','Sign in to your driver profile first.'));
  if(page==='staff'){
+  staff=false;
   if(!await window.VCESupabase.isStaff())throw Error('Accès STAFF requis');
   staff=true;
  }
@@ -119,7 +120,7 @@ async function load({quiet=false}={}){
   rows=Array.isArray(data)?data:[];
   renderList();
   if(!quiet)info(staff?rows.filter(x=>x.status==='pending').length+' proposition(s) en attente du Staff.':rows.length+' résultat(s) envoyés. Les propositions restent privées jusqu’à publication.')
- }catch(e){if(seq===loadSeq){me=null;info('Connexion impossible : '+e.message,true)}}
+ }catch(e){if(seq===loadSeq){me=null;staff=false;rows=[];renderList();info('Connexion impossible : '+e.message,true)}}
  finally{if(seq===loadSeq&&page==='pilot'){
   const submit=$('vce-race-form')?.querySelector('[type=submit]');if(submit)submit.disabled=!me;
   const login=$('vce-race-pilot-login');if(login)login.hidden=Boolean(me);
@@ -193,6 +194,12 @@ function addFilters(){
  target.before(area);
 }
 function init(){
+ window.addEventListener('vce-auth-session-ended',()=>{
+  loadSeq++;me=null;staff=false;rows=[];renderList();
+  const submit=$('vce-race-form')?.querySelector('[type=submit]');if(submit)submit.disabled=true;
+  const login=$('vce-race-pilot-login');if(login)login.hidden=false;
+  info('Compte déconnecté. Reconnecte-toi pour consulter ou envoyer des résultats.',true);
+ });
  addFilters();
 
  const form=$('vce-race-form');

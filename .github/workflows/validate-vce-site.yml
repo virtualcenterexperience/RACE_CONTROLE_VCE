@@ -66,6 +66,8 @@ jobs:
         run: node tools/test-coach-engine.mjs
       - name: Verify conversational coaching and keyword retrieval
         run: node tools/test-coach-language.mjs
+      - name: Verify editable pilot login and STAFF result webhook
+        run: node tools/test-login-webhook.mjs
       - name: Verify race-result identity and Rallye exercises
         run: node tools/test-result-identity.mjs
       - name: Verify accepted race results update profile ratings once
