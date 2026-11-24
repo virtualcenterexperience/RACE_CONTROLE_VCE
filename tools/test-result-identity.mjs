@@ -17,3 +17,9 @@ assert.ok(pack.exercices.every(e=>e.categorie==='RALLYE'&&e.consignes&&e.critere
 assert.match(source,/category.value==='rally'&&!starters.value/,'Only fill 450 when no actual field size was entered');
 assert.match(readFileSync('vce-pilot-auth.js','utf8'),/if\(staff&&pilotLoginRequested\)\{showForm/,'Explicit pilot login must never open a STAFF persona as the driver');
 console.log('Result identity errors, explicit pilot login and Rallye pack passed');
+let writes=0,lastMessage='';
+const submitContext={busy:false,me:{id:'auth-a',slug:'driver-a'},whoami:async()=>({id:'auth-b',slug:'driver-b'}),permitted:['rally'],FormData:class{constructor(){return new Map(Object.entries({finishing_position:'1',starters:'450',category:'rally',proof_url:''}))}},Number,String,Object,Error,info:m=>lastMessage=m,req:async()=>writes++,load:async()=>{}};
+runInNewContext(source.slice(source.indexOf('async function submit('),source.indexOf('async function review(')),submitContext);
+await submitContext.submit({preventDefault(){},currentTarget:{querySelector:()=>({disabled:false})}});
+assert.equal(writes,0,'Changing connected accounts must not redirect a prepared result to another pilot');
+assert.match(lastMessage,/compte connecté a changé/);

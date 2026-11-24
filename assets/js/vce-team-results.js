@@ -137,6 +137,7 @@ async function submit(event){
  busy=true;button.disabled=true;info('Envoi sécurisé au TEAM Staff…');
  try{
   const identity=await whoami();
+  if(!me||identity.id!==me.id||identity.slug!==me.slug){me=null;throw Error('Le compte connecté a changé. Actualise la page et vérifie le pilote avant de renvoyer.')}
   const record={
    pilot_auth_user:identity.id,pilot_slug:identity.slug,
    event_name:String(data.event_name||'').trim(),championship:String(data.championship||'').trim(),
