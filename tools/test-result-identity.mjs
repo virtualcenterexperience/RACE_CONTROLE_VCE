@@ -3,11 +3,13 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 const source=readFileSync('assets/js/vce-team-results.js','utf8');
 let body={pilot_slug:'driver-a'},ok=true,staff=false;
-const ctx={identity:async()=>({user:{id:'auth-a'},access_token:'test'}),cfg:()=>({url:'https://example.invalid',key:'public'}),fetch:async()=>({ok,status:ok?200:403,json:async()=>body}),window:{VCESupabase:{isStaff:async()=>staff}},AbortSignal:{timeout:()=>undefined},Error};
+const ctx={identity:async()=>({user:{id:'auth-a'},access_token:'test'}),cfg:()=>({url:'https://example.invalid',key:'public'}),fetch:async()=>({ok,status:ok?200:403,json:async()=>body}),window:{VCESupabase:{isStaff:async()=>staff}},$:()=>null,staffSessionAllowed:false,staffTarget:async()=>{throw Error('STAFF target required')},req:async()=>({pilot_auth_user:'pilot-a',pilot_slug:'driver-a',actor_auth_user:'auth-a',pilot_name:'DRIVER A'}),AbortSignal:{timeout:()=>undefined},Error};
 runInNewContext(source.slice(source.indexOf('async function whoami(){'),source.indexOf('function filteredRows(){')),ctx);
 assert.equal((await ctx.whoami()).slug,'driver-a');
 ok=false;body={error:'Profil désactivé'};await assert.rejects(ctx.whoami(),/Profil désactivé/,'Real API errors must not be disguised as an unlinked account');
-ok=true;body={pilot_slug:null};staff=true;await assert.rejects(ctx.whoami(),/STAFF/);
+ok=true;body={pilot_slug:null};staff=true;await assert.rejects(ctx.whoami(),/STAFF target required/);
+ctx.staffTarget=async()=> 'driver-a';
+const asStaff=await ctx.whoami();assert.equal(asStaff.id,'pilot-a');assert.equal(asStaff.actorId,'auth-a');assert.equal(asStaff.viaStaff,true);
 staff=false;await assert.rejects(ctx.whoami(),/profil pilote/);
 body={pilot_slug:'driver-a',password_change_required:true};await assert.rejects(ctx.whoami(),/mot de passe provisoire/);
 const pack=JSON.parse(readFileSync('entrainements/exercices_rallye.json','utf8'));
@@ -15,7 +17,7 @@ assert.equal(pack.exercices.length,18);assert.equal(new Set(pack.exercices.map(e
 for(const level of ['ROOKIE','PERFORMANCE','ESPORT_PRO'])assert.equal(pack.exercices.filter(e=>e.niveau===level).length,6);
 assert.ok(pack.exercices.every(e=>e.categorie==='RALLYE'&&e.consignes&&e.criteres_validation));
 assert.match(source,/category.value==='rally'&&!starters.value/,'Only fill 450 when no actual field size was entered');
-assert.match(readFileSync('vce-pilot-auth.js','utf8'),/if\(staff&&pilotLoginRequested\)\{showForm/,'Explicit pilot login must never open a STAFF persona as the driver');
+assert.doesNotMatch(readFileSync('vce-pilot-auth.js','utf8'),/if\(staff&&pilotLoginRequested\)/,'A verified STAFF session should open the selected profile without a second login');
 console.log('Result identity errors, explicit pilot login and Rallye pack passed');
 let writes=0,lastMessage='';
 const submitContext={busy:false,me:{id:'auth-a',slug:'driver-a'},whoami:async()=>({id:'auth-b',slug:'driver-b'}),permitted:['rally'],FormData:class{constructor(){return new Map(Object.entries({finishing_position:'1',starters:'450',category:'rally',proof_url:''}))}},Number,String,Object,Error,info:m=>lastMessage=m,req:async()=>writes++,load:async()=>{}};
@@ -23,3 +25,12 @@ runInNewContext(source.slice(source.indexOf('async function submit('),source.ind
 await submitContext.submit({preventDefault(){},currentTarget:{querySelector:()=>({disabled:false})}});
 assert.equal(writes,0,'Changing connected accounts must not redirect a prepared result to another pilot');
 assert.match(lastMessage,/compte connecté a changé/);
+
+const staffWrites=[];
+const staffSubmit={busy:false,me:{id:'pilot-a',slug:'driver-a',actorId:'staff-a',viaStaff:true},whoami:async()=>({id:'pilot-a',slug:'driver-a',actorId:'staff-a',viaStaff:true}),permitted:['rally'],FormData:class{constructor(){return new Map(Object.entries({event_name:'Race',race_date:'2026-11-24',track:'Spa',finishing_position:'3',starters:'450',category:'rally',proof_url:''}))}},Number,String,Object,Error,info:()=>{},req:async(path,method,data)=>{staffWrites.push({path,method,data})},load:async()=>{},localStorage:{setItem(){}}};
+runInNewContext(source.slice(source.indexOf('async function submit('),source.indexOf('async function review(')),staffSubmit);
+await staffSubmit.submit({preventDefault(){},currentTarget:{querySelector:()=>({disabled:false}),reset(){}}});
+assert.equal(staffWrites.length,1);assert.equal(staffWrites[0].path,'rpc/vce_staff_pilot_race');assert.equal(staffWrites[0].data.p_expected_actor,'staff-a');assert.equal(staffWrites[0].data.p_result.status,'pending');
+staffSubmit.me={id:'pilot-a',slug:'driver-a',actorId:'other-staff',viaStaff:true};
+await staffSubmit.submit({preventDefault(){},currentTarget:{querySelector:()=>({disabled:false}),reset(){}}});assert.equal(staffWrites.length,1,'A changed STAFF actor must not send the prepared result');
+console.log('STAFF session submits for the real pilot, with actor audit and pending validation');

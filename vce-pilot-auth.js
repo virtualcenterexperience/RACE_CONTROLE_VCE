@@ -6,7 +6,6 @@ const internalEmail=id=>'vce-pilote+'+id+'@virtual-center-experience.fr';
 const state={seq:0,verified:'',retry:null};
 window.VCEPilotAuthCanAccess=id=>state.verified===slug(id)&&Boolean(id);
 let card=null;
-const pilotLoginRequested=new URLSearchParams(location.search).get('auth')==='pilot';
 const spectatorRequested=location.pathname.endsWith('/pilote.html')&&new URLSearchParams(location.search).get('view')==='spectateur';
 const current=()=>{try{return slug(decodeURIComponent(location.hash.slice(1)||new URLSearchParams(location.search).get('pilot')||''))}catch{return ''}};
 const cfg=()=>window.VCE_SUPABASE||{};
@@ -118,7 +117,6 @@ async function route(){
   }
   const staff=await supabase.isStaff();
   if(request!==state.seq)return;
-  if(staff&&pilotLoginRequested){showForm('Tu es connecté au STAFF. Saisis les identifiants personnels de ce pilote pour envoyer ses résultats.');return}
   if(staff){
    const roster=await supabase.read('pilotes');
    if(request!==state.seq)return;

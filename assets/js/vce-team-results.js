@@ -7,6 +7,8 @@ const $=id=>document.getElementById(id),cfg=()=>window.VCE_SUPABASE||{};
 const tr=(fr,en)=>document.documentElement.lang==='en'?en:fr;
 const el=(tag,cl,txt)=>{const o=document.createElement(tag);if(cl)o.className=cl;if(txt!==undefined)o.textContent=txt;return o};
 let staff=false,me=null,busy=false,rows=[],loadSeq=0,statusFilter=page==='staff'?'pending':'all',categoryFilter='all',query='';
+let staffSessionAllowed=false;
+let selectedTarget=new URLSearchParams(location.search).get('pilot')||location.hash.slice(1)||'';
 const permitted=['sprint','esport','qualification','endurance','special','rally'];
 function info(message,error=false){const label=$('vce-race-state');if(label){label.textContent=message;label.dataset.error=error?'true':'false'}}
 async function identity(){
@@ -33,8 +35,37 @@ async function req(path,method='GET',data=null,prefer=null){
  if(!response.ok)throw Error(result?.message||result?.error||'HTTP '+response.status);
  return result;
 }
+async function staffTarget(){
+ staffSessionAllowed=true;
+ let select=$('vce-race-staff-pilot');
+ if(!select){
+  const roster=await window.VCESupabase.read('pilotes');
+  if(!Array.isArray(roster?.items))throw Error('Effectif pilote indisponible.');
+  const wrapper=el('div','vce-race-form-grid');
+  const label=el('label','full','Profil pilote · session STAFF');
+  wrapper.id='vce-race-staff-context';wrapper.style.marginBottom='16px';
+  select=el('select','');select.id='vce-race-staff-pilot';
+  select.append(new Option('Choisir le profil pilote',''));
+  for(const pilot of roster.items){if(pilot?.id&&pilot?.name)select.append(new Option(pilot.name,pilot.id))}
+  select.value=selectedTarget;
+  label.append(select);wrapper.append(label);$('vce-race-form')?.prepend(wrapper);
+  select.addEventListener('change',()=>{selectedTarget=select.value;me=null;load()});
+ }
+ selectedTarget=select.value;
+ if(!selectedTarget){const error=Error('Choisis le profil pilote pour envoyer ton résultat avec ta session STAFF.');error.code='TARGET_REQUIRED';throw error}
+ return selectedTarget;
+}
 async function whoami(){
  const session=await identity(),config=cfg();
+ if(!session.user?.id)throw Error('Session pilote incomplète. Reconnecte-toi depuis ton profil.');
+ if(await window.VCESupabase.isStaff()){
+  const target=await staffTarget();
+  const data=await req('rpc/vce_staff_pilot_race','POST',{p_pilot:target,p_result:null,p_expected_actor:null});
+  if(data.actor_auth_user!==session.user.id)throw Error('Le compte connecté a changé. Actualise la page.');
+  return {id:data.pilot_auth_user,slug:data.pilot_slug,actorId:data.actor_auth_user,viaStaff:true,name:data.pilot_name};
+ }
+ staffSessionAllowed=false;
+ $('vce-race-staff-context')?.remove();
  const response=await fetch(config.url+'/functions/v1/vce-telemetry',{
   method:'POST',cache:'no-store',signal:AbortSignal.timeout(12000),
   headers:{apikey:config.key,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
@@ -42,14 +73,9 @@ async function whoami(){
  });
  const data=await response.json().catch(()=>({error:'Réponse non JSON du service de connexion.'}));
  if(!response.ok)throw Error(data.error||('Vérification du compte impossible (HTTP '+response.status+').'));
- if(!data.pilot_slug){
-  const isStaff=await window.VCESupabase.isStaff();
-  const error=Error(isStaff?'Tu es connecté au STAFF. Connecte-toi avec ton compte pilote pour envoyer un résultat personnel.':'Ce compte n’est pas associé à un pilote. Connecte-toi depuis ton profil pilote.');
-  error.code='PILOT_IDENTITY_REQUIRED';throw error;
- }
+ if(!data.pilot_slug){const error=Error('Ce compte n’est pas associé à un pilote. Connecte-toi depuis ton profil pilote.');error.code='PILOT_IDENTITY_REQUIRED';throw error}
  if(data.password_change_required)throw Error('Termine le changement de ton mot de passe provisoire depuis ton profil pilote.');
- if(!session.user?.id)throw Error('Session pilote incomplète. Reconnecte-toi depuis ton profil.');
- return {id:session.user?.id,slug:data.pilot_slug};
+ return {id:session.user.id,slug:data.pilot_slug,actorId:session.user.id,viaStaff:false};
 }
 function filteredRows(){
  return rows.filter(r=>
@@ -113,17 +139,20 @@ async function load({quiet=false}={}){
  const seq=++loadSeq;if(!quiet)info('Chargement des résultats depuis Supabase…');
  try{
   const s=await identity();
-  if(page==='pilot')me=await whoami();
+  const candidate=page==='pilot'?await whoami():null;
+  if(seq!==loadSeq)return;
+  if(page==='pilot')me=candidate;
   const url='vce_race_result_submissions?select=id,pilot_slug,event_name,championship,race_date,track,car,game,category,finishing_position,starters,notes,proof_url,status,staff_notes,created_at&order=created_at.desc&limit=200';
-  const data=await req(url);
+  const data=await req(url+(page==='pilot'&&me?'&pilot_slug=eq.'+encodeURIComponent(me.slug):''));
   if(seq!==loadSeq)return;
   rows=Array.isArray(data)?data:[];
   renderList();
-  if(!quiet)info(staff?rows.filter(x=>x.status==='pending').length+' proposition(s) en attente du Staff.':rows.length+' résultat(s) envoyés. Les propositions restent privées jusqu’à publication.')
- }catch(e){if(seq===loadSeq){me=null;staff=false;rows=[];renderList();info('Connexion impossible : '+e.message,true)}}
+  if(!quiet&&me?.viaStaff)info('Session STAFF conservée · résultat pour '+me.name+' · '+rows.length+' envoi(s). Validation obligatoire.');
+  else if(!quiet)info(staff?rows.filter(x=>x.status==='pending').length+' proposition(s) en attente du Staff.':rows.length+' résultat(s) envoyés. Les propositions restent privées jusqu’à publication.')
+ }catch(e){if(seq===loadSeq){me=null;staff=false;rows=[];renderList();info(e.code==='TARGET_REQUIRED'?e.message:'Connexion impossible : '+e.message,e.code!=='TARGET_REQUIRED')}}
  finally{if(seq===loadSeq&&page==='pilot'){
   const submit=$('vce-race-form')?.querySelector('[type=submit]');if(submit)submit.disabled=!me;
-  const login=$('vce-race-pilot-login');if(login)login.hidden=Boolean(me);
+  const login=$('vce-race-pilot-login');if(login)login.hidden=Boolean(me)||staffSessionAllowed;
  }}
 }
 async function submit(event){
@@ -138,7 +167,7 @@ async function submit(event){
  busy=true;button.disabled=true;info('Envoi sécurisé au TEAM Staff…');
  try{
   const identity=await whoami();
-  if(!me||identity.id!==me.id||identity.slug!==me.slug){me=null;throw Error('Le compte connecté a changé. Actualise la page et vérifie le pilote avant de renvoyer.')}
+  if(!me||identity.id!==me.id||identity.slug!==me.slug||identity.actorId!==me.actorId||Boolean(identity.viaStaff)!==Boolean(me.viaStaff)){me=null;throw Error('Le compte connecté a changé. Actualise la page et vérifie le pilote avant de renvoyer.')}
   const record={
    pilot_auth_user:identity.id,pilot_slug:identity.slug,
    event_name:String(data.event_name||'').trim(),championship:String(data.championship||'').trim(),
@@ -148,7 +177,8 @@ async function submit(event){
    status:'pending',staff_notes:''
   };
   if(!record.event_name||!record.race_date||!record.track)throw Error('Épreuve, date et circuit obligatoires.');
-  await req('vce_race_result_submissions','POST',record,'return=minimal');
+  if(identity.viaStaff)await req('rpc/vce_staff_pilot_race','POST',{p_pilot:identity.slug,p_result:record,p_expected_actor:identity.actorId});
+  else await req('vce_race_result_submissions','POST',record,'return=minimal');
   try{localStorage.setItem('vce_team_results_updated_at',String(Date.now()))}catch{}
   form.reset();await load({quiet:true});info('✓ Résultat reçu par Supabase. Le Staff le retrouvera dans TEAM → Résultats reçus. Le rating reste inchangé.');
  }catch(e){info('Envoi impossible : '+e.message,true)}
@@ -196,7 +226,8 @@ function addFilters(){
 }
 function init(){
  window.addEventListener('vce-auth-session-ended',()=>{
-  loadSeq++;me=null;staff=false;rows=[];renderList();
+  loadSeq++;me=null;staff=false;staffSessionAllowed=false;rows=[];
+  $('vce-race-staff-pilot')?.parentElement?.remove();renderList();
   const submit=$('vce-race-form')?.querySelector('[type=submit]');if(submit)submit.disabled=true;
   const login=$('vce-race-pilot-login');if(login)login.hidden=false;
   info('Compte déconnecté. Reconnecte-toi pour consulter ou envoyer des résultats.',true);
