@@ -14,6 +14,7 @@
 - Identité du pilote et numéro de requête contrôlés avant affichage ; les réponses en retard sont ignorées et l’affichage est nettoyé à la déconnexion.
 - « Attribuer au pilote » publie directement. « Enregistrer un brouillon » reste une action distincte. Une écriture serveur atomique conserve les attributions déjà présentes et renvoie la liste confirmée.
 - Les nouvelles attributions enregistrent l’identifiant stable du pilote ; les anciennes attributions par nom restent lisibles.
+- La fiche Avec coach sélectionne le pilote authentifié, restaure uniquement son brouillon et revérifie le compte avant l’envoi. Le STAFF conserve sa sélection autorisée.
 - Coach IRL confirme le destinataire via l’effectif et l’identité serveur, sans reprendre une ancienne sélection de session. Les retours de séance et décisions STAFF sont synchronisés.
 - Flux et cloche STAFF : entraînements et résultats en attente, liens vers leur validation. Les erreurs de lecture ne sont pas annoncées comme une absence d’envoi.
 - Notifications de résultats vers le salon STAFF des entraînements si aucun salon de résultats distinct n’est défini. Le STAFF peut toujours choisir un salon séparé. Aucun lien secret n’est exposé.

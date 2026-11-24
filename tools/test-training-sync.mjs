@@ -31,3 +31,13 @@ const staff=readFileSync('entrainement-staff.html','utf8');assert.match(staff,/a
 const coach=readFileSync('assets/js/vce-coach-irl-dashboard.js','utf8');assert.doesNotMatch(coach,/getItem\('vce_current_pilot'/);assert.match(coach,/version!==loadVersion/);assert.match(coach,/access.pilot.id!==state.pilot/);
 assert.match(readFileSync('assets/js/vce-page-staff-data.js','utf8'),/pendingRaceResults\(\)/);
 console.log('PASS: cloud assignments, late roster, account-change race, training points cap, atomic STAFF publication and result alerts');
+const suivi=readFileSync('vce-suivi.js','utf8');
+const session={access_token:'test',user:{id:'user-a'}};
+const authContext={window:{VCESupabase:{configured:()=>true,validSession:async()=>session,session:()=>session,isStaff:async()=>false,read:async()=>({items:[{id:'driver-a',name:'DRIVER A'},{id:'driver-b',name:'DRIVER B'}]})},VCE_SUPABASE:{url:'https://example.invalid',key:'public'}},fetch:async()=>({ok:true,json:async()=>({pilot_slug:'driver-b'})}),AbortSignal:{timeout:()=>undefined},Error,Array};
+runInNewContext(suivi.slice(suivi.indexOf('async function trainingAccess(){'),suivi.indexOf('async function syncAuthenticatedPilot(){')),authContext);
+assert.equal((await authContext.trainingAccess()).pilot.id,'driver-b','Actual server identity, not an old browser selection, chooses the pilot');
+let sent=0;const submitButton={disabled:false,onclick:async()=>sent++},select={value:'DRIVER A',disabled:false},message={textContent:''};
+const submitContext={$:id=>id==='vceSubmit'?submitButton:message,select,authSeq:1,pilotAccess:{userId:'user-a',staff:false},trainingAccess:async()=>({userId:'user-b',staff:false,pilot:{name:'DRIVER B'}}),Error};
+runInNewContext(suivi.slice(suivi.indexOf("const sendTraining=$('vceSubmit').onclick;"),suivi.indexOf("window.addEventListener('vce-auth-session-ended'")),submitContext);
+await submitButton.onclick();assert.equal(sent,0);assert.match(message.textContent,/compte a changé/);
+console.log('PASS: With-coach identity selects its own profile and rejects account switching before send');
