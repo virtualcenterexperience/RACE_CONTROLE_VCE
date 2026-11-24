@@ -52,6 +52,7 @@ const categories=[
   "Attributions · validations · suivi · évaluations",
   "pilotage-coache.webp",
   [
+   ["▤","Séances d’un pilote","Choisir un pilote puis sa séance à consulter.","#staff-records"],
    [
     "◈",
     "Attributions et entraînements",
@@ -84,6 +85,7 @@ const categories=[
   "Résultats · lineups · calendrier · annonces",
   "simulateurs-vce.webp",
   [
+   ["▤","Résultats d’un pilote","Choisir un pilote puis son résultat à consulter.","#staff-records-results"],
    [
     "🏆",
     "Résultats",

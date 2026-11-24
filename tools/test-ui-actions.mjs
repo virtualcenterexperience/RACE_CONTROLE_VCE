@@ -28,8 +28,8 @@ function validationRuntime(){
  const deferred=new Promise((yes,no)=>{resolve=yes;reject=no});
  const VCESupabase={reviews:async()=>approved?[{session_id:'session1',decision:'approved',reviewed_at:'2026-11-23'}]:[],trainingSubmissions:async()=>[{session_id:'session1',pilot:'TEST PILOT',submitted_at:'2026-11-23',payload:{exercise:'Test'}}],review:()=>{calls++;return deferred.then(()=>{approved=true})}};
  const document={getElementById:id=>nodes[id],createElement:tag=>new Node(tag),querySelectorAll:selector=>Object.values(nodes).flatMap(n=>n.querySelectorAll(selector))};
- const context={document,VCESupabase,Map,Set,Date,Promise,console,alert:()=>{}};
- runInNewContext(script.slice(0,script.indexOf('const refreshButton=')),context);
+ const context={document,VCESupabase,Map,Set,Date,Promise,console,URLSearchParams,location:{search:''},alert:()=>{}};
+ runInNewContext(script.slice(0,script.indexOf('const selection=new URLSearchParams(location.search);\nif(selection')),context);
  return {context,nodes,calls:()=>calls,resolve,reject};
 }
 const runtime=validationRuntime();await runtime.context.render();

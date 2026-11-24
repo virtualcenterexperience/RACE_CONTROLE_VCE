@@ -9,6 +9,9 @@ const el=(tag,cl,txt)=>{const o=document.createElement(tag);if(cl)o.className=cl
 let staff=false,me=null,busy=false,rows=[],loadSeq=0,statusFilter=page==='staff'?'pending':'all',categoryFilter='all',query='';
 let staffSessionAllowed=false;
 let selectedTarget=new URLSearchParams(location.search).get('pilot')||location.hash.slice(1)||'';
+const selectedRecord=page==='staff'?new URLSearchParams(location.search).get('result')||'':'';
+const selectedPilot=page==='staff'?new URLSearchParams(location.search).get('pilot')||'':'';
+if(selectedRecord||selectedPilot)statusFilter='all';
 const permitted=['championship','daily','hotlap','esport_qualifying','esport_race','rally'];
 function info(message,error=false){const label=$('vce-race-state');if(label){label.textContent=message;label.dataset.error=error?'true':'false'}}
 async function identity(){
@@ -79,6 +82,7 @@ async function whoami(){
 }
 function filteredRows(){
  return rows.filter(r=>
+  (!selectedRecord||String(r.id)===selectedRecord)&&(!selectedPilot||r.pilot_slug===selectedPilot)&&
   (statusFilter==='all'||r.status===statusFilter)&&
   (categoryFilter==='all'||r.category===categoryFilter)&&
   (!query||[r.event_name,r.pilot_slug,r.track,r.championship,r.car].join(' ').toLowerCase().includes(query))
@@ -95,7 +99,7 @@ function renderList(){
   return
  }
  for(const row of filtered){
-  const card=el('article','vce-race-entry');card.dataset.status=row.status;
+  const card=el('article','vce-race-entry'+(selectedRecord===String(row.id)?' vce-selected-record':''));card.dataset.status=row.status;
   const top=el('div','vce-race-entry-head');
   const meta=el('div');
   meta.append(el('h3','',row.event_name||'Course'),
@@ -151,7 +155,7 @@ async function load({quiet=false}={}){
   if(seq!==loadSeq)return;
   if(page==='pilot')me=candidate;
   const url='vce_race_result_submissions?select=id,pilot_slug,event_name,championship,race_date,track,car,game,category,finishing_position,starters,notes,proof_url,status,staff_notes,created_at,scoring_version&order=created_at.desc&limit=200';
-  const data=await req(url+(page==='pilot'&&me?'&pilot_slug=eq.'+encodeURIComponent(me.slug):''));
+  const data=await req(url+(page==='pilot'&&me?'&pilot_slug=eq.'+encodeURIComponent(me.slug):'')+(selectedRecord?'&id=eq.'+encodeURIComponent(selectedRecord):'')+(selectedPilot?'&pilot_slug=eq.'+encodeURIComponent(selectedPilot):''));
   if(seq!==loadSeq)return;
   rows=Array.isArray(data)?data:[];
   renderList();
@@ -217,6 +221,7 @@ async function review(row,decision,note,criteria={}){
 function addFilters(){
  const target=$('vce-race-list');if(!target)return;
  const area=el('div','vce-race-filterbar');
+ if(selectedRecord||selectedPilot){const all=el('a','','← Afficher tous les résultats');all.href='team-resultats-recus.html';area.append(all)}
  const heading=el('div','vce-race-filter-head');
  heading.append(el('strong','','AFFINER LES RÉSULTATS'),el('small','',page==='staff'?'Validation STAFF · rating synchronisé':'Suivi de tes propositions'));
  area.append(heading);

@@ -72,6 +72,8 @@ jobs:
         run: node tools/test-login-webhook.mjs
       - name: Verify race-result identity and Rallye exercises
         run: node tools/test-result-identity.mjs
+      - name: Verify STAFF record selection and targeted navigation
+        run: node tools/test-staff-records.mjs
       - name: Verify event-specific ranking and field-size scoring
         run: node tools/test-event-rating-v2.mjs
       - name: Verify accepted race results update profile ratings once
