@@ -13,12 +13,14 @@ assert.equal(merge({},[proposal,proposal,{...proposal,id:'duplicate'}]).length,1
 for(const [position,expected] of [[1,100],[2,80],[3,80],[4,25],[8,25],[9,10],[12,10],[13,-10],[18,-10],[19,-25],[100,-25],[0,0],[1.5,0]]){
  assert.equal(delta({race:{},result:{position}}),expected,'Position '+position);
 }
+for(const position of [1,2,3,4,9,13,19,450])assert.equal(delta({race:{competitionType:'rally',starters:450},result:{position}}),delta({race:{competitionType:'esport',starters:450},result:{position}}),'Rallye uses the same course scale');
+assert.equal(delta(merge({},[{...proposal,category:'rally'}])[0]),80);
 const official={presets:[{id:1,published:true,data:{event:'TARMAC RALLY 101',date:'2026-11-11',circuit:'monza',results:[{position:3,firstName:'Victor',lastName:'Auger',drivers:['Victor Auger']}]}}]};
 assert.equal(merge(official,[proposal]).length,1,'Official publication and accepted proposal represent one result');
 assert.equal(merge(official,[{...proposal,race_date:'2026-11-12'}]).length,2,'Separate races remain distinct');
 const crew={presets:[{id:2,published:true,data:{event:'Endurance',date:'2026-11-12',circuit:'Spa',results:[{position:1,firstName:'Victor',lastName:'Auger',drivers:['Victor Auger','Lucas Galy']}]}}]};
 assert.equal(merge(crew,[])[0].drivers.length,2,'Endurance lead driver is not counted twice');
-for(const settings of [{ratingEnabled:false},{ratingMode:'none'},{ratingMode:'manual'},{competitionType:'event'},{competitionType:'rally'}])assert.equal(delta({race:settings,result:{position:1}}),0);
+for(const settings of [{ratingEnabled:false},{ratingMode:'none'},{ratingMode:'manual'},{competitionType:'event'}])assert.equal(delta({race:settings,result:{position:1}}),0);
 assert.equal(delta({race:{},result:{position:1,status:'DNF'}}),-25);
 const profile=readFileSync('assets/js/vce-page-pilote-data.js','utf8');
 const logic=profile.slice(profile.indexOf('async function publishedRaceEntries()'),profile.indexOf('async function approvedTrainingData()'));

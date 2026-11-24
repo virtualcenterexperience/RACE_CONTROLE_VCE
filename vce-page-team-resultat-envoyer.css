@@ -49,7 +49,7 @@
 .vce-race-filter-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-bottom:12px}
 .vce-race-filter-head strong{font-size:11px;letter-spacing:1.3px;color:#e4f2fe}
 .vce-race-filter-head small{font-size:11px;color:#a6c8e2}
-.vce-race-filter-controls{display:grid;grid-template-columns:minmax(145px,.8fr) minmax(145px,.8fr) minmax(200px,1.4fr);gap:9px}
+.vce-race-filter-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:9px}
 .vce-race-filter-controls input,.vce-race-filter-controls select{min-width:0;width:100%;background:#08182a;color:#f1f8ff;border:1px solid #456789;border-radius:7px;padding:11px 12px;font:650 12px system-ui}
 .vce-race-filter-controls input:focus-visible,.vce-race-filter-controls select:focus-visible{outline:2px solid #67b8f4;outline-offset:2px}
 .vce-race-showing{margin:10px 0 0;font-size:11px;color:#9fc3df}
@@ -193,3 +193,7 @@ body.vce-page-staff .panel{border-radius:11px}
 @keyframes vce-vignette-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:no-preference){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:vce-vignette-enter .48s cubic-bezier(.2,.7,.2,1) backwards;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item):hover{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){:is(.card,.pilot-select,.vce-race-carousel .card,.tile,.training-card,.vce-overlay-item){animation:none!important;transition:none!important}}
+
+.vce-race-panel,.vce-race-layout>*,.vce-race-filterbar{min-width:0}
+#vce-race-pilot-login{display:inline-flex;margin:8px 0;white-space:normal}
+#vce-race-pilot-login[hidden]{display:none}

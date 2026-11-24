@@ -7,7 +7,7 @@ const $=id=>document.getElementById(id),cfg=()=>window.VCE_SUPABASE||{};
 const tr=(fr,en)=>document.documentElement.lang==='en'?en:fr;
 const el=(tag,cl,txt)=>{const o=document.createElement(tag);if(cl)o.className=cl;if(txt!==undefined)o.textContent=txt;return o};
 let staff=false,me=null,busy=false,rows=[],loadSeq=0,statusFilter=page==='staff'?'pending':'all',categoryFilter='all',query='';
-const permitted=['sprint','esport','qualification','endurance','special'];
+const permitted=['sprint','esport','qualification','endurance','special','rally'];
 function info(message,error=false){const label=$('vce-race-state');if(label){label.textContent=message;label.dataset.error=error?'true':'false'}}
 async function identity(){
  if(!window.VCESupabase?.configured())throw Error('Supabase indisponible');
@@ -39,8 +39,15 @@ async function whoami(){
   headers:{apikey:config.key,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
   body:JSON.stringify({action:'pilot_whoami'})
  });
- const data=await response.json();
- if(!response.ok||!data.pilot_slug)throw Error('Le compte connecté n’est pas associé à un pilote actif.');
+ const data=await response.json().catch(()=>({error:'Réponse non JSON du service de connexion.'}));
+ if(!response.ok)throw Error(data.error||('Vérification du compte impossible (HTTP '+response.status+').'));
+ if(!data.pilot_slug){
+  const isStaff=await window.VCESupabase.isStaff();
+  const error=Error(isStaff?'Tu es connecté au STAFF. Connecte-toi avec ton compte pilote pour envoyer un résultat personnel.':'Ce compte n’est pas associé à un pilote. Connecte-toi depuis ton profil pilote.');
+  error.code='PILOT_IDENTITY_REQUIRED';throw error;
+ }
+ if(data.password_change_required)throw Error('Termine le changement de ton mot de passe provisoire depuis ton profil pilote.');
+ if(!session.user?.id)throw Error('Session pilote incomplète. Reconnecte-toi depuis ton profil.');
  return {id:session.user?.id,slug:data.pilot_slug};
 }
 function filteredRows(){
@@ -112,7 +119,11 @@ async function load({quiet=false}={}){
   rows=Array.isArray(data)?data:[];
   renderList();
   if(!quiet)info(staff?rows.filter(x=>x.status==='pending').length+' proposition(s) en attente du Staff.':rows.length+' résultat(s) envoyés. Les propositions restent privées jusqu’à publication.')
- }catch(e){if(seq===loadSeq)info('Connexion impossible : '+e.message,true)}
+ }catch(e){if(seq===loadSeq){me=null;info('Connexion impossible : '+e.message,true)}}
+ finally{if(seq===loadSeq&&page==='pilot'){
+  const submit=$('vce-race-form')?.querySelector('[type=submit]');if(submit)submit.disabled=!me;
+  const login=$('vce-race-pilot-login');if(login)login.hidden=Boolean(me);
+ }}
 }
 async function submit(event){
  event.preventDefault();if(busy)return;
@@ -138,7 +149,7 @@ async function submit(event){
   await req('vce_race_result_submissions','POST',record,'return=minimal');
   form.reset();await load({quiet:true});info('✓ Résultat reçu par Supabase. Le Staff le retrouvera dans TEAM → Résultats reçus. Le rating reste inchangé.');
  }catch(e){info('Envoi impossible : '+e.message,true)}
- finally{busy=false;button.disabled=false}
+ finally{busy=false;button.disabled=!me}
 }
 async function review(row,decision,note){
  if(busy||!staff)return;
@@ -171,7 +182,7 @@ function addFilters(){
  status.value=statusFilter;
  status.addEventListener('change',()=>{statusFilter=status.value;renderList()});
  const cat=el('select','');cat.id='vce-race-filter-category';cat.setAttribute('aria-label','Filtrer selon la catégorie');
- for(const [value,name] of [['all','Toutes les catégories'],['sprint','Sprint'],['esport','Esport'],['qualification','Qualification'],['endurance','Endurance'],['special','Spécial']])cat.append(new Option(name,value));
+ for(const [value,name] of [['all','Toutes les catégories'],['sprint','Sprint'],['esport','Esport'],['qualification','Qualification'],['endurance','Endurance'],['special','Spécial'],['rally','Rallye']])cat.append(new Option(name,value));
  cat.addEventListener('change',()=>{categoryFilter=cat.value;renderList()});
  const search=el('input','');search.type='search';search.id='vce-race-filter-search';
  search.placeholder='Pilote, épreuve, circuit…';search.setAttribute('aria-label','Rechercher dans les résultats');
@@ -184,7 +195,15 @@ function init(){
  addFilters();
 
  const form=$('vce-race-form');
- if(form){form.addEventListener('submit',submit);
+ if(form){
+  form.querySelector('[type=submit]').disabled=true;
+  const login=el('a','vce-race-proof','SE CONNECTER AVEC UN COMPTE PILOTE');login.id='vce-race-pilot-login';
+  const pilot=new URLSearchParams(location.search).get('pilot')||location.hash.slice(1);
+  login.href='pilote.html?auth=pilot'+(pilot?'#'+encodeURIComponent(pilot):'');login.hidden=true;
+  $('vce-race-state')?.after(login);
+  const category=form.querySelector('[name=category]'),starters=form.querySelector('[name=starters]');
+  category.addEventListener('change',()=>{if(category.value==='rally'&&!starters.value)starters.value='450'});
+  form.addEventListener('submit',submit);
   const date=form.querySelector('[name=race_date]');if(date)date.max=new Date().toISOString().slice(0,10);
  }
  const refresh=$('vce-race-refresh');if(refresh)refresh.onclick=load;

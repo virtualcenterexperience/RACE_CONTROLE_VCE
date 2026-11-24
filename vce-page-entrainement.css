@@ -166,3 +166,5 @@ body.vce-page-training .vce-training-modes .card:nth-child(2){border-top:3px sol
 body.vce-page-training .vce-training-modes .card:nth-child(3){border-top:3px solid #fa496e}
 body.vce-page-training .vce-training-modes .card span{display:block;margin-top:12px;line-height:1.7}
 body.vce-page-training .vce-training-modes .arrow{margin-top:25px;align-self:flex-start}
+
+.vce-rally-intro{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px;margin:24px 0;background:#102337;border:1px solid #315576;border-left:3px solid #43bde8;border-radius:10px}.vce-rally-intro h2{margin:0 0 8px;color:#f4f8ff}.vce-rally-intro p{max-width:60ch;margin:0;color:#bcd1e5}.vce-rally-intro a{flex-shrink:0;max-width:100%;padding:12px;border:1px solid #43bde8;border-radius:7px;color:#c8f0ff;font-weight:800;text-decoration:none}@media(max-width:700px){.vce-rally-intro{align-items:stretch;flex-direction:column}.vce-rally-intro a{white-space:normal}}

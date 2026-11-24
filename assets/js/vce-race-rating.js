@@ -4,7 +4,7 @@
   const norm = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim();
   function delta(row) {
     const race = row.race || {}, result = row.result || {};
-    if (race.ratingEnabled === false || ['none', 'manual'].includes(race.ratingMode) || ['event', 'rally'].includes(race.competitionType)) return 0;
+    if (race.ratingEnabled === false || ['none', 'manual'].includes(race.ratingMode) || race.competitionType === 'event') return 0;
     if (/DNF|ABANDON/.test(norm(result.status || result.statut))) return -25;
     const pos = Number(result.position);
     return !Number.isInteger(pos) || pos < 1 ? 0 : pos === 1 ? 100 : pos <= 3 ? 80 : pos <= 8 ? 25 : pos <= 12 ? 10 : pos <= 18 ? -10 : -25;
@@ -29,7 +29,7 @@
     for (const item of accepted || []) {
       if (item.status && item.status !== 'accepted') continue;
       const row = {preset: 'submission:' + item.id, submissionId: item.id,
-        race: {event: item.event_name, date: item.race_date, circuit: item.track, mode: item.category === 'endurance' ? 'endurance' : 'individuel'},
+        race: {event: item.event_name, date: item.race_date, circuit: item.track, competitionType:item.category==='rally'?'rally':'race',mode: item.category === 'endurance' ? 'endurance' : 'individuel'},
         result: {position: item.finishing_position, car: item.car}, drivers: [item.pilot_slug]};
       const key = signature(row, item.pilot_slug);
       if (official.has(key) || linked.has([item.id, norm(item.pilot_slug)].join('|')) || seen.has(key)) continue;

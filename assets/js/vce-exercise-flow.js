@@ -40,7 +40,7 @@ function stage(){
  card.append(node('p',item.body));
  if(step===0){
   const lab=node('label',tr('Jeu utilisé : ','Selected game: '));
-  const select=document.createElement('select');select.id='vce-flow-game';for(const name of ['Assetto Corsa','Assetto Corsa Competizione','Le Mans Ultimate','rFactor 2'])select.append(new Option(name,name));
+  const select=document.createElement('select');select.id='vce-flow-game';for(const name of ['Assetto Corsa','Assetto Corsa Competizione','Le Mans Ultimate','rFactor 2','Assetto Corsa Rally','EA SPORTS WRC','DiRT Rally 2.0','Richard Burns Rally'])select.append(new Option(name,name));
   select.value=game||'Assetto Corsa';select.onchange=()=>{game=select.value};lab.append(select);card.append(lab);
  }
  card.append(node('small',tr('Schéma d’illustration, pas la trajectoire mesurée d’un circuit réel.','Illustrative diagram, not the measured racing line of a real circuit.')));

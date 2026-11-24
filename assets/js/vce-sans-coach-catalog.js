@@ -4,7 +4,7 @@ let exercises=[];
 const $=id=>document.getElementById(id);
 const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-const dataPaths=['entrainements/exercices_vce.json','entrainements/exercices_rythme_gt3.json','entrainements/exercices_trajectoires_gt3.json'];
+const dataPaths=['entrainements/exercices_vce.json','entrainements/exercices_rythme_gt3.json','entrainements/exercices_trajectoires_gt3.json','entrainements/exercices_rallye.json'];
 const continents=['afrique','amerique-du-nord','amerique-du-sud','asie','europe','oceanie'];
 const imageFiles={
  freinage:['01_point_de_freinage.webp','02_dosage_du_frein.webp','03_stabilite_entree.webp','04_freinage_degressif.webp','05_trail_braking.webp'],
@@ -94,7 +94,7 @@ function show(){
 function setupContext(){
  const cs=$('trainingCircuit');const track=cs?.value!==''?circuits[Number(cs.value)]:null;
  const i=$('trainingCorner')?.value,corner=track&&i!==''?track.virages?.[Number(i)]:null;
- return {game:$('trainingGame').value,car:$('trainingCar').value||$('vehicleType').value,track:track?.name||'',corner:corner?.nom||corner?.etiquette||'',assists:$('trainingAssists').value,setup:$('trainingSetup').value};
+ return {game:$('trainingGame').value,car:$('trainingCar').value||$('vehicleType').value,track:$('trainingStage')?.value.trim()||track?.name||'',corner:corner?.nom||corner?.etiquette||'',assists:$('trainingAssists').value,setup:$('trainingSetup').value};
 }
 function modal(x){
  const cx=setupContext();
@@ -125,12 +125,13 @@ async function init(){
    Promise.all(dataPaths.map(read)),
    Promise.all(continents.map(n=>read('data/'+n+'.json').catch(()=>({circuits:[]}))))
   ]);
-  structured=packs.flatMap((j,i)=>(j.exercices||[]).map(x=>normalizeStructured(x,i===0?'VCE multi-catégories':i===1?'GT3 · Rythme':'GT3 · Trajectoires')));
+  structured=packs.flatMap((j,i)=>(j.exercices||[]).map(x=>normalizeStructured(x,i===0?'VCE multi-catégories':i===1?'GT3 · Rythme':i===2?'GT3 · Trajectoires':'Rallye')));
   structured=[...new Map(structured.map(x=>[x.id,x])).values()];
   circuits=tracks.flatMap(v=>v.circuits||[]);
   $('trainingCircuit').replaceChildren(new Option('Choisir le circuit',''));
   circuits.forEach((c,i)=>$('trainingCircuit').add(new Option(c.name,String(i))));
   $('status').textContent='Packs VCE chargés : '+structured.length+' exercices classés. Les fiches complémentaires sont chargées à la demande.';
+  if(new URLSearchParams(location.search).get('discipline')==='rallye')$('vehicleType').value='RALLYE';
   await switchPack();
  }catch(e){$('status').textContent='Chargement des exercices impossible : '+e.message;}
 }
