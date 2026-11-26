@@ -549,3 +549,5 @@ html body.vce-page-pilot #pilotSelection:not(.hidden) #pilotGrid:not([data-vce-c
 
 #assignedList .item,#vceNotices .item{overflow-wrap:anywhere;min-width:0}
 #assignedList a,#vceNotices a{display:inline-block;max-width:100%;padding:8px 0}
+
+#vce-pilot-auth-message[data-error=true]{color:#fff0f3;background:#501c2b;border:1px solid #ff5377;border-left-width:4px;padding:12px;border-radius:7px;font-weight:700}

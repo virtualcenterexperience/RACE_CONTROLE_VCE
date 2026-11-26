@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const slug=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const internalEmail=id=>'vce-pilote+'+id+'@virtual-center-experience.fr';
-const state={seq:0,verified:'',retry:null};
+const state={seq:0,verified:'',retry:null,signingIn:false,loginError:false};
 window.VCEPilotAuthCanAccess=id=>state.verified===slug(id)&&Boolean(id);
 let card=null;
 const spectatorRequested=location.pathname.endsWith('/pilote.html')&&new URLSearchParams(location.search).get('view')==='spectateur';
@@ -52,7 +52,7 @@ function mount(){
  $('vce-pilot-login-form').addEventListener('submit',signIn);
  $('vce-pilot-show-secret').onchange=()=>{$('vce-pilot-secret').type=$('vce-pilot-show-secret').checked?'text':'password'};
  $('vce-pilot-change-form').addEventListener('submit',changePassword);
- $('vce-pilot-retry').onclick=()=>route();
+ $('vce-pilot-retry').onclick=()=>{state.loginError=false;route()};
  $('vce-pilot-reconnect').onclick=()=>{window.VCESupabase?.logout();showForm('Compte déconnecté. Connecte-toi avec les identifiants de ce pilote.')};
 }
 function show(message='',prefill=false){
@@ -61,6 +61,8 @@ function show(message='',prefill=false){
  $('vce-pilot-auth-name').textContent=currentName;
  if(prefill||!$('vce-pilot-username').value)$('vce-pilot-username').value='virtualcenterexperience';
  $('vce-pilot-auth-message').textContent=message;
+ $('vce-pilot-auth-message').setAttribute('role','status');
+ $('vce-pilot-auth-message').dataset.error='false';
 }
 function showForm(message=''){
  show(message||'Identifiant : virtualcenterexperience. Utilise le mot de passe personnel du pilote sélectionné ou son dernier code provisoire.');
@@ -102,7 +104,8 @@ async function route(){
   showStatus(spectatorRequested?'Connecte-toi au Staff pour ouvrir ce profil en vue spectateur.':'');
   return;
  }
- showStatus('Vérification de la session…');
+ showStatus('Connexion établie · vérification de l’accès au profil…');
+ if(!spectatorRequested)$('vce-pilot-login-form').hidden=true;
  try{
   const session=await supabase.validSession();
   if(request!==state.seq)return;
@@ -133,7 +136,8 @@ async function route(){
  }catch(error){
   if(request!==state.seq)return;
   if(!supabase.session()){showStatus('Session expirée. Reconnecte-toi.');return}
-  showStatus('Vérification momentanément indisponible : '+error.message);
+  showStatus('Connexion établie, mais accès au profil momentanément indisponible : '+error.message+' Utilise Réessayer ma session, sans ressaisir ton mot de passe.');
+  if(!spectatorRequested)$('vce-pilot-login-form').hidden=true;
   state.retry=setTimeout(()=>{if(!document.hidden&&request===state.seq)route()},15000);
  }
 }
@@ -141,13 +145,16 @@ async function signIn(e){
  e.preventDefault();const input=$('vce-pilot-secret'),secret=input.value;
  const entered=$('vce-pilot-username').value.trim();
  const email=entered.includes('@')?entered.toLowerCase():internalEmail(entered.toLowerCase()==='virtualcenterexperience'?current():slug(entered));
- const button=e.currentTarget.querySelector('button[type=submit]');if(button.disabled)return;button.disabled=true;
+ const button=e.currentTarget.querySelector('button[type=submit]');if(state.signingIn||button.disabled)return;button.disabled=true;state.signingIn=true;state.loginError=false;clearTimeout(state.retry);
  show('Vérification des identifiants…');
+ let authenticated=false;
  try{
   if(!entered)throw Error('Saisis ton identifiant pilote ou ton e-mail.');
   state.verified='';state.seq++;
   await window.VCESupabase.login(email,secret,{remember:$('vce-pilot-remember')?.checked===true});
-  input.value='';
+  authenticated=true;input.value='';
+  show('Identifiants acceptés · ouverture du profil…');
+  $('vce-pilot-login-form').hidden=true;
   // A STAFF session is valid for the selected pilot, even without a personal pilot identity.
   // route() checks the STAFF permission and active roster on the server before opening it.
   let identity=null,identityError=null;
@@ -163,10 +170,17 @@ async function signIn(e){
    throw Error('Ce compte n’est pas associé à un pilote actif. Utilise ton compte pilote personnel.');
   }
  }catch(err){
+  state.loginError=true;
   const rejected=/invalid_credentials|Invalid login credentials/i.test(err.message);
   showForm(rejected?'Identifiant ou mot de passe incorrect. Tu peux modifier l’identifiant ci-dessus ou choisir un autre profil. Utilise ton mot de passe personnel ou le dernier code provisoire du STAFF.':'Connexion impossible : '+err.message);
+  if(authenticated&&window.VCESupabase.session()){
+   $('vce-pilot-login-form').hidden=true;
+   $('vce-pilot-auth-message').textContent='Connexion établie, mais vérification du profil impossible : '+err.message+' Utilise Réessayer ma session.';
+  }
+  $('vce-pilot-auth-message').setAttribute('role','alert');
+  $('vce-pilot-auth-message').dataset.error='true';
  }
- finally{input.value='';input.type='password';if($('vce-pilot-show-secret'))$('vce-pilot-show-secret').checked=false;button.disabled=false}
+ finally{state.signingIn=false;button.disabled=false}
 }
 async function changePassword(e){
  e.preventDefault();const password=$('vce-pilot-new').value,confirmation=$('vce-pilot-confirm').value;
@@ -189,11 +203,11 @@ async function changePassword(e){
 }
 function start(){
  mount();route();
- window.addEventListener('hashchange',()=>{ $('vce-pilot-secret').value='';$('vce-pilot-username').value='virtualcenterexperience';route(); });
- window.addEventListener('online',()=>{if(!state.verified&&window.VCESupabase?.session())route()});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!state.verified&&window.VCESupabase?.session())route()});
+ window.addEventListener('hashchange',()=>{ state.loginError=false; $('vce-pilot-secret').value='';$('vce-pilot-username').value='virtualcenterexperience';route(); });
+ window.addEventListener('online',()=>{if(!state.signingIn&&!state.loginError&&!state.verified&&window.VCESupabase?.session())route()});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!state.signingIn&&!state.loginError&&!state.verified&&window.VCESupabase?.session())route()});
  window.addEventListener('vce-auth-session-ended',()=>{
-  state.verified='';
+  state.verified='';state.loginError=false;
   $('vce-pilot-secret').value='';$('vce-pilot-new').value='';$('vce-pilot-confirm').value='';
   $('vce-pilot-username').value='';
   route();
