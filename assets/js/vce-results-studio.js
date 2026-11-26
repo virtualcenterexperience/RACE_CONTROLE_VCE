@@ -648,7 +648,7 @@ function prefill() {
     if (!item || item.id !== draftId || item.status !== 'accepted') return false;
     const values = {
       mode: item.category === 'endurance' ? 'endurance' : 'solo',
-      event: item.event_name,
+      event: item.event_name+(item.race_number?' · Course '+item.race_number:''),
       date: item.race_date,
       circuit: item.track,
       position: item.finishing_position

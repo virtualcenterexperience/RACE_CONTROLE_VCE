@@ -197,3 +197,7 @@ body.vce-page-staff .panel{border-radius:11px}
 .vce-race-panel,.vce-race-layout>*,.vce-race-filterbar{min-width:0}
 #vce-race-pilot-login{display:inline-flex;margin:8px 0;white-space:normal}
 #vce-race-pilot-login[hidden]{display:none}
+
+/* Optional evening race selector: checkbox stays inline and hidden labels stay hidden. */
+.vce-race-form-grid input[type=checkbox]{display:inline-block;width:auto;margin:0 8px 0 0;vertical-align:middle;accent-color:#ff315f}
+.vce-race-form-grid [hidden]{display:none!important}

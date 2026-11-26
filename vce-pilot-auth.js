@@ -39,6 +39,7 @@ function mount(){
  '<p id="vce-pilot-auth-name"></p><p id="vce-pilot-auth-message" role="status" aria-live="polite"></p>'+
  '<form id="vce-pilot-login-form"><label>Identifiant pilote ou e-mail<input required autocomplete="username" autocapitalize="none" spellcheck="false" id="vce-pilot-username" name="username"></label>'+
  '<label>Mot de passe personnel ou code provisoire<input id="vce-pilot-secret" type="password" autocomplete="current-password" required></label>'+
+ '<label class="vce-remember-pilot"><input id="vce-pilot-show-secret" type="checkbox"> Afficher le mot de passe</label>'+
  '<label class="vce-remember-pilot"><input id="vce-pilot-remember" type="checkbox"> Rester connecté (ordinateur personnel uniquement)</label>'+
  '<button type="submit">ACCÉDER À MON PROFIL</button></form>'+
  '<form id="vce-pilot-change-form" hidden><p>Première connexion : remplace le code provisoire par un mot de passe personnel.</p>'+
@@ -49,6 +50,7 @@ function mount(){
  '<a href="pilote.html" id="vce-pilot-auth-back">← Retour à la liste des pilotes</a></div></section>';
  document.body.append(card);
  $('vce-pilot-login-form').addEventListener('submit',signIn);
+ $('vce-pilot-show-secret').onchange=()=>{$('vce-pilot-secret').type=$('vce-pilot-show-secret').checked?'text':'password'};
  $('vce-pilot-change-form').addEventListener('submit',changePassword);
  $('vce-pilot-retry').onclick=()=>route();
  $('vce-pilot-reconnect').onclick=()=>{window.VCESupabase?.logout();showForm('Compte déconnecté. Connecte-toi avec les identifiants de ce pilote.')};
@@ -139,22 +141,32 @@ async function signIn(e){
  e.preventDefault();const input=$('vce-pilot-secret'),secret=input.value;
  const entered=$('vce-pilot-username').value.trim();
  const email=entered.includes('@')?entered.toLowerCase():internalEmail(entered.toLowerCase()==='virtualcenterexperience'?current():slug(entered));
- const button=e.currentTarget.querySelector('button[type=submit]');button.disabled=true;
+ const button=e.currentTarget.querySelector('button[type=submit]');if(button.disabled)return;button.disabled=true;
  show('Vérification des identifiants…');
  try{
   if(!entered)throw Error('Saisis ton identifiant pilote ou ton e-mail.');
   state.verified='';state.seq++;
   await window.VCESupabase.login(email,secret,{remember:$('vce-pilot-remember')?.checked===true});
   input.value='';
-  const identity=await api('pilot_whoami');
-  const own=slug(identity.pilot_slug);
-  if(!own)throw Error('Ce compte n’est pas associé à un pilote actif. Utilise ton compte pilote personnel.');
-  if(current()!==own){location.hash=own;}else{await route();}
+  // A STAFF session is valid for the selected pilot, even without a personal pilot identity.
+  // route() checks the STAFF permission and active roster on the server before opening it.
+  let identity=null,identityError=null;
+  try{identity=await api('pilot_whoami')}catch(error){identityError=error}
+  const own=slug(identity?.pilot_slug);
+  if(own){
+   if(current()!==own){location.hash=own;}else{await route();}
+  }else if(await window.VCESupabase.isStaff()){
+   await route();
+  }else if(identityError){
+   await route();
+  }else{
+   throw Error('Ce compte n’est pas associé à un pilote actif. Utilise ton compte pilote personnel.');
+  }
  }catch(err){
   const rejected=/invalid_credentials|Invalid login credentials/i.test(err.message);
   showForm(rejected?'Identifiant ou mot de passe incorrect. Tu peux modifier l’identifiant ci-dessus ou choisir un autre profil. Utilise ton mot de passe personnel ou le dernier code provisoire du STAFF.':'Connexion impossible : '+err.message);
  }
- finally{input.value='';button.disabled=false}
+ finally{input.value='';input.type='password';if($('vce-pilot-show-secret'))$('vce-pilot-show-secret').checked=false;button.disabled=false}
 }
 async function changePassword(e){
  e.preventDefault();const password=$('vce-pilot-new').value,confirmation=$('vce-pilot-confirm').value;

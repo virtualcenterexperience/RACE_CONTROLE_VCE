@@ -62,6 +62,8 @@ jobs:
         run: node tools/test-auth-refresh.mjs
       - name: Verify next-day login persistence and auth outage recovery
         run: node tools/test-auth-continuity.mjs
+      - name: Verify concurrent login and logout isolation
+        run: node tools/test-auth-login-races.mjs
       - name: Verify contextual GT3 coaching for Monza
         run: node tools/test-coach-engine.mjs
       - name: Verify conversational coaching and keyword retrieval
@@ -76,6 +78,8 @@ jobs:
         run: node tools/test-staff-records.mjs
       - name: Verify event-specific ranking and field-size scoring
         run: node tools/test-event-rating-v2.mjs
+      - name: Verify event hierarchy and optional two-race evenings
+        run: node tools/test-event-rating-v3.mjs
       - name: Verify accepted race results update profile ratings once
         run: node tools/test-race-rating.mjs
       - name: Check module-specific scripts and GitHub/Supabase routing

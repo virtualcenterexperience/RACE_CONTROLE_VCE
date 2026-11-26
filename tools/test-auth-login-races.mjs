@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
+const pending=[],map=new Map();
+const storage={getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+const window={VCE_SUPABASE:{url:'https://example.supabase.co',key:'sb_publishable_TEST'},addEventListener(){},dispatchEvent(){}};
+runInNewContext(readFileSync('vce-supabase.js','utf8'),{window,sessionStorage:storage,fetch:(url,options)=>new Promise(resolve=>pending.push({url,options,resolve})),AbortSignal,Date,JSON,Map,Promise,Error,Event:class{}});
+const api=window.VCESupabase;
+const success=(index,id)=>pending[index].resolve({ok:true,status:200,text:async()=>JSON.stringify({access_token:'jwt-'+id,refresh_token:'refresh-'+id,expires_in:3600})});
+const first=api.login('  PILOT-A@example.invalid  ',' secret ');
+assert.equal(JSON.parse(pending[0].options.body).email,'pilot-a@example.invalid');
+assert.equal(JSON.parse(pending[0].options.body).password,' secret ','Never normalize a password');
+const lateFirst=assert.rejects(first,/remplacée|annulée/);
+const second=api.login('pilot-b@example.invalid','test');success(1,'b');await second;
+success(0,'a');await lateFirst;assert.equal(api.session().access_token,'jwt-b','A late response must not restore the previous account');
+const third=api.login('pilot-c@example.invalid','test');const cancelled=assert.rejects(third,/remplacée|annulée/);api.logout();success(2,'c');await cancelled;assert.equal(api.session(),null,'Logging out while login is pending must not reconnect the account');
+const fourth=api.login('pilot-d@example.invalid','test');const invalid=assert.rejects(fourth,/invalid_credentials/);pending[3].resolve({ok:false,status:400,text:async()=>JSON.stringify({code:'invalid_credentials'})});await invalid;assert.equal(pending.length,4,'Wrong credentials must never cause automatic retries');
+console.log('PASS: email normalization, password preservation, concurrent account changes, pending-login cancellation and credential rejection');

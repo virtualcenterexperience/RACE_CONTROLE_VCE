@@ -145,6 +145,10 @@ async function request(path,opts={},auth=false){
  if(r.status===204||r.status===205)return null;const body=await r.text();if(!body.trim())return null;try{return JSON.parse(body)}catch{throw Error('Réponse Supabase invalide (HTTP '+r.status+')')}
 }
 async function login(email,password,options={}){
+ email=String(email||'').trim().toLowerCase();
+ if(!email||!String(password||''))throw Error('Saisis ton identifiant et ton mot de passe.');
+ const generation=++sessionGeneration;
+ clearStaffCache();
  let d;
  // A retry is only allowed for server/network failures, never for wrong passwords.
  for(let attempt=0;attempt<2;attempt++){
@@ -159,8 +163,8 @@ async function login(email,password,options={}){
  }
  if(!d?.access_token||!d?.refresh_token||!Number.isFinite(d.expires_in))
   throw Error('Réponse de connexion incomplète de Supabase.');
+ if(generation!==sessionGeneration)throw Error('La tentative de connexion a été remplacée ou annulée. Réessaie.');
  d.expires_at=Math.floor(Date.now()/1000)+d.expires_in;
- sessionGeneration++;
  saveSession(d,options?.remember===true);
  refreshBackoff=null;
  clearStaffCache();return d
@@ -217,7 +221,7 @@ async function trainingSubmissions({includePayload=true}={}){
 async function acceptedRaceResults(){
  const all=[];
  for(let offset=0;;offset+=1000){
-  const rows=await request('/rest/v1/vce_race_rating_results?select=id,pilot_slug,event_name,race_date,track,car,category,finishing_position,starters,scoring_version&order=id.asc&limit=1000&offset='+offset,{},true);
+  const rows=await request('/rest/v1/vce_race_rating_results?select=id,pilot_slug,event_name,race_date,track,car,category,finishing_position,starters,scoring_version,race_number&order=id.asc&limit=1000&offset='+offset,{},true);
   if(!Array.isArray(rows))throw Error('Résultats validés non confirmés par le serveur.');
   all.push(...rows);if(rows.length<1000)return all;
  }

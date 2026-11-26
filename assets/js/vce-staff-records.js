@@ -30,7 +30,7 @@ function trainingRecords(p,assignments,submissions){
 async function readRaces(session,pilotId){
  const cfg=window.VCE_SUPABASE,all=new Map();
  for(let offset=0;;offset+=500){
-  const response=await fetch(cfg.url+'/rest/v1/vce_race_result_submissions?pilot_slug=eq.'+encodeURIComponent(pilotId)+'&select=id,event_name,race_date,championship,track,car,category,finishing_position,starters,status,notes,staff_notes,proof_url,created_at&order=created_at.desc,id.desc&limit=500&offset='+offset,{headers:{apikey:cfg.key,Authorization:'Bearer '+session.access_token},cache:'no-store',signal:AbortSignal.timeout(14000)});
+  const response=await fetch(cfg.url+'/rest/v1/vce_race_result_submissions?pilot_slug=eq.'+encodeURIComponent(pilotId)+'&select=id,event_name,race_date,championship,track,car,category,finishing_position,starters,status,notes,staff_notes,proof_url,created_at,race_number&order=created_at.desc,id.desc&limit=500&offset='+offset,{headers:{apikey:cfg.key,Authorization:'Bearer '+session.access_token},cache:'no-store',signal:AbortSignal.timeout(14000)});
   if(!response.ok)throw Error('Résultats indisponibles (HTTP '+response.status+').');
   const rows=await response.json();if(!Array.isArray(rows))throw Error('Réponse résultats invalide.');
   if(window.VCESupabase.session()?.user?.id!==session.user.id)throw Error('Le compte connecté a changé.');
@@ -47,7 +47,7 @@ async function loadRecords(){
   if(version!==sequence||pilot.value!==p.id||window.VCESupabase.session()?.user?.id!==session.user?.id)return;
   const warnings=[];
   if(outcomes[0].status==='fulfilled'&&Array.isArray(outcomes[0].value)&&outcomes[1].status==='fulfilled'&&Array.isArray(outcomes[1].value.items))training=trainingRecords(p,outcomes[1].value.items,outcomes[0].value);else warnings.push('Entraînements non synchronisés : actualise pour réessayer.');
-  if(outcomes[2].status==='fulfilled')races=outcomes[2].value.map(r=>({key:'race:'+r.id,title:r.event_name,stamp:r.race_date||r.created_at,status:r.status,fields:[['Championnat',r.championship],['Circuit',r.track],['Voiture',r.car],['Classement','P'+r.finishing_position+(r.starters?' / '+r.starters:'')],['Type d’épreuve',r.category],['Commentaire du pilote',r.notes],['Commentaire STAFF',r.staff_notes]],proof:r.proof_url,href:'team-resultats-recus.html?pilot='+encodeURIComponent(p.id)+'&result='+encodeURIComponent(r.id)}));else warnings.push('Résultats non synchronisés : actualise pour réessayer.');
+  if(outcomes[2].status==='fulfilled')races=outcomes[2].value.map(r=>({key:'race:'+r.id,title:r.event_name+(r.race_number?' · Course '+r.race_number:''),stamp:r.race_date||r.created_at,status:r.status,fields:[['Championnat',r.championship],['Circuit',r.track],['Voiture',r.car],['Classement','P'+r.finishing_position+(r.starters?' / '+r.starters:'')],['Type d’épreuve',r.category],['Commentaire du pilote',r.notes],['Commentaire STAFF',r.staff_notes]],proof:r.proof_url,href:'team-resultats-recus.html?pilot='+encodeURIComponent(p.id)+'&result='+encodeURIComponent(r.id)}));else warnings.push('Résultats non synchronisés : actualise pour réessayer.');
   renderChoices(previous);message.textContent=warnings.length?warnings.join(' '):training.length+' entraînement(s) · '+races.length+' résultat(s) pour '+p.name+'.';
  }catch(error){if(version===sequence)message.textContent=error.message}
  finally{if(version===sequence)refresh.disabled=false}

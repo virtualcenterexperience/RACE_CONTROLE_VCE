@@ -7,8 +7,8 @@ const result=(type,position,starters,version=2)=>({race:{scoringVersion:version,
 assert.equal(R.delta(result('hotlap',25,1200)),85);
 assert.equal(R.delta(result('daily',15,20)),3);
 assert.equal(R.delta(result('esport_race',15,20)),15);
-assert.equal(Object.keys(R.types).length,6);
-for(const type of Object.keys(R.types)){
+assert.equal(Object.keys(R.types).length,9);
+for(const type of ['championship','daily','hotlap','esport_qualifying','esport_race','rally']){
  for(const size of [2,5,20,450,1200,5000]){
   let previous=Infinity;
   for(let p=1;p<=size;p++){

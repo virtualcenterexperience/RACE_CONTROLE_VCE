@@ -6,7 +6,7 @@ assert.doesNotMatch(source,/input readonly/);
 const signIn=source.slice(source.indexOf('async function signIn('),source.indexOf('async function changePassword('));
 let credentials,verified='driver-b',routed=0;
 const elements={'vce-pilot-secret':{value:'test-password'},'vce-pilot-username':{value:'driver-b'},'vce-pilot-remember':{checked:false}};
-const context={$:id=>elements[id],current:()=> 'driver-a',internalEmail:id=>'vce-pilote+'+id+'@virtual-center-experience.fr',slug:s=>String(s||'').toLowerCase().replace(/\s+/g,'-'),state:{verified:'driver-a',seq:0},show:()=>{},showForm:m=>context.message=m,window:{VCESupabase:{login:async(...args)=>credentials=args}},api:async()=>({pilot_slug:verified}),location:{hash:'driver-a'},route:async()=>routed++,Error};
+const context={$:id=>elements[id],current:()=> 'driver-a',internalEmail:id=>'vce-pilote+'+id+'@virtual-center-experience.fr',slug:s=>String(s||'').toLowerCase().replace(/\s+/g,'-'),state:{verified:'driver-a',seq:0},show:()=>{},showForm:m=>context.message=m,window:{VCESupabase:{login:async(...args)=>credentials=args,isStaff:async()=>false}},api:async()=>({pilot_slug:verified}),location:{hash:'driver-a'},route:async()=>routed++,Error};
 runInNewContext(signIn,context);
 const button={disabled:false},event={preventDefault(){},currentTarget:{querySelector:()=>button}};
 await context.signIn(event);
@@ -18,6 +18,8 @@ await context.signIn(event);assert.equal(credentials[0],'person@example.invalid'
 assert.equal(routed,0,'A nonpilot login must never open the selected profile');
 assert.equal(elements['vce-pilot-secret'].value,'');
 elements['vce-pilot-username'].value='virtualcenterexperience';verified='driver-a';await context.signIn(event);assert.equal(credentials[0],'vce-pilote+driver-a@virtual-center-experience.fr','Previously issued shared display identifier stays compatible with the chosen pilot');
+const beforeStaff=routed;context.window.VCESupabase.isStaff=async()=>true;verified=null;await context.signIn(event);assert.equal(routed,beforeStaff+1,'STAFF without a personal pilot account must use the verified STAFF route');
+context.window.VCESupabase.isStaff=async()=>false;context.api=async()=>{throw Error('temporary outage')};await context.signIn(event);assert.equal(routed,beforeStaff+2,'A successful login followed by a temporary verification error must retain the recoverable session');
 const results=readFileSync('assets/js/vce-team-results.js','utf8');
 assert.match(results,/vce-auth-session-ended/);assert.match(results,/me=null;staff=false;rows=\[\];renderList/);
 const hook=readFileSync('assets/js/vce-results-discord.js','utf8');
