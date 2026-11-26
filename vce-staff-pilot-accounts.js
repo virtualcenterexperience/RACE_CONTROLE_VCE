@@ -60,7 +60,7 @@ function showCode(id,data){
  }
  const name=pilots.find(x=>x.id===id)?.name||id;
  lastCode=data.temporary_password;
- node('result').textContent='Pilote : '+name+'\nIdentifiant : '+(data.identifier.includes('@')?data.identifier:'vce-pilote+'+id+'@virtual-center-experience.fr')+
+ node('result').textContent='Pilote : '+name+'\nIdentifiant : '+data.identifier+
     '\nCode provisoire : '+data.temporary_password+
     '\nÀ changer lors de la première connexion.';
  node('credentials').hidden=false;

@@ -37,7 +37,7 @@ function mount(){
  '<div class="vce-login-kicker">VCE ESPORT · ACCÈS PILOTE</div>'+
  '<h2 id="vce-pilot-auth-title">CONNEXION <span>PILOTE</span></h2>'+
  '<p id="vce-pilot-auth-name"></p><p id="vce-pilot-auth-message" role="status" aria-live="polite"></p>'+
- '<form id="vce-pilot-login-form"><label>Identifiant pilote ou e-mail<input required autocomplete="username" autocapitalize="none" spellcheck="false" id="vce-pilot-username" name="username"></label>'+
+ '<form id="vce-pilot-login-form"><label>Identifiant<input required autocomplete="username" autocapitalize="none" spellcheck="false" id="vce-pilot-username" name="username"></label>'+
  '<label>Mot de passe personnel ou code provisoire<input id="vce-pilot-secret" type="password" autocomplete="current-password" required></label>'+
  '<label class="vce-remember-pilot"><input id="vce-pilot-show-secret" type="checkbox"> Afficher le mot de passe</label>'+
  '<label class="vce-remember-pilot"><input id="vce-pilot-remember" type="checkbox"> Rester connecté (ordinateur personnel uniquement)</label>'+
@@ -59,11 +59,11 @@ function show(message='',prefill=false){
  mount();card.hidden=false;
  const currentName=current().replace(/-/g,' ').toUpperCase();
  $('vce-pilot-auth-name').textContent=currentName;
- if(prefill||!$('vce-pilot-username').value)$('vce-pilot-username').value=internalEmail(current());
+ if(prefill||!$('vce-pilot-username').value)$('vce-pilot-username').value='virtualcenterexperience';
  $('vce-pilot-auth-message').textContent=message;
 }
 function showForm(message=''){
- show(message||'Saisis le code provisoire fourni par le STAFF ou ton mot de passe personnel.');
+ show(message||'Identifiant : virtualcenterexperience. Utilise le mot de passe personnel du pilote sélectionné ou son dernier code provisoire.');
  $('vce-pilot-login-form').hidden=false;$('vce-pilot-change-form').hidden=true;
  $('vce-pilot-reconnect').hidden=!window.VCESupabase?.session();
  $('vce-pilot-retry').hidden=!window.VCESupabase?.session();
@@ -189,7 +189,7 @@ async function changePassword(e){
 }
 function start(){
  mount();route();
- window.addEventListener('hashchange',()=>{ $('vce-pilot-secret').value='';$('vce-pilot-username').value=internalEmail(current());route(); });
+ window.addEventListener('hashchange',()=>{ $('vce-pilot-secret').value='';$('vce-pilot-username').value='virtualcenterexperience';route(); });
  window.addEventListener('online',()=>{if(!state.verified&&window.VCESupabase?.session())route()});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!state.verified&&window.VCESupabase?.session())route()});
  window.addEventListener('vce-auth-session-ended',()=>{
